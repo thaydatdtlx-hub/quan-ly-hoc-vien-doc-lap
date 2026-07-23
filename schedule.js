@@ -4,6 +4,7 @@ const SUPABASE_URL="https://ainrsticcgpoqadiaivj.supabase.co";
 const SUPABASE_KEY="sb_publishable_e3yowYg73Lcrkx6WU5StHw_telwpp1z";
 const $=id=>document.getElementById(id);
 const token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"";
+const authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"";
 let me=null,students=[],events=[];
 
 async function rpc(fn,body={}){
@@ -162,16 +163,31 @@ async function boot(){
   if(!token)return location.replace("/");
   busy(true);
   try{
-    me=await rpc("app_me",{p_token:token});
+    if(authKind==="student"){
+      me=await rpc("app_student_me",{p_token:token});
+      students=[await rpc("app_student_portal",{p_token:token})];
+    }else{
+      try{
+        me=await rpc("app_me",{p_token:token});
+        students=await rpc("app_list_students",{p_token:token,p_owner_id:null})||[];
+      }catch{
+        me=await rpc("app_student_me",{p_token:token});
+        students=[await rpc("app_student_portal",{p_token:token})];
+      }
+    }
     if(!me?.id)throw new Error("Phiên đăng nhập đã hết hạn");
-    $("accountName").textContent=me.role==="admin"?`${me.username} · Admin`:me.username;
+    $("accountName").textContent=me.role==="admin"?`${me.username} · Admin`:me.role==="student"?`${me.username} · Học viên`:me.username;
+    if(me.role==="student"){
+      document.querySelectorAll('a[href="/"]').forEach(link=>link.href="/hoc-vien.html");
+      document.querySelector(".topbar-actions a").textContent="← Về cổng học viên";
+      $("emptyState").querySelector("p").textContent="Lịch mới sẽ hiển thị tại đây khi được trung tâm cập nhật.";
+    }
     document.querySelectorAll(".admin-only").forEach(element=>element.classList.toggle("hidden",me.role!=="admin"));
-    students=await rpc("app_list_students",{p_token:token,p_owner_id:null})||[];
     $("scheduleStudent").innerHTML=students.map(student=>`<option value="${student.id}">${esc(student.name)} · ${esc(student.student_code||student.course||"Chưa có mã")}</option>`).join("");
     $("typeFilter").innerHTML+=[...SCHEDULE_FIELDS].map(field=>`<option value="${field.key}">${field.label}</option>`).join("");
     renderEditorFields();renderAll();
   }catch(error){
-    sessionStorage.removeItem("hv_token");
+    for(const store of [localStorage,sessionStorage]){store.removeItem("hv_token");store.removeItem("hv_auth_kind")}
     alert(error?.message||"Không thể mở lịch đào tạo.");
     location.replace("/");
   }finally{busy(false)}
