@@ -368,3 +368,248 @@ body{background:radial-gradient(circle at 8% 8%,#dcecff 0,transparent 26%),radia
   .zalo-contact{font-size:13px}
   .login-register{font-size:12px}
 }
+
+/* Login v2: khung ứng dụng cao cấp, ưu tiên thương hiệu Thầy Đạt */
+.login-page{
+  display:grid;
+  place-items:center;
+  min-height:100svh;
+  padding:18px;
+  background:
+    radial-gradient(circle at 12% 12%,#136edb38,transparent 28%),
+    radial-gradient(circle at 88% 86%,#0ab79b25,transparent 30%),
+    #061a32;
+}
+.login-shell{
+  position:relative;
+  display:grid;
+  grid-template-rows:auto 1fr;
+  width:min(1440px,100%);
+  min-height:min(900px,calc(100svh - 36px));
+  overflow:hidden;
+  border:1px solid #ffffff1c;
+  border-radius:34px;
+  background:linear-gradient(125deg,#0660c5 0%,#087de4 58%,#0b94de 100%);
+  box-shadow:0 40px 110px #000a1f75,0 1px 0 #ffffff21 inset;
+}
+.login-shell:after{
+  content:"";
+  position:absolute;
+  inset:76px 0 auto;
+  height:1px;
+  background:#ffffff16;
+  pointer-events:none;
+}
+.login-appbar{
+  width:100%;
+  min-height:76px;
+  padding:0 30px;
+  background:linear-gradient(90deg,#101820,#141c25);
+}
+.appbar-title{
+  position:absolute;
+  left:50%;
+  display:grid;
+  gap:2px;
+  transform:translateX(-50%);
+  text-align:center;
+}
+.appbar-title strong{white-space:nowrap}
+.appbar-title small{
+  color:#8799ad;
+  font-size:8px;
+  font-weight:850;
+  letter-spacing:.2em;
+}
+.login-layout{
+  grid-template-columns:minmax(0,1fr) minmax(460px,530px);
+  gap:clamp(56px,7vw,112px);
+  width:100%;
+  min-height:0;
+  margin:0;
+  padding:48px clamp(46px,7vw,110px) 54px;
+}
+.login-intro{
+  align-self:center;
+  max-width:640px;
+  text-shadow:none;
+}
+.intro-brand{gap:14px}
+.intro-brand>div{display:grid;gap:2px}
+.intro-brand strong{
+  color:#fff;
+  font-size:18px;
+  font-weight:950;
+  letter-spacing:.06em;
+}
+.intro-brand small{
+  color:#cfe8ff;
+  font-size:10px;
+  font-weight:750;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.intro-mark{
+  width:56px;
+  height:56px;
+  border:1px solid #ffffff60;
+  border-radius:18px;
+  background:linear-gradient(145deg,#ffffff30,#ffffff12);
+  font-size:27px;
+  box-shadow:0 16px 38px #00489655;
+}
+.intro-kicker{
+  margin-top:44px;
+  color:#e4f4ff;
+  box-shadow:0 9px 30px #0057a632;
+}
+.login-intro h2{
+  max-width:650px;
+  font-size:clamp(46px,4.8vw,70px);
+  line-height:1.02;
+}
+.login-intro h2 span{color:#c5e8ff}
+.login-intro>p:not(.intro-kicker){
+  max-width:610px;
+  margin:22px 0 24px;
+  font-size:15px;
+}
+.intro-overview{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:13px;
+  max-width:590px;
+  margin:0 0 17px;
+  padding:14px 16px;
+  border:1px solid #ffffff31;
+  border-radius:17px;
+  background:linear-gradient(115deg,#ffffff1c,#ffffff0b);
+  box-shadow:0 18px 38px #0053a12b;
+  backdrop-filter:blur(13px);
+}
+.overview-icon{
+  display:grid;
+  place-items:center;
+  width:39px;
+  height:39px;
+  border-radius:12px;
+  background:#fff;
+  color:#1473dd;
+  font-weight:950;
+}
+.intro-overview>div:nth-child(2){display:grid;gap:3px}
+.intro-overview strong{color:#fff;font-size:13px}
+.intro-overview span{color:#cfe6fb;font-size:10px;letter-spacing:.03em}
+.overview-status{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  color:#e9fff8;
+  font-size:9px;
+  font-weight:800;
+  white-space:nowrap;
+}
+.overview-status i{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#42e1a8;
+  box-shadow:0 0 0 4px #42e1a820;
+}
+.intro-features span{background:#063d7950}
+.intro-website{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  margin-top:22px;
+  color:#fff;
+  font-size:12px;
+  font-weight:780;
+  text-decoration:none;
+}
+.intro-website span{
+  display:grid;
+  place-items:center;
+  width:25px;
+  height:25px;
+  border:1px solid #ffffff40;
+  border-radius:8px;
+  background:#ffffff12;
+}
+.login-card{
+  align-self:center;
+  padding:38px 43px 34px;
+  border-radius:30px;
+  box-shadow:0 35px 85px #00366f68,0 1px 0 #fff inset;
+}
+.login-lock{
+  width:72px;
+  height:72px;
+  margin-bottom:15px;
+  box-shadow:0 12px 28px #1d63c51c;
+}
+.login-lock svg{width:33px;height:33px}
+.login-card h1{font-size:39px}
+.login-heading .muted{margin:9px 0 22px;font-size:13px}
+.login-card .login-label{margin:14px 0 7px}
+.input-shell{min-height:57px;border-radius:14px}
+.input-shell input{height:54px}
+.login-options{margin:17px 0 0}
+.login-submit{min-height:57px}
+.login-divider{margin:22px 0 18px}
+.zalo-contact{min-height:54px}
+.login-register{margin-top:19px}
+.mobile-brand{display:none}
+
+@media(max-width:1100px){
+  .login-layout{
+    grid-template-columns:minmax(0,.9fr) minmax(430px,500px);
+    gap:42px;
+    padding-inline:42px;
+  }
+  .login-intro h2{font-size:48px}
+  .intro-overview{grid-template-columns:auto 1fr}
+  .overview-status{display:none}
+}
+@media(max-width:960px){
+  .login-page{padding:0;background:#0b74d6}
+  .login-shell{
+    min-height:100svh;
+    border:0;
+    border-radius:0;
+    box-shadow:none;
+  }
+  .login-layout{
+    grid-template-columns:minmax(0,620px);
+    justify-content:center;
+    padding:48px 18px 64px;
+  }
+  .login-intro{display:none}
+  .mobile-brand{
+    display:grid;
+    gap:2px;
+    margin:0 0 14px;
+    text-align:center;
+  }
+  .mobile-brand strong{color:#145ebf;font-size:12px;letter-spacing:.12em}
+  .mobile-brand span{color:#879bb3;font-size:9px;text-transform:uppercase;letter-spacing:.09em}
+}
+@media(max-width:720px){
+  .login-appbar{min-height:66px;padding:0 18px}
+  .login-shell:after{inset-block-start:66px}
+  .appbar-title strong{font-size:18px}
+  .login-layout{padding-top:38px}
+  .login-card{padding:33px 26px 29px}
+}
+@media(max-width:430px){
+  .appbar-title small{display:none}
+  .appbar-title strong{font-size:16px}
+  .login-layout{padding:28px 11px 42px}
+  .login-card{padding:28px 19px 25px;border-radius:27px}
+  .login-lock{width:64px;height:64px;margin-bottom:11px}
+  .login-lock svg{width:29px;height:29px}
+  .mobile-brand{margin-bottom:10px}
+  .login-card h1{font-size:32px}
+  .login-heading .muted{margin-bottom:20px}
+}
