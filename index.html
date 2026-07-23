@@ -44,9 +44,9 @@
         </div>
         <div class="mobile-brand"><strong>THẦY ĐẠT</strong><span>Đào tạo lái xe trọn gói</span></div>
         <div class="login-heading">
-          <p class="eyebrow">CỔNG QUẢN TRỊ THẦY ĐẠT</p>
+          <p class="eyebrow">CỔNG ĐÀO TẠO THẦY ĐẠT</p>
           <h1>Đăng nhập</h1>
-          <p class="muted">Chào mừng anh trở lại. Đăng nhập để tiếp tục quản lý học viên.</p>
+          <p class="muted">Dành cho quản trị viên, tài khoản quản lý và học viên.</p>
         </div>
 
         <label class="login-label" for="username">Tên đăng nhập</label>
@@ -105,7 +105,7 @@
           <span class="data-action-icon" aria-hidden="true">↓</span>
           <span><strong>XUẤT DATA</strong><small>Excel .xlsx</small></span>
         </button>
-        <button id="usersBtn" class="admin-only hidden">Quản lý tài khoản</button>
+        <button id="usersBtn" class="admin-only hidden">Tài khoản quản lý</button>
         <input id="dataFile" class="hidden" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" aria-label="Chọn file Excel .xlsx để nhập dữ liệu">
       </section>
 
@@ -203,9 +203,30 @@
   </dialog>
 
   <dialog id="usersDialog">
-    <div class="dialog-head"><h2>Quản lý tài khoản con</h2><button type="button" class="close">×</button></div>
+    <div class="dialog-head"><h2>Tài khoản quản lý</h2><button type="button" class="close">×</button></div>
     <form id="userForm" class="inline-form"><input id="newUsername" placeholder="Tên đăng nhập" required><input id="newPassword" type="password" placeholder="Mật khẩu tạm (từ 8 ký tự)" minlength="8" required><button id="createUserBtn" class="primary">Tạo tài khoản</button></form>
     <p id="userError" class="error" role="alert"></p><div id="userList" class="user-list"></div>
+  </dialog>
+
+  <dialog id="studentAccountDialog">
+    <div class="dialog-head"><div><p class="dialog-kicker">CỔNG HỌC VIÊN</p><h2>Tài khoản đăng nhập</h2></div><button type="button" class="close">×</button></div>
+    <div id="studentAccountSummary" class="student-account-summary"></div>
+    <form id="studentAccountForm">
+      <input id="studentAccountStudentId" type="hidden">
+      <label>Tên đăng nhập
+        <input id="studentAccountUsername" autocomplete="off" placeholder="Ví dụ: hv.nguyenvana" minlength="4" maxlength="40" pattern="[a-z0-9._-]{4,40}" required>
+      </label>
+      <label>Mật khẩu tạm
+        <input id="studentAccountPassword" type="password" autocomplete="new-password" placeholder="Ít nhất 8 ký tự" minlength="8" required>
+      </label>
+      <p class="muted">Học viên sẽ được yêu cầu đổi mật khẩu ở lần đăng nhập đầu tiên.</p>
+      <p id="studentAccountError" class="error" role="alert"></p>
+      <div class="actions"><button type="button" class="close">Hủy</button><button id="createStudentAccountBtn" class="primary" type="submit">Tạo tài khoản học viên</button></div>
+    </form>
+    <div id="studentAccountActions" class="student-account-actions hidden">
+      <p id="studentAccountStatus"></p>
+      <div class="actions"><button id="resetStudentPasswordBtn" type="button">Đặt lại mật khẩu</button><button id="toggleStudentAccountBtn" type="button"></button></div>
+    </div>
   </dialog>
 
   <dialog id="passwordDialog">
