@@ -1,3 +1,5 @@
+import * as XLSX from "xlsx";
+
 const SUPABASE_URL="https://ainrsticcgpoqadiaivj.supabase.co";
 const SUPABASE_KEY="sb_publishable_e3yowYg73Lcrkx6WU5StHw_telwpp1z";
 const $=id=>document.getElementById(id);
@@ -67,9 +69,25 @@ function renderStudents(){
   $("totalStudents").textContent=students.length;
   $("learningStudents").textContent=students.filter(s=>!normalize(s.exam_status).includes("da dau")).length;
   $("debtStudents").textContent=students.filter(s=>(s.tuition_total||0)>(s.paid||0)).length;
+  renderFinanceDashboard();
   const labels={all:["Danh sách tất cả học viên","Toàn bộ hồ sơ đang quản lý"],learning:["Học viên đang học","Các học viên chưa đậu kỳ thi sát hạch"],debt:["Học viên còn nợ học phí","Các hồ sơ có số tiền đã thu thấp hơn tổng học phí"]};
   $("studentListTitle").textContent=labels[statFilter][0];$("studentListNote").textContent=labels[statFilter][1];
   document.querySelectorAll("[data-stat-filter]").forEach(card=>{const active=card.dataset.statFilter===statFilter;card.classList.toggle("active",active);card.setAttribute("aria-pressed",String(active))});
+}
+function renderFinanceDashboard(){
+  if(me?.role!=="admin")return;
+  const total=students.reduce((sum,s)=>sum+Math.max(0,Number(s.tuition_total)||0),0);
+  const paid=students.reduce((sum,s)=>sum+Math.max(0,Number(s.paid)||0),0);
+  const debt=students.reduce((sum,s)=>sum+Math.max(0,(Number(s.tuition_total)||0)-(Number(s.paid)||0)),0);
+  const debtCount=students.filter(s=>(Number(s.tuition_total)||0)>(Number(s.paid)||0)).length;
+  const rate=total?Math.min(100,Math.round(paid/total*100)):0;
+  const selected=$("ownerFilter").selectedOptions[0];
+  $("financeTotal").textContent=money(total);
+  $("financePaid").textContent=money(paid);
+  $("financeDebt").textContent=money(debt);
+  $("financeRate").textContent=`Đã thu ${rate}% tổng học phí`;
+  $("financeDebtCount").textContent=`${debtCount} học viên còn nợ`;
+  $("financeScope").textContent=$("ownerFilter").value?`Tài khoản: ${selected?.textContent||"đang chọn"}`:"Toàn bộ học viên";
 }
 $("search").oninput=renderStudents;
 $("ownerFilter").onchange=loadStudents;
@@ -127,17 +145,77 @@ document.querySelectorAll("dialog").forEach(d=>d.addEventListener("cancel",e=>{i
 
 function dataDate(v){if(v instanceof Date&&!Number.isNaN(v.valueOf()))return v.toISOString().slice(0,10);const s=String(v||"").trim();const m=s.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);return m?`${m[3]}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}`:s}
 function findCol(headers,names){return headers.findIndex(h=>names.some(n=>h===n||h.includes(n)))}
-function requireXLSX(){if(!window.XLSX)throw new Error("Không tải được bộ xử lý Excel. Vui lòng kiểm tra Internet và tải lại trang.");return window.XLSX}
-$("exportBtn").onclick=()=>{try{if(!students.length)return toast("Chưa có dữ liệu để xuất");const X=requireXLSX(),head=["Mã học viên","Họ và tên","Ngày sinh","CCCD","Điện thoại","Địa chỉ","Hạng","Khóa","Hồ sơ","Lý thuyết online","Cabin","DAT","Thi tốt nghiệp","Thi sát hạch","Tổng học phí","Đã thu","Còn lại","Tài khoản","Ghi chú"],rows=[head,...students.map(s=>[s.student_code,s.name,s.date_of_birth,s.cccd,s.phone,s.address,s.license_class,s.course,s.profile_status,s.online_status,s.cabin_status,s.dat_status,s.graduation_status,s.exam_status,Number(s.tuition_total||0),Number(s.paid||0),Math.max(0,Number(s.tuition_total||0)-Number(s.paid||0)),s.owner_username,s.notes])],ws=X.utils.aoa_to_sheet(rows);ws["!cols"]=[14,24,13,16,15,28,16,16,18,20,18,18,20,22,16,16,16,16,28].map(w=>({wch:w}));ws["!autofilter"]={ref:`A1:S${rows.length}`};for(let r=2;r<=rows.length;r++)for(const c of ["O","P","Q"])if(ws[`${c}${r}`])ws[`${c}${r}`].z="#,##0 [$₫-vi-VN]";const wb=X.utils.book_new();X.utils.book_append_sheet(wb,ws,"DATA HỌC VIÊN");X.writeFile(wb,`DATA-hoc-vien-${new Date().toISOString().slice(0,10)}.xlsx`,{compression:true});toast("Đã xuất file Excel .xlsx")}catch(err){alert(errText(err))}};
+function requireXLSX(){if(!XLSX?.utils)throw new Error("Không tải được bộ xử lý Excel. Vui lòng tải lại trang.");return XLSX}
+function excelDate(){return new Intl.DateTimeFormat("sv-SE",{timeZone:"Asia/Ho_Chi_Minh"}).format(new Date())}
+function financialSummary(list){
+  const total=list.reduce((sum,s)=>sum+Math.max(0,Number(s.tuition_total)||0),0);
+  const paid=list.reduce((sum,s)=>sum+Math.max(0,Number(s.paid)||0),0);
+  return{total,paid,debt:list.reduce((sum,s)=>sum+Math.max(0,(Number(s.tuition_total)||0)-(Number(s.paid)||0)),0),debtCount:list.filter(s=>(Number(s.tuition_total)||0)>(Number(s.paid)||0)).length};
+}
+$("exportBtn").onclick=()=>{
+  try{
+    const X=requireXLSX(),head=["Mã học viên","Họ và tên","Ngày sinh","CCCD","Điện thoại","Địa chỉ","Hạng","Khóa","Hồ sơ","Lý thuyết online","Cabin","DAT","Thi tốt nghiệp","Thi sát hạch","Tổng học phí","Đã thu","Còn lại","Tài khoản","Ghi chú"];
+    const rows=[head,...students.map(s=>[s.student_code,s.name,s.date_of_birth,s.cccd,s.phone,s.address,s.license_class,s.course,s.profile_status,s.online_status,s.cabin_status,s.dat_status,s.graduation_status,s.exam_status,Math.max(0,Number(s.tuition_total)||0),Math.max(0,Number(s.paid)||0),Math.max(0,Number(s.tuition_total||0)-Number(s.paid||0)),s.owner_username,s.notes])];
+    const ws=X.utils.aoa_to_sheet(rows);
+    ws["!cols"]=[14,24,13,16,15,28,16,16,18,20,18,18,20,22,16,16,16,16,28].map(w=>({wch:w}));
+    ws["!autofilter"]={ref:`A1:S${Math.max(1,rows.length)}`};
+    ws["!freeze"]={xSplit:0,ySplit:1,topLeftCell:"A2",activePane:"bottomLeft",state:"frozen"};
+    for(let r=2;r<=rows.length;r++){
+      if(ws[`C${r}`])ws[`C${r}`].z="dd/mm/yyyy";
+      for(const c of ["O","P","Q"])if(ws[`${c}${r}`]){ws[`${c}${r}`].t="n";ws[`${c}${r}`].z="#,##0 [$₫-vi-VN]"}
+    }
+    const summary=financialSummary(students),summaryRows=[
+      ["TỔNG HỢP TÀI CHÍNH","GIÁ TRỊ"],
+      ["Phạm vi",$("ownerFilter")?.value?$("ownerFilter").selectedOptions[0]?.textContent:"Toàn bộ học viên"],
+      ["Số học viên",students.length],
+      ["Tổng tiền học phí",summary.total],
+      ["Số tiền đã đóng",summary.paid],
+      ["Số tiền học phí còn nợ",summary.debt],
+      ["Số học viên còn nợ",summary.debtCount],
+      ["Ngày xuất dữ liệu",excelDate()]
+    ];
+    const summarySheet=X.utils.aoa_to_sheet(summaryRows);
+    summarySheet["!cols"]=[{wch:30},{wch:24}];
+    for(const r of [4,5,6])if(summarySheet[`B${r}`]){summarySheet[`B${r}`].t="n";summarySheet[`B${r}`].z="#,##0 [$₫-vi-VN]"}
+    const wb=X.utils.book_new();
+    wb.Props={Title:"DATA học viên Thầy Đạt",Subject:"Dữ liệu quản lý học viên lái xe",Author:"Hệ thống quản lý học viên Thầy Đạt",CreatedDate:new Date()};
+    X.utils.book_append_sheet(wb,ws,"DATA HỌC VIÊN");
+    X.utils.book_append_sheet(wb,summarySheet,"TỔNG HỢP");
+    X.writeFile(wb,`DATA-hoc-vien-${excelDate()}.xlsx`,{bookType:"xlsx",compression:true});
+    toast(`Đã xuất ${students.length} học viên ra file .xlsx`);
+  }catch(err){alert(errText(err))}
+};
 $("importBtn").onclick=()=>$("dataFile").click();
 $("dataFile").onchange=async e=>{
   const file=e.target.files[0];if(!file)return;busy(true);
   try{
-    if(!file.name.toLowerCase().endsWith(".xlsx"))throw new Error("Chỉ chấp nhận file Excel định dạng .xlsx.");const X=requireXLSX(),workbook=X.read(await file.arrayBuffer(),{type:"array",cellDates:true}),sheet=workbook.Sheets[workbook.SheetNames[0]];if(!sheet)throw new Error("File Excel không có trang tính.");const rows=X.utils.sheet_to_json(sheet,{header:1,defval:"",raw:false,dateNF:"dd/mm/yyyy"});if(rows.length<2)throw new Error("File Excel không có dữ liệu.");
+    if(me?.role!=="admin")throw new Error("Chỉ tài khoản admin được phép nhập dữ liệu.");
+    if(!file.name.toLowerCase().endsWith(".xlsx"))throw new Error("Chỉ chấp nhận file Excel định dạng .xlsx. Không nhận .xls hoặc .csv.");
+    if(file.size>20*1024*1024)throw new Error("File Excel .xlsx không được lớn hơn 20 MB.");
+    const buffer=await file.arrayBuffer(),signature=new Uint8Array(buffer,0,Math.min(4,buffer.byteLength));
+    if(signature[0]!==0x50||signature[1]!==0x4b)throw new Error("File không phải Excel .xlsx hợp lệ hoặc đã bị đổi đuôi.");
+    const X=requireXLSX(),workbook=X.read(buffer,{type:"array",cellDates:true}),sheet=workbook.Sheets["DATA HỌC VIÊN"]||workbook.Sheets[workbook.SheetNames[0]];
+    if(!sheet)throw new Error("File Excel không có trang tính.");
+    const rows=X.utils.sheet_to_json(sheet,{header:1,defval:"",raw:false,dateNF:"dd/mm/yyyy"});
+    if(rows.length<2)throw new Error("File Excel không có dữ liệu.");
     const h=rows[0].map(normalize),idx={name:findCol(h,["ho va ten","ho ten","hoc vien"]),dob:findCol(h,["ngay sinh"]),cccd:findCol(h,["cccd","cmnd"]),phone:findCol(h,["dien thoai","so dien thoai","sdt"]),address:findCol(h,["dia chi"]),license:findCol(h,["hang dao tao","hang lai xe","hang"]),course:findCol(h,["khoa hoc","khoa"]),profile:findCol(h,["trang thai ho so","ho so"]),online:findCol(h,["ly thuyet online","online"]),cabin:findCol(h,["cabin"]),dat:findCol(h,["dat"]),graduation:findCol(h,["thi tot nghiep","tot nghiep"]),exam:findCol(h,["thi sat hach","sat hach"]),total:findCol(h,["tong hoc phi"]),paid:findCol(h,["da thu"]),paid1:findCol(h,["hoc phi lan 1"]),paid2:findCol(h,["hoc phi lan 2"]),paid3:findCol(h,["hoc phi lan 3"]),notes:findCol(h,["ghi chu"])};
-    if(idx.name<0)throw new Error("Không tìm thấy cột HỌ VÀ TÊN trong file Excel.");let done=0;
-    for(const r of rows.slice(1)){if(!String(r[idx.name]||"").trim())continue;const get=k=>idx[k]>=0?String(r[idx[k]]??"").trim():"",paid=get("paid")?toNumber(get("paid")):toNumber(get("paid1"))+toNumber(get("paid2"))+toNumber(get("paid3"));const data={name:get("name"),date_of_birth:dataDate(get("dob"))||null,cccd:get("cccd"),phone:get("phone"),address:get("address"),license_class:get("license")||"B số tự động",course:get("course"),profile_status:get("profile")||"Đã ghi nhận",online_status:get("online")||"Chưa hoàn thành",cabin_status:get("cabin")||"Chưa hoàn thành",dat_status:get("dat")||"Chưa thực hiện",graduation_status:get("graduation")||"Chưa hoàn thành",exam_status:get("exam")||"Chưa thi sát hạch",tuition_total:toNumber(get("total")),paid,notes:get("notes")};await rpc("app_save_student",{p_token:token,p_student_id:null,p_data:data,p_owner_id:$("ownerFilter").value||me.id});done++}
-    toast(`Đã nhập ${done} học viên`);await loadStudents();
+    if(idx.name<0)throw new Error("Không tìm thấy cột HỌ VÀ TÊN trong file Excel.");
+    if(idx.total<0)throw new Error("Không tìm thấy cột TỔNG HỌC PHÍ trong file Excel.");
+    if(idx.paid<0&&idx.paid1<0&&idx.paid2<0&&idx.paid3<0)throw new Error("Không tìm thấy cột ĐÃ THU hoặc các cột HỌC PHÍ LẦN 1, 2, 3.");
+    const validRows=rows.slice(1).map((r,i)=>({r,rowNumber:i+2})).filter(({r})=>String(r[idx.name]||"").trim());
+    if(!validRows.length)throw new Error("File Excel không có dòng học viên hợp lệ.");
+    const records=validRows.map(({r,rowNumber})=>{
+      const get=k=>idx[k]>=0?String(r[idx[k]]??"").trim():"",total=toNumber(get("total")),paid=get("paid")?toNumber(get("paid")):toNumber(get("paid1"))+toNumber(get("paid2"))+toNumber(get("paid3"));
+      if(total<0||paid<0)throw new Error(`Dòng ${rowNumber}: Học phí không được là số âm.`);
+      if(paid>total)throw new Error(`Dòng ${rowNumber}: Số tiền đã thu lớn hơn tổng học phí.`);
+      return{name:get("name"),date_of_birth:dataDate(get("dob"))||null,cccd:get("cccd"),phone:get("phone"),address:get("address"),license_class:get("license")||"B số tự động",course:get("course"),profile_status:get("profile")||"Đã ghi nhận",online_status:get("online")||"Chưa hoàn thành",cabin_status:get("cabin")||"Chưa hoàn thành",dat_status:get("dat")||"Chưa thực hiện",graduation_status:get("graduation")||"Chưa hoàn thành",exam_status:get("exam")||"Chưa thi sát hạch",tuition_total:total,paid,notes:get("notes")};
+    });
+    if(!confirm(`Nhập ${records.length} học viên từ file "${file.name}"?\nDữ liệu sẽ được thêm vào tài khoản đang chọn.`))return;
+    let done=0;
+    for(const data of records){
+      await rpc("app_save_student",{p_token:token,p_student_id:null,p_data:data,p_owner_id:$("ownerFilter").value||me.id});done++;
+    }
+    await loadStudents();toast(`Đã nhập thành công ${done} học viên từ file .xlsx`);
   }catch(err){alert(errText(err))}finally{busy(false);e.target.value=""}
 };
 
