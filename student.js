@@ -63,7 +63,7 @@ function renderPortal(){
   ];
   $("studentProfile").innerHTML=profile.map(([label,value])=>`<div><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`).join("");
 
-  const schedule=parseScheduleFromNotes(student.notes||""),now=new Date();
+  const schedule=parseScheduleFromNotes(student.notes||"")||{dates:{},locations:{},note:""},now=new Date();
   const events=SCHEDULE_FIELDS.filter(field=>schedule.dates?.[field.key]).map(field=>({field,date:schedule.dates[field.key],location:schedule.locations?.[field.key]||""})).filter(event=>new Date(event.date)>=now).sort((a,b)=>new Date(a.date)-new Date(b.date)).slice(0,3);
   $("studentUpcoming").innerHTML=events.length?events.map(event=>`<article><span class="tone-${event.field.tone}">${event.field.icon}</span><div><strong>${esc(event.field.label)}</strong><small>${esc(date(event.date,true))}</small><em>${esc(event.location||"Chưa cập nhật địa điểm")}</em></div></article>`).join(""):`<div class="no-schedule"><span>📅</span><strong>Chưa có lịch sắp tới</strong><small>Lịch mới sẽ hiển thị tại đây khi được cập nhật.</small></div>`;
   $("studentLoading").classList.add("hidden");$("studentPortal").classList.remove("hidden");
