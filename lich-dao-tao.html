@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b63d8">
+  <title>Lịch đào tạo · Thầy Đạt</title>
+  <link rel="stylesheet" href="/schedule.css">
+</head>
+<body>
+  <header class="schedule-topbar">
+    <a class="schedule-brand" href="/" aria-label="Về Dashboard">
+      <span><img src="/logo-thay-dat.png?v=2" alt=""></span>
+      <div><strong>THẦY ĐẠT</strong><small>Hệ thống lịch đào tạo lái xe</small></div>
+    </a>
+    <div class="topbar-actions">
+      <span id="accountName"></span>
+      <a href="/">← Về Dashboard</a>
+    </div>
+  </header>
+
+  <main class="schedule-main">
+    <section class="schedule-hero">
+      <div>
+        <p class="hero-kicker">TRUNG TÂM ĐIỀU HÀNH ĐÀO TẠO</p>
+        <h1>Lịch đào tạo học viên</h1>
+        <p>Theo dõi toàn bộ lịch học, lịch thực hành và các kỳ thi trên một màn hình.</p>
+      </div>
+      <button id="openEditorBtn" class="primary admin-only hidden" type="button">＋ Lập lịch đào tạo</button>
+    </section>
+
+    <section class="schedule-stats" aria-label="Tổng quan lịch đào tạo">
+      <article><span class="stat-icon stat-blue">▣</span><div><small>Sự kiện sắp tới</small><strong id="upcomingCount">0</strong><em>Từ hôm nay trở đi</em></div></article>
+      <article><span class="stat-icon stat-green">✓</span><div><small>Trong 7 ngày tới</small><strong id="weekCount">0</strong><em>Cần chuẩn bị</em></div></article>
+      <article><span class="stat-icon stat-orange">!</span><div><small>Học viên chưa có lịch</small><strong id="unscheduledCount">0</strong><em>Chưa nhập mốc nào</em></div></article>
+      <article><span class="stat-icon stat-violet">◷</span><div><small>Lịch hôm nay</small><strong id="todayCount">0</strong><em>Đang diễn ra</em></div></article>
+    </section>
+
+    <section class="schedule-toolbar">
+      <label class="search-box">
+        <span aria-hidden="true">⌕</span>
+        <input id="scheduleSearch" placeholder="Tìm học viên, mã học viên, khóa học">
+      </label>
+      <select id="typeFilter" aria-label="Lọc loại lịch">
+        <option value="">Tất cả nội dung đào tạo</option>
+      </select>
+      <select id="periodFilter" aria-label="Lọc thời gian">
+        <option value="upcoming">Lịch sắp tới</option>
+        <option value="today">Lịch hôm nay</option>
+        <option value="week">Trong 7 ngày tới</option>
+        <option value="past">Lịch đã qua</option>
+        <option value="all">Tất cả lịch</option>
+      </select>
+    </section>
+
+    <section class="schedule-panel">
+      <div class="panel-head">
+        <div><h2 id="listTitle">Lịch sắp tới</h2><p id="listNote">Sắp xếp theo thời gian gần nhất</p></div>
+        <span id="resultCount">0 sự kiện</span>
+      </div>
+      <div id="eventList" class="event-list"></div>
+      <div id="emptyState" class="empty-state hidden">
+        <span>📅</span>
+        <strong>Chưa có lịch phù hợp</strong>
+        <p>Admin có thể bấm “Lập lịch đào tạo” để thêm các mốc cho học viên.</p>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="scheduleDialog">
+    <form id="scheduleForm">
+      <div class="dialog-head">
+        <div><p>LỊCH HỌC VIÊN</p><h2>Lập lịch đào tạo</h2></div>
+        <button class="dialog-close" type="button" aria-label="Đóng">×</button>
+      </div>
+      <label class="student-select">Chọn học viên
+        <select id="scheduleStudent" required></select>
+      </label>
+      <div id="scheduleFields" class="schedule-fields"></div>
+      <label>Ghi chú chung
+        <textarea id="scheduleNote" rows="3" placeholder="Ví dụ: Nhắc học viên mang CCCD, có mặt trước 30 phút…"></textarea>
+      </label>
+      <p id="scheduleError" class="form-error" role="alert"></p>
+      <div class="dialog-actions">
+        <button class="dialog-close" type="button">Hủy</button>
+        <button id="saveScheduleBtn" class="primary" type="submit">Lưu lịch đào tạo</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="loading" class="loading hidden">Đang xử lý…</div>
+  <div id="toast" role="status"></div>
+  <script type="module" src="/schedule.js"></script>
+</body>
+</html>
