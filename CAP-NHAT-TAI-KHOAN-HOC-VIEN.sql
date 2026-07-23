@@ -89,7 +89,7 @@ begin
   end if;
 
   insert into public.app_student_accounts(student_id, username, password_hash)
-  values (p_student_id, p_username, crypt(p_password, gen_salt('bf', 12)))
+  values (p_student_id, p_username, extensions.crypt(p_password, extensions.gen_salt('bf', 12)))
   returning id into v_id;
 
   return jsonb_build_object('id', v_id, 'username', p_username, 'student_id', p_student_id);
@@ -168,7 +168,7 @@ begin
     raise exception 'Mật khẩu tạm phải có ít nhất 8 ký tự.';
   end if;
   update public.app_student_accounts
-  set password_hash = crypt(p_password, gen_salt('bf', 12)),
+  set password_hash = extensions.crypt(p_password, extensions.gen_salt('bf', 12)),
       force_change_password = true,
       active = true,
       updated_at = now()
@@ -196,16 +196,16 @@ begin
 
   if v_account.id is null
      or not v_account.active
-     or v_account.password_hash <> crypt(coalesce(p_password, ''), v_account.password_hash) then
+     or v_account.password_hash <> extensions.crypt(coalesce(p_password, ''), v_account.password_hash) then
     raise exception 'Tên đăng nhập hoặc mật khẩu không đúng.';
   end if;
 
   delete from public.app_student_sessions
   where expires_at <= now() or account_id = v_account.id;
 
-  v_token := 'hvstu_' || encode(gen_random_bytes(32), 'hex');
+  v_token := 'hvstu_' || encode(extensions.gen_random_bytes(32), 'hex');
   insert into public.app_student_sessions(token_hash, account_id, expires_at)
-  values (digest(v_token, 'sha256'), v_account.id, now() + interval '30 days');
+  values (extensions.digest(convert_to(v_token, 'UTF8'), 'sha256'), v_account.id, now() + interval '30 days');
 
   return jsonb_build_object('token', v_token, 'role', 'student');
 end;
@@ -230,7 +230,7 @@ begin
   into v_result
   from public.app_student_sessions ss
   join public.app_student_accounts a on a.id = ss.account_id
-  where ss.token_hash = digest(coalesce(p_token, ''), 'sha256')
+  where ss.token_hash = extensions.digest(convert_to(coalesce(p_token, ''), 'UTF8'), 'sha256')
     and ss.expires_at > now()
     and a.active
   limit 1;
@@ -305,14 +305,14 @@ declare
 begin
   v_me := public.app_student_me(p_token);
   select * into v_account from public.app_student_accounts where id::text = v_me->>'id';
-  if v_account.password_hash <> crypt(coalesce(p_old_password, ''), v_account.password_hash) then
+  if v_account.password_hash <> extensions.crypt(coalesce(p_old_password, ''), v_account.password_hash) then
     raise exception 'Mật khẩu hiện tại không đúng.';
   end if;
   if length(coalesce(p_new_password, '')) < 8 then
     raise exception 'Mật khẩu mới phải có ít nhất 8 ký tự.';
   end if;
   update public.app_student_accounts
-  set password_hash = crypt(p_new_password, gen_salt('bf', 12)),
+  set password_hash = extensions.crypt(p_new_password, extensions.gen_salt('bf', 12)),
       force_change_password = false,
       updated_at = now()
   where id = v_account.id;
@@ -327,7 +327,7 @@ security definer
 set search_path = public, pg_temp
 as $$
   delete from public.app_student_sessions
-  where token_hash = digest(coalesce(p_token, ''), 'sha256');
+  where token_hash = extensions.digest(convert_to(coalesce(p_token, ''), 'UTF8'), 'sha256');
   select true;
 $$;
 
