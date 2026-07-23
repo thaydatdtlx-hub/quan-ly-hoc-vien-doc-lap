@@ -96,6 +96,7 @@
         <input id="search" placeholder="Tìm tên, CCCD, điện thoại, mã học viên">
         <select id="ownerFilter" class="hidden" aria-label="Lọc tài khoản"></select>
         <button id="addStudentBtn" class="primary">＋ Thêm học viên</button>
+        <a class="schedule-link" href="/lich-dao-tao.html"><span aria-hidden="true">▣</span><strong>LỊCH ĐÀO TẠO</strong></a>
         <button id="importBtn" class="data-action data-import admin-only hidden" type="button" title="Chỉ nhận file Excel .xlsx">
           <span class="data-action-icon" aria-hidden="true">↑</span>
           <span><strong>NHẬP DATA</strong><small>Excel .xlsx</small></span>
@@ -114,7 +115,10 @@
             <p class="finance-kicker">DASHBOARD ADMIN</p>
             <h2 id="financeTitle">Tổng quan tài chính</h2>
           </div>
-          <span id="financeScope">Toàn bộ học viên</span>
+          <div class="finance-head-actions">
+            <a href="/lich-dao-tao.html">Mở lịch đào tạo <span aria-hidden="true">→</span></a>
+            <span id="financeScope">Toàn bộ học viên</span>
+          </div>
         </div>
         <div class="finance-grid">
           <article class="finance-card finance-total">
