@@ -1169,3 +1169,111 @@ body{background:radial-gradient(circle at 8% 8%,#dcecff 0,transparent 26%),radia
   .login-register{font-size:10px}
   .login-security{font-size:8px}
 }
+
+/* Login v4: logo chính thức, cỡ chữ cân đối và bảng màu tươi sáng */
+.login-page{
+  background:
+    radial-gradient(circle at 8% 12%,#37b9ef2e 0,transparent 29%),
+    radial-gradient(circle at 90% 86%,#8fd33d33 0,transparent 28%),
+    linear-gradient(145deg,#eefaff 0%,#e8f8ff 52%,#f2ffe9 100%);
+}
+.login-shell{
+  border-color:#ffffff;
+  background:linear-gradient(90deg,#1689ec 0%,#22b6d2 57.5%,#fbfdff 57.5%,#fbfdff 100%);
+  box-shadow:0 34px 90px #155d8b3d,0 1px 0 #fff inset;
+}
+.login-shell:before{
+  background:
+    radial-gradient(circle at 23% 20%,#d7f8ff66 0 2px,transparent 3px) 0 0/34px 34px,
+    radial-gradient(circle at 82% 14%,#c8ffce2d 0,transparent 29%),
+    linear-gradient(142deg,#0878df 0%,#159ce5 50%,#20bfd1 100%);
+}
+.login-shell:after{border-color:#d9ffda1f}
+.login-bg-shape-one{border-color:#ffffff12}
+.login-dots{opacity:.32}
+.intro-mark{
+  width:70px;
+  height:70px;
+  padding:5px;
+  overflow:hidden;
+  border:2px solid #ffffffd9;
+  border-radius:22px;
+  background:#fff;
+  box-shadow:0 14px 35px #075a9d44,0 0 0 5px #ffffff18;
+}
+.intro-mark img,.login-lock img,.brand-mark img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  border-radius:50%;
+}
+.intro-brand strong{font-size:16px}
+.intro-brand small{font-size:8px}
+.intro-kicker{
+  margin-top:36px;
+  border-color:#d6f5ff5c;
+  background:#075eaa45;
+}
+.intro-kicker span{background:#a5ee4a;box-shadow:0 0 0 4px #a5ee4a28}
+.login-intro h2{
+  max-width:610px;
+  font-size:clamp(34px,3.25vw,48px);
+  line-height:1.1;
+  letter-spacing:-.035em;
+}
+.login-intro h2 span{color:#e7ffc7;font-size:.88em}
+.login-intro>p:not(.intro-kicker){
+  max-width:570px;
+  margin:18px 0 22px;
+  color:#e9f8ff;
+  font-size:13px;
+}
+.intro-overview{
+  border-color:#ffffff3b;
+  background:linear-gradient(110deg,#ffffff26,#ffffff10);
+}
+.overview-icon{color:#1688e5}
+.overview-status i{background:#a5ee4a;box-shadow:0 0 0 4px #a5ee4a2b}
+.intro-features span{background:#075fa159}
+.intro-features span:before{background:#b6f462}
+.login-card{width:min(430px,100%)}
+.login-lock{
+  width:68px;
+  height:68px;
+  padding:4px;
+  overflow:hidden;
+  border:2px solid #fff;
+  border-radius:21px;
+  background:#fff;
+  box-shadow:0 12px 30px #1187c32b,0 0 0 5px #e8f8ff;
+}
+.login-card h1{font-size:35px}
+.login-heading .muted{margin-bottom:23px}
+.input-shell:focus-within{border-color:#1898e6;box-shadow:0 0 0 4px #17a8dc17,0 10px 24px #154b8710}
+.login-submit{
+  background:linear-gradient(100deg,#198ff0,#1769d8 58%,#19a8c4)!important;
+  box-shadow:0 13px 27px #1684d43d;
+}
+.login-submit:hover{box-shadow:0 17px 34px #1684d44d}
+.login-security svg{stroke:#30a76f}
+.brand-mark{
+  padding:6px;
+  overflow:hidden;
+  background:#fff;
+}
+
+@media(max-width:1100px){
+  .login-shell{background:linear-gradient(90deg,#1689ec 0%,#22b6d2 52%,#fbfdff 52%,#fbfdff 100%)}
+  .login-intro h2{font-size:36px}
+  .intro-mark{width:62px;height:62px;border-radius:20px}
+}
+@media(max-width:960px){
+  .login-page{background:linear-gradient(145deg,#e8f8ff,#efffe8)}
+  .login-shell{background:linear-gradient(145deg,#0b83e9 0%,#20a9dc 57%,#26c8bd 100%)}
+  .login-card{background:#fbfdff}
+  .login-lock{width:64px;height:64px;margin-bottom:15px}
+}
+@media(max-width:430px){
+  .login-card h1{font-size:29px}
+  .login-lock{width:58px;height:58px;border-radius:18px}
+}
