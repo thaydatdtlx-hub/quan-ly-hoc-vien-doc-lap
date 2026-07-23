@@ -96,10 +96,52 @@
         <input id="search" placeholder="Tìm tên, CCCD, điện thoại, mã học viên">
         <select id="ownerFilter" class="hidden" aria-label="Lọc tài khoản"></select>
         <button id="addStudentBtn" class="primary">＋ Thêm học viên</button>
-        <button id="importBtn" class="admin-only hidden">Nhập DATA</button>
-        <button id="exportBtn">Xuất DATA</button>
+        <button id="importBtn" class="data-action data-import admin-only hidden" type="button" title="Chỉ nhận file Excel .xlsx">
+          <span class="data-action-icon" aria-hidden="true">↑</span>
+          <span><strong>NHẬP DATA</strong><small>Excel .xlsx</small></span>
+        </button>
+        <button id="exportBtn" class="data-action data-export" type="button" title="Xuất file Excel .xlsx">
+          <span class="data-action-icon" aria-hidden="true">↓</span>
+          <span><strong>XUẤT DATA</strong><small>Excel .xlsx</small></span>
+        </button>
         <button id="usersBtn" class="admin-only hidden">Quản lý tài khoản</button>
-        <input id="dataFile" class="hidden" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+        <input id="dataFile" class="hidden" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" aria-label="Chọn file Excel .xlsx để nhập dữ liệu">
+      </section>
+
+      <section id="financeDashboard" class="finance-dashboard admin-only hidden" aria-labelledby="financeTitle">
+        <div class="finance-dashboard-head">
+          <div>
+            <p class="finance-kicker">DASHBOARD ADMIN</p>
+            <h2 id="financeTitle">Tổng quan tài chính</h2>
+          </div>
+          <span id="financeScope">Toàn bộ học viên</span>
+        </div>
+        <div class="finance-grid">
+          <article class="finance-card finance-total">
+            <span class="finance-icon" aria-hidden="true">₫</span>
+            <div>
+              <small>Tổng tiền học phí</small>
+              <strong id="financeTotal">0 ₫</strong>
+              <em>Tổng học phí phải thu</em>
+            </div>
+          </article>
+          <article class="finance-card finance-paid">
+            <span class="finance-icon" aria-hidden="true">✓</span>
+            <div>
+              <small>Số tiền đã đóng</small>
+              <strong id="financePaid">0 ₫</strong>
+              <em id="financeRate">Đã thu 0% tổng học phí</em>
+            </div>
+          </article>
+          <article class="finance-card finance-debt">
+            <span class="finance-icon" aria-hidden="true">!</span>
+            <div>
+              <small>Số tiền học phí còn nợ</small>
+              <strong id="financeDebt">0 ₫</strong>
+              <em id="financeDebtCount">0 học viên còn nợ</em>
+            </div>
+          </article>
+        </div>
       </section>
 
       <section class="stats">
@@ -175,7 +217,6 @@
   </dialog>
 
   <div id="loading" class="loading hidden">Đang xử lý…</div><div id="toast" role="status"></div>
-  <script src="/xlsx.full.min.js?v=0.20.3"></script>
   <script type="module" src="/app.js"></script>
 </body>
 </html>
