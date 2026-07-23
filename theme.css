@@ -1279,6 +1279,39 @@ body{background:radial-gradient(circle at 8% 8%,#dcecff 0,transparent 26%),radia
 }
 
 /* Dashboard tài chính dành riêng cho admin và nút DATA Excel */
+@media(min-width:981px){
+  .toolbar{grid-template-columns:minmax(260px,1fr) repeat(6,auto)}
+}
+.toolbar .schedule-link{
+  display:flex;
+  min-height:48px;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding:8px 13px;
+  border:1.5px solid #c9b8f4;
+  border-radius:10px;
+  background:#f3efff;
+  color:#6041ad;
+  font-size:11px;
+  text-decoration:none;
+  transition:.2s;
+}
+.toolbar .schedule-link span{
+  display:grid;
+  width:27px;
+  height:27px;
+  place-items:center;
+  border-radius:8px;
+  background:#e0d5ff;
+  font-size:16px;
+}
+.toolbar .schedule-link:hover{
+  transform:translateY(-2px);
+  border-color:#9d80e4;
+  background:#ebe3ff;
+  box-shadow:0 8px 18px #5636a820;
+}
 .toolbar .data-action{
   display:flex;
   min-width:126px;
@@ -1350,6 +1383,21 @@ body{background:radial-gradient(circle at 8% 8%,#dcecff 0,transparent 26%),radia
   font-size:10px;
   font-weight:800;
 }
+.finance-head-actions{display:flex;align-items:center;gap:8px}
+.finance-head-actions>a{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:7px 12px;
+  border-radius:999px;
+  background:#eee8ff;
+  color:#6041ad;
+  font-size:10px;
+  font-weight:850;
+  text-decoration:none;
+}
+.finance-head-actions>a:hover{background:#e2d8ff}
+.finance-head-actions>a span{font-size:14px}
 .finance-grid{
   display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));
@@ -1429,8 +1477,10 @@ body{background:radial-gradient(circle at 8% 8%,#dcecff 0,transparent 26%),radia
   .finance-card strong{font-size:25px}
 }
 @media(max-width:650px){
+  .toolbar .schedule-link{min-width:0}
   .toolbar .data-action{min-width:0}
   .finance-dashboard{padding:15px;border-radius:18px}
   .finance-dashboard-head{align-items:flex-start;flex-direction:column;gap:9px}
+  .finance-head-actions{width:100%;align-items:flex-start;flex-direction:column}
   .finance-dashboard-head>span{align-self:flex-start}
 }
