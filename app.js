@@ -4,7 +4,7 @@ import {embedScheduleInNotes,parseScheduleFromNotes,stripScheduleFromNotes} from
 const SUPABASE_URL="https://ainrsticcgpoqadiaivj.supabase.co";
 const SUPABASE_KEY="sb_publishable_e3yowYg73Lcrkx6WU5StHw_telwpp1z";
 const $=id=>document.getElementById(id);
-let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",me=null,students=[],users=[],forcePasswordChange=false,currentPhoto="",statFilter="all";
+let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"",me=null,students=[],users=[],studentAccounts=[],studentAccountsReady=false,selectedStudentAccount=null,forcePasswordChange=false,currentPhoto="",statFilter="all";
 
 async function rpc(fn,body={}){
   const r=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
@@ -25,14 +25,26 @@ function progressHtml(s){return `<div class="progress-list"><span class="progres
 async function boot(){
   if(!token)return showLogin();
   try{
-    me=await rpc("app_me",{p_token:token});
+    if(authKind==="student"){
+      me=await rpc("app_student_me",{p_token:token});
+      return location.replace("/hoc-vien.html");
+    }
+    try{me=await rpc("app_me",{p_token:token})}
+    catch{
+      me=await rpc("app_student_me",{p_token:token});
+      authKind="student";
+      return location.replace("/hoc-vien.html");
+    }
     if(!me?.id)throw new Error("Phiên đăng nhập hết hạn");
+    authKind="manager";
     showApp();
-    if(me.role==="admin")await loadUsers();
+    if(me.role==="admin"){await loadUsers();await loadStudentAccounts()}
     await loadStudents();
     if(me.force_change_password)openForcedPassword();
-  }catch(err){localStorage.removeItem("hv_token");sessionStorage.removeItem("hv_token");token="";showLogin();if(err?.message)$("loginError").textContent=err.message}
+  }catch(err){clearAuth();showLogin();if(err?.message)$("loginError").textContent=err.message}
 }
+function clearAuth(){for(const store of [localStorage,sessionStorage]){store.removeItem("hv_token");store.removeItem("hv_auth_kind")}token="";authKind=""}
+function saveAuth(remember){for(const store of [localStorage,sessionStorage]){store.removeItem("hv_token");store.removeItem("hv_auth_kind")}const store=remember?localStorage:sessionStorage;store.setItem("hv_token",token);store.setItem("hv_auth_kind",authKind)}
 function showLogin(){$("login").classList.remove("hidden");$("app").classList.add("hidden")}
 function showApp(){
   $("login").classList.add("hidden");$("app").classList.remove("hidden");
@@ -46,16 +58,23 @@ $("loginForm").onsubmit=async e=>{
   e.preventDefault();$("loginError").textContent="";$("loginBtn").disabled=true;$("loginBtn").setAttribute("aria-busy","true");$("loginBtn").querySelector("span").textContent="Đang đăng nhập…";
   try{
     const username=$("username").value.trim(),remember=$("rememberLogin").checked;
-    const x=await rpc("app_login",{p_username:username,p_password:$("password").value});token=x.token;
-    localStorage.removeItem("hv_token");sessionStorage.removeItem("hv_token");
-    (remember?localStorage:sessionStorage).setItem("hv_token",token);
+    let x;
+    try{x=await rpc("app_login",{p_username:username,p_password:$("password").value});authKind="manager"}
+    catch(managerError){
+      try{x=await rpc("app_student_login",{p_username:username,p_password:$("password").value});authKind="student"}
+      catch(studentError){
+        if(/app_student_login|schema cache|PGRST202/i.test(errText(studentError)))throw managerError;
+        throw studentError;
+      }
+    }
+    token=x.token;saveAuth(remember);
     if(remember)localStorage.setItem("hv_saved_user",username);else localStorage.removeItem("hv_saved_user");
     await boot();
   }
   catch(err){$("loginError").textContent=errText(err)}
   finally{$("loginBtn").disabled=false;$("loginBtn").removeAttribute("aria-busy");$("loginBtn").querySelector("span").textContent="Đăng nhập"}
 };
-$("logoutBtn").onclick=async()=>{busy(true);try{await rpc("app_logout",{p_token:token})}catch{}localStorage.removeItem("hv_token");sessionStorage.removeItem("hv_token");location.reload()};
+$("logoutBtn").onclick=async()=>{busy(true);try{await rpc("app_logout",{p_token:token})}catch{}clearAuth();location.reload()};
 
 async function loadStudents(){
   try{students=await rpc("app_list_students",{p_token:token,p_owner_id:me.role==="admin"?($("ownerFilter").value||null):null})||[];renderStudents();if(students.length&&!Object.prototype.hasOwnProperty.call(students[0],"online_status")&&!sessionStorage.getItem("progress_sql_warning")){sessionStorage.setItem("progress_sql_warning","1");alert("Cơ sở dữ liệu chưa có đủ các mục tiến độ. Admin cần chạy file CAP-NHAT-TIEN-DO.sql trong Supabase SQL Editor.")}}
@@ -65,7 +84,11 @@ function renderStudents(){
   const q=normalize($("search").value);
   const inStat=s=>statFilter==="all"||(statFilter==="learning"&&!normalize(s.exam_status).includes("da dau"))||(statFilter==="debt"&&(Number(s.tuition_total)||0)>(Number(s.paid)||0));
   const rows=students.filter(s=>inStat(s)&&normalize([s.name,s.cccd,s.phone,s.student_code,s.course].join(" ")).includes(q));
-  $("studentRows").innerHTML=rows.map(s=>`<tr><td><div class="student-cell">${s.photo_data?`<img class="student-photo" src="${s.photo_data}" alt="Ảnh ${esc(s.name)}">`:`<span class="student-photo empty-photo">Ảnh<br>3×4</span>`}<div><span class="student-name">${esc(s.name)}</span><span class="sub">${esc(s.student_code)}${s.owner_username?` · ${esc(s.owner_username)}`:""}</span></div></div></td><td>${esc(s.license_class||"—")}<span class="sub">${esc(s.course||"Chưa có khóa")}</span></td><td>${esc(s.phone||"—")}</td><td>${progressHtml(s)}</td><td>${money(s.tuition_total)}<span class="sub">Đã thu ${money(s.paid)} · Còn ${money(Math.max(0,(s.tuition_total||0)-(s.paid||0)))}</span></td><td><div class="row-actions"><button data-edit="${s.id}">Sửa</button>${me.role==="admin"&&s.photo_data?`<button data-download-photo="${s.id}">Tải ảnh</button>`:""}<button class="danger" data-delete="${s.id}">Xóa</button></div></td></tr>`).join("");
+  $("studentRows").innerHTML=rows.map(s=>{
+    const account=studentAccounts.find(item=>item.student_id===String(s.id));
+    const accountButton=me.role==="admin"&&studentAccountsReady?`<button class="student-account-btn ${account?.active?"is-active":""}" data-student-account="${s.id}">${account?`Tài khoản: ${esc(account.username)}`:"＋ Tạo tài khoản"}</button>`:"";
+    return `<tr><td><div class="student-cell">${s.photo_data?`<img class="student-photo" src="${s.photo_data}" alt="Ảnh ${esc(s.name)}">`:`<span class="student-photo empty-photo">Ảnh<br>3×4</span>`}<div><span class="student-name">${esc(s.name)}</span><span class="sub">${esc(s.student_code)}${s.owner_username?` · ${esc(s.owner_username)}`:""}</span>${account?`<span class="student-login-state ${account.active?"active":"locked"}">${account.active?"Có tài khoản học viên":"Tài khoản đang khóa"}</span>`:""}</div></div></td><td>${esc(s.license_class||"—")}<span class="sub">${esc(s.course||"Chưa có khóa")}</span></td><td>${esc(s.phone||"—")}</td><td>${progressHtml(s)}</td><td>${money(s.tuition_total)}<span class="sub">Đã thu ${money(s.paid)} · Còn ${money(Math.max(0,(s.tuition_total||0)-(s.paid||0)))}</span></td><td><div class="row-actions">${accountButton}<button data-edit="${s.id}">Sửa</button>${me.role==="admin"&&s.photo_data?`<button data-download-photo="${s.id}">Tải ảnh</button>`:""}<button class="danger" data-delete="${s.id}">Xóa</button></div></td></tr>`;
+  }).join("");
   $("empty").classList.toggle("hidden",rows.length>0);$("resultCount").textContent=`${rows.length} học viên`;
   $("totalStudents").textContent=students.length;
   $("learningStudents").textContent=students.filter(s=>!normalize(s.exam_status).includes("da dau")).length;
@@ -109,7 +132,8 @@ $("addStudentBtn").onclick=()=>openStudent();
 $("photoFile").onchange=async e=>{const file=e.target.files[0];if(!file)return;const ext=file.name.toLowerCase().split(".").pop(),validType=["image/jpeg","image/png"].includes(file.type)&&["jpg","jpeg","png"].includes(ext);if(!validType){e.target.value="";return $("studentError").textContent="Chỉ chấp nhận file ảnh JPG, JPEG hoặc PNG."}if(file.size>10*1024*1024){e.target.value="";return $("studentError").textContent="Ảnh gốc không được lớn hơn 10 MB."}try{$("studentError").textContent="Đang kiểm tra ảnh 3×4 nền trắng…";showPhoto(await compressPhoto(file));$("studentError").textContent=""}catch(err){e.target.value="";$("studentError").textContent=errText(err)}};
 $("removePhotoBtn").onclick=()=>{$("photoFile").value="";showPhoto("")};
 $("studentRows").onclick=async e=>{
-  const edit=e.target.dataset.edit,del=e.target.dataset.delete,download=e.target.dataset.downloadPhoto;
+  const edit=e.target.dataset.edit,del=e.target.dataset.delete,download=e.target.dataset.downloadPhoto,account=e.target.dataset.studentAccount;
+  if(account)return openStudentAccount(students.find(s=>String(s.id)===account));
   if(download&&me.role==="admin"){const s=students.find(x=>x.id===download);if(!s?.photo_data)return toast("Học viên chưa có ảnh thẻ");const a=document.createElement("a"),safe=normalize(s.name).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"hoc-vien";a.href=s.photo_data;a.download=`anh-the-3x4-${safe}.jpg`;document.body.appendChild(a);a.click();a.remove();return}
   if(edit)return openStudent(students.find(s=>s.id===edit));
   if(del&&confirm("Anh có chắc muốn xóa học viên này? Dữ liệu đã xóa không thể khôi phục.")){
@@ -135,8 +159,70 @@ async function loadUsers(){
   if([...$("ownerFilter").options].some(o=>o.value===old))$("ownerFilter").value=old;
   $("userList").innerHTML=users.filter(u=>u.role!=="admin").map(u=>`<div class="user-item"><div><strong>${esc(u.username)}</strong><span class="sub">${u.active?"Đang hoạt động":"Đã khóa"}</span></div><div><button data-reset="${u.id}">Đặt lại mật khẩu</button><button data-toggle="${u.id}" data-active="${u.active}">${u.active?"Khóa":"Mở khóa"}</button></div></div>`).join("");
 }
+async function loadStudentAccounts(){
+  try{
+    studentAccounts=await rpc("app_list_student_accounts",{p_token:token})||[];
+    studentAccountsReady=true;
+  }catch(error){
+    studentAccounts=[];studentAccountsReady=false;
+    const missing=/app_list_student_accounts|schema cache|PGRST202/i.test(errText(error));
+    if(!missing)toast(errText(error));
+  }
+}
+function suggestedStudentUsername(student){
+  const source=student.student_code||student.phone||student.name||"hocvien";
+  const cleaned=normalize(source).replace(/[^a-z0-9]+/g,".").replace(/^\.+|\.+$/g,"").slice(0,35);
+  return `hv.${cleaned||"hocvien"}`;
+}
+function openStudentAccount(student){
+  if(me?.role!=="admin"||!studentAccountsReady)return;
+  selectedStudentAccount={student,account:studentAccounts.find(item=>item.student_id===String(student.id))||null};
+  const {account}=selectedStudentAccount;
+  $("studentAccountError").textContent="";
+  $("studentAccountSummary").innerHTML=`<div class="student-account-avatar">${student.photo_data?`<img src="${student.photo_data}" alt="">`:"HV"}</div><div><strong>${esc(student.name)}</strong><span>${esc(student.student_code||"Chưa có mã")} · ${esc(student.course||"Chưa có khóa")}</span></div>`;
+  $("studentAccountStudentId").value=student.id;
+  $("studentAccountForm").classList.toggle("hidden",Boolean(account));
+  $("studentAccountActions").classList.toggle("hidden",!account);
+  if(account){
+    $("studentAccountStatus").innerHTML=`Tên đăng nhập: <strong>${esc(account.username)}</strong><span class="student-login-state ${account.active?"active":"locked"}">${account.active?"Đang hoạt động":"Đã khóa"}</span>${account.force_change_password?"<small>Học viên cần đổi mật khẩu ở lần đăng nhập tiếp theo.</small>":""}`;
+    $("toggleStudentAccountBtn").textContent=account.active?"Khóa tài khoản":"Mở khóa tài khoản";
+    $("toggleStudentAccountBtn").classList.toggle("danger",account.active);
+  }else{
+    $("studentAccountUsername").value=suggestedStudentUsername(student);
+    $("studentAccountPassword").value="";
+  }
+  $("studentAccountDialog").showModal();
+  if(!account)setTimeout(()=>$("studentAccountUsername").focus(),50);
+}
+$("studentAccountForm").onsubmit=async event=>{
+  event.preventDefault();$("studentAccountError").textContent="";
+  const username=$("studentAccountUsername").value.trim().toLowerCase();
+  $("createStudentAccountBtn").disabled=true;
+  try{
+    await rpc("app_create_student_account",{p_token:token,p_student_id:$("studentAccountStudentId").value,p_username:username,p_password:$("studentAccountPassword").value});
+    await loadStudentAccounts();renderStudents();$("studentAccountDialog").close();
+    toast(`Đã tạo tài khoản học viên ${username}`);
+  }catch(error){$("studentAccountError").textContent=errText(error)}
+  finally{$("createStudentAccountBtn").disabled=false}
+};
+$("resetStudentPasswordBtn").onclick=async()=>{
+  const account=selectedStudentAccount?.account;if(!account)return;
+  const password=prompt(`Nhập mật khẩu tạm mới cho ${account.username} (ít nhất 8 ký tự):`);
+  if(!password)return;
+  try{
+    await rpc("app_admin_reset_student_password",{p_token:token,p_account_id:account.id,p_password:password});
+    await loadStudentAccounts();renderStudents();$("studentAccountDialog").close();toast("Đã đặt lại mật khẩu học viên");
+  }catch(error){$("studentAccountError").textContent=errText(error)}
+};
+$("toggleStudentAccountBtn").onclick=async()=>{
+  const account=selectedStudentAccount?.account;if(!account)return;
+  try{
+    await rpc("app_set_student_account_active",{p_token:token,p_account_id:account.id,p_active:!account.active});
+    await loadStudentAccounts();renderStudents();$("studentAccountDialog").close();toast(account.active?"Đã khóa tài khoản học viên":"Đã mở khóa tài khoản học viên");
+  }catch(error){$("studentAccountError").textContent=errText(error)}
+};
 $("usersBtn").onclick=()=>{$("userError").textContent="";$("usersDialog").showModal()};
-$("userForm").onsubmit=async e=>{e.preventDefault();$("userError").textContent="";$("createUserBtn").disabled=true;try{await rpc("app_create_user",{p_token:token,p_username:$("newUsername").value.trim(),p_password:$("newPassword").value});e.target.reset();toast("Đã tạo tài khoản con");await loadUsers()}catch(err){$("userError").textContent=errText(err)}finally{$("createUserBtn").disabled=false}};
+$("userForm").onsubmit=async e=>{e.preventDefault();$("userError").textContent="";$("createUserBtn").disabled=true;try{await rpc("app_create_user",{p_token:token,p_username:$("newUsername").value.trim(),p_password:$("newPassword").value});e.target.reset();toast("Đã tạo tài khoản quản lý");await loadUsers()}catch(err){$("userError").textContent=errText(err)}finally{$("createUserBtn").disabled=false}};
 $("userList").onclick=async e=>{try{if(e.target.dataset.toggle){await rpc("app_set_user_active",{p_token:token,p_user_id:e.target.dataset.toggle,p_active:e.target.dataset.active!=="true"});await loadUsers();toast("Đã cập nhật tài khoản")}if(e.target.dataset.reset){const p=prompt("Nhập mật khẩu tạm mới (ít nhất 8 ký tự):");if(p){await rpc("app_admin_reset_password",{p_token:token,p_user_id:e.target.dataset.reset,p_password:p});toast("Đã đặt lại mật khẩu")}}}catch(err){$("userError").textContent=errText(err)}};
 
 function openForcedPassword(){forcePasswordChange=true;$("passwordNotice").textContent="Đây là lần đăng nhập đầu tiên. Anh cần đổi mật khẩu trước khi tiếp tục.";$("passwordClose").classList.add("hidden");$("passwordCancel").classList.add("hidden");$("passwordDialog").showModal()}
