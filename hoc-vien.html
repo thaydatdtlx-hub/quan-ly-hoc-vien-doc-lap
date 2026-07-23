@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b6bdc">
+  <title>Cổng học viên · Thầy Đạt</title>
+  <link rel="stylesheet" href="/student.css">
+</head>
+<body>
+  <header class="student-topbar">
+    <a class="student-brand" href="/hoc-vien.html">
+      <span><img src="/logo-thay-dat.png?v=2" alt=""></span>
+      <div><strong>THẦY ĐẠT</strong><small>Cổng thông tin học viên</small></div>
+    </a>
+    <div class="student-account">
+      <span id="studentUsername"></span>
+      <button id="studentChangePasswordBtn" type="button">Đổi mật khẩu</button>
+      <button id="studentLogoutBtn" type="button">Đăng xuất</button>
+    </div>
+  </header>
+
+  <main id="studentPortal" class="student-main hidden">
+    <section class="student-hero">
+      <div class="student-photo-wrap">
+        <img id="studentPhoto" class="hidden" alt="Ảnh học viên">
+        <span id="studentPhotoPlaceholder">HV</span>
+      </div>
+      <div class="student-heading">
+        <p>HỒ SƠ ĐÀO TẠO CÁ NHÂN</p>
+        <h1 id="studentName">Học viên</h1>
+        <div class="student-tags">
+          <span id="studentCode">Chưa có mã</span>
+          <span id="studentCourse">Chưa có khóa</span>
+          <span id="studentLicense">Chưa có hạng</span>
+        </div>
+      </div>
+      <a class="schedule-cta" href="/lich-dao-tao.html"><span>▣</span><div><strong>Xem lịch đào tạo</strong><small>Lịch học và lịch thi của tôi</small></div><b>→</b></a>
+    </section>
+
+    <section class="portal-section" aria-labelledby="financeHeading">
+      <div class="section-heading"><div><p>HỌC PHÍ CỦA TÔI</p><h2 id="financeHeading">Tình trạng học phí</h2></div><span id="tuitionStatus">Đang cập nhật</span></div>
+      <div class="tuition-grid">
+        <article class="tuition-card total"><span>₫</span><div><small>Tổng học phí</small><strong id="tuitionTotal">0 ₫</strong><em>Mức học phí của khóa</em></div></article>
+        <article class="tuition-card paid"><span>✓</span><div><small>Số tiền đã đóng</small><strong id="tuitionPaid">0 ₫</strong><em id="tuitionRate">Đã đóng 0%</em></div></article>
+        <article class="tuition-card debt"><span>!</span><div><small>Học phí còn nợ</small><strong id="tuitionDebt">0 ₫</strong><em id="tuitionDebtNote">Chưa hoàn tất học phí</em></div></article>
+      </div>
+    </section>
+
+    <section class="portal-section" aria-labelledby="progressHeading">
+      <div class="section-heading"><div><p>TIẾN ĐỘ ĐÀO TẠO</p><h2 id="progressHeading">Quá trình học tập</h2></div></div>
+      <div id="studentProgress" class="progress-grid"></div>
+    </section>
+
+    <section class="portal-grid">
+      <article class="portal-section profile-panel">
+        <div class="section-heading"><div><p>THÔNG TIN CÁ NHÂN</p><h2>Hồ sơ học viên</h2></div></div>
+        <dl id="studentProfile"></dl>
+      </article>
+      <article class="portal-section next-schedule-panel">
+        <div class="section-heading"><div><p>LỊCH SẮP TỚI</p><h2>Các mốc đào tạo</h2></div><a href="/lich-dao-tao.html">Xem đầy đủ →</a></div>
+        <div id="studentUpcoming" class="upcoming-list"></div>
+      </article>
+    </section>
+  </main>
+
+  <div id="studentLoading" class="student-loading">Đang tải thông tin học viên…</div>
+
+  <dialog id="studentPasswordDialog">
+    <form id="studentPasswordForm">
+      <div class="dialog-head"><div><p>BẢO MẬT TÀI KHOẢN</p><h2>Đổi mật khẩu</h2></div><button id="studentPasswordClose" class="dialog-close" type="button" aria-label="Đóng">×</button></div>
+      <p id="studentPasswordNotice" class="muted">Mật khẩu mới phải có ít nhất 8 ký tự.</p>
+      <label>Mật khẩu hiện tại<input id="studentOldPassword" type="password" autocomplete="current-password" required></label>
+      <label>Mật khẩu mới<input id="studentNewPassword" type="password" autocomplete="new-password" minlength="8" required></label>
+      <label>Nhập lại mật khẩu mới<input id="studentConfirmPassword" type="password" autocomplete="new-password" minlength="8" required></label>
+      <p id="studentPasswordError" class="form-error" role="alert"></p>
+      <div class="dialog-actions"><button id="studentPasswordCancel" class="dialog-close" type="button">Hủy</button><button id="studentSavePasswordBtn" class="primary" type="submit">Đổi mật khẩu</button></div>
+    </form>
+  </dialog>
+
+  <div id="studentToast" role="status"></div>
+  <script type="module" src="/student.js"></script>
+</body>
+</html>
