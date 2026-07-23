@@ -633,7 +633,7 @@ body{background:radial-gradient(circle at 8% 8%,#dcecff 0,transparent 26%),radia
 .login-shell{
   position:relative;
   display:grid;
-  grid-template-rows:72px minmax(0,1fr);
+  grid-template-rows:minmax(0,1fr);
   width:min(1500px,100%);
   min-height:min(900px,calc(100svh - 44px));
   overflow:hidden;
@@ -646,10 +646,10 @@ body{background:radial-gradient(circle at 8% 8%,#dcecff 0,transparent 26%),radia
   content:"";
   position:absolute;
   z-index:1;
-  top:72px;
+  top:0;
   left:0;
   width:57.5%;
-  height:calc(100% - 72px);
+  height:100%;
   background:
     radial-gradient(circle at 23% 20%,#7cc6ff38 0 2px,transparent 3px) 0 0/34px 34px,
     radial-gradient(circle at 78% 16%,#ffffff17 0,transparent 30%),
@@ -1140,9 +1140,9 @@ body{background:radial-gradient(circle at 8% 8%,#dcecff 0,transparent 26%),radia
   .login-dots{left:16px;top:94px}
 }
 @media(max-width:720px){
-  .login-shell{grid-template-rows:64px minmax(0,1fr)}
+  .login-shell{grid-template-rows:minmax(0,1fr)}
   .login-appbar{min-height:64px;padding:0 15px}
-  .login-shell:before{top:64px;height:calc(100% - 64px)}
+  .login-shell:before{top:0;height:100%}
   .login-appbar:before{height:1px}
   .appbar-back,.appbar-more{width:34px;height:34px;border-radius:11px}
   .appbar-back{font-size:30px}
