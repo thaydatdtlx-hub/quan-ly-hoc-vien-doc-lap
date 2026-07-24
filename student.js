@@ -1,5 +1,6 @@
 import {SCHEDULE_FIELDS,parseScheduleFromNotes} from "./schedule-data.js";
 import {markNoticesRead,readNoticeIds,studentNotifications} from "./account-notifications.js";
+import QRCode from "qrcode";
 
 const SUPABASE_URL="https://ainrsticcgpoqadiaivj.supabase.co";
 const SUPABASE_KEY="sb_publishable_e3yowYg73Lcrkx6WU5StHw_telwpp1z";
@@ -16,6 +17,31 @@ function clearAuth(){for(const store of [localStorage,sessionStorage]){store.rem
 function esc(value){return String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[char]))}
 function normalize(value){return String(value??"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d")}
 function money(value){return new Intl.NumberFormat("vi-VN").format(Number(value||0))+" ₫"}
+function paymentReference(){
+  const identity=String(student?.student_code||student?.id||student?.name||"HOC VIEN")
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/gi,"d")
+    .replace(/[^a-zA-Z0-9 ]/g," ").replace(/\s+/g," ").trim().toUpperCase();
+  return `HOC PHI ${identity}`.slice(0,25).trim();
+}
+function tlv(id,value){
+  const text=String(value);
+  return `${id}${String(text.length).padStart(2,"0")}${text}`;
+}
+function crc16(value){
+  let crc=0xffff;
+  for(let index=0;index<value.length;index++){
+    crc^=value.charCodeAt(index)<<8;
+    for(let bit=0;bit<8;bit++)crc=(crc&0x8000)?(crc<<1)^0x1021:crc<<1;
+    crc&=0xffff;
+  }
+  return crc.toString(16).toUpperCase().padStart(4,"0");
+}
+function tuitionQrPayload(amount,content){
+  const account=tlv("00","970422")+tlv("01","360556789999");
+  const receiver=tlv("00","A000000727")+tlv("01",account)+tlv("02","QRIBFTTA");
+  const base=tlv("00","01")+tlv("01","12")+tlv("38",receiver)+tlv("53","704")+tlv("54",String(Math.round(amount)))+tlv("58","VN")+tlv("62",tlv("08",content))+"6304";
+  return base+crc16(base);
+}
 function date(value,withTime=false){
   if(!value)return"Chưa cập nhật";
   const parsed=new Date(value);if(Number.isNaN(parsed.valueOf()))return String(value);
@@ -43,6 +69,23 @@ function renderPortal(){
   $("tuitionStatus").textContent=debt?"Còn học phí cần hoàn tất":"Đã hoàn tất học phí";
   $("tuitionStatus").className=debt?"has-debt":"complete";
   $("tuitionDebtNote").textContent=debt?"Vui lòng hoàn tất theo lịch hẹn":"Không còn công nợ";
+  $("tuitionPaymentLink").classList.toggle("hidden",debt===0);
+
+  const paymentContent=paymentReference();
+  $("paymentDebt").textContent=money(debt);
+  $("paymentAmountBadge").textContent=debt?`Còn nợ ${money(debt)}`:"Đã hoàn tất";
+  $("paymentAmountBadge").className=debt?"has-debt":"complete";
+  $("paymentContent").textContent=paymentContent;
+  $("paymentPending").classList.toggle("hidden",debt===0);
+  $("paymentComplete").classList.toggle("hidden",debt>0);
+  if(debt>0){
+    QRCode.toDataURL(tuitionQrPayload(debt,paymentContent),{errorCorrectionLevel:"M",margin:2,width:480,color:{dark:"#14385e",light:"#ffffff"}})
+      .then(qrUrl=>{$("tuitionQr").src=qrUrl;$("tuitionQrOpen").href=qrUrl})
+      .catch(()=>toast("Không thể tạo mã QR. Vui lòng dùng thông tin chuyển khoản bên cạnh."));
+  }else{
+    $("tuitionQr").removeAttribute("src");
+    $("tuitionQrOpen").removeAttribute("href");
+  }
 
   const progress=[
     ["▤","Hồ sơ",student.profile_status||"Chưa cập nhật"],
@@ -69,6 +112,17 @@ function renderPortal(){
   $("studentUpcoming").innerHTML=events.length?events.map(event=>`<article><span class="tone-${event.field.tone}">${event.field.icon}</span><div><strong>${esc(event.field.label)}</strong><small>${esc(date(event.date,true))}</small><em>${esc(event.location||"Chưa cập nhật địa điểm")}</em></div></article>`).join(""):`<div class="no-schedule"><span>📅</span><strong>Chưa có lịch sắp tới</strong><small>Lịch mới sẽ hiển thị tại đây khi được cập nhật.</small></div>`;
   renderStudentNotifications();
   $("studentLoading").classList.add("hidden");$("studentPortal").classList.remove("hidden");
+}
+$("copyPaymentContent").onclick=()=>copyPaymentValue($("paymentContent").textContent,"Đã sao chép nội dung chuyển khoản");
+document.querySelectorAll(".copy-payment[data-copy]").forEach(button=>button.onclick=()=>copyPaymentValue(button.dataset.copy,"Đã sao chép số tài khoản"));
+async function copyPaymentValue(value,successMessage){
+  try{
+    if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(value);
+    else{
+      const input=document.createElement("textarea");input.value=value;input.setAttribute("readonly","");input.style.position="fixed";input.style.opacity="0";document.body.appendChild(input);input.select();document.execCommand("copy");input.remove();
+    }
+    toast(successMessage);
+  }catch{toast("Không thể sao chép. Vui lòng nhấn giữ để sao chép thủ công.")}
 }
 function renderStudentNotifications(markRead=false){
   studentNotices=studentNotifications(student);
