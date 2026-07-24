@@ -1,10 +1,11 @@
 import * as XLSX from "xlsx";
 import {embedScheduleInNotes,parseScheduleFromNotes,stripScheduleFromNotes} from "./schedule-data.js";
+import {managerNotifications,markNoticesRead,readNoticeIds} from "./account-notifications.js";
 
 const SUPABASE_URL="https://ainrsticcgpoqadiaivj.supabase.co";
 const SUPABASE_KEY="sb_publishable_e3yowYg73Lcrkx6WU5StHw_telwpp1z";
 const $=id=>document.getElementById(id);
-let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"",me=null,students=[],users=[],studentAccounts=[],studentAccountsReady=false,selectedStudentAccount=null,forcePasswordChange=false,currentPhoto="",statFilter="all";
+let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"",me=null,students=[],users=[],studentAccounts=[],accountNotices=[],studentAccountsReady=false,selectedStudentAccount=null,forcePasswordChange=false,currentPhoto="",statFilter="all";
 
 async function rpc(fn,body={}){
   const r=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
@@ -97,7 +98,23 @@ function renderStudents(){
   const labels={all:["Danh sách tất cả học viên","Toàn bộ hồ sơ đang quản lý"],learning:["Học viên đang học","Các học viên chưa đậu kỳ thi sát hạch"],debt:["Học viên còn nợ học phí","Các hồ sơ có số tiền đã thu thấp hơn tổng học phí"]};
   $("studentListTitle").textContent=labels[statFilter][0];$("studentListNote").textContent=labels[statFilter][1];
   document.querySelectorAll("[data-stat-filter]").forEach(card=>{const active=card.dataset.statFilter===statFilter;card.classList.toggle("active",active);card.setAttribute("aria-pressed",String(active))});
+  renderAccountNotifications();
 }
+function renderAccountNotifications(markRead=false){
+  accountNotices=managerNotifications(students,me?.role||"user");
+  if(markRead)markNoticesRead(me,accountNotices);
+  const read=readNoticeIds(me),unread=accountNotices.filter(notice=>!read.has(notice.id)).length;
+  $("notificationBadge").textContent=unread;$("notificationBadge").classList.toggle("hidden",unread===0);
+  $("notificationTitle").textContent=me?.role==="admin"?"Thông báo Admin":"Thông báo tài khoản quản lý";
+  $("notificationSummary").textContent=`${accountNotices.length} thông báo · ${unread} chưa đọc`;
+  $("notificationList").innerHTML=accountNotices.length?accountNotices.map(notice=>`
+    <article class="notification-item tone-${esc(notice.tone||"blue")} ${read.has(notice.id)?"is-read":""}">
+      <span class="notification-icon">${esc(notice.icon||"•")}</span>
+      <div><strong>${esc(notice.title)}</strong><p>${esc(notice.body)}</p>${notice.href?`<a href="${esc(notice.href)}">${esc(notice.action||"Xem chi tiết")} →</a>`:""}</div>
+    </article>`).join(""):`<div class="notification-empty"><span>🔔</span><strong>Chưa có thông báo</strong><p>Các thay đổi quan trọng sẽ hiển thị tại đây.</p></div>`;
+}
+$("notificationBtn").onclick=()=>{$("notificationDialog").showModal()};
+$("markNotificationsRead").onclick=()=>{renderAccountNotifications(true);toast("Đã đánh dấu tất cả thông báo là đã đọc")};
 function renderFinanceDashboard(){
   if(me?.role!=="admin")return;
   const total=students.reduce((sum,s)=>sum+Math.max(0,Number(s.tuition_total)||0),0);
