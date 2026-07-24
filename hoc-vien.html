@@ -15,6 +15,7 @@
     </a>
     <div class="student-account">
       <span id="studentUsername"></span>
+      <button id="studentNotificationBtn" class="notification-btn" type="button"><i aria-hidden="true">🔔</i> Thông báo <b id="studentNotificationBadge" class="hidden">0</b></button>
       <button id="studentChangePasswordBtn" type="button">Đổi mật khẩu</button>
       <button id="studentLogoutBtn" type="button">Đăng xuất</button>
     </div>
@@ -65,6 +66,12 @@
   </main>
 
   <div id="studentLoading" class="student-loading">Đang tải thông tin học viên…</div>
+
+  <dialog id="studentNotificationDialog" class="notification-dialog">
+    <div class="dialog-head notification-head"><div><p>TRUNG TÂM THÔNG BÁO</p><h2>Thông báo học viên</h2></div><button class="dialog-close" type="button" aria-label="Đóng">×</button></div>
+    <div class="notification-toolbar"><span id="studentNotificationSummary">0 thông báo</span><button id="studentMarkNotificationsRead" type="button">Đánh dấu đã đọc</button></div>
+    <div id="studentNotificationList" class="notification-list"></div>
+  </dialog>
 
   <dialog id="studentPasswordDialog">
     <form id="studentPasswordForm">
