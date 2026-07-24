@@ -44,7 +44,41 @@
       <div class="tuition-grid">
         <article class="tuition-card total"><span>₫</span><div><small>Tổng học phí</small><strong id="tuitionTotal">0 ₫</strong><em>Mức học phí của khóa</em></div></article>
         <article class="tuition-card paid"><span>✓</span><div><small>Số tiền đã đóng</small><strong id="tuitionPaid">0 ₫</strong><em id="tuitionRate">Đã đóng 0%</em></div></article>
-        <article class="tuition-card debt"><span>!</span><div><small>Học phí còn nợ</small><strong id="tuitionDebt">0 ₫</strong><em id="tuitionDebtNote">Chưa hoàn tất học phí</em></div></article>
+        <article class="tuition-card debt"><span>!</span><div><small>Học phí còn nợ</small><strong id="tuitionDebt">0 ₫</strong><em id="tuitionDebtNote">Chưa hoàn tất học phí</em><a id="tuitionPaymentLink" href="#studentPayment">Đóng học phí bằng QR →</a></div></article>
+      </div>
+    </section>
+
+    <section id="studentPayment" class="portal-section payment-section" aria-labelledby="paymentHeading">
+      <div class="section-heading payment-heading">
+        <div><p>THANH TOÁN HỌC PHÍ</p><h2 id="paymentHeading">Đóng học phí</h2></div>
+        <span id="paymentAmountBadge">Còn nợ 0 ₫</span>
+      </div>
+      <div id="paymentPending" class="payment-layout">
+        <div class="payment-qr-card">
+          <div class="qr-frame">
+            <img id="tuitionQr" alt="Mã QR đóng học phí qua MB Bank" loading="lazy" referrerpolicy="no-referrer">
+          </div>
+          <strong>Quét mã bằng ứng dụng ngân hàng</strong>
+          <small>Mã QR đã có sẵn số tiền và nội dung chuyển khoản.</small>
+          <a id="tuitionQrOpen" href="#" target="_blank" rel="noopener">Mở mã QR kích thước lớn ↗</a>
+        </div>
+        <div class="payment-details">
+          <div class="bank-heading">
+            <span>MB</span>
+            <div><small>NGÂN HÀNG</small><strong>MB Bank (MBBank)</strong></div>
+          </div>
+          <dl>
+            <div><dt>Số tiền cần đóng</dt><dd id="paymentDebt">0 ₫</dd></div>
+            <div><dt>Số tài khoản</dt><dd><span>360556789999</span><button class="copy-payment" type="button" data-copy="360556789999">Sao chép</button></dd></div>
+            <div><dt>Chủ tài khoản</dt><dd>Trần Quốc Đạt</dd></div>
+            <div><dt>Nội dung chuyển khoản</dt><dd><span id="paymentContent">HOC PHI</span><button id="copyPaymentContent" class="copy-payment" type="button">Sao chép</button></dd></div>
+          </dl>
+          <p class="payment-note"><b>Lưu ý:</b> Vui lòng kiểm tra đúng tên người nhận, số tài khoản và số tiền trước khi xác nhận. Học phí sẽ được cập nhật sau khi trung tâm đối soát giao dịch.</p>
+        </div>
+      </div>
+      <div id="paymentComplete" class="payment-complete hidden">
+        <span>✓</span>
+        <div><strong>Bạn đã hoàn tất học phí</strong><p>Hiện tại tài khoản không còn học phí cần thanh toán.</p></div>
       </div>
     </section>
 
