@@ -11,6 +11,7 @@
     "vite": "^7.0.0"
   },
   "dependencies": {
+    "qrcode": "^1.5.4",
     "xlsx": "^0.18.5"
   }
 }
