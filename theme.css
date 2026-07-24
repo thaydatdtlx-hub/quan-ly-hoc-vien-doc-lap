@@ -1553,3 +1553,58 @@ body{background:radial-gradient(circle at 8% 8%,#dcecff 0,transparent 26%),radia
 }
 .student-account-actions>p strong{color:#173c65;font-size:14px}
 .student-account-actions>p small{display:block;width:100%;color:#7b8da0}
+
+.notification-btn{position:relative;display:inline-flex;align-items:center;gap:6px}
+.notification-btn i{font-style:normal;font-size:14px}
+.notification-btn b{
+  position:absolute;
+  top:-7px;
+  right:-7px;
+  display:grid;
+  min-width:19px;
+  height:19px;
+  padding:0 5px;
+  place-items:center;
+  border:2px solid #0b5fae;
+  border-radius:999px;
+  background:#ff5b4d;
+  color:#fff;
+  font-size:8px;
+  line-height:1;
+  box-shadow:0 4px 10px #001d4a4d;
+}
+.notification-dialog{width:min(620px,calc(100vw - 28px));padding:22px}
+.notification-head{align-items:flex-start}
+.notification-toolbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin:15px 0 10px;
+  padding:10px 12px;
+  border:1px solid #dce8f3;
+  border-radius:12px;
+  background:#f7fbff;
+}
+.notification-toolbar span{color:#637b92;font-size:10px;font-weight:800}
+.notification-toolbar button{padding:7px 10px;border:1px solid #cbdff1;border-radius:9px;background:#fff;color:#1768c7;font-size:9px;font-weight:850}
+.notification-list{display:grid;max-height:58vh;gap:9px;overflow:auto;padding:2px}
+.notification-item{display:flex;align-items:flex-start;gap:11px;padding:13px;border:1px solid #dce8f2;border-radius:14px;background:#fff}
+.notification-item.is-read{opacity:.62}
+.notification-icon{display:grid;width:38px;height:38px;place-items:center;flex:0 0 auto;border-radius:11px;background:#e7f2ff;color:#1d6dcc;font-size:16px;font-weight:950}
+.notification-item>div{display:grid;min-width:0;gap:3px}
+.notification-item strong{color:#183e66;font-size:11px}
+.notification-item p{margin:0;color:#687f95;font-size:9px;line-height:1.45}
+.notification-item a{width:max-content;margin-top:3px;color:#1769c8;font-size:9px;font-weight:850;text-decoration:none}
+.notification-item.tone-green .notification-icon{background:#dff7eb;color:#07805a}
+.notification-item.tone-orange .notification-icon{background:#ffe8cb;color:#b65f08}
+.notification-item.tone-red .notification-icon{background:#ffe5de;color:#bf4d2d}
+.notification-item.tone-violet .notification-icon{background:#ede5ff;color:#6844b7}
+.notification-item.tone-cyan .notification-icon{background:#ddf8fb;color:#05849a}
+.notification-empty{display:grid;min-height:180px;place-items:center;align-content:center;gap:5px;color:#71869b;text-align:center}
+.notification-empty>span{font-size:30px}.notification-empty strong{color:#244b72;font-size:12px}.notification-empty p{margin:0;font-size:9px}
+@media(max-width:650px){
+  .notification-dialog{padding:16px}
+  .notification-item{padding:11px}
+  .notification-toolbar{align-items:flex-start;flex-direction:column}
+}
