@@ -84,7 +84,7 @@ function renderEvents(){
       <div class="event-type tone-${event.field.tone}"><span>${event.field.icon}</span><div><small>NỘI DUNG ĐÀO TẠO</small><strong>${esc(event.field.label)}</strong></div></div>
       <div class="event-student"><small>HỌC VIÊN</small><strong>${esc(event.student.name)}</strong><span>${esc(event.student.student_code||"Chưa có mã")} · ${esc(event.student.course||"Chưa có khóa")}</span></div>
       <div class="event-detail"><span>◷ ${esc(formatDate(event.date))}</span><span>⌖ ${esc(event.location||"Chưa nhập địa điểm")}</span>${event.note?`<span>ⓘ ${esc(event.note)}</span>`:""}</div>
-      ${me.role==="admin"?`<button class="edit-event" type="button" data-edit-student="${event.student.id}">Sửa lịch</button>`:""}
+      ${me.role==="admin"?`<div class="event-actions"><button class="edit-event" type="button" data-edit-student="${event.student.id}">Sửa lịch</button><button class="delete-event" type="button" data-delete-student="${event.student.id}" data-delete-key="${event.field.key}">Xóa lịch</button></div>`:""}
     </article>`;
   }).join("");
 }
@@ -110,6 +110,7 @@ function fillEditor(studentId){
     $(`location-${field.key}`).value=schedule.locations?.[field.key]||"";
   }
   $("scheduleNote").value=schedule.note||"";
+  $("deleteAllScheduleBtn").classList.toggle("hidden",me.role!=="admin"||!SCHEDULE_FIELDS.some(field=>schedule.dates?.[field.key]));
 }
 
 function openEditor(studentId=""){
@@ -129,6 +130,37 @@ function studentPayload(student,notes){
     address:student.address||"",notes,photo_data:student.photo_data||""
   };
 }
+async function saveScheduleNotes(student,notes,allowLegacyFallback=false){
+  if(me.role!=="admin")throw new Error("Chỉ tài khoản admin được phép cập nhật hoặc xóa lịch đào tạo.");
+  try{
+    await rpc("app_admin_save_student_schedule",{p_token:token,p_student_id:student.id,p_notes:notes});
+  }catch(error){
+    const missing=/app_admin_save_student_schedule|schema cache|PGRST202/i.test(error?.message||"");
+    if(missing&&allowLegacyFallback){
+      await rpc("app_save_student",{p_token:token,p_student_id:student.id,p_data:studentPayload(student,notes),p_owner_id:student.owner_id||me.id});
+      return;
+    }
+    if(missing)throw new Error("Admin cần chạy file CAP-NHAT-XOA-LICH-DAO-TAO.sql trong Supabase trước khi xóa lịch.");
+    throw error;
+  }
+}
+async function deleteOneSchedule(studentId,fieldKey){
+  if(me.role!=="admin")return;
+  const student=students.find(item=>String(item.id)===String(studentId)),field=SCHEDULE_FIELDS.find(item=>item.key===fieldKey);
+  if(!student||!field)return;
+  if(!confirm(`Xóa lịch “${field.label}” của học viên ${student.name}?`))return;
+  const schedule=studentSchedule(student);
+  delete schedule.dates?.[fieldKey];delete schedule.locations?.[fieldKey];
+  schedule.updatedAt=new Date().toISOString();
+  const hasSchedule=Object.keys(schedule.dates||{}).length||Object.keys(schedule.locations||{}).length||schedule.note;
+  const notes=embedScheduleInNotes(student.notes,hasSchedule?schedule:null);
+  busy(true);
+  try{
+    await saveScheduleNotes(student,notes,false);
+    student.notes=notes;renderAll();toast(`Đã xóa lịch ${field.label}`);
+  }catch(error){alert(error?.message||"Không thể xóa lịch đào tạo.")}
+  finally{busy(false)}
+}
 
 $("scheduleForm").onsubmit=async event=>{
   event.preventDefault();$("scheduleError").textContent="";
@@ -144,8 +176,7 @@ $("scheduleForm").onsubmit=async event=>{
   $("saveScheduleBtn").disabled=true;busy(true);
   try{
     const notes=embedScheduleInNotes(student.notes,schedule);
-    if(me.role!=="admin")throw new Error("Chỉ tài khoản admin được phép cập nhật lịch đào tạo.");
-    await rpc("app_save_student",{p_token:token,p_student_id:student.id,p_data:studentPayload(student,notes),p_owner_id:student.owner_id||me.id});
+    await saveScheduleNotes(student,notes,true);
     student.notes=notes;$("scheduleDialog").close();renderAll();toast("Đã lưu lịch đào tạo");
   }catch(error){$("scheduleError").textContent=error?.message||"Không thể lưu lịch đào tạo."}
   finally{$("saveScheduleBtn").disabled=false;busy(false)}
@@ -156,7 +187,23 @@ $("openEditorBtn").onclick=()=>openEditor();
 $("scheduleSearch").oninput=renderEvents;
 $("typeFilter").onchange=renderEvents;
 $("periodFilter").onchange=renderEvents;
-$("eventList").onclick=event=>{const id=event.target.dataset.editStudent;if(id)openEditor(id)};
+$("eventList").onclick=event=>{
+  const editId=event.target.dataset.editStudent,deleteId=event.target.dataset.deleteStudent,fieldKey=event.target.dataset.deleteKey;
+  if(editId)return openEditor(editId);
+  if(deleteId&&fieldKey)return deleteOneSchedule(deleteId,fieldKey);
+};
+$("deleteAllScheduleBtn").onclick=async()=>{
+  if(me.role!=="admin")return;
+  const student=students.find(item=>String(item.id)===String($("scheduleStudent").value));
+  if(!student||!confirm(`Xóa toàn bộ lịch đào tạo của học viên ${student.name}? Hành động này không thể hoàn tác.`))return;
+  const notes=embedScheduleInNotes(student.notes,null);
+  $("deleteAllScheduleBtn").disabled=true;busy(true);$("scheduleError").textContent="";
+  try{
+    await saveScheduleNotes(student,notes,false);
+    student.notes=notes;$("scheduleDialog").close();renderAll();toast("Đã xóa toàn bộ lịch đào tạo");
+  }catch(error){$("scheduleError").textContent=error?.message||"Không thể xóa lịch đào tạo."}
+  finally{$("deleteAllScheduleBtn").disabled=false;busy(false)}
+};
 document.querySelectorAll(".dialog-close").forEach(button=>button.onclick=()=>button.closest("dialog").close());
 
 async function boot(){
