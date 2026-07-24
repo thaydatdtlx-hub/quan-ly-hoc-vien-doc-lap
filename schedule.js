@@ -1,7 +1,7 @@
 import {SCHEDULE_FIELDS,embedScheduleInNotes,parseScheduleFromNotes} from "./schedule-data.js";
 
-const SUPABASE_URL="https://ainrsticcgpoqadiaivj.supabase.co";
-const SUPABASE_KEY="sb_publishable_e3yowYg73Lcrkx6WU5StHw_telwpp1z";
+const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
+const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
 const token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"";
 const authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"";
