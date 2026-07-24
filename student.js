@@ -2,8 +2,8 @@ import {SCHEDULE_FIELDS,parseScheduleFromNotes} from "./schedule-data.js";
 import {markNoticesRead,readNoticeIds,studentNotifications} from "./account-notifications.js";
 import QRCode from "qrcode";
 
-const SUPABASE_URL="https://ainrsticcgpoqadiaivj.supabase.co";
-const SUPABASE_KEY="sb_publishable_e3yowYg73Lcrkx6WU5StHw_telwpp1z";
+const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
+const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
 let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",me=null,student=null,studentNotices=[],forcePasswordChange=false;
 
