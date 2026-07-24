@@ -156,7 +156,7 @@ async function deleteOneSchedule(studentId,fieldKey){
   const notes=embedScheduleInNotes(student.notes,hasSchedule?schedule:null);
   busy(true);
   try{
-    await saveScheduleNotes(student,notes,false);
+    await saveScheduleNotes(student,notes,true);
     student.notes=notes;renderAll();toast(`Đã xóa lịch ${field.label}`);
   }catch(error){alert(error?.message||"Không thể xóa lịch đào tạo.")}
   finally{busy(false)}
@@ -199,7 +199,7 @@ $("deleteAllScheduleBtn").onclick=async()=>{
   const notes=embedScheduleInNotes(student.notes,null);
   $("deleteAllScheduleBtn").disabled=true;busy(true);$("scheduleError").textContent="";
   try{
-    await saveScheduleNotes(student,notes,false);
+    await saveScheduleNotes(student,notes,true);
     student.notes=notes;$("scheduleDialog").close();renderAll();toast("Đã xóa toàn bộ lịch đào tạo");
   }catch(error){$("scheduleError").textContent=error?.message||"Không thể xóa lịch đào tạo."}
   finally{$("deleteAllScheduleBtn").disabled=false;busy(false)}
