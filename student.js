@@ -1,9 +1,10 @@
 import {SCHEDULE_FIELDS,parseScheduleFromNotes} from "./schedule-data.js";
+import {markNoticesRead,readNoticeIds,studentNotifications} from "./account-notifications.js";
 
 const SUPABASE_URL="https://ainrsticcgpoqadiaivj.supabase.co";
 const SUPABASE_KEY="sb_publishable_e3yowYg73Lcrkx6WU5StHw_telwpp1z";
 const $=id=>document.getElementById(id);
-let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",me=null,student=null,forcePasswordChange=false;
+let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",me=null,student=null,studentNotices=[],forcePasswordChange=false;
 
 async function rpc(fn,body={}){
   const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
@@ -66,8 +67,23 @@ function renderPortal(){
   const schedule=parseScheduleFromNotes(student.notes||"")||{dates:{},locations:{},note:""},now=new Date();
   const events=SCHEDULE_FIELDS.filter(field=>schedule.dates?.[field.key]).map(field=>({field,date:schedule.dates[field.key],location:schedule.locations?.[field.key]||""})).filter(event=>new Date(event.date)>=now).sort((a,b)=>new Date(a.date)-new Date(b.date)).slice(0,3);
   $("studentUpcoming").innerHTML=events.length?events.map(event=>`<article><span class="tone-${event.field.tone}">${event.field.icon}</span><div><strong>${esc(event.field.label)}</strong><small>${esc(date(event.date,true))}</small><em>${esc(event.location||"Chưa cập nhật địa điểm")}</em></div></article>`).join(""):`<div class="no-schedule"><span>📅</span><strong>Chưa có lịch sắp tới</strong><small>Lịch mới sẽ hiển thị tại đây khi được cập nhật.</small></div>`;
+  renderStudentNotifications();
   $("studentLoading").classList.add("hidden");$("studentPortal").classList.remove("hidden");
 }
+function renderStudentNotifications(markRead=false){
+  studentNotices=studentNotifications(student);
+  if(markRead)markNoticesRead(me,studentNotices);
+  const read=readNoticeIds(me),unread=studentNotices.filter(notice=>!read.has(notice.id)).length;
+  $("studentNotificationBadge").textContent=unread;$("studentNotificationBadge").classList.toggle("hidden",unread===0);
+  $("studentNotificationSummary").textContent=`${studentNotices.length} thông báo · ${unread} chưa đọc`;
+  $("studentNotificationList").innerHTML=studentNotices.length?studentNotices.map(notice=>`
+    <article class="notification-item tone-${esc(notice.tone||"blue")} ${read.has(notice.id)?"is-read":""}">
+      <span class="notification-icon">${esc(notice.icon||"•")}</span>
+      <div><strong>${esc(notice.title)}</strong><p>${esc(notice.body)}</p>${notice.href?`<a href="${esc(notice.href)}">${esc(notice.action||"Xem chi tiết")} →</a>`:""}</div>
+    </article>`).join(""):`<div class="notification-empty"><span>🔔</span><strong>Chưa có thông báo</strong><p>Các cập nhật của trung tâm sẽ hiển thị tại đây.</p></div>`;
+}
+$("studentNotificationBtn").onclick=()=>{$("studentNotificationDialog").showModal()};
+$("studentMarkNotificationsRead").onclick=()=>{renderStudentNotifications(true);toast("Đã đánh dấu tất cả thông báo là đã đọc")};
 function openPassword(forced=false){
   forcePasswordChange=forced;
   $("studentPasswordNotice").textContent=forced?"Đây là lần đăng nhập đầu tiên. Vui lòng đổi mật khẩu trước khi xem thông tin.":"Mật khẩu mới phải có ít nhất 8 ký tự.";
