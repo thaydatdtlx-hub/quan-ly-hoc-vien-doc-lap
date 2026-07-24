@@ -18,10 +18,10 @@ function esc(value){return String(value??"").replace(/[&<>"']/g,char=>({"&":"&am
 function normalize(value){return String(value??"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d")}
 function money(value){return new Intl.NumberFormat("vi-VN").format(Number(value||0))+" ₫"}
 function paymentReference(){
-  const identity=String(student?.student_code||student?.id||student?.name||"HOC VIEN")
+  const studentName=String(student?.name||"HOC VIEN")
     .normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/gi,"d")
     .replace(/[^a-zA-Z0-9 ]/g," ").replace(/\s+/g," ").trim().toUpperCase();
-  return `HOC PHI ${identity}`.slice(0,25).trim();
+  return `HP DTLX ${studentName}`.slice(0,50).trim();
 }
 function tlv(id,value){
   const text=String(value);
