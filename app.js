@@ -5,7 +5,7 @@ import {managerNotifications,markNoticesRead,readNoticeIds} from "./account-noti
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
-let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"",me=null,students=[],users=[],studentAccounts=[],trainingRequests=[],accountNotices=[],serverNotices=[],studentAccountsReady=false,selectedStudentAccount=null,forcePasswordChange=false,currentPhoto="",statFilter="all",notificationTimer=null;
+let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"",me=null,students=[],users=[],studentAccounts=[],trainingRequests=[],accountNotices=[],serverNotices=[],studentAccountsReady=false,selectedStudentAccount=null,forcePasswordChange=false,currentPhoto="",statFilter="all",notificationTimer=null,excelPreviewFile=null,excelPreviewUrl="",excelImportResolve=null;
 
 async function rpc(fn,body={}){
   const r=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
@@ -312,22 +312,63 @@ function dataDatetime(value){
   const parsed=new Date(text);
   return Number.isNaN(parsed.valueOf())?"":localDatetime(parsed);
 }
-async function saveExcelFile(X,workbook,filename){
+function buildExcelFile(X,workbook,filename){
   const bytes=X.write(workbook,{bookType:"xlsx",type:"array",compression:true});
-  const file=new File([bytes],filename,{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
-  const mobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  if(mobile&&navigator.share&&navigator.canShare?.({files:[file]})){
-    try{
-      await navigator.share({files:[file],title:"DATA học viên Thầy Đạt"});
-      return"shared";
-    }catch(error){
-      if(error?.name==="AbortError")return"cancelled";
-    }
+  return new File([bytes],filename,{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+}
+function releaseExcelPreview(){
+  if(excelPreviewUrl)URL.revokeObjectURL(excelPreviewUrl);
+  excelPreviewUrl="";excelPreviewFile=null;
+}
+function renderExcelPreview({title,file,headers,rows,note,mode}){
+  releaseExcelPreview();
+  excelPreviewFile=file||null;
+  if(file)excelPreviewUrl=URL.createObjectURL(file);
+  $("excelPreviewTitle").textContent=title;
+  $("excelPreviewMeta").innerHTML=[
+    file?.name&&`<span>${esc(file.name)}</span>`,
+    file&&`<span>${new Intl.NumberFormat("vi-VN").format(Math.max(1,Math.ceil(file.size/1024)))} KB</span>`,
+    `<span>${rows.length} dòng xem trước</span>`
+  ].filter(Boolean).join("");
+  $("excelPreviewHead").innerHTML=`<tr>${headers.map(h=>`<th>${esc(h)}</th>`).join("")}</tr>`;
+  $("excelPreviewBody").innerHTML=rows.length?rows.map(row=>`<tr>${row.map(value=>`<td>${esc(value)}</td>`).join("")}</tr>`).join(""):`<tr><td colspan="${headers.length}">Không có dữ liệu để xem trước</td></tr>`;
+  $("excelPreviewNote").textContent=note||"";
+  const exporting=mode==="export";
+  $("excelOpenBtn").classList.toggle("hidden",!exporting);
+  $("excelDownloadBtn").classList.toggle("hidden",!exporting);
+  $("excelShareBtn").classList.toggle("hidden",!exporting);
+  $("excelImportConfirmBtn").classList.toggle("hidden",exporting);
+  if(exporting){
+    $("excelOpenBtn").href=excelPreviewUrl;$("excelOpenBtn").download="";
+    $("excelDownloadBtn").href=excelPreviewUrl;$("excelDownloadBtn").download=file.name;
+  }else{
+    $("excelOpenBtn").removeAttribute("href");$("excelDownloadBtn").removeAttribute("href");
   }
-  const url=URL.createObjectURL(file),link=document.createElement("a");
-  link.href=url;link.download=filename;document.body.appendChild(link);link.click();link.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),60000);
-  return"downloaded";
+  $("excelPreviewDialog").showModal();
+}
+function closeExcelPreview(accepted=false){
+  if(excelImportResolve){const resolve=excelImportResolve;excelImportResolve=null;resolve(accepted)}
+  if($("excelPreviewDialog").open)$("excelPreviewDialog").close();
+  releaseExcelPreview();
+}
+function previewExportFile(file,list){
+  const headers=["Họ và tên","Hạng","DAT","BĐ DAT tự động","KT DAT tự động","BĐ DAT cơ khí","KT DAT cơ khí","Tổng học phí","Đã thu"];
+  const rows=list.slice(0,20).map(s=>{
+    const dates=(parseScheduleFromNotes(s.notes)||{}).dates||{};
+    return[s.name,s.license_class,s.dat_status,excelDatetime(dates.dat_auto_start),excelDatetime(dates.dat_auto_end),excelDatetime(dates.dat_manual_start),excelDatetime(dates.dat_manual_end),money(s.tuition_total),money(s.paid)];
+  });
+  renderExcelPreview({title:"File xuất đã sẵn sàng",file,headers,rows,note:`File có ${list.length} học viên và 23 cột dữ liệu. Bảng đang hiển thị tối đa 20 học viên để kiểm tra nhanh.`,mode:"export"});
+}
+function confirmExcelImport(file,records){
+  renderExcelPreview({
+    title:"Kiểm tra trước khi nhập",
+    file,
+    headers:["Họ và tên","Hạng","Khóa","Tổng học phí","Đã thu","Ghi chú"],
+    rows:records.slice(0,20).map(r=>[r.name,r.license_class,r.course,money(r.tuition_total),money(r.paid),stripScheduleFromNotes(r.notes)]),
+    note:`Tìm thấy ${records.length} học viên. Kiểm tra dữ liệu rồi bấm “Xác nhận nhập dữ liệu”. Bảng hiển thị tối đa 20 dòng.`,
+    mode:"import"
+  });
+  return new Promise(resolve=>{excelImportResolve=resolve});
 }
 function financialSummary(list){
   const total=list.reduce((sum,s)=>sum+Math.max(0,Number(s.tuition_total)||0),0);
@@ -368,8 +409,9 @@ $("exportBtn").onclick=async()=>{
     wb.Props={Title:"DATA học viên Thầy Đạt",Subject:"Dữ liệu quản lý học viên lái xe",Author:"Hệ thống quản lý học viên Thầy Đạt",CreatedDate:new Date()};
     X.utils.book_append_sheet(wb,ws,"DATA HỌC VIÊN");
     X.utils.book_append_sheet(wb,summarySheet,"TỔNG HỢP");
-    const result=await saveExcelFile(X,wb,`DATA-hoc-vien-${excelDate()}.xlsx`);
-    if(result!=="cancelled")toast(result==="shared"?`Đã tạo file .xlsx gồm ${students.length} học viên`:`Đã tải file .xlsx gồm ${students.length} học viên`);
+    const file=buildExcelFile(X,wb,`DATA-hoc-vien-${excelDate()}.xlsx`);
+    previewExportFile(file,students);
+    toast(`Đã tạo file .xlsx gồm ${students.length} học viên`);
   }catch(err){alert(errText(err))}
   finally{$("exportBtn").disabled=false}
 };
@@ -408,13 +450,28 @@ $("dataFile").onchange=async e=>{
       const notes=embedScheduleInNotes(get("notes"),Object.keys(scheduleDates).length?{version:1,dates:scheduleDates,locations:{},note:"",updatedAt:new Date().toISOString()}:null);
       return{name:get("name"),date_of_birth:dataDate(get("dob"))||null,cccd:get("cccd"),phone:get("phone"),address:get("address"),license_class:get("license")||"B số tự động",course:get("course"),profile_status:get("profile")||"Đã ghi nhận",online_status:get("online")||"Chưa hoàn thành",cabin_status:get("cabin")||"Chưa hoàn thành",dat_status:get("dat")||"Chưa thực hiện",graduation_status:get("graduation")||"Chưa hoàn thành",exam_status:get("exam")||"Chưa thi sát hạch",tuition_total:total,paid,notes};
     });
-    if(!confirm(`Nhập ${records.length} học viên từ file "${file.name}"?\nDữ liệu sẽ được thêm vào tài khoản đang chọn.`))return;
+    busy(false);
+    if(!await confirmExcelImport(file,records))return;
+    busy(true);
     let done=0;
     for(const data of records){
       await rpc("app_save_student",{p_token:token,p_student_id:null,p_data:data,p_owner_id:$("ownerFilter").value||me.id});done++;
     }
     await loadStudents();toast(`Đã nhập thành công ${done} học viên từ file .xlsx`);
   }catch(err){alert(errText(err))}finally{busy(false);e.target.value=""}
+};
+
+$("excelPreviewClose").onclick=()=>closeExcelPreview(false);
+$("excelPreviewCancel").onclick=()=>closeExcelPreview(false);
+$("excelImportConfirmBtn").onclick=()=>closeExcelPreview(true);
+$("excelPreviewDialog").addEventListener("cancel",e=>{e.preventDefault();closeExcelPreview(false)});
+$("excelShareBtn").onclick=async()=>{
+  if(!excelPreviewFile)return;
+  if(navigator.share&&navigator.canShare?.({files:[excelPreviewFile]})){
+    try{await navigator.share({files:[excelPreviewFile],title:"DATA học viên Thầy Đạt"});toast("Đã mở tùy chọn chia sẻ / lưu file");return}
+    catch(error){if(error?.name==="AbortError")return}
+  }
+  $("excelDownloadBtn").click();toast("Đã lưu file .xlsx vào thiết bị");
 };
 
 const savedUsername=localStorage.getItem("hv_saved_user")||"";

@@ -247,6 +247,25 @@
     </form>
   </dialog>
 
+  <dialog id="excelPreviewDialog" class="excel-preview-dialog">
+    <div class="dialog-head">
+      <div><p class="dialog-kicker">DỮ LIỆU EXCEL</p><h2 id="excelPreviewTitle">Xem trước file</h2></div>
+      <button id="excelPreviewClose" type="button" aria-label="Đóng">×</button>
+    </div>
+    <div id="excelPreviewMeta" class="excel-preview-meta"></div>
+    <div class="excel-preview-table-wrap">
+      <table class="excel-preview-table"><thead id="excelPreviewHead"></thead><tbody id="excelPreviewBody"></tbody></table>
+    </div>
+    <p id="excelPreviewNote" class="excel-preview-note"></p>
+    <div class="actions excel-preview-actions">
+      <button id="excelPreviewCancel" type="button">Đóng</button>
+      <a id="excelOpenBtn" class="excel-action-link" target="_blank" rel="noopener">Mở file</a>
+      <a id="excelDownloadBtn" class="excel-action-link" download>Lưu file</a>
+      <button id="excelShareBtn" class="primary" type="button">Chia sẻ / Lưu vào Tệp</button>
+      <button id="excelImportConfirmBtn" class="primary hidden" type="button">Xác nhận nhập dữ liệu</button>
+    </div>
+  </dialog>
+
   <div id="loading" class="loading hidden">Đang xử lý…</div><div id="toast" role="status"></div>
   <script type="module" src="/app.js"></script>
 </body>
