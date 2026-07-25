@@ -26,7 +26,10 @@
         <h1>Lịch đào tạo học viên</h1>
         <p>Theo dõi toàn bộ lịch học, lịch thực hành và các kỳ thi trên một màn hình.</p>
       </div>
-      <button id="openEditorBtn" class="primary admin-only hidden" type="button">＋ Lập lịch đào tạo</button>
+      <div class="hero-actions admin-only hidden">
+        <button id="openSessionBtn" class="secondary-light" type="button">＋ Thêm buổi thực hành</button>
+        <button id="openEditorBtn" class="primary" type="button">＋ Lập mốc đào tạo</button>
+      </div>
     </section>
 
     <section class="schedule-stats" aria-label="Tổng quan lịch đào tạo">
@@ -82,10 +85,46 @@
       </label>
       <p id="scheduleError" class="form-error" role="alert"></p>
       <div class="dialog-actions">
-        <button id="deleteAllScheduleBtn" class="danger-action admin-only hidden" type="button">Xóa toàn bộ lịch</button>
+        <button id="deleteAllScheduleBtn" class="danger-action admin-only hidden" type="button">Xóa toàn bộ mốc</button>
         <span class="dialog-actions-spacer"></span>
         <button class="dialog-close" type="button">Hủy</button>
         <button id="saveScheduleBtn" class="primary" type="submit">Lưu lịch đào tạo</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="sessionDialog" class="session-dialog">
+    <form id="sessionForm">
+      <div class="dialog-head">
+        <div><p>BUỔI THỰC HÀNH</p><h2 id="sessionDialogTitle">Thêm buổi thực hành</h2></div>
+        <button class="dialog-close" type="button" aria-label="Đóng">×</button>
+      </div>
+      <input id="trainingSessionId" type="hidden">
+      <div class="session-form-grid">
+        <label>Chọn học viên
+          <select id="trainingStudent" required></select>
+        </label>
+        <label>Nội dung đào tạo
+          <select id="trainingType" required>
+            <option value="familiar">🚘 Thực hành làm quen xe</option>
+            <option value="practice">🛣️ Học sa hình</option>
+          </select>
+        </label>
+        <label>Ngày và giờ
+          <input id="trainingStartsAt" type="datetime-local" required>
+        </label>
+        <label>Địa điểm
+          <input id="trainingLocation" placeholder="Nhập địa điểm học">
+        </label>
+        <label class="session-note">Ghi chú
+          <textarea id="trainingNote" rows="3" placeholder="Ví dụ: Xe số 03, giáo viên phụ trách…"></textarea>
+        </label>
+      </div>
+      <p class="session-help">Có thể thêm nhiều buổi cùng loại cho cùng một học viên. Mỗi buổi được sửa hoặc xóa riêng.</p>
+      <p id="sessionError" class="form-error" role="alert"></p>
+      <div class="dialog-actions">
+        <button class="dialog-close" type="button">Hủy</button>
+        <button id="saveSessionBtn" class="primary" type="submit">Lưu buổi thực hành</button>
       </div>
     </form>
   </dialog>
