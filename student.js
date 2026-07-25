@@ -5,7 +5,7 @@ import QRCode from "qrcode";
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
-let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",me=null,student=null,trainingSessions=[],trainingRequests=[],studentNotices=[],forcePasswordChange=false,bookingFeatureAvailable=true;
+let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",me=null,student=null,trainingSessions=[],trainingRequests=[],trainingSlots=[],studentNotices=[],forcePasswordChange=false,bookingFeatureAvailable=true,slotFeatureAvailable=true;
 
 async function rpc(fn,body={}){
   const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
@@ -73,6 +73,48 @@ async function loadTrainingRequests(){
   }
   student.training_requests=trainingRequests;
 }
+async function loadTrainingSlots(){
+  try{
+    trainingSlots=await rpc("app_list_training_slots",{p_token:token,p_session_type:null})||[];
+    slotFeatureAvailable=true;
+  }catch(error){
+    trainingSlots=[];
+    slotFeatureAvailable=false;
+    if(!/app_list_training_slots|schema cache|PGRST202/i.test(error?.message||""))throw error;
+  }
+}
+function formatDuration(minutes){
+  const value=Number(minutes)||0,hours=Math.floor(value/60),rest=value%60;
+  return [hours?`${hours} giờ`:"",rest?`${rest} phút`:""].filter(Boolean).join(" ")||"Chưa xác định";
+}
+function availableSlots(type){
+  return trainingSlots.filter(slot=>
+    slot.session_type===type&&slot.status==="open"&&new Date(slot.starts_at)>new Date()&&Number(slot.available_count)>0
+  );
+}
+function renderRequestSlotDetails(){
+  const slot=trainingSlots.find(item=>String(item.id)===String($("requestSlot").value));
+  if(!slot){
+    $("requestSlotDetails").className="request-slot-details is-empty";
+    $("requestSlotDetails").textContent="Hiện chưa có ca học phù hợp còn chỗ. Vui lòng quay lại sau.";
+    return;
+  }
+  $("requestSlotDetails").className="request-slot-details";
+  $("requestSlotDetails").innerHTML=`
+    <strong>${esc(date(slot.starts_at,true))} · ${esc(formatDuration(slot.duration_minutes))}</strong>
+    <span>⌖ ${esc(slot.location||"Địa điểm sẽ được Admin cập nhật")}</span>
+    <span>👤 ${esc(slot.instructor_name||"Chưa gán giáo viên")} · 🚘 ${esc(slot.vehicle_plate||"Chưa gán xe")}</span>
+    <span>✓ Còn ${Math.max(0,Number(slot.available_count)||0)} chỗ</span>`;
+}
+function fillSlotOptions(type){
+  const slots=availableSlots(type);
+  $("requestSlot").innerHTML=slots.map(slot=>
+    `<option value="${slot.id}">${esc(date(slot.starts_at,true))} · còn ${Math.max(0,Number(slot.available_count)||0)} chỗ</option>`
+  ).join("");
+  $("requestSlot").disabled=slots.length===0;
+  $("submitTrainingRequest").disabled=slots.length===0;
+  renderRequestSlotDetails();
+}
 function renderTrainingRequests(){
   const pending=trainingRequests.filter(request=>request.status==="pending").length;
   $("bookingPendingBadge").textContent=`${pending} yêu cầu chờ duyệt`;
@@ -81,7 +123,7 @@ function renderTrainingRequests(){
     const status=requestStatus[request.status]||requestStatus.pending;
     return `<article class="booking-request">
       <span>${field.icon}</span>
-      <div><strong>${esc(field.label)}</strong><small>${esc(date(request.requested_at,true))}</small>${request.note?`<em>Ghi chú: ${esc(request.note)}</em>`:""}${request.admin_note?`<em>Admin: ${esc(request.admin_note)}</em>`:""}</div>
+      <div><strong>${esc(field.label)}</strong><small>${esc(date(request.slot_starts_at||request.requested_at,true))}</small>${request.slot_id?`<em class="slot-meta">⌖ ${esc(request.slot_location||"Chưa có địa điểm")} · 👤 ${esc(request.slot_instructor_name||"Chưa gán giáo viên")} · 🚘 ${esc(request.slot_vehicle_plate||"Chưa gán xe")}</em>`:""}${request.note?`<em>Ghi chú: ${esc(request.note)}</em>`:""}${request.admin_note?`<em>Admin: ${esc(request.admin_note)}</em>`:""}</div>
       <span class="request-status ${status.className}">${status.label}</span>
       ${request.status==="pending"?`<button class="cancel-request" type="button" data-cancel-request="${request.id}">Hủy yêu cầu</button>`:""}
     </article>`;
@@ -91,10 +133,19 @@ function openTrainingRequest(type){
   if(!bookingFeatureAvailable)return alert("Chức năng đăng ký đang được Admin cập nhật. Vui lòng thử lại sau.");
   $("trainingRequestForm").reset();
   $("requestType").value=type;
+  $("requestType").disabled=true;
   $("trainingRequestTitle").textContent=type==="practice"?"Đăng ký học sa hình":"Đăng ký làm quen xe";
   $("trainingRequestError").textContent="";
-  const now=new Date(Date.now()+30*60000),offset=now.getTimezoneOffset()*60000;
-  $("requestStartsAt").min=new Date(now-offset).toISOString().slice(0,16);
+  $("requestSlotField").classList.toggle("hidden",!slotFeatureAvailable);
+  $("requestSlotDetails").classList.toggle("hidden",!slotFeatureAvailable);
+  $("requestLegacyTimeField").classList.toggle("hidden",slotFeatureAvailable);
+  if(slotFeatureAvailable){
+    fillSlotOptions(type);
+  }else{
+    $("submitTrainingRequest").disabled=false;
+    const now=new Date(Date.now()+30*60000),offset=now.getTimezoneOffset()*60000;
+    $("requestStartsAt").min=new Date(now-offset).toISOString().slice(0,16);
+  }
   $("trainingRequestDialog").showModal();
 }
 function renderPortal(){
@@ -188,22 +239,28 @@ function renderStudentNotifications(markRead=false){
 $("studentNotificationBtn").onclick=()=>{$("studentNotificationDialog").showModal()};
 $("studentMarkNotificationsRead").onclick=()=>{renderStudentNotifications(true);toast("Đã đánh dấu tất cả thông báo là đã đọc")};
 document.querySelectorAll("[data-booking-type]").forEach(button=>button.onclick=()=>openTrainingRequest(button.dataset.bookingType));
+$("requestSlot").onchange=renderRequestSlotDetails;
 $("trainingRequestForm").onsubmit=async event=>{
   event.preventDefault();$("trainingRequestError").textContent="";
-  const startsAt=$("requestStartsAt").value;
-  if(!startsAt)return $("trainingRequestError").textContent="Vui lòng chọn ngày và giờ mong muốn.";
+  const slotId=$("requestSlot").value,startsAt=$("requestStartsAt").value;
+  if(slotFeatureAvailable&&!slotId)return $("trainingRequestError").textContent="Hiện chưa có ca học phù hợp còn chỗ.";
+  if(!slotFeatureAvailable&&!startsAt)return $("trainingRequestError").textContent="Vui lòng chọn ngày và giờ mong muốn.";
   $("submitTrainingRequest").disabled=true;
   try{
-    await rpc("app_student_create_training_request",{
-      p_token:token,
-      p_request_type:$("requestType").value,
-      p_requested_at:new Date(startsAt).toISOString(),
-      p_note:$("requestNote").value.trim()
-    });
-    await loadTrainingRequests();
+    if(slotFeatureAvailable){
+      await rpc("app_student_create_training_request_slot",{
+        p_token:token,p_slot_id:slotId,p_note:$("requestNote").value.trim()
+      });
+    }else{
+      await rpc("app_student_create_training_request",{
+        p_token:token,p_request_type:$("requestType").value,
+        p_requested_at:new Date(startsAt).toISOString(),p_note:$("requestNote").value.trim()
+      });
+    }
+    await Promise.all([loadTrainingRequests(),loadTrainingSlots()]);
     $("trainingRequestDialog").close();renderTrainingRequests();renderStudentNotifications();toast("Đã gửi yêu cầu đến Admin");
   }catch(error){$("trainingRequestError").textContent=error?.message||"Không thể gửi yêu cầu đăng ký."}
-  finally{$("submitTrainingRequest").disabled=false}
+  finally{if(!slotFeatureAvailable||availableSlots($("requestType").value).length)$("submitTrainingRequest").disabled=false}
 };
 $("studentBookingRequests").onclick=async event=>{
   const requestId=event.target.dataset.cancelRequest;
@@ -211,7 +268,7 @@ $("studentBookingRequests").onclick=async event=>{
   event.target.disabled=true;
   try{
     await rpc("app_student_cancel_training_request",{p_token:token,p_request_id:requestId});
-    await loadTrainingRequests();renderTrainingRequests();renderStudentNotifications();toast("Đã hủy yêu cầu");
+    await Promise.all([loadTrainingRequests(),loadTrainingSlots()]);renderTrainingRequests();renderStudentNotifications();toast("Đã hủy yêu cầu");
   }catch(error){toast(error?.message||"Không thể hủy yêu cầu.")}
   finally{event.target.disabled=false}
 };
@@ -250,7 +307,7 @@ async function boot(){
       if(!/app_list_training_sessions|schema cache|PGRST202/i.test(error?.message||""))throw error;
       trainingSessions=[];
     }
-    await loadTrainingRequests();
+    await Promise.all([loadTrainingRequests(),loadTrainingSlots()]);
     student.training_sessions=trainingSessions;
     renderPortal();
     if(me.force_change_password)openPassword(true);

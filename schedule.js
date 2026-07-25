@@ -7,7 +7,7 @@ const token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")
 const authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"";
 const REPEATABLE_KEYS=new Set(["familiar","practice"]);
 const MILESTONE_FIELDS=SCHEDULE_FIELDS.filter(field=>!REPEATABLE_KEYS.has(field.key));
-let me=null,students=[],trainingSessions=[],trainingRequests=[],events=[],sessionFeatureAvailable=true,requestFeatureAvailable=true;
+let me=null,students=[],trainingSessions=[],trainingRequests=[],trainingSlots=[],events=[],sessionFeatureAvailable=true,requestFeatureAvailable=true,slotFeatureAvailable=true;
 
 async function rpc(fn,body={}){
   const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{
@@ -35,6 +35,10 @@ function formatDate(value){
   if(Number.isNaN(date.valueOf()))return"Chưa xác định";
   return new Intl.DateTimeFormat("vi-VN",{weekday:"long",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}).format(date);
 }
+function formatDuration(minutes){
+  const value=Number(minutes)||0,hours=Math.floor(value/60),rest=value%60;
+  return [hours?`${hours} giờ`:"",rest?`${rest} phút`:""].filter(Boolean).join(" ")||"Chưa xác định";
+}
 function dateParts(value){
   const date=new Date(value);
   return{day:String(date.getDate()).padStart(2,"0"),month:`THÁNG ${date.getMonth()+1}`,time:new Intl.DateTimeFormat("vi-VN",{hour:"2-digit",minute:"2-digit"}).format(date)};
@@ -61,6 +65,9 @@ function createEvents(){
     date:session.starts_at,
     location:session.location||"",
     note:session.note||"",
+    instructorName:session.instructor_name||"",
+    vehiclePlate:session.vehicle_plate||"",
+    durationMinutes:Number(session.duration_minutes)||120,
     source:"session",
     session
   })).filter(event=>event.student&&event.field);
@@ -99,9 +106,11 @@ function renderEvents(){
       <div class="event-date"><strong>${part.day}</strong><span>${part.month}</span><em>${part.time}</em></div>
       <div class="event-type tone-${event.field.tone}"><span>${event.field.icon}</span><div><small>NỘI DUNG ĐÀO TẠO</small><strong>${esc(event.field.label)}</strong></div></div>
       <div class="event-student"><small>HỌC VIÊN</small><strong>${esc(event.student.name)}</strong><span>${esc(event.student.student_code||"Chưa có mã")} · ${esc(event.student.course||"Chưa có khóa")}</span></div>
-      <div class="event-detail">${event.source==="session"?'<span class="repeat-label">Buổi thực hành riêng</span>':""}<span>◷ ${esc(formatDate(event.date))}</span><span>⌖ ${esc(event.location||"Chưa nhập địa điểm")}</span>${event.note?`<span>ⓘ ${esc(event.note)}</span>`:""}</div>
+      <div class="event-detail">${event.source==="session"?`<span class="repeat-label">${event.session?.slot_id?"Ca học đã duyệt":"Buổi thực hành riêng"}</span>`:""}<span>◷ ${esc(formatDate(event.date))}${event.source==="session"?` · ${esc(formatDuration(event.durationMinutes))}`:""}</span><span>⌖ ${esc(event.location||"Chưa nhập địa điểm")}</span>${event.instructorName?`<span>👤 Giáo viên: ${esc(event.instructorName)}</span>`:""}${event.vehiclePlate?`<span>🚘 Xe: ${esc(event.vehiclePlate)}</span>`:""}${event.note?`<span>ⓘ ${esc(event.note)}</span>`:""}</div>
       ${me.role==="admin"?event.source==="session"
-        ?`<div class="event-actions"><button class="edit-event" type="button" data-edit-session="${event.id}">Sửa buổi</button><button class="delete-event" type="button" data-delete-session="${event.id}">Xóa buổi</button></div>`
+        ?event.session?.slot_id
+          ?`<div class="event-actions"><button class="edit-event" type="button" data-edit-slot="${event.session.slot_id}">Sửa ca</button><button class="delete-event" type="button" data-delete-session="${event.id}">Xóa khỏi ca</button></div>`
+          :`<div class="event-actions"><button class="edit-event" type="button" data-edit-session="${event.id}">Sửa buổi</button><button class="delete-event" type="button" data-delete-session="${event.id}">Xóa buổi</button></div>`
         :`<div class="event-actions"><button class="edit-event" type="button" data-edit-student="${event.student.id}">Sửa mốc</button><button class="delete-event" type="button" data-delete-student="${event.student.id}" data-delete-key="${event.field.key}">Xóa mốc</button></div>`:""}
     </article>`;
   }).join("");
@@ -165,6 +174,80 @@ async function loadTrainingRequests(){
     if(!/app_list_training_requests|schema cache|PGRST202/i.test(error?.message||""))throw error;
   }
 }
+async function loadTrainingSlots(){
+  try{
+    trainingSlots=await rpc("app_list_training_slots",{p_token:token,p_session_type:null})||[];
+    slotFeatureAvailable=true;
+  }catch(error){
+    trainingSlots=[];
+    slotFeatureAvailable=false;
+    if(!/app_list_training_slots|schema cache|PGRST202/i.test(error?.message||""))throw error;
+  }
+}
+function slotStatusLabel(status){
+  return{open:"Đang mở",closed:"Đã đóng",cancelled:"Đã hủy"}[status]||status;
+}
+function renderTrainingSlots(){
+  if(me.role!=="admin")return;
+  const openSlots=trainingSlots.filter(slot=>slot.status==="open"&&new Date(slot.starts_at)>new Date());
+  $("openSlotCount").textContent=`${openSlots.length} ca đang mở`;
+  $("trainingSlotList").innerHTML=trainingSlots.length?trainingSlots.map(slot=>{
+    const field=SCHEDULE_FIELDS.find(item=>item.key===slot.session_type)||{icon:"▣",label:"Buổi thực hành"};
+    const booked=Number(slot.booked_count)||0,capacity=Math.max(1,Number(slot.capacity)||1),percent=Math.min(100,Math.round(booked/capacity*100));
+    return `<article class="training-slot-card ${slot.status!=="open"?"is-closed":""}">
+      <div class="training-slot-head">
+        <div><span>${field.icon}</span><div><small>${esc(formatDate(slot.starts_at))}</small><strong>${esc(field.label)}</strong></div></div>
+        <span class="slot-status ${esc(slot.status)}">${esc(slotStatusLabel(slot.status))}</span>
+      </div>
+      <div class="training-slot-info">
+        <span>◷ ${esc(formatDuration(slot.duration_minutes))}</span>
+        <span>⌖ ${esc(slot.location||"Chưa nhập địa điểm")}</span>
+        <span>👤 ${esc(slot.instructor_name||"Chưa gán giáo viên")}</span>
+        <span>🚘 ${esc(slot.vehicle_plate||"Chưa gán xe")}</span>
+      </div>
+      <div class="training-slot-capacity"><div class="capacity-bar"><i style="width:${percent}%"></i></div><strong>${booked}/${capacity} học viên${Number(slot.pending_count)?` · ${Number(slot.pending_count)} chờ duyệt`:""}</strong></div>
+      <div class="training-slot-actions"><button class="edit-slot" type="button" data-edit-slot="${slot.id}">Sửa ca học</button>${slot.status==="open"?`<button class="close-slot" type="button" data-close-slot="${slot.id}">Đóng đăng ký</button>`:""}</div>
+    </article>`;
+  }).join(""):`<div class="slot-empty">Chưa có ca học thực hành. Bấm “Tạo ca học” để mở lịch cho học viên đăng ký.</div>`;
+}
+function openSlotEditor(slotId=""){
+  if(me.role!=="admin")return;
+  if(!slotFeatureAvailable){
+    return alert("Admin cần chạy file CAP-NHAT-CA-HOC-CHONG-TRUNG-LICH.sql trong Supabase trước khi tạo ca học.");
+  }
+  const slot=trainingSlots.find(item=>String(item.id)===String(slotId));
+  $("slotForm").reset();
+  $("slotError").textContent="";
+  $("trainingSlotId").value=slot?.id||"";
+  $("slotType").value=slot?.session_type||"familiar";
+  $("slotStartsAt").value=toDatetimeLocal(slot?.starts_at);
+  $("slotDuration").value=String(slot?.duration_minutes||120);
+  $("slotCapacity").value=String(slot?.capacity||1);
+  $("slotInstructor").value=slot?.instructor_name||"";
+  $("slotVehicle").value=slot?.vehicle_plate||"";
+  $("slotLocation").value=slot?.location||"";
+  $("slotStatus").value=slot?.status||"open";
+  $("slotNote").value=slot?.note||"";
+  $("slotDialogTitle").textContent=slot?"Sửa ca học thực hành":"Tạo ca học thực hành";
+  $("saveSlotBtn").textContent=slot?"Lưu thay đổi":"Tạo ca học";
+  $("deleteSlotBtn").classList.toggle("hidden",!slot);
+  $("slotDialog").showModal();
+}
+async function closeTrainingSlot(slotId){
+  const slot=trainingSlots.find(item=>String(item.id)===String(slotId));
+  if(!slot||!confirm(`Đóng đăng ký ca ${formatDate(slot.starts_at)}?`))return;
+  busy(true);
+  try{
+    await rpc("app_admin_save_training_slot",{
+      p_token:token,p_slot_id:slot.id,p_session_type:slot.session_type,p_starts_at:slot.starts_at,
+      p_duration_minutes:Number(slot.duration_minutes),p_location:slot.location||"",
+      p_instructor_name:slot.instructor_name||"",p_vehicle_plate:slot.vehicle_plate||"",
+      p_capacity:Number(slot.capacity),p_note:slot.note||"",p_status:"closed"
+    });
+    await loadTrainingSlots();renderTrainingSlots();toast("Đã đóng đăng ký ca học");
+  }catch(error){alert(error?.message||"Không thể đóng ca học.")}
+  finally{busy(false)}
+}
 function renderTrainingRequests(){
   if(me.role!=="admin")return;
   const pending=trainingRequests.filter(request=>request.status==="pending");
@@ -176,8 +259,8 @@ function renderTrainingRequests(){
     return `<article class="admin-request">
       <span>${field.icon}</span>
       <div><small>HỌC VIÊN</small><strong>${esc(student?.name||request.student_name||"Học viên")}</strong><em>${esc(student?.student_code||request.student_code||"Chưa có mã")}</em></div>
-      <div><small>NỘI DUNG</small><strong>${esc(field.label)}</strong><em>${esc(formatDate(request.requested_at))}</em></div>
-      <div><small>GHI CHÚ HỌC VIÊN</small><em>${esc(request.note||"Không có ghi chú")}</em></div>
+      <div><small>NỘI DUNG</small><strong>${esc(field.label)}</strong><em>${esc(formatDate(request.slot_starts_at||request.requested_at))}</em></div>
+      <div><small>CHI TIẾT CA HỌC</small><em class="${request.slot_id?"request-slot-summary":""}">${request.slot_id?`⌖ ${esc(request.slot_location||"Chưa nhập địa điểm")} · 👤 ${esc(request.slot_instructor_name||"Chưa gán giáo viên")} · 🚘 ${esc(request.slot_vehicle_plate||"Chưa gán xe")}`:esc(request.note||"Yêu cầu lịch cũ, chưa gắn ca học")}</em>${request.note&&request.slot_id?`<em>Học viên: ${esc(request.note)}</em>`:""}</div>
       <div class="request-actions"><button class="approve-request" type="button" data-approve-request="${request.id}">Duyệt</button><button class="reject-request" type="button" data-reject-request="${request.id}">Từ chối</button></div>
     </article>`;
   }).join(""):`<div class="request-empty">Không có yêu cầu đăng ký nào đang chờ duyệt.</div>`;
@@ -207,6 +290,7 @@ function openRequestApproval(requestId){
   if(me.role!=="admin"||!requestFeatureAvailable)return;
   const request=trainingRequests.find(item=>String(item.id)===String(requestId));
   if(!request||request.status!=="pending")return;
+  if(request.slot_id)return approveTrainingRequest(request);
   openSessionEditor();
   $("trainingRequestId").value=request.id;
   $("trainingStudent").value=request.student_id;
@@ -218,6 +302,23 @@ function openRequestApproval(requestId){
   $("sessionDialogTitle").textContent="Duyệt yêu cầu đăng ký";
   $("saveSessionBtn").textContent="Duyệt và tạo lịch";
 }
+async function approveTrainingRequest(request){
+  const slot=trainingSlots.find(item=>String(item.id)===String(request.slot_id));
+  const detail=slot?`${formatDate(slot.starts_at)} · ${slot.location||"Chưa có địa điểm"}`:formatDate(request.slot_starts_at||request.requested_at);
+  if(!confirm(`Duyệt yêu cầu của ${request.student_name||"học viên"} vào ca ${detail}?`))return;
+  busy(true);
+  try{
+    await rpc("app_admin_review_training_request_slot",{
+      p_token:token,p_request_id:request.id,p_decision:"approved",
+      p_slot_id:request.slot_id,p_admin_note:""
+    });
+    await Promise.all([loadTrainingSessions(),loadTrainingRequests(),loadTrainingSlots()]);
+    renderAll();renderTrainingRequests();renderTrainingSlots();toast("Đã duyệt học viên vào ca học");
+  }catch(error){
+    const missing=/app_admin_review_training_request_slot|schema cache|PGRST202/i.test(error?.message||"");
+    alert(missing?"Admin cần chạy file CAP-NHAT-CA-HOC-CHONG-TRUNG-LICH.sql trong Supabase.":error?.message||"Không thể duyệt yêu cầu.");
+  }finally{busy(false)}
+}
 async function rejectTrainingRequest(requestId){
   if(me.role!=="admin")return;
   const request=trainingRequests.find(item=>String(item.id)===String(requestId));
@@ -226,11 +327,19 @@ async function rejectTrainingRequest(requestId){
   if(reason===null)return;
   busy(true);
   try{
-    await rpc("app_admin_review_training_request",{
-      p_token:token,p_request_id:request.id,p_decision:"rejected",
-      p_starts_at:null,p_location:"",p_admin_note:reason.trim()
-    });
-    await loadTrainingRequests();renderTrainingRequests();toast("Đã từ chối yêu cầu");
+    if(request.slot_id){
+      await rpc("app_admin_review_training_request_slot",{
+        p_token:token,p_request_id:request.id,p_decision:"rejected",
+        p_slot_id:request.slot_id,p_admin_note:reason.trim()
+      });
+    }else{
+      await rpc("app_admin_review_training_request",{
+        p_token:token,p_request_id:request.id,p_decision:"rejected",
+        p_starts_at:null,p_location:"",p_admin_note:reason.trim()
+      });
+    }
+    await Promise.all([loadTrainingRequests(),loadTrainingSlots()]);
+    renderTrainingRequests();renderTrainingSlots();toast("Đã từ chối yêu cầu");
   }catch(error){alert(error?.message||"Không thể từ chối yêu cầu.")}
   finally{busy(false)}
 }
@@ -240,12 +349,12 @@ async function deleteTrainingSession(sessionId){
   const student=students.find(item=>String(item.id)===String(session?.student_id));
   const field=SCHEDULE_FIELDS.find(item=>item.key===session?.session_type);
   if(!session||!student||!field)return;
-  if(!confirm(`Xóa buổi “${field.label}” của học viên ${student.name} vào ${formatDate(session.starts_at)}?`))return;
+  if(!confirm(`${session.slot_id?"Xóa học viên khỏi ca":"Xóa buổi"} “${field.label}” của ${student.name} vào ${formatDate(session.starts_at)}?`))return;
   busy(true);
   try{
     await rpc("app_admin_delete_training_session",{p_token:token,p_session_id:session.id});
     trainingSessions=trainingSessions.filter(item=>String(item.id)!==String(session.id));
-    renderAll();toast("Đã xóa buổi thực hành");
+    await loadTrainingSlots();renderAll();renderTrainingSlots();toast(session.slot_id?"Đã xóa học viên khỏi ca":"Đã xóa buổi thực hành");
   }catch(error){alert(error?.message||"Không thể xóa buổi thực hành.")}
   finally{busy(false)}
 }
@@ -291,6 +400,43 @@ async function deleteOneSchedule(studentId,fieldKey){
   }catch(error){alert(error?.message||"Không thể xóa lịch đào tạo.")}
   finally{busy(false)}
 }
+
+$("slotForm").onsubmit=async event=>{
+  event.preventDefault();$("slotError").textContent="";
+  const startsAt=$("slotStartsAt").value;
+  if(!startsAt)return $("slotError").textContent="Vui lòng chọn ngày và giờ bắt đầu.";
+  $("saveSlotBtn").disabled=true;busy(true);
+  try{
+    await rpc("app_admin_save_training_slot",{
+      p_token:token,
+      p_slot_id:$("trainingSlotId").value||null,
+      p_session_type:$("slotType").value,
+      p_starts_at:new Date(startsAt).toISOString(),
+      p_duration_minutes:Number($("slotDuration").value),
+      p_location:$("slotLocation").value.trim(),
+      p_instructor_name:$("slotInstructor").value.trim(),
+      p_vehicle_plate:$("slotVehicle").value.trim(),
+      p_capacity:Number($("slotCapacity").value),
+      p_note:$("slotNote").value.trim(),
+      p_status:$("slotStatus").value
+    });
+    await Promise.all([loadTrainingSlots(),loadTrainingSessions(),loadTrainingRequests()]);
+    $("slotDialog").close();renderTrainingSlots();renderTrainingRequests();renderAll();
+    toast($("trainingSlotId").value?"Đã cập nhật ca học":"Đã tạo ca học");
+  }catch(error){$("slotError").textContent=error?.message||"Không thể lưu ca học."}
+  finally{$("saveSlotBtn").disabled=false;busy(false)}
+};
+
+$("deleteSlotBtn").onclick=async()=>{
+  const slot=trainingSlots.find(item=>String(item.id)===String($("trainingSlotId").value));
+  if(!slot||!confirm(`Xóa ca học ${formatDate(slot.starts_at)}?`))return;
+  $("deleteSlotBtn").disabled=true;busy(true);$("slotError").textContent="";
+  try{
+    await rpc("app_admin_delete_training_slot",{p_token:token,p_slot_id:slot.id});
+    await loadTrainingSlots();$("slotDialog").close();renderTrainingSlots();toast("Đã xóa ca học");
+  }catch(error){$("slotError").textContent=error?.message||"Không thể xóa ca học."}
+  finally{$("deleteSlotBtn").disabled=false;busy(false)}
+};
 
 $("scheduleForm").onsubmit=async event=>{
   event.preventDefault();$("scheduleError").textContent="";
@@ -353,6 +499,7 @@ $("sessionForm").onsubmit=async event=>{
 
 $("scheduleStudent").onchange=event=>fillEditor(event.target.value);
 $("openEditorBtn").onclick=()=>openEditor();
+$("openSlotBtn").onclick=()=>openSlotEditor();
 $("openSessionBtn").onclick=()=>openSessionEditor();
 $("openRequestsBtn").onclick=()=>{$("trainingRequests").scrollIntoView({behavior:"smooth",block:"start"})};
 $("scheduleSearch").oninput=renderEvents;
@@ -360,11 +507,17 @@ $("typeFilter").onchange=renderEvents;
 $("periodFilter").onchange=renderEvents;
 $("eventList").onclick=event=>{
   const editId=event.target.dataset.editStudent,deleteId=event.target.dataset.deleteStudent,fieldKey=event.target.dataset.deleteKey;
-  const editSessionId=event.target.dataset.editSession,deleteSessionId=event.target.dataset.deleteSession;
+  const editSessionId=event.target.dataset.editSession,deleteSessionId=event.target.dataset.deleteSession,editSlotId=event.target.dataset.editSlot;
+  if(editSlotId)return openSlotEditor(editSlotId);
   if(editSessionId)return openSessionEditor(editSessionId);
   if(deleteSessionId)return deleteTrainingSession(deleteSessionId);
   if(editId)return openEditor(editId);
   if(deleteId&&fieldKey)return deleteOneSchedule(deleteId,fieldKey);
+};
+$("trainingSlotList").onclick=event=>{
+  const editSlotId=event.target.dataset.editSlot,closeSlotId=event.target.dataset.closeSlot;
+  if(editSlotId)return openSlotEditor(editSlotId);
+  if(closeSlotId)return closeTrainingSlot(closeSlotId);
 };
 $("adminRequestList").onclick=event=>{
   const approveId=event.target.dataset.approveRequest,rejectId=event.target.dataset.rejectRequest;
@@ -413,10 +566,11 @@ async function boot(){
     $("trainingStudent").innerHTML=$("scheduleStudent").innerHTML;
     $("typeFilter").innerHTML+=[...SCHEDULE_FIELDS].map(field=>`<option value="${field.key}">${field.label}</option>`).join("");
     await loadTrainingSessions();
-    if(me.role==="admin")await loadTrainingRequests();
-    renderEditorFields();renderAll();renderTrainingRequests();
+    if(me.role==="admin")await Promise.all([loadTrainingRequests(),loadTrainingSlots()]);
+    renderEditorFields();renderAll();renderTrainingRequests();renderTrainingSlots();
     if(me.role==="admin"&&!sessionFeatureAvailable)toast("Cần chạy file SQL cập nhật để mở chức năng nhiều buổi");
     if(me.role==="admin"&&!requestFeatureAvailable)toast("Cần chạy file SQL đăng ký lịch để nhận yêu cầu từ học viên");
+    if(me.role==="admin"&&!slotFeatureAvailable)toast("Cần chạy file SQL ca học để bật chống trùng lịch");
   }catch(error){
     for(const store of [localStorage,sessionStorage]){store.removeItem("hv_token");store.removeItem("hv_auth_kind")}
     alert(error?.message||"Không thể mở lịch đào tạo.");
