@@ -27,6 +27,7 @@
         <p>Theo dõi toàn bộ lịch học, lịch thực hành và các kỳ thi trên một màn hình.</p>
       </div>
       <div class="hero-actions admin-only hidden">
+        <button id="openRequestsBtn" class="request-light" type="button">✋ Yêu cầu <b id="requestCountBadge">0</b></button>
         <button id="openSessionBtn" class="secondary-light" type="button">＋ Thêm buổi thực hành</button>
         <button id="openEditorBtn" class="primary" type="button">＋ Lập mốc đào tạo</button>
       </div>
@@ -37,6 +38,14 @@
       <article><span class="stat-icon stat-green">✓</span><div><small>Trong 7 ngày tới</small><strong id="weekCount">0</strong><em>Cần chuẩn bị</em></div></article>
       <article><span class="stat-icon stat-orange">!</span><div><small>Học viên chưa có lịch</small><strong id="unscheduledCount">0</strong><em>Chưa nhập mốc nào</em></div></article>
       <article><span class="stat-icon stat-violet">◷</span><div><small>Lịch hôm nay</small><strong id="todayCount">0</strong><em>Đang diễn ra</em></div></article>
+    </section>
+
+    <section id="trainingRequests" class="request-panel admin-only hidden">
+      <div class="panel-head">
+        <div><h2>Yêu cầu đăng ký từ học viên</h2><p>Duyệt hoặc từ chối lịch làm quen xe và học sa hình</p></div>
+        <span id="pendingRequestCount">0 chờ duyệt</span>
+      </div>
+      <div id="adminRequestList" class="admin-request-list"></div>
     </section>
 
     <section class="schedule-toolbar">
@@ -100,6 +109,7 @@
         <button class="dialog-close" type="button" aria-label="Đóng">×</button>
       </div>
       <input id="trainingSessionId" type="hidden">
+      <input id="trainingRequestId" type="hidden">
       <div class="session-form-grid">
         <label>Chọn học viên
           <select id="trainingStudent" required></select>
