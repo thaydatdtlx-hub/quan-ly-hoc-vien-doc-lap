@@ -82,6 +82,23 @@
       </div>
     </section>
 
+    <section id="trainingBooking" class="portal-section booking-section" aria-labelledby="bookingHeading">
+      <div class="section-heading booking-heading">
+        <div><p>ĐĂNG KÝ LỊCH HỌC</p><h2 id="bookingHeading">Thực hành theo nhu cầu</h2></div>
+        <span id="bookingPendingBadge">0 yêu cầu chờ duyệt</span>
+      </div>
+      <div class="booking-actions">
+        <button class="booking-action familiar" type="button" data-booking-type="familiar">
+          <span>🚘</span><div><strong>Đăng ký làm quen xe</strong><small>Chọn ngày và giờ mong muốn</small></div><b>＋</b>
+        </button>
+        <button class="booking-action practice" type="button" data-booking-type="practice">
+          <span>🛣️</span><div><strong>Đăng ký học sa hình</strong><small>Gửi yêu cầu để Admin duyệt</small></div><b>＋</b>
+        </button>
+      </div>
+      <div class="booking-history-head"><strong>Yêu cầu gần đây</strong><small>Admin có thể điều chỉnh thời gian trước khi duyệt</small></div>
+      <div id="studentBookingRequests" class="booking-request-list"></div>
+    </section>
+
     <section class="portal-section" aria-labelledby="progressHeading">
       <div class="section-heading"><div><p>TIẾN ĐỘ ĐÀO TẠO</p><h2 id="progressHeading">Quá trình học tập</h2></div></div>
       <div id="studentProgress" class="progress-grid"></div>
@@ -100,6 +117,27 @@
   </main>
 
   <div id="studentLoading" class="student-loading">Đang tải thông tin học viên…</div>
+
+  <dialog id="trainingRequestDialog" class="booking-dialog">
+    <form id="trainingRequestForm">
+      <div class="dialog-head"><div><p>ĐĂNG KÝ LỊCH HỌC</p><h2 id="trainingRequestTitle">Đăng ký buổi thực hành</h2></div><button class="dialog-close" type="button" aria-label="Đóng">×</button></div>
+      <label>Nội dung đăng ký
+        <select id="requestType" required>
+          <option value="familiar">🚘 Thực hành làm quen xe</option>
+          <option value="practice">🛣️ Học sa hình</option>
+        </select>
+      </label>
+      <label>Ngày và giờ mong muốn
+        <input id="requestStartsAt" type="datetime-local" required>
+      </label>
+      <label>Ghi chú cho Admin
+        <textarea id="requestNote" rows="3" placeholder="Ví dụ: Mong muốn học buổi sáng, cần liên hệ trước…"></textarea>
+      </label>
+      <p class="booking-notice">Đây là yêu cầu đăng ký. Lịch chỉ có hiệu lực sau khi Admin duyệt.</p>
+      <p id="trainingRequestError" class="form-error" role="alert"></p>
+      <div class="dialog-actions"><button class="dialog-close" type="button">Hủy</button><button id="submitTrainingRequest" class="primary" type="submit">Gửi yêu cầu</button></div>
+    </form>
+  </dialog>
 
   <dialog id="studentNotificationDialog" class="notification-dialog">
     <div class="dialog-head notification-head"><div><p>TRUNG TÂM THÔNG BÁO</p><h2>Thông báo học viên</h2></div><button class="dialog-close" type="button" aria-label="Đóng">×</button></div>
