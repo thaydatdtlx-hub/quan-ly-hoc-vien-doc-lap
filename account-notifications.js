@@ -30,6 +30,14 @@ function scheduleEvents(students){
 
 export function managerNotifications(students,role="user"){
   const notices=[],today=startOfToday(),weekEnd=new Date(today);weekEnd.setDate(weekEnd.getDate()+7);weekEnd.setHours(23,59,59,999);
+  const trainingRequests=students.flatMap(student=>(student.training_requests||[]).map(request=>({student,request})));
+  const pendingRequests=trainingRequests.filter(item=>item.request.status==="pending");
+  if(role==="admin"&&pendingRequests.length)notices.push({
+    id:`training-requests-${pendingRequests.map(item=>item.request.id).join("-")}`,tone:"cyan",icon:"✋",
+    title:`${pendingRequests.length} yêu cầu đăng ký lịch đang chờ duyệt`,
+    body:`Mới nhất: ${pendingRequests[0].student.name} đăng ký ${SCHEDULE_FIELDS.find(field=>field.key===pendingRequests[0].request.request_type)?.short||"buổi thực hành"}.`,
+    href:"/lich-dao-tao.html#trainingRequests",action:"Duyệt yêu cầu"
+  });
   const debtStudents=students.filter(student=>(Number(student.tuition_total)||0)>(Number(student.paid)||0));
   const debt=debtStudents.reduce((sum,student)=>sum+Math.max(0,(Number(student.tuition_total)||0)-(Number(student.paid)||0)),0);
   if(debtStudents.length)notices.push({
@@ -72,6 +80,24 @@ export function studentNotifications(student){
     body:`Anh/chị còn ${money(debt)} cần hoàn tất. Đã đóng ${money(paid)} trên tổng ${money(total)}.`
   });
   else if(total)notices.push({id:`student-paid-${total}`,tone:"green",icon:"✓",title:"Đã hoàn tất học phí",body:`Hệ thống đã ghi nhận đủ ${money(total)}.`});
+
+  const requests=student.training_requests||[];
+  for(const request of requests.slice(0,3)){
+    const field=SCHEDULE_FIELDS.find(item=>item.key===request.request_type),label=field?.label||"Buổi thực hành";
+    if(request.status==="pending")notices.push({
+      id:`request-pending-${request.id}`,tone:"orange",icon:"◷",title:`Đang chờ duyệt: ${label}`,
+      body:`Thời gian mong muốn: ${formatDate(request.requested_at)}.`
+    });
+    if(request.status==="approved")notices.push({
+      id:`request-approved-${request.id}`,tone:"green",icon:"✓",title:`Đã duyệt: ${label}`,
+      body:`Yêu cầu đăng ký đã được Admin duyệt${request.admin_note?` · ${request.admin_note}`:""}.`,
+      href:"/lich-dao-tao.html",action:"Xem lịch chính thức"
+    });
+    if(request.status==="rejected")notices.push({
+      id:`request-rejected-${request.id}`,tone:"red",icon:"!",title:`Chưa duyệt: ${label}`,
+      body:request.admin_note||"Vui lòng chọn thời gian khác hoặc liên hệ Admin."
+    });
+  }
 
   const events=scheduleEvents([student]).filter(event=>new Date(event.date)>=today).slice(0,3);
   if(events.length){
