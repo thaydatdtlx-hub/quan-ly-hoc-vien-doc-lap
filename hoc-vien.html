@@ -89,10 +89,10 @@
       </div>
       <div class="booking-actions">
         <button class="booking-action familiar" type="button" data-booking-type="familiar">
-          <span>🚘</span><div><strong>Đăng ký làm quen xe</strong><small>Chọn ngày và giờ mong muốn</small></div><b>＋</b>
+          <span>🚘</span><div><strong>Đăng ký làm quen xe</strong><small>Chọn ca học còn chỗ</small></div><b>＋</b>
         </button>
         <button class="booking-action practice" type="button" data-booking-type="practice">
-          <span>🛣️</span><div><strong>Đăng ký học sa hình</strong><small>Gửi yêu cầu để Admin duyệt</small></div><b>＋</b>
+          <span>🛣️</span><div><strong>Đăng ký học sa hình</strong><small>Chọn ca và gửi Admin duyệt</small></div><b>＋</b>
         </button>
       </div>
       <div class="booking-history-head"><strong>Yêu cầu gần đây</strong><small>Admin có thể điều chỉnh thời gian trước khi duyệt</small></div>
@@ -127,13 +127,17 @@
           <option value="practice">🛣️ Học sa hình</option>
         </select>
       </label>
-      <label>Ngày và giờ mong muốn
-        <input id="requestStartsAt" type="datetime-local" required>
+      <label id="requestSlotField">Chọn ca học còn chỗ
+        <select id="requestSlot"></select>
+      </label>
+      <div id="requestSlotDetails" class="request-slot-details"></div>
+      <label id="requestLegacyTimeField" class="hidden">Ngày và giờ mong muốn
+        <input id="requestStartsAt" type="datetime-local">
       </label>
       <label>Ghi chú cho Admin
         <textarea id="requestNote" rows="3" placeholder="Ví dụ: Mong muốn học buổi sáng, cần liên hệ trước…"></textarea>
       </label>
-      <p class="booking-notice">Đây là yêu cầu đăng ký. Lịch chỉ có hiệu lực sau khi Admin duyệt.</p>
+      <p class="booking-notice">Số chỗ được giữ trong thời gian yêu cầu chờ duyệt. Lịch chỉ có hiệu lực sau khi Admin xác nhận.</p>
       <p id="trainingRequestError" class="form-error" role="alert"></p>
       <div class="dialog-actions"><button class="dialog-close" type="button">Hủy</button><button id="submitTrainingRequest" class="primary" type="submit">Gửi yêu cầu</button></div>
     </form>

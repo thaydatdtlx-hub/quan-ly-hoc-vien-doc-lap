@@ -28,7 +28,8 @@
       </div>
       <div class="hero-actions admin-only hidden">
         <button id="openRequestsBtn" class="request-light" type="button">✋ Yêu cầu <b id="requestCountBadge">0</b></button>
-        <button id="openSessionBtn" class="secondary-light" type="button">＋ Thêm buổi thực hành</button>
+        <button id="openSlotBtn" class="secondary-light" type="button">＋ Tạo ca học</button>
+        <button id="openSessionBtn" class="secondary-light legacy-session-btn" type="button">＋ Xếp lịch riêng</button>
         <button id="openEditorBtn" class="primary" type="button">＋ Lập mốc đào tạo</button>
       </div>
     </section>
@@ -46,6 +47,14 @@
         <span id="pendingRequestCount">0 chờ duyệt</span>
       </div>
       <div id="adminRequestList" class="admin-request-list"></div>
+    </section>
+
+    <section id="trainingSlotPanel" class="slot-panel admin-only hidden">
+      <div class="panel-head">
+        <div><h2>Ca học thực hành</h2><p>Quản lý giáo viên, xe, địa điểm và số lượng học viên trong từng ca</p></div>
+        <span id="openSlotCount">0 ca đang mở</span>
+      </div>
+      <div id="trainingSlotList" class="training-slot-list"></div>
     </section>
 
     <section class="schedule-toolbar">
@@ -98,6 +107,66 @@
         <span class="dialog-actions-spacer"></span>
         <button class="dialog-close" type="button">Hủy</button>
         <button id="saveScheduleBtn" class="primary" type="submit">Lưu lịch đào tạo</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="slotDialog" class="slot-dialog">
+    <form id="slotForm">
+      <div class="dialog-head">
+        <div><p>QUẢN LÝ CA HỌC</p><h2 id="slotDialogTitle">Tạo ca học thực hành</h2></div>
+        <button class="dialog-close" type="button" aria-label="Đóng">×</button>
+      </div>
+      <input id="trainingSlotId" type="hidden">
+      <div class="slot-form-grid">
+        <label>Nội dung đào tạo
+          <select id="slotType" required>
+            <option value="familiar">🚘 Thực hành làm quen xe</option>
+            <option value="practice">🛣️ Học sa hình</option>
+          </select>
+        </label>
+        <label>Ngày và giờ bắt đầu
+          <input id="slotStartsAt" type="datetime-local" required>
+        </label>
+        <label>Thời lượng
+          <select id="slotDuration" required>
+            <option value="60">60 phút</option>
+            <option value="90">90 phút</option>
+            <option value="120" selected>120 phút</option>
+            <option value="180">180 phút</option>
+            <option value="240">240 phút</option>
+          </select>
+        </label>
+        <label>Số học viên tối đa
+          <input id="slotCapacity" type="number" min="1" max="100" value="1" required>
+        </label>
+        <label>Giáo viên phụ trách
+          <input id="slotInstructor" placeholder="Nhập họ tên giáo viên">
+        </label>
+        <label>Xe thực hành
+          <input id="slotVehicle" placeholder="Ví dụ: 51A-123.45">
+        </label>
+        <label>Địa điểm
+          <input id="slotLocation" placeholder="Nhập sân hoặc điểm tập kết">
+        </label>
+        <label>Trạng thái
+          <select id="slotStatus" required>
+            <option value="open">Đang mở đăng ký</option>
+            <option value="closed">Đã đóng đăng ký</option>
+            <option value="cancelled">Đã hủy</option>
+          </select>
+        </label>
+        <label class="slot-note">Ghi chú
+          <textarea id="slotNote" rows="3" placeholder="Nội dung cần học viên chuẩn bị…"></textarea>
+        </label>
+      </div>
+      <p class="slot-help">Hệ thống tự động chặn giáo viên hoặc xe bị xếp trùng giờ và không cho duyệt vượt quá số lượng.</p>
+      <p id="slotError" class="form-error" role="alert"></p>
+      <div class="dialog-actions">
+        <button id="deleteSlotBtn" class="danger-action hidden" type="button">Xóa ca học</button>
+        <span class="dialog-actions-spacer"></span>
+        <button class="dialog-close" type="button">Hủy</button>
+        <button id="saveSlotBtn" class="primary" type="submit">Lưu ca học</button>
       </div>
     </form>
   </dialog>
