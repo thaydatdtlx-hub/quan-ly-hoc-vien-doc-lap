@@ -5,7 +5,9 @@ const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
 const token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"";
 const authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"";
-let me=null,students=[],events=[];
+const REPEATABLE_KEYS=new Set(["familiar","practice"]);
+const MILESTONE_FIELDS=SCHEDULE_FIELDS.filter(field=>!REPEATABLE_KEYS.has(field.key));
+let me=null,students=[],trainingSessions=[],events=[],sessionFeatureAvailable=true;
 
 async function rpc(fn,body={}){
   const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{
@@ -39,7 +41,7 @@ function dateParts(value){
 }
 function studentSchedule(student){return parseScheduleFromNotes(student.notes)||{version:1,dates:{},locations:{},note:""}}
 function createEvents(){
-  events=students.flatMap(student=>{
+  const fixedEvents=students.flatMap(student=>{
     const schedule=studentSchedule(student);
     return SCHEDULE_FIELDS.filter(field=>schedule.dates?.[field.key]).map(field=>({
       id:`${student.id}-${field.key}`,
@@ -47,9 +49,22 @@ function createEvents(){
       field,
       date:schedule.dates[field.key],
       location:schedule.locations?.[field.key]||"",
-      note:schedule.note||""
+      note:schedule.note||"",
+      source:"milestone"
     }));
-  }).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  });
+  const studentMap=new Map(students.map(student=>[String(student.id),student]));
+  const repeatEvents=trainingSessions.map(session=>({
+    id:String(session.id),
+    student:studentMap.get(String(session.student_id)),
+    field:SCHEDULE_FIELDS.find(field=>field.key===session.session_type),
+    date:session.starts_at,
+    location:session.location||"",
+    note:session.note||"",
+    source:"session",
+    session
+  })).filter(event=>event.student&&event.field);
+  events=[...fixedEvents,...repeatEvents].sort((a,b)=>new Date(a.date)-new Date(b.date));
 }
 
 function renderStats(){
@@ -57,7 +72,8 @@ function renderStats(){
   $("upcomingCount").textContent=events.filter(event=>new Date(event.date)>=start).length;
   $("weekCount").textContent=events.filter(event=>new Date(event.date)>=start&&new Date(event.date)<=weekEnd).length;
   $("todayCount").textContent=events.filter(event=>dayKey(event.date)===today).length;
-  $("unscheduledCount").textContent=students.filter(student=>!SCHEDULE_FIELDS.some(field=>studentSchedule(student).dates?.[field.key])).length;
+  const scheduledIds=new Set(trainingSessions.map(session=>String(session.student_id)));
+  $("unscheduledCount").textContent=students.filter(student=>!scheduledIds.has(String(student.id))&&!SCHEDULE_FIELDS.some(field=>studentSchedule(student).dates?.[field.key])).length;
 }
 
 function renderEvents(){
@@ -83,8 +99,10 @@ function renderEvents(){
       <div class="event-date"><strong>${part.day}</strong><span>${part.month}</span><em>${part.time}</em></div>
       <div class="event-type tone-${event.field.tone}"><span>${event.field.icon}</span><div><small>NỘI DUNG ĐÀO TẠO</small><strong>${esc(event.field.label)}</strong></div></div>
       <div class="event-student"><small>HỌC VIÊN</small><strong>${esc(event.student.name)}</strong><span>${esc(event.student.student_code||"Chưa có mã")} · ${esc(event.student.course||"Chưa có khóa")}</span></div>
-      <div class="event-detail"><span>◷ ${esc(formatDate(event.date))}</span><span>⌖ ${esc(event.location||"Chưa nhập địa điểm")}</span>${event.note?`<span>ⓘ ${esc(event.note)}</span>`:""}</div>
-      ${me.role==="admin"?`<div class="event-actions"><button class="edit-event" type="button" data-edit-student="${event.student.id}">Sửa lịch</button><button class="delete-event" type="button" data-delete-student="${event.student.id}" data-delete-key="${event.field.key}">Xóa lịch</button></div>`:""}
+      <div class="event-detail">${event.source==="session"?'<span class="repeat-label">Buổi thực hành riêng</span>':""}<span>◷ ${esc(formatDate(event.date))}</span><span>⌖ ${esc(event.location||"Chưa nhập địa điểm")}</span>${event.note?`<span>ⓘ ${esc(event.note)}</span>`:""}</div>
+      ${me.role==="admin"?event.source==="session"
+        ?`<div class="event-actions"><button class="edit-event" type="button" data-edit-session="${event.id}">Sửa buổi</button><button class="delete-event" type="button" data-delete-session="${event.id}">Xóa buổi</button></div>`
+        :`<div class="event-actions"><button class="edit-event" type="button" data-edit-student="${event.student.id}">Sửa mốc</button><button class="delete-event" type="button" data-delete-student="${event.student.id}" data-delete-key="${event.field.key}">Xóa mốc</button></div>`:""}
     </article>`;
   }).join("");
 }
@@ -92,7 +110,7 @@ function renderEvents(){
 function renderAll(){createEvents();renderStats();renderEvents()}
 
 function renderEditorFields(){
-  $("scheduleFields").innerHTML=SCHEDULE_FIELDS.map(field=>`
+  $("scheduleFields").innerHTML=MILESTONE_FIELDS.map(field=>`
     <section class="schedule-field tone-${field.tone}">
       <div class="field-title"><span>${field.icon}</span><strong>${field.label}</strong></div>
       <label>Ngày và giờ<input id="date-${field.key}" type="datetime-local"></label>
@@ -105,7 +123,7 @@ function fillEditor(studentId){
   if(!student)return;
   $("scheduleStudent").value=student.id;
   const schedule=studentSchedule(student);
-  for(const field of SCHEDULE_FIELDS){
+  for(const field of MILESTONE_FIELDS){
     $(`date-${field.key}`).value=schedule.dates?.[field.key]||"";
     $(`location-${field.key}`).value=schedule.locations?.[field.key]||"";
   }
@@ -118,6 +136,57 @@ function openEditor(studentId=""){
   $("scheduleError").textContent="";
   fillEditor(studentId||$("scheduleStudent").value);
   $("scheduleDialog").showModal();
+}
+
+function toDatetimeLocal(value){
+  if(!value)return"";
+  const date=new Date(value);
+  if(Number.isNaN(date.valueOf()))return"";
+  const offset=date.getTimezoneOffset()*60000;
+  return new Date(date-offset).toISOString().slice(0,16);
+}
+async function loadTrainingSessions(){
+  try{
+    trainingSessions=await rpc("app_list_training_sessions",{p_token:token,p_student_id:null})||[];
+    sessionFeatureAvailable=true;
+  }catch(error){
+    trainingSessions=[];
+    sessionFeatureAvailable=false;
+    if(!/app_list_training_sessions|schema cache|PGRST202/i.test(error?.message||""))throw error;
+  }
+}
+function openSessionEditor(sessionId=""){
+  if(me.role!=="admin")return;
+  if(!sessionFeatureAvailable){
+    return alert("Admin cần chạy file CAP-NHAT-NHIEU-BUOI-THUC-HANH.sql trong Supabase trước khi thêm nhiều buổi thực hành.");
+  }
+  const session=trainingSessions.find(item=>String(item.id)===String(sessionId));
+  $("sessionForm").reset();
+  $("sessionError").textContent="";
+  $("trainingSessionId").value=session?.id||"";
+  $("trainingStudent").value=session?.student_id||students[0]?.id||"";
+  $("trainingType").value=session?.session_type||"familiar";
+  $("trainingStartsAt").value=toDatetimeLocal(session?.starts_at);
+  $("trainingLocation").value=session?.location||"";
+  $("trainingNote").value=session?.note||"";
+  $("sessionDialogTitle").textContent=session?"Sửa buổi thực hành":"Thêm buổi thực hành";
+  $("saveSessionBtn").textContent=session?"Lưu thay đổi":"Lưu buổi thực hành";
+  $("sessionDialog").showModal();
+}
+async function deleteTrainingSession(sessionId){
+  if(me.role!=="admin")return;
+  const session=trainingSessions.find(item=>String(item.id)===String(sessionId));
+  const student=students.find(item=>String(item.id)===String(session?.student_id));
+  const field=SCHEDULE_FIELDS.find(item=>item.key===session?.session_type);
+  if(!session||!student||!field)return;
+  if(!confirm(`Xóa buổi “${field.label}” của học viên ${student.name} vào ${formatDate(session.starts_at)}?`))return;
+  busy(true);
+  try{
+    await rpc("app_admin_delete_training_session",{p_token:token,p_session_id:session.id});
+    trainingSessions=trainingSessions.filter(item=>String(item.id)!==String(session.id));
+    renderAll();toast("Đã xóa buổi thực hành");
+  }catch(error){alert(error?.message||"Không thể xóa buổi thực hành.")}
+  finally{busy(false)}
 }
 
 function studentPayload(student,notes){
@@ -166,13 +235,18 @@ $("scheduleForm").onsubmit=async event=>{
   event.preventDefault();$("scheduleError").textContent="";
   const student=students.find(item=>item.id===$("scheduleStudent").value);
   if(!student)return $("scheduleError").textContent="Vui lòng chọn học viên.";
+  const previous=studentSchedule(student);
   const schedule={version:1,dates:{},locations:{},note:$("scheduleNote").value.trim(),updatedAt:new Date().toISOString()};
-  for(const field of SCHEDULE_FIELDS){
+  for(const key of REPEATABLE_KEYS){
+    if(previous.dates?.[key])schedule.dates[key]=previous.dates[key];
+    if(previous.locations?.[key])schedule.locations[key]=previous.locations[key];
+  }
+  for(const field of MILESTONE_FIELDS){
     const date=$(`date-${field.key}`).value,location=$(`location-${field.key}`).value.trim();
     if(date)schedule.dates[field.key]=date;
     if(location)schedule.locations[field.key]=location;
   }
-  if(!Object.keys(schedule.dates).length)return $("scheduleError").textContent="Vui lòng nhập ít nhất một ngày đào tạo.";
+  if(!Object.keys(schedule.dates).length)return $("scheduleError").textContent="Vui lòng nhập ít nhất một mốc đào tạo.";
   $("saveScheduleBtn").disabled=true;busy(true);
   try{
     const notes=embedScheduleInNotes(student.notes,schedule);
@@ -182,25 +256,51 @@ $("scheduleForm").onsubmit=async event=>{
   finally{$("saveScheduleBtn").disabled=false;busy(false)}
 };
 
+$("sessionForm").onsubmit=async event=>{
+  event.preventDefault();$("sessionError").textContent="";
+  if(!sessionFeatureAvailable)return $("sessionError").textContent="Cơ sở dữ liệu chưa được cập nhật chức năng nhiều buổi.";
+  const startsAt=$("trainingStartsAt").value;
+  if(!startsAt)return $("sessionError").textContent="Vui lòng chọn ngày và giờ đào tạo.";
+  $("saveSessionBtn").disabled=true;busy(true);
+  try{
+    await rpc("app_admin_save_training_session",{
+      p_token:token,
+      p_session_id:$("trainingSessionId").value||null,
+      p_student_id:$("trainingStudent").value,
+      p_session_type:$("trainingType").value,
+      p_starts_at:new Date(startsAt).toISOString(),
+      p_location:$("trainingLocation").value.trim(),
+      p_note:$("trainingNote").value.trim()
+    });
+    await loadTrainingSessions();
+    $("sessionDialog").close();renderAll();toast($("trainingSessionId").value?"Đã cập nhật buổi thực hành":"Đã thêm buổi thực hành");
+  }catch(error){$("sessionError").textContent=error?.message||"Không thể lưu buổi thực hành."}
+  finally{$("saveSessionBtn").disabled=false;busy(false)}
+};
+
 $("scheduleStudent").onchange=event=>fillEditor(event.target.value);
 $("openEditorBtn").onclick=()=>openEditor();
+$("openSessionBtn").onclick=()=>openSessionEditor();
 $("scheduleSearch").oninput=renderEvents;
 $("typeFilter").onchange=renderEvents;
 $("periodFilter").onchange=renderEvents;
 $("eventList").onclick=event=>{
   const editId=event.target.dataset.editStudent,deleteId=event.target.dataset.deleteStudent,fieldKey=event.target.dataset.deleteKey;
+  const editSessionId=event.target.dataset.editSession,deleteSessionId=event.target.dataset.deleteSession;
+  if(editSessionId)return openSessionEditor(editSessionId);
+  if(deleteSessionId)return deleteTrainingSession(deleteSessionId);
   if(editId)return openEditor(editId);
   if(deleteId&&fieldKey)return deleteOneSchedule(deleteId,fieldKey);
 };
 $("deleteAllScheduleBtn").onclick=async()=>{
   if(me.role!=="admin")return;
   const student=students.find(item=>String(item.id)===String($("scheduleStudent").value));
-  if(!student||!confirm(`Xóa toàn bộ lịch đào tạo của học viên ${student.name}? Hành động này không thể hoàn tác.`))return;
+  if(!student||!confirm(`Xóa toàn bộ mốc Online, Cabin và kỳ thi của học viên ${student.name}? Các buổi thực hành riêng không bị xóa.`))return;
   const notes=embedScheduleInNotes(student.notes,null);
   $("deleteAllScheduleBtn").disabled=true;busy(true);$("scheduleError").textContent="";
   try{
     await saveScheduleNotes(student,notes,true);
-    student.notes=notes;$("scheduleDialog").close();renderAll();toast("Đã xóa toàn bộ lịch đào tạo");
+    student.notes=notes;$("scheduleDialog").close();renderAll();toast("Đã xóa toàn bộ mốc đào tạo");
   }catch(error){$("scheduleError").textContent=error?.message||"Không thể xóa lịch đào tạo."}
   finally{$("deleteAllScheduleBtn").disabled=false;busy(false)}
 };
@@ -231,8 +331,11 @@ async function boot(){
     }
     document.querySelectorAll(".admin-only").forEach(element=>element.classList.toggle("hidden",me.role!=="admin"));
     $("scheduleStudent").innerHTML=students.map(student=>`<option value="${student.id}">${esc(student.name)} · ${esc(student.student_code||student.course||"Chưa có mã")}</option>`).join("");
+    $("trainingStudent").innerHTML=$("scheduleStudent").innerHTML;
     $("typeFilter").innerHTML+=[...SCHEDULE_FIELDS].map(field=>`<option value="${field.key}">${field.label}</option>`).join("");
+    await loadTrainingSessions();
     renderEditorFields();renderAll();
+    if(me.role==="admin"&&!sessionFeatureAvailable)toast("Cần chạy file SQL cập nhật để mở chức năng nhiều buổi");
   }catch(error){
     for(const store of [localStorage,sessionStorage]){store.removeItem("hv_token");store.removeItem("hv_auth_kind")}
     alert(error?.message||"Không thể mở lịch đào tạo.");
