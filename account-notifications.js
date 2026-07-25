@@ -13,9 +13,18 @@ function formatDate(value){
 function scheduleEvents(students){
   return students.flatMap(student=>{
     const schedule=scheduleOf(student);
-    return SCHEDULE_FIELDS.filter(field=>schedule.dates?.[field.key]).map(field=>({
+    const fixed=SCHEDULE_FIELDS.filter(field=>schedule.dates?.[field.key]).map(field=>({
+      id:`${student.id}-${field.key}-${schedule.dates[field.key]}`,
       student,field,date:schedule.dates[field.key],location:schedule.locations?.[field.key]||""
     }));
+    const repeat=(student.training_sessions||[]).map(session=>({
+      id:String(session.id),
+      student,
+      field:SCHEDULE_FIELDS.find(field=>field.key===session.session_type),
+      date:session.starts_at,
+      location:session.location||""
+    })).filter(event=>event.field);
+    return[...fixed,...repeat];
   }).filter(event=>!Number.isNaN(new Date(event.date).valueOf())).sort((a,b)=>new Date(a.date)-new Date(b.date));
 }
 
@@ -67,7 +76,7 @@ export function studentNotifications(student){
   const events=scheduleEvents([student]).filter(event=>new Date(event.date)>=today).slice(0,3);
   if(events.length){
     for(const event of events)notices.push({
-      id:`student-event-${event.field.key}-${event.date}`,tone:event.field.tone||"blue",icon:event.field.icon,
+      id:`student-event-${event.id||`${event.field.key}-${event.date}`}`,tone:event.field.tone||"blue",icon:event.field.icon,
       title:event.field.label,body:`${formatDate(event.date)}${event.location?` · ${event.location}`:" · Chưa cập nhật địa điểm"}`,
       href:"/lich-dao-tao.html",action:"Xem lịch chi tiết"
     });
