@@ -5,7 +5,7 @@ import QRCode from "qrcode";
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
-let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",me=null,student=null,trainingSessions=[],studentNotices=[],forcePasswordChange=false;
+let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",me=null,student=null,trainingSessions=[],trainingRequests=[],studentNotices=[],forcePasswordChange=false,bookingFeatureAvailable=true;
 
 async function rpc(fn,body={}){
   const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
@@ -54,6 +54,48 @@ function progressTone(value){
   if(status.includes("dang"))return"doing";
   if(status.includes("da hoan thanh")||status==="da dau")return"done";
   return"pending";
+}
+const requestStatus={
+  pending:{label:"Chờ Admin duyệt",className:"pending"},
+  approved:{label:"Đã duyệt",className:"approved"},
+  rejected:{label:"Từ chối",className:"rejected"},
+  cancelled:{label:"Đã hủy",className:"cancelled"}
+};
+function requestField(type){return SCHEDULE_FIELDS.find(field=>field.key===type)}
+async function loadTrainingRequests(){
+  try{
+    trainingRequests=await rpc("app_list_training_requests",{p_token:token,p_student_id:student.id})||[];
+    bookingFeatureAvailable=true;
+  }catch(error){
+    trainingRequests=[];
+    bookingFeatureAvailable=false;
+    if(!/app_list_training_requests|schema cache|PGRST202/i.test(error?.message||""))throw error;
+  }
+  student.training_requests=trainingRequests;
+}
+function renderTrainingRequests(){
+  const pending=trainingRequests.filter(request=>request.status==="pending").length;
+  $("bookingPendingBadge").textContent=`${pending} yêu cầu chờ duyệt`;
+  $("studentBookingRequests").innerHTML=trainingRequests.length?trainingRequests.slice(0,8).map(request=>{
+    const field=requestField(request.request_type)||{icon:"▣",label:"Buổi thực hành"};
+    const status=requestStatus[request.status]||requestStatus.pending;
+    return `<article class="booking-request">
+      <span>${field.icon}</span>
+      <div><strong>${esc(field.label)}</strong><small>${esc(date(request.requested_at,true))}</small>${request.note?`<em>Ghi chú: ${esc(request.note)}</em>`:""}${request.admin_note?`<em>Admin: ${esc(request.admin_note)}</em>`:""}</div>
+      <span class="request-status ${status.className}">${status.label}</span>
+      ${request.status==="pending"?`<button class="cancel-request" type="button" data-cancel-request="${request.id}">Hủy yêu cầu</button>`:""}
+    </article>`;
+  }).join(""):`<div class="booking-empty">Chưa có yêu cầu đăng ký lịch thực hành.</div>`;
+}
+function openTrainingRequest(type){
+  if(!bookingFeatureAvailable)return alert("Chức năng đăng ký đang được Admin cập nhật. Vui lòng thử lại sau.");
+  $("trainingRequestForm").reset();
+  $("requestType").value=type;
+  $("trainingRequestTitle").textContent=type==="practice"?"Đăng ký học sa hình":"Đăng ký làm quen xe";
+  $("trainingRequestError").textContent="";
+  const now=new Date(Date.now()+30*60000),offset=now.getTimezoneOffset()*60000;
+  $("requestStartsAt").min=new Date(now-offset).toISOString().slice(0,16);
+  $("trainingRequestDialog").showModal();
 }
 function renderPortal(){
   $("studentUsername").textContent=`${me.username} · Học viên`;
@@ -116,6 +158,7 @@ function renderPortal(){
   })).filter(event=>event.field);
   const events=[...fixedEvents,...repeatEvents].filter(event=>new Date(event.date)>=now).sort((a,b)=>new Date(a.date)-new Date(b.date)).slice(0,3);
   $("studentUpcoming").innerHTML=events.length?events.map(event=>`<article><span class="tone-${event.field.tone}">${event.field.icon}</span><div><strong>${esc(event.field.label)}</strong><small>${esc(date(event.date,true))}</small><em>${esc(event.location||"Chưa cập nhật địa điểm")}</em></div></article>`).join(""):`<div class="no-schedule"><span>📅</span><strong>Chưa có lịch sắp tới</strong><small>Lịch mới sẽ hiển thị tại đây khi được cập nhật.</small></div>`;
+  renderTrainingRequests();
   renderStudentNotifications();
   $("studentLoading").classList.add("hidden");$("studentPortal").classList.remove("hidden");
 }
@@ -144,6 +187,34 @@ function renderStudentNotifications(markRead=false){
 }
 $("studentNotificationBtn").onclick=()=>{$("studentNotificationDialog").showModal()};
 $("studentMarkNotificationsRead").onclick=()=>{renderStudentNotifications(true);toast("Đã đánh dấu tất cả thông báo là đã đọc")};
+document.querySelectorAll("[data-booking-type]").forEach(button=>button.onclick=()=>openTrainingRequest(button.dataset.bookingType));
+$("trainingRequestForm").onsubmit=async event=>{
+  event.preventDefault();$("trainingRequestError").textContent="";
+  const startsAt=$("requestStartsAt").value;
+  if(!startsAt)return $("trainingRequestError").textContent="Vui lòng chọn ngày và giờ mong muốn.";
+  $("submitTrainingRequest").disabled=true;
+  try{
+    await rpc("app_student_create_training_request",{
+      p_token:token,
+      p_request_type:$("requestType").value,
+      p_requested_at:new Date(startsAt).toISOString(),
+      p_note:$("requestNote").value.trim()
+    });
+    await loadTrainingRequests();
+    $("trainingRequestDialog").close();renderTrainingRequests();renderStudentNotifications();toast("Đã gửi yêu cầu đến Admin");
+  }catch(error){$("trainingRequestError").textContent=error?.message||"Không thể gửi yêu cầu đăng ký."}
+  finally{$("submitTrainingRequest").disabled=false}
+};
+$("studentBookingRequests").onclick=async event=>{
+  const requestId=event.target.dataset.cancelRequest;
+  if(!requestId||!confirm("Hủy yêu cầu đăng ký đang chờ Admin duyệt?"))return;
+  event.target.disabled=true;
+  try{
+    await rpc("app_student_cancel_training_request",{p_token:token,p_request_id:requestId});
+    await loadTrainingRequests();renderTrainingRequests();renderStudentNotifications();toast("Đã hủy yêu cầu");
+  }catch(error){toast(error?.message||"Không thể hủy yêu cầu.")}
+  finally{event.target.disabled=false}
+};
 function openPassword(forced=false){
   forcePasswordChange=forced;
   $("studentPasswordNotice").textContent=forced?"Đây là lần đăng nhập đầu tiên. Vui lòng đổi mật khẩu trước khi xem thông tin.":"Mật khẩu mới phải có ít nhất 8 ký tự.";
@@ -179,6 +250,7 @@ async function boot(){
       if(!/app_list_training_sessions|schema cache|PGRST202/i.test(error?.message||""))throw error;
       trainingSessions=[];
     }
+    await loadTrainingRequests();
     student.training_sessions=trainingSessions;
     renderPortal();
     if(me.force_change_password)openPassword(true);
