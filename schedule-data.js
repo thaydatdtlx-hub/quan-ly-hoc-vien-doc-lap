@@ -3,6 +3,10 @@ export const SCHEDULE_FIELDS=[
   {key:"familiar",label:"Thực hành làm quen xe",short:"Làm quen xe",icon:"🚘",tone:"cyan"},
   {key:"cabin",label:"Học cabin",short:"Cabin",icon:"🧭",tone:"violet"},
   {key:"practice",label:"Học sa hình",short:"Sa hình",icon:"🛣️",tone:"orange"},
+  {key:"dat_auto_start",label:"Bắt đầu DAT số tự động",short:"BĐ DAT tự động",icon:"▶",tone:"cyan",onlyFor:"b_manual"},
+  {key:"dat_auto_end",label:"Kết thúc DAT số tự động",short:"KT DAT tự động",icon:"■",tone:"green",onlyFor:"b_manual"},
+  {key:"dat_manual_start",label:"Bắt đầu DAT số cơ khí",short:"BĐ DAT cơ khí",icon:"▶",tone:"orange",onlyFor:"b_manual"},
+  {key:"dat_manual_end",label:"Kết thúc DAT số cơ khí",short:"KT DAT cơ khí",icon:"■",tone:"violet",onlyFor:"b_manual"},
   {key:"graduation",label:"Thi tốt nghiệp",short:"Tốt nghiệp",icon:"🎓",tone:"green"},
   {key:"exam",label:"Thi sát hạch",short:"Sát hạch",icon:"🏁",tone:"red"}
 ];

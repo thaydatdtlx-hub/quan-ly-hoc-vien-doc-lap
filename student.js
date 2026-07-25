@@ -5,7 +5,7 @@ import QRCode from "qrcode";
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
-let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",me=null,student=null,trainingSessions=[],trainingRequests=[],trainingSlots=[],studentNotices=[],forcePasswordChange=false,bookingFeatureAvailable=true,slotFeatureAvailable=true;
+let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",me=null,student=null,trainingSessions=[],trainingRequests=[],trainingSlots=[],studentNotices=[],serverNotices=[],forcePasswordChange=false,bookingFeatureAvailable=true,slotFeatureAvailable=true,notificationTimer=null;
 
 async function rpc(fn,body={}){
   const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
@@ -224,20 +224,40 @@ async function copyPaymentValue(value,successMessage){
     toast(successMessage);
   }catch{toast("Không thể sao chép. Vui lòng nhấn giữ để sao chép thủ công.")}
 }
-function renderStudentNotifications(markRead=false){
-  studentNotices=studentNotifications(student);
-  if(markRead)markNoticesRead(me,studentNotices);
-  const read=readNoticeIds(me),unread=studentNotices.filter(notice=>!read.has(notice.id)).length;
+async function loadServerNotifications(){
+  try{
+    const rows=await rpc("app_list_notifications",{p_token:token})||[];
+    serverNotices=rows.map(notice=>({...notice,id:`server-${notice.id}`,server_id:String(notice.id)}));
+  }catch(error){
+    serverNotices=[];
+  }
+}
+function isNoticeRead(notice,read){return notice.server_id?Boolean(notice.read_at):read.has(notice.id)}
+function renderStudentNotifications(){
+  const local=studentNotifications(student),serverKeys=new Set(serverNotices.map(notice=>`${notice.title}|${notice.body}`));
+  studentNotices=[...serverNotices,...local.filter(notice=>!serverKeys.has(`${notice.title}|${notice.body}`))];
+  const read=readNoticeIds(me),unread=studentNotices.filter(notice=>!isNoticeRead(notice,read)).length;
   $("studentNotificationBadge").textContent=unread;$("studentNotificationBadge").classList.toggle("hidden",unread===0);
   $("studentNotificationSummary").textContent=`${studentNotices.length} thông báo · ${unread} chưa đọc`;
   $("studentNotificationList").innerHTML=studentNotices.length?studentNotices.map(notice=>`
-    <article class="notification-item tone-${esc(notice.tone||"blue")} ${read.has(notice.id)?"is-read":""}">
+    <article class="notification-item tone-${esc(notice.tone||"blue")} ${isNoticeRead(notice,read)?"is-read":""}">
       <span class="notification-icon">${esc(notice.icon||"•")}</span>
       <div><strong>${esc(notice.title)}</strong><p>${esc(notice.body)}</p>${notice.href?`<a href="${esc(notice.href)}">${esc(notice.action||"Xem chi tiết")} →</a>`:""}</div>
     </article>`).join(""):`<div class="notification-empty"><span>🔔</span><strong>Chưa có thông báo</strong><p>Các cập nhật của trung tâm sẽ hiển thị tại đây.</p></div>`;
 }
-$("studentNotificationBtn").onclick=()=>{$("studentNotificationDialog").showModal()};
-$("studentMarkNotificationsRead").onclick=()=>{renderStudentNotifications(true);toast("Đã đánh dấu tất cả thông báo là đã đọc")};
+$("studentNotificationBtn").onclick=async()=>{
+  await loadServerNotifications();renderStudentNotifications();
+  $("studentNotificationDialog").showModal();
+};
+$("studentMarkNotificationsRead").onclick=async()=>{
+  const serverIds=serverNotices.filter(notice=>!notice.read_at).map(notice=>notice.server_id);
+  try{
+    if(serverIds.length)await rpc("app_mark_notifications_read",{p_token:token,p_ids:serverIds});
+    const now=new Date().toISOString();serverNotices.forEach(notice=>notice.read_at=notice.read_at||now);
+    markNoticesRead(me,studentNotices.filter(notice=>!notice.server_id));
+    renderStudentNotifications();toast("Đã đánh dấu tất cả thông báo là đã đọc");
+  }catch(error){toast(error?.message||"Không thể cập nhật thông báo.")}
+};
 document.querySelectorAll("[data-booking-type]").forEach(button=>button.onclick=()=>openTrainingRequest(button.dataset.bookingType));
 $("requestSlot").onchange=renderRequestSlotDetails;
 $("trainingRequestForm").onsubmit=async event=>{
@@ -307,9 +327,13 @@ async function boot(){
       if(!/app_list_training_sessions|schema cache|PGRST202/i.test(error?.message||""))throw error;
       trainingSessions=[];
     }
-    await Promise.all([loadTrainingRequests(),loadTrainingSlots()]);
+    await Promise.all([loadTrainingRequests(),loadTrainingSlots(),loadServerNotifications()]);
     student.training_sessions=trainingSessions;
     renderPortal();
+    notificationTimer=setInterval(async()=>{
+      if(document.visibilityState!=="visible")return;
+      try{await loadServerNotifications();renderStudentNotifications()}catch{}
+    },60000);
     if(me.force_change_password)openPassword(true);
   }catch(error){
     clearAuth();alert(error?.message||"Phiên đăng nhập đã hết hạn.");location.replace("/");

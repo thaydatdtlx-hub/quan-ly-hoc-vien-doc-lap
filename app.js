@@ -5,7 +5,7 @@ import {managerNotifications,markNoticesRead,readNoticeIds} from "./account-noti
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
-let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"",me=null,students=[],users=[],studentAccounts=[],trainingRequests=[],accountNotices=[],studentAccountsReady=false,selectedStudentAccount=null,forcePasswordChange=false,currentPhoto="",statFilter="all";
+let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"",me=null,students=[],users=[],studentAccounts=[],trainingRequests=[],accountNotices=[],serverNotices=[],studentAccountsReady=false,selectedStudentAccount=null,forcePasswordChange=false,currentPhoto="",statFilter="all",notificationTimer=null;
 
 async function rpc(fn,body={}){
   const r=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
@@ -41,6 +41,10 @@ async function boot(){
     showApp();
     if(me.role==="admin"){await loadUsers();await loadStudentAccounts()}
     await loadStudents();
+    notificationTimer=setInterval(async()=>{
+      if(document.visibilityState!=="visible")return;
+      await loadServerNotifications();renderAccountNotifications();
+    },60000);
     if(me.force_change_password)openForcedPassword();
   }catch(err){clearAuth();showLogin();if(err?.message)$("loginError").textContent=err.message}
 }
@@ -88,10 +92,24 @@ async function loadStudents(){
       items.push(request);requestsByStudent.set(key,items);
     }
     students.forEach(student=>student.training_requests=requestsByStudent.get(String(student.id))||[]);
+    await loadServerNotifications();
     renderStudents();
     if(students.length&&!Object.prototype.hasOwnProperty.call(students[0],"online_status")&&!sessionStorage.getItem("progress_sql_warning")){sessionStorage.setItem("progress_sql_warning","1");alert("Cơ sở dữ liệu chưa có đủ các mục tiến độ. Admin cần chạy file CAP-NHAT-TIEN-DO.sql trong Supabase SQL Editor.")}
   }
   catch(err){toast(errText(err))}
+}
+async function loadServerNotifications(){
+  try{
+    const rows=await rpc("app_list_notifications",{p_token:token})||[];
+    serverNotices=rows.map(notice=>({...notice,id:`server-${notice.id}`,server_id:String(notice.id)}));
+  }catch(error){
+    serverNotices=[];
+  }
+}
+function isNoticeRead(notice,read){return notice.server_id?Boolean(notice.read_at):read.has(notice.id)}
+function mergedAccountNotices(){
+  const local=managerNotifications(students,me?.role||"user"),serverKeys=new Set(serverNotices.map(notice=>`${notice.title}|${notice.body}`));
+  return [...serverNotices,...local.filter(notice=>!serverKeys.has(`${notice.title}|${notice.body}`))];
 }
 function renderStudents(){
   const q=normalize($("search").value);
@@ -112,21 +130,31 @@ function renderStudents(){
   document.querySelectorAll("[data-stat-filter]").forEach(card=>{const active=card.dataset.statFilter===statFilter;card.classList.toggle("active",active);card.setAttribute("aria-pressed",String(active))});
   renderAccountNotifications();
 }
-function renderAccountNotifications(markRead=false){
-  accountNotices=managerNotifications(students,me?.role||"user");
-  if(markRead)markNoticesRead(me,accountNotices);
-  const read=readNoticeIds(me),unread=accountNotices.filter(notice=>!read.has(notice.id)).length;
+function renderAccountNotifications(){
+  accountNotices=mergedAccountNotices();
+  const read=readNoticeIds(me),unread=accountNotices.filter(notice=>!isNoticeRead(notice,read)).length;
   $("notificationBadge").textContent=unread;$("notificationBadge").classList.toggle("hidden",unread===0);
   $("notificationTitle").textContent=me?.role==="admin"?"Thông báo Admin":"Thông báo tài khoản quản lý";
   $("notificationSummary").textContent=`${accountNotices.length} thông báo · ${unread} chưa đọc`;
   $("notificationList").innerHTML=accountNotices.length?accountNotices.map(notice=>`
-    <article class="notification-item tone-${esc(notice.tone||"blue")} ${read.has(notice.id)?"is-read":""}">
+    <article class="notification-item tone-${esc(notice.tone||"blue")} ${isNoticeRead(notice,read)?"is-read":""}">
       <span class="notification-icon">${esc(notice.icon||"•")}</span>
       <div><strong>${esc(notice.title)}</strong><p>${esc(notice.body)}</p>${notice.href?`<a href="${esc(notice.href)}">${esc(notice.action||"Xem chi tiết")} →</a>`:""}</div>
     </article>`).join(""):`<div class="notification-empty"><span>🔔</span><strong>Chưa có thông báo</strong><p>Các thay đổi quan trọng sẽ hiển thị tại đây.</p></div>`;
 }
-$("notificationBtn").onclick=()=>{$("notificationDialog").showModal()};
-$("markNotificationsRead").onclick=()=>{renderAccountNotifications(true);toast("Đã đánh dấu tất cả thông báo là đã đọc")};
+$("notificationBtn").onclick=async()=>{
+  await loadServerNotifications();renderAccountNotifications();
+  $("notificationDialog").showModal();
+};
+$("markNotificationsRead").onclick=async()=>{
+  const serverIds=serverNotices.filter(notice=>!notice.read_at).map(notice=>notice.server_id);
+  try{
+    if(serverIds.length)await rpc("app_mark_notifications_read",{p_token:token,p_ids:serverIds});
+    const now=new Date().toISOString();serverNotices.forEach(notice=>notice.read_at=notice.read_at||now);
+    markNoticesRead(me,accountNotices.filter(notice=>!notice.server_id));
+    renderAccountNotifications();toast("Đã đánh dấu tất cả thông báo là đã đọc");
+  }catch(error){toast(errText(error))}
+};
 function renderFinanceDashboard(){
   if(me?.role!=="admin")return;
   const total=students.reduce((sum,s)=>sum+Math.max(0,Number(s.tuition_total)||0),0);
