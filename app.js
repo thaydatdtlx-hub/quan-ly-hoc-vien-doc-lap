@@ -5,7 +5,7 @@ import {managerNotifications,markNoticesRead,readNoticeIds} from "./account-noti
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
-let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"",me=null,students=[],users=[],studentAccounts=[],trainingRequests=[],accountNotices=[],serverNotices=[],studentAccountsReady=false,selectedStudentAccount=null,forcePasswordChange=false,currentPhoto="",statFilter="all",notificationTimer=null,excelPreviewFile=null,excelPreviewUrl="",excelImportResolve=null;
+let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"",me=null,students=[],users=[],studentAccounts=[],trainingRequests=[],theoryProgress=[],accountNotices=[],serverNotices=[],studentAccountsReady=false,theoryProgressReady=false,selectedStudentAccount=null,forcePasswordChange=false,currentPhoto="",statFilter="all",notificationTimer=null,excelPreviewFile=null,excelPreviewUrl="",excelImportResolve=null;
 
 async function rpc(fn,body={}){
   const r=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
@@ -20,6 +20,15 @@ function normalize(s){return String(s??"").trim().toLowerCase().normalize("NFD")
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]))}
 function money(n){return new Intl.NumberFormat("vi-VN").format(Number(n||0))+" ₫"}
 function toNumber(v){return Number(String(v??0).replace(/[^0-9-]/g,""))||0}
+function dateTime(value){
+  if(!value)return"Chưa có hoạt động";
+  const parsed=new Date(value);if(Number.isNaN(parsed.valueOf()))return String(value);
+  return new Intl.DateTimeFormat("vi-VN",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}).format(parsed);
+}
+function theoryDuration(seconds){
+  const value=Math.max(0,Number(seconds)||0),minutes=Math.floor(value/60),rest=value%60;
+  return `${minutes}:${String(rest).padStart(2,"0")}`;
+}
 function progressTone(v){const n=normalize(v);if(n.includes("thi rot"))return"fail";if(n.includes("dang"))return"doing";if(n.includes("da hoan thanh")||n==="da dau")return"done";return"pending"}
 function progressHtml(s){return `<div class="progress-list"><span class="progress-chip ${progressTone(s.online_status)}"><b>Online</b>${esc(s.online_status||"Chưa hoàn thành")}</span><span class="progress-chip ${progressTone(s.cabin_status)}"><b>Cabin</b>${esc(s.cabin_status||"Chưa hoàn thành")}</span><span class="progress-chip ${progressTone(s.dat_status)}"><b>DAT</b>${esc(s.dat_status||"Chưa thực hiện")}</span><span class="progress-chip ${progressTone(s.graduation_status)}"><b>Tốt nghiệp</b>${esc(s.graduation_status||"Chưa hoàn thành")}</span><span class="progress-chip ${progressTone(s.exam_status)}"><b>Sát hạch</b>${esc(s.exam_status||"Chưa thi sát hạch")}</span></div>`}
 
@@ -92,11 +101,45 @@ async function loadStudents(){
       items.push(request);requestsByStudent.set(key,items);
     }
     students.forEach(student=>student.training_requests=requestsByStudent.get(String(student.id))||[]);
+    if(me.role==="admin")await loadTheoryProgress();
     await loadServerNotifications();
     renderStudents();
     if(students.length&&!Object.prototype.hasOwnProperty.call(students[0],"online_status")&&!sessionStorage.getItem("progress_sql_warning")){sessionStorage.setItem("progress_sql_warning","1");alert("Cơ sở dữ liệu chưa có đủ các mục tiến độ. Admin cần chạy file CAP-NHAT-TIEN-DO.sql trong Supabase SQL Editor.")}
   }
   catch(err){toast(errText(err))}
+}
+async function loadTheoryProgress(){
+  try{
+    theoryProgress=await rpc("app_admin_list_theory_progress",{p_token:token})||[];
+    theoryProgressReady=true;
+  }catch(error){
+    theoryProgress=[];theoryProgressReady=false;
+    const missing=/app_admin_list_theory_progress|schema cache|PGRST202/i.test(errText(error));
+    if(!missing)toast(errText(error));
+  }
+}
+function theoryFor(studentId){return theoryProgress.find(item=>String(item.student_id)===String(studentId))}
+function theoryProgressHtml(student){
+  const account=studentAccounts.find(item=>item.student_id===String(student.id));
+  if(!account)return'<div class="theory-table-empty">Chưa có tài khoản học viên</div>';
+  if(!theoryProgressReady)return'<div class="theory-table-empty warning">Cần cập nhật CSDL tiến độ</div>';
+  const item=theoryFor(student.id),answered=Number(item?.answered_count)||0,correct=Number(item?.correct_count)||0,exams=Number(item?.exam_count)||0;
+  const accuracy=answered?Math.round(correct/answered*100):0;
+  return `<div class="theory-table-progress">
+    <div><strong>${answered}/600 câu</strong><span>${answered?`${accuracy}% trả lời đúng`:"Chưa bắt đầu học"}</span></div>
+    <div><strong>${exams} bài thi</strong><span>${item?.best_total?`Tốt nhất ${Number(item.best_score)||0}/${Number(item.best_total)||0}`:"Chưa có kết quả"}</span></div>
+    <button type="button" data-theory-progress="${student.id}">Xem học & thi</button>
+  </div>`;
+}
+function renderTheoryDashboard(){
+  if(me?.role!=="admin")return;
+  const active=theoryProgress.filter(item=>Number(item.answered_count)>0).length;
+  const exams=theoryProgress.reduce((sum,item)=>sum+(Number(item.exam_count)||0),0);
+  const passed=theoryProgress.reduce((sum,item)=>sum+(Number(item.passed_exam_count)||0),0);
+  $("theoryStudentsActive").textContent=active;
+  $("theoryExamTotal").textContent=exams;
+  $("theoryExamPassed").textContent=passed;
+  $("theoryDatabaseNotice").classList.toggle("hidden",theoryProgressReady);
 }
 async function loadServerNotifications(){
   try{
@@ -118,12 +161,13 @@ function renderStudents(){
   $("studentRows").innerHTML=rows.map(s=>{
     const account=studentAccounts.find(item=>item.student_id===String(s.id));
     const accountButton=me.role==="admin"&&studentAccountsReady?`<button class="student-account-btn ${account?.active?"is-active":""}" data-student-account="${s.id}">${account?`Tài khoản: ${esc(account.username)}`:"＋ Tạo tài khoản"}</button>`:"";
-    return `<tr><td><div class="student-cell">${s.photo_data?`<img class="student-photo" src="${s.photo_data}" alt="Ảnh ${esc(s.name)}">`:`<span class="student-photo empty-photo">Ảnh<br>3×4</span>`}<div><span class="student-name">${esc(s.name)}</span><span class="sub">${esc(s.student_code)}${s.owner_username?` · ${esc(s.owner_username)}`:""}</span>${account?`<span class="student-login-state ${account.active?"active":"locked"}">${account.active?"Có tài khoản học viên":"Tài khoản đang khóa"}</span>`:""}</div></div></td><td>${esc(s.license_class||"—")}<span class="sub">${esc(s.course||"Chưa có khóa")}</span></td><td>${esc(s.phone||"—")}</td><td>${progressHtml(s)}</td><td>${money(s.tuition_total)}<span class="sub">Đã thu ${money(s.paid)} · Còn ${money(Math.max(0,(s.tuition_total||0)-(s.paid||0)))}</span></td><td><div class="row-actions">${accountButton}<button data-edit="${s.id}">Sửa</button>${me.role==="admin"&&s.photo_data?`<button data-download-photo="${s.id}">Tải ảnh</button>`:""}<button class="danger" data-delete="${s.id}">Xóa</button></div></td></tr>`;
+    return `<tr><td><div class="student-cell">${s.photo_data?`<img class="student-photo" src="${s.photo_data}" alt="Ảnh ${esc(s.name)}">`:`<span class="student-photo empty-photo">Ảnh<br>3×4</span>`}<div><span class="student-name">${esc(s.name)}</span><span class="sub">${esc(s.student_code)}${s.owner_username?` · ${esc(s.owner_username)}`:""}</span>${account?`<span class="student-login-state ${account.active?"active":"locked"}">${account.active?"Có tài khoản học viên":"Tài khoản đang khóa"}</span>`:""}</div></div></td><td>${esc(s.license_class||"—")}<span class="sub">${esc(s.course||"Chưa có khóa")}</span></td><td>${esc(s.phone||"—")}</td><td>${progressHtml(s)}</td>${me.role==="admin"?`<td>${theoryProgressHtml(s)}</td>`:""}<td>${money(s.tuition_total)}<span class="sub">Đã thu ${money(s.paid)} · Còn ${money(Math.max(0,(s.tuition_total||0)-(s.paid||0)))}</span></td><td><div class="row-actions">${accountButton}<button data-edit="${s.id}">Sửa</button>${me.role==="admin"&&s.photo_data?`<button data-download-photo="${s.id}">Tải ảnh</button>`:""}<button class="danger" data-delete="${s.id}">Xóa</button></div></td></tr>`;
   }).join("");
   $("empty").classList.toggle("hidden",rows.length>0);$("resultCount").textContent=`${rows.length} học viên`;
   $("totalStudents").textContent=students.length;
   $("learningStudents").textContent=students.filter(s=>!normalize(s.exam_status).includes("da dau")).length;
   $("debtStudents").textContent=students.filter(s=>(s.tuition_total||0)>(s.paid||0)).length;
+  renderTheoryDashboard();
   renderFinanceDashboard();
   const labels={all:["Danh sách tất cả học viên","Toàn bộ hồ sơ đang quản lý"],learning:["Học viên đang học","Các học viên chưa đậu kỳ thi sát hạch"],debt:["Học viên còn nợ học phí","Các hồ sơ có số tiền đã thu thấp hơn tổng học phí"]};
   $("studentListTitle").textContent=labels[statFilter][0];$("studentListNote").textContent=labels[statFilter][1];
@@ -189,7 +233,8 @@ $("addStudentBtn").onclick=()=>openStudent();
 $("photoFile").onchange=async e=>{const file=e.target.files[0];if(!file)return;const ext=file.name.toLowerCase().split(".").pop(),validType=["image/jpeg","image/png"].includes(file.type)&&["jpg","jpeg","png"].includes(ext);if(!validType){e.target.value="";return $("studentError").textContent="Chỉ chấp nhận file ảnh JPG, JPEG hoặc PNG."}if(file.size>10*1024*1024){e.target.value="";return $("studentError").textContent="Ảnh gốc không được lớn hơn 10 MB."}try{$("studentError").textContent="Đang kiểm tra ảnh 3×4 nền trắng…";showPhoto(await compressPhoto(file));$("studentError").textContent=""}catch(err){e.target.value="";$("studentError").textContent=errText(err)}};
 $("removePhotoBtn").onclick=()=>{$("photoFile").value="";showPhoto("")};
 $("studentRows").onclick=async e=>{
-  const edit=e.target.dataset.edit,del=e.target.dataset.delete,download=e.target.dataset.downloadPhoto,account=e.target.dataset.studentAccount;
+  const edit=e.target.dataset.edit,del=e.target.dataset.delete,download=e.target.dataset.downloadPhoto,account=e.target.dataset.studentAccount,theory=e.target.dataset.theoryProgress;
+  if(theory)return openTheoryDetail(students.find(s=>String(s.id)===String(theory)));
   if(account)return openStudentAccount(students.find(s=>String(s.id)===account));
   if(download&&me.role==="admin"){const s=students.find(x=>x.id===download);if(!s?.photo_data)return toast("Học viên chưa có ảnh thẻ");const a=document.createElement("a"),safe=normalize(s.name).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"hoc-vien";a.href=s.photo_data;a.download=`anh-the-3x4-${safe}.jpg`;document.body.appendChild(a);a.click();a.remove();return}
   if(edit)return openStudent(students.find(s=>s.id===edit));
@@ -224,6 +269,39 @@ async function loadStudentAccounts(){
     studentAccounts=[];studentAccountsReady=false;
     const missing=/app_list_student_accounts|schema cache|PGRST202/i.test(errText(error));
     if(!missing)toast(errText(error));
+  }
+}
+async function openTheoryDetail(student){
+  if(me?.role!=="admin"||!student)return;
+  if(!theoryProgressReady){
+    toast("Cần chạy file CAP-NHAT-TIEN-DO-600-CAU.sql trong Supabase trước.");
+    return;
+  }
+  $("theoryDetailTitle").textContent=`Tiến độ của ${student.name}`;
+  $("theoryDetailMeta").textContent=`${student.student_code||"Chưa có mã"} · ${student.license_class||"Chưa có hạng"}`;
+  $("theoryDetailError").textContent="";
+  $("theoryDetailMetrics").innerHTML='<div class="theory-detail-loading">Đang tải tiến độ và lịch sử thi…</div>';
+  $("theoryExamHistory").innerHTML="";
+  $("theoryProgressDialog").showModal();
+  try{
+    const detail=await rpc("app_admin_get_theory_detail",{p_token:token,p_student_id:student.id});
+    const answered=Number(detail.answered_count)||0,correct=Number(detail.correct_count)||0,wrong=Number(detail.wrong_count)||0;
+    const accuracy=answered?Math.round(correct/answered*100):0,attempts=Array.isArray(detail.attempts)?detail.attempts:[];
+    $("theoryDetailMetrics").innerHTML=`
+      <article><small>Đã học</small><strong>${answered}/600</strong><span>${Math.round(answered/600*100)}% bộ câu hỏi</span></article>
+      <article><small>Trả lời đúng</small><strong>${correct}</strong><span>${accuracy}% trong số đã học</span></article>
+      <article><small>Cần ôn lại</small><strong>${wrong}</strong><span>${Number(detail.bookmarks_count)||0} câu đánh dấu</span></article>
+      <article><small>Lần hoạt động cuối</small><strong class="date-value">${esc(dateTime(detail.last_activity))}</strong><span>Câu gần nhất: ${Number(detail.last_question_id)||1}</span></article>`;
+    $("theoryExamHistory").innerHTML=attempts.length?attempts.map(attempt=>`
+      <tr>
+        <td><strong>Hạng ${esc(attempt.license_class)}</strong><span>${esc(dateTime(attempt.submitted_at))}</span></td>
+        <td><b>${Number(attempt.score)||0}/${Number(attempt.total)||0}</b></td>
+        <td><span class="exam-attempt-state ${attempt.passed?"passed":"failed"}">${attempt.passed?"Đạt":"Chưa đạt"}</span>${attempt.critical_correct?"":"<small>Sai câu điểm liệt</small>"}</td>
+        <td>${theoryDuration(attempt.elapsed_seconds)}</td>
+      </tr>`).join(""):'<tr><td colspan="4"><div class="theory-history-empty">Học viên chưa nộp bài thi thử nào.</div></td></tr>';
+  }catch(error){
+    $("theoryDetailMetrics").innerHTML="";
+    $("theoryDetailError").textContent=errText(error);
   }
 }
 function suggestedStudentUsername(student){

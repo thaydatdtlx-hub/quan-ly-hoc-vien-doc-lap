@@ -5,7 +5,7 @@ import QRCode from "qrcode";
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
-let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",me=null,student=null,trainingSessions=[],trainingRequests=[],trainingSlots=[],studentNotices=[],serverNotices=[],forcePasswordChange=false,bookingFeatureAvailable=true,slotFeatureAvailable=true,notificationTimer=null;
+let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",me=null,student=null,trainingSessions=[],trainingRequests=[],trainingSlots=[],studentNotices=[],serverNotices=[],theoryProgress=null,forcePasswordChange=false,bookingFeatureAvailable=true,slotFeatureAvailable=true,theoryFeatureAvailable=true,notificationTimer=null;
 
 async function rpc(fn,body={}){
   const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
@@ -87,6 +87,37 @@ function formatDuration(minutes){
   const value=Number(minutes)||0,hours=Math.floor(value/60),rest=value%60;
   return [hours?`${hours} giờ`:"",rest?`${rest} phút`:""].filter(Boolean).join(" ")||"Chưa xác định";
 }
+async function loadTheoryProgress(){
+  try{
+    theoryProgress=await rpc("app_student_get_theory_progress",{p_token:token});
+    theoryFeatureAvailable=true;
+  }catch(error){
+    theoryProgress=null;
+    theoryFeatureAvailable=false;
+    if(!/app_student_get_theory_progress|schema cache|PGRST202/i.test(error?.message||""))throw error;
+  }
+}
+function renderTheoryProgress(){
+  const summary=theoryProgress||{};
+  const answered=Number(summary.answered_count)||0,correct=Number(summary.correct_count)||0,examCount=Number(summary.exam_count)||0;
+  $("theoryLearned").textContent=`${answered}/600`;
+  $("theoryCorrect").textContent=`${correct} câu`;
+  $("theoryExamCount").textContent=`${examCount} lần`;
+  $("theoryBestScore").textContent=summary.best_total?`${summary.best_score}/${summary.best_total}`:"Chưa thi";
+  if(!theoryFeatureAvailable){
+    $("theoryLatestExam").className="theory-latest-exam warning";
+    $("theoryLatestExam").innerHTML="<span>!</span><p>Hệ thống đồng bộ tiến độ đang được Admin cập nhật. Bạn vẫn có thể học trên thiết bị này.</p>";
+    return;
+  }
+  const latest=summary.latest_exam;
+  if(!latest){
+    $("theoryLatestExam").className="theory-latest-exam";
+    $("theoryLatestExam").innerHTML="<span>i</span><p>Hãy bắt đầu học và thi thử để Admin có thể theo dõi, hỗ trợ quá trình ôn tập.</p>";
+    return;
+  }
+  $("theoryLatestExam").className=`theory-latest-exam ${latest.passed?"passed":"failed"}`;
+  $("theoryLatestExam").innerHTML=`<span>${latest.passed?"✓":"!"}</span><p><strong>Bài thi gần nhất: hạng ${esc(latest.license_class)} · ${Number(latest.score)||0}/${Number(latest.total)||0}</strong><br>${latest.passed?"Đạt yêu cầu":"Chưa đạt"} · ${esc(date(latest.submitted_at,true))}${latest.critical_correct?"":" · Sai câu điểm liệt"}</p>`;
+}
 function availableSlots(type){
   return trainingSlots.filter(slot=>
     slot.session_type===type&&slot.status==="open"&&new Date(slot.starts_at)>new Date()&&Number(slot.available_count)>0
@@ -155,6 +186,7 @@ function renderPortal(){
   $("studentCourse").textContent=student.course||"Chưa có khóa";
   $("studentLicense").textContent=student.license_class||"Chưa có hạng";
   if(student.photo_data){$("studentPhoto").src=student.photo_data;$("studentPhoto").classList.remove("hidden");$("studentPhotoPlaceholder").classList.add("hidden")}
+  renderTheoryProgress();
 
   const total=Math.max(0,Number(student.tuition_total)||0),paid=Math.max(0,Number(student.paid)||0),debt=Math.max(0,total-paid),rate=total?Math.min(100,Math.round(paid/total*100)):0;
   $("tuitionTotal").textContent=money(total);$("tuitionPaid").textContent=money(paid);$("tuitionDebt").textContent=money(debt);
@@ -327,7 +359,7 @@ async function boot(){
       if(!/app_list_training_sessions|schema cache|PGRST202/i.test(error?.message||""))throw error;
       trainingSessions=[];
     }
-    await Promise.all([loadTrainingRequests(),loadTrainingSlots(),loadServerNotifications()]);
+    await Promise.all([loadTrainingRequests(),loadTrainingSlots(),loadServerNotifications(),loadTheoryProgress()]);
     student.training_sessions=trainingSessions;
     renderPortal();
     notificationTimer=setInterval(async()=>{
