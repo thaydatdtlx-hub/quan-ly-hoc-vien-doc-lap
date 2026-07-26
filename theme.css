@@ -1032,6 +1032,10 @@ body{background:radial-gradient(circle at 8% 8%,#dcecff 0,transparent 26%),radia
 .login-submit span:last-child{font-size:21px}
 .login-divider{gap:14px;margin:21px 0 17px;color:#91a0b1;font-size:11px}
 .login-divider:before,.login-divider:after{background:#dbe3ed}
+.public-study-link{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:11px;margin-top:13px;padding:11px 13px;border:1px solid #cce1f3;border-radius:13px;background:linear-gradient(105deg,#edf7ff,#f0fff9);color:#184b79;text-decoration:none;transition:.18s}
+.public-study-link:hover{border-color:#83b8e8;box-shadow:0 9px 22px #1e5c8b14;transform:translateY(-1px)}
+.public-study-link>span{display:grid;width:39px;height:39px;place-items:center;border-radius:11px;background:#1478d4;color:#fff;font-size:10px;font-weight:950;box-shadow:0 6px 15px #166ab52c}
+.public-study-link>div{display:grid;gap:2px}.public-study-link strong{font-size:11px}.public-study-link small{color:#71869a;font-size:8px;font-weight:700}.public-study-link>b{color:#1673c9;font-size:17px}
 .zalo-contact{
   gap:11px;
   min-height:52px;
@@ -1280,7 +1284,7 @@ body{background:radial-gradient(circle at 8% 8%,#dcecff 0,transparent 26%),radia
 
 /* Dashboard tài chính dành riêng cho admin và nút DATA Excel */
 @media(min-width:981px){
-  .toolbar{grid-template-columns:minmax(260px,1fr) repeat(6,auto)}
+  .toolbar{grid-template-columns:minmax(260px,1fr) repeat(7,auto)}
 }
 .toolbar .schedule-link{
   display:flex;
@@ -1312,6 +1316,7 @@ body{background:radial-gradient(circle at 8% 8%,#dcecff 0,transparent 26%),radia
   background:#ebe3ff;
   box-shadow:0 8px 18px #5636a820;
 }
+.toolbar .question-bank-link{border-color:#cde9da;background:linear-gradient(135deg,#f0fff7,#e7f9ff);color:#08765b}.toolbar .question-bank-link span{background:#d9f4e8;color:#08765b;font-size:9px;font-weight:950}
 .toolbar .data-action{
   display:flex;
   min-width:126px;
