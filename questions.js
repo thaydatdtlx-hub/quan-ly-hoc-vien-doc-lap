@@ -280,7 +280,8 @@ function renderQuestion(){
   if(question.image&&question.imageAtlas){
     const atlas=question.imageAtlas;
     const image=$("questionImage");
-    image.style.width=`min(100%, ${atlas.w}px)`;
+    const displayWidth=Math.min(720,Math.max(atlas.w,Math.round(atlas.w*1.75)));
+    image.style.width=`min(100%, ${displayWidth}px)`;
     image.style.aspectRatio=`${atlas.w}/${atlas.h}`;
     image.style.backgroundImage=`url("/questions/${atlas.file}")`;
     image.style.backgroundSize=`${atlas.atlasW/atlas.w*100}% ${atlas.atlasH/atlas.h*100}%`;
