@@ -1,7 +1,11 @@
 import{EXAMS,buildExamPool}from"./exam-config.js";
 
 const $=id=>document.getElementById(id);
-const STORAGE_KEY="thay_dat_600_progress_v1";
+const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
+const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
+const DEFAULT_STORAGE_KEY="thay_dat_600_progress_v1";
+const token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"";
+const authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"";
 const TOPICS=[
   {id:1,icon:"§",short:"Quy tắc giao thông",name:"Quy định chung và quy tắc giao thông đường bộ",count:180,color:"#1673ce",soft:"#e3f1ff"},
   {id:2,icon:"♡",short:"Văn hóa giao thông",name:"Văn hóa, đạo đức, PCCC và cứu nạn",count:25,color:"#9a5ac8",soft:"#f0e7fa"},
@@ -11,16 +15,116 @@ const TOPICS=[
   {id:6,icon:"⌖",short:"Sa hình và tình huống",name:"Giải thế sa hình và xử lý tình huống",count:115,color:"#1767b7",soft:"#e2effc"}
 ];
 let questions=[],pool=[],currentIndex=0,currentMode="learn",activeTopic="all",examAnswers=new Map(),examStartedAt=0,examTimer=null,examPool=[],examResult=null;
-let activeExamKey="B";
-let progress=readProgress();
+let activeExamKey="B",storageKey=DEFAULT_STORAGE_KEY,remoteStudent=null,remoteSyncEnabled=false,remoteSyncTimer=null,remoteSyncing=false;
+let progress=readProgress(storageKey);
 
-function readProgress(){
+function readProgress(key=storageKey){
   try{
-    const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
+    const saved=JSON.parse(localStorage.getItem(key)||"{}");
     return{answers:saved.answers||{},bookmarks:Array.isArray(saved.bookmarks)?saved.bookmarks:[],lastId:Number(saved.lastId)||1,exams:Array.isArray(saved.exams)?saved.exams:[]};
   }catch{return{answers:{},bookmarks:[],lastId:1,exams:[]}}
 }
-function saveProgress(){localStorage.setItem(STORAGE_KEY,JSON.stringify(progress))}
+async function rpc(fn,body={}){
+  const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
+  const data=await response.json().catch(()=>null);
+  if(!response.ok)throw new Error(data?.message||data?.details||data?.error||"Không thể kết nối máy chủ");
+  return data;
+}
+function setSyncStatus(state,message){
+  const badge=$("theoryAccountStatus");if(!badge)return;
+  badge.className=`theory-sync-status ${state}`;
+  badge.textContent=message;
+}
+function localProgressSummary(){
+  const answered=questions.filter(question=>Number(progress.answers[question.id])>0);
+  return{answered:answered.length,correct:answered.filter(question=>Number(progress.answers[question.id])===question.answer).length};
+}
+function remoteProgressPayload(){
+  const summary=localProgressSummary();
+  return{answers:progress.answers,bookmarks:progress.bookmarks,lastId:progress.lastId,correct_count:summary.correct};
+}
+function scheduleRemoteSync(){
+  if(!remoteSyncEnabled||!questions.length)return;
+  clearTimeout(remoteSyncTimer);
+  setSyncStatus("syncing","Đang đồng bộ…");
+  remoteSyncTimer=setTimeout(()=>flushRemoteProgress(),900);
+}
+async function flushRemoteProgress(keepalive=false){
+  if(!remoteSyncEnabled||remoteSyncing||!questions.length)return;
+  remoteSyncing=true;
+  try{
+    const body=JSON.stringify({p_token:token,p_progress:remoteProgressPayload()});
+    const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/app_student_save_theory_progress`,{
+      method:"POST",
+      headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},
+      body,
+      keepalive
+    });
+    const data=await response.json().catch(()=>null);
+    if(!response.ok)throw new Error(data?.message||data?.details||"Không thể đồng bộ tiến độ");
+    setSyncStatus("synced",`Đã đồng bộ · ${remoteStudent?.student_name||"Học viên"}`);
+  }catch(error){
+    setSyncStatus("error","Chưa đồng bộ · vẫn lưu trên máy");
+    if(!keepalive)toast(error?.message||"Không thể đồng bộ tiến độ.");
+  }finally{remoteSyncing=false}
+}
+function saveProgress(){
+  localStorage.setItem(storageKey,JSON.stringify(progress));
+  scheduleRemoteSync();
+}
+function mergeProgress(remote,local){
+  const saved=remote?.progress_data||{};
+  const remoteAnswers=saved.answers&&typeof saved.answers==="object"?saved.answers:{};
+  const remoteBookmarks=Array.isArray(saved.bookmarks)?saved.bookmarks:[];
+  return{
+    answers:{...remoteAnswers,...local.answers},
+    bookmarks:[...new Set([...remoteBookmarks,...local.bookmarks].map(Number).filter(id=>id>=1&&id<=600))],
+    lastId:Number(local.lastId||saved.lastId||remote?.last_question_id)||1,
+    exams:local.exams
+  };
+}
+function examKeyForLicense(value){
+  const text=normalize(value);
+  if(text.startsWith("a1"))return"A1";
+  if(text==="a"||text.startsWith("a "))return"A";
+  if(text.startsWith("c1"))return"C1";
+  return"B";
+}
+async function initStudentSync(){
+  if(!token||authKind!=="student"){
+    setSyncStatus("local","Lưu trên thiết bị");
+    return;
+  }
+  try{
+    const me=await rpc("app_student_me",{p_token:token});
+    const studentId=String(me.student_id||"");
+    if(!studentId)throw new Error("Tài khoản chưa liên kết hồ sơ học viên.");
+    storageKey=`thay_dat_600_progress_v2_${studentId}`;
+    let accountLocal=readProgress(storageKey);
+    const hasAccountLocal=Boolean(localStorage.getItem(storageKey));
+    const legacyClaim=localStorage.getItem("thay_dat_600_progress_v1_claimed_by");
+    if(!hasAccountLocal&&!legacyClaim&&localStorage.getItem(DEFAULT_STORAGE_KEY)){
+      accountLocal=readProgress(DEFAULT_STORAGE_KEY);
+      localStorage.setItem("thay_dat_600_progress_v1_claimed_by",studentId);
+    }
+    progress=accountLocal;
+    $("studentPortalLink").classList.remove("hidden");
+    $("studentPortalLink").textContent="Tài khoản học viên";
+    remoteStudent=await rpc("app_student_get_theory_progress",{p_token:token});
+    progress=mergeProgress(remoteStudent,accountLocal);
+    activeExamKey=examKeyForLicense(remoteStudent.license_class);
+    remoteSyncEnabled=true;
+    $("studentPortalLink").textContent=`${remoteStudent.student_name||"Học viên"} · Tài khoản`;
+    localStorage.setItem(storageKey,JSON.stringify(progress));
+    await questionsReady;
+    renderHome();
+    scheduleRemoteSync();
+  }catch(error){
+    setSyncStatus("error","Chưa đồng bộ · vẫn lưu trên máy");
+    if(questions.length)renderHome();
+    if(!/app_student_get_theory_progress|schema cache|PGRST202/i.test(error?.message||""))toast(error?.message||"Không thể mở tiến độ tài khoản.");
+  }
+}
 function esc(value){return String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[char]))}
 function normalize(value){return String(value??"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d")}
 function shuffle(items){
@@ -290,6 +394,23 @@ function updateExamTimer(){
   $("examTimer").classList.toggle("warning",remaining<=60);
   if(remaining===0)finishExam(true);
 }
+async function saveRemoteExamAttempt(result){
+  if(!remoteSyncEnabled)return;
+  try{
+    await rpc("app_student_save_exam_attempt",{
+      p_token:token,
+      p_license_class:result.examKey,
+      p_score:result.correct,
+      p_total:EXAMS[result.examKey].count,
+      p_critical_correct:result.criticalCorrect,
+      p_elapsed_seconds:result.elapsed
+    });
+    setSyncStatus("synced",`Đã lưu bài thi · ${remoteStudent?.student_name||"Học viên"}`);
+  }catch(error){
+    setSyncStatus("error","Bài thi chưa đồng bộ");
+    toast(error?.message||"Không thể lưu kết quả thi vào tài khoản.");
+  }
+}
 function finishExam(auto=false){
   if(currentMode!=="exam"||examResult)return;
   const unanswered=pool.length-examAnswers.size;
@@ -305,6 +426,7 @@ function finishExam(auto=false){
   progress.exams.unshift({date:new Date().toISOString(),licenseClass:activeExamKey,score:correct,total:exam.count,passed,criticalCorrect,elapsed});
   progress.exams=progress.exams.slice(0,20);
   saveProgress();
+  void saveRemoteExamAttempt(examResult);
   showExamResult();
 }
 function showExamResult(){
@@ -356,7 +478,10 @@ $("finishExamBtn").onclick=()=>finishExam(false);
 $("reviewExamBtn").onclick=reviewExam;
 $("retryExamBtn").onclick=()=>{closeDialog($("examResultDialog"));openExamIntro()};
 $("resetProgressBtn").onclick=()=>{
-  if(!confirm("Xóa toàn bộ tiến độ học, câu đã đánh dấu và lịch sử thi thử trên thiết bị này?"))return;
+  const message=remoteSyncEnabled
+    ?"Làm mới tiến độ học và câu đã đánh dấu của tài khoản này? Lịch sử thi đã gửi cho Admin vẫn được giữ lại."
+    :"Xóa toàn bộ tiến độ học, câu đã đánh dấu và lịch sử thi thử trên thiết bị này?";
+  if(!confirm(message))return;
   progress={answers:{},bookmarks:[],lastId:1,exams:[]};saveProgress();renderHome();toast("Đã làm mới tiến độ học");
 };
 document.addEventListener("keydown",event=>{
@@ -369,3 +494,5 @@ document.addEventListener("keydown",event=>{
     if(option)chooseAnswer(option.n);
   }
 });
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")void flushRemoteProgress(true)});
+initStudentSync();

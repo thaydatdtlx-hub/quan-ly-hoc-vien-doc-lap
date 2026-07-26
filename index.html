@@ -150,6 +150,19 @@
         </div>
       </section>
 
+      <section id="theoryDashboard" class="theory-dashboard admin-only hidden" aria-labelledby="theoryDashboardTitle">
+        <div class="theory-dashboard-head">
+          <div><p>THEO DÕI HỌC TẬP</p><h2 id="theoryDashboardTitle">Tiến độ lý thuyết 600 câu</h2></div>
+          <a href="/600-cau-hoi.html">Mở giao diện học <span>→</span></a>
+        </div>
+        <div class="theory-dashboard-grid">
+          <article><span>▤</span><div><small>Học viên đã bắt đầu</small><strong id="theoryStudentsActive">0</strong><em>Có dữ liệu học 600 câu</em></div></article>
+          <article><span>⌁</span><div><small>Tổng bài thi thử</small><strong id="theoryExamTotal">0</strong><em>Tất cả hạng A1 · A · B · C1</em></div></article>
+          <article><span>✓</span><div><small>Bài thi đạt</small><strong id="theoryExamPassed">0</strong><em>Đủ điểm và không sai điểm liệt</em></div></article>
+        </div>
+        <p id="theoryDatabaseNotice" class="theory-database-notice hidden">Cần chạy file <b>CAP-NHAT-TIEN-DO-600-CAU.sql</b> trong Supabase để bắt đầu nhận dữ liệu học viên.</p>
+      </section>
+
       <section class="stats">
         <article class="stat-card stat-blue active" data-stat-filter="all" role="button" tabindex="0" aria-pressed="true"><span class="stat-icon">👥</span><div><small>Tổng học viên</small><strong id="totalStudents">0</strong><em>Bấm để xem tất cả hồ sơ</em></div><span class="stat-arrow">›</span></article>
         <article class="stat-card stat-green" data-stat-filter="learning" role="button" tabindex="0" aria-pressed="false"><span class="stat-icon">🚘</span><div><small>Đang học</small><strong id="learningStudents">0</strong><em>Bấm để xem học viên đang học</em></div><span class="stat-arrow">›</span></article>
@@ -159,7 +172,7 @@
       <section class="panel">
         <div class="panel-title"><div><h2 id="studentListTitle">Danh sách học viên</h2><p id="studentListNote">Tra cứu và cập nhật tiến độ đào tạo</p></div><span id="resultCount">0 học viên</span></div>
         <div class="table-wrap">
-          <table><thead><tr><th>Học viên</th><th>Hạng / Khóa</th><th>Điện thoại</th><th>Tiến độ</th><th>Học phí</th><th>Thao tác</th></tr></thead><tbody id="studentRows"></tbody></table>
+          <table><thead><tr><th>Học viên</th><th>Hạng / Khóa</th><th>Điện thoại</th><th>Tiến độ đào tạo</th><th class="admin-only hidden">Học 600 câu</th><th>Học phí</th><th>Thao tác</th></tr></thead><tbody id="studentRows"></tbody></table>
         </div>
         <div id="empty" class="empty hidden"><strong>Chưa có dữ liệu học viên</strong><span>Bấm “Thêm học viên” để nhập hồ sơ đầu tiên.</span></div>
       </section>
@@ -229,6 +242,23 @@
       <p id="studentAccountStatus"></p>
       <div class="actions"><button id="resetStudentPasswordBtn" type="button">Đặt lại mật khẩu</button><button id="toggleStudentAccountBtn" type="button"></button></div>
     </div>
+  </dialog>
+
+  <dialog id="theoryProgressDialog" class="theory-progress-dialog">
+    <div class="dialog-head">
+      <div><p class="dialog-kicker">LÝ THUYẾT 600 CÂU</p><h2 id="theoryDetailTitle">Tiến độ học viên</h2><span id="theoryDetailMeta" class="sub"></span></div>
+      <button type="button" class="close" aria-label="Đóng">×</button>
+    </div>
+    <div id="theoryDetailMetrics" class="theory-detail-metrics"></div>
+    <div class="theory-history-head"><div><strong>Lịch sử thi thử</strong><small>Tối đa 50 bài gần nhất</small></div></div>
+    <div class="theory-history-wrap">
+      <table class="theory-history-table">
+        <thead><tr><th>Bài thi</th><th>Điểm</th><th>Kết quả</th><th>Thời gian</th></tr></thead>
+        <tbody id="theoryExamHistory"></tbody>
+      </table>
+    </div>
+    <p id="theoryDetailError" class="error" role="alert"></p>
+    <div class="actions"><button type="button" class="close">Đóng</button></div>
   </dialog>
 
   <dialog id="notificationDialog" class="notification-dialog">
