@@ -26,10 +26,10 @@
         <div class="hero-copy">
           <p class="hero-kicker"><span></span> BỘ CÂU HỎI CHÍNH THỨC · CẬP NHẬT HIỆN HÀNH</p>
           <h1><b>600</b> câu hỏi<br>sát hạch lái xe</h1>
-          <p>Học theo từng chương, luyện riêng câu điểm liệt và thi thử hạng B ngay trên điện thoại.</p>
+          <p>Học theo từng chương, luyện riêng câu điểm liệt và thi thử A1, A, B, C1 ngay trên điện thoại.</p>
           <div class="hero-actions">
             <button class="hero-primary" type="button" data-start-mode="continue">Tiếp tục học <span>→</span></button>
-            <button type="button" data-start-mode="exam">Thi thử hạng B</button>
+            <button type="button" data-start-mode="exam">Thi thử theo hạng</button>
           </div>
           <div class="hero-trust">
             <span>✓ 600 câu đầy đủ</span>
@@ -49,8 +49,8 @@
       <div class="current-rule">
         <span class="rule-icon">NEW</span>
         <div>
-          <strong>Thi lý thuyết hạng B từ 01/07/2026</strong>
-          <p>50 câu · 33 phút · đạt từ 45/50 câu và không sai câu điểm liệt.</p>
+          <strong>Thi lý thuyết từ 01/07/2026</strong>
+          <p>A1, A: 40 câu · 27 phút. B: 50 câu · 33 phút. C1: 60 câu · 40 phút.</p>
         </div>
         <a href="https://xaydungchinhsach.chinhphu.vn/nhung-diem-moi-trong-sat-hach-lai-xe-119260703113320777.htm" target="_blank" rel="noopener noreferrer">Xem quy định ↗</a>
       </div>
@@ -81,7 +81,7 @@
             <span class="mode-icon">!</span><div><small>KHÔNG ĐƯỢC SAI</small><strong>60 câu điểm liệt</strong><p>Tập trung các tình huống mất an toàn nghiêm trọng.</p></div><b>→</b>
           </button>
           <button class="mode-card exam" type="button" data-start-mode="exam">
-            <span class="mode-icon">⏱</span><div><small>MÔ PHỎNG KỲ THI</small><strong>Thi thử hạng B</strong><p>50 câu trong 33 phút, chấm điểm ngay khi nộp bài.</p></div><b>→</b>
+            <span class="mode-icon">⏱</span><div><small>MÔ PHỎNG KỲ THI</small><strong>Thi thử A1 · A · B · C1</strong><p>Chọn đúng hạng bằng, tính giờ và chấm điểm ngay khi nộp bài.</p></div><b>→</b>
           </button>
           <button class="mode-card review" type="button" data-start-mode="wrong">
             <span class="mode-icon">↻</span><div><small>CÁ NHÂN HÓA</small><strong>Ôn câu đã sai</strong><p>Tự động gom những câu bạn cần luyện thêm.</p></div><b>→</b>
@@ -173,14 +173,20 @@
   </dialog>
 
   <dialog id="examIntroDialog" class="exam-intro-dialog">
-    <div class="exam-dialog-hero"><span>⏱</span><div><small>THI THỬ LÝ THUYẾT</small><h2>Giấy phép lái xe hạng B</h2></div></div>
+    <div class="exam-dialog-hero"><span>⏱</span><div><small>THI THỬ LÝ THUYẾT</small><h2 id="examDialogTitle">Giấy phép lái xe hạng B</h2><p id="examDialogVehicle">Xe ô tô hạng B</p></div></div>
+    <div class="exam-class-picker" role="group" aria-label="Chọn hạng giấy phép lái xe">
+      <button type="button" data-exam-class="A1" aria-pressed="false">A1</button>
+      <button type="button" data-exam-class="A" aria-pressed="false">A</button>
+      <button type="button" data-exam-class="B" class="active" aria-pressed="true">B</button>
+      <button type="button" data-exam-class="C1" aria-pressed="false">C1</button>
+    </div>
     <div class="exam-rule-grid">
-      <article><strong>50</strong><span>Câu hỏi</span></article>
-      <article><strong>33'</strong><span>Thời gian</span></article>
-      <article><strong>45</strong><span>Điểm đạt</span></article>
+      <article><strong id="examQuestionCount">50</strong><span>Câu hỏi</span></article>
+      <article><strong id="examMinutes">33'</strong><span>Thời gian</span></article>
+      <article><strong id="examPassScore">45</strong><span>Điểm đạt</span></article>
       <article class="danger"><strong>01</strong><span>Câu điểm liệt</span></article>
     </div>
-    <p>Đề được chọn ngẫu nhiên từ bộ 600 câu chính thức. Bài thi không đạt nếu trả lời sai câu điểm liệt, kể cả khi đủ điểm.</p>
+    <p id="examDescription">Đề được chọn ngẫu nhiên từ bộ 600 câu chính thức. Bài thi không đạt nếu trả lời sai câu điểm liệt, kể cả khi đủ điểm.</p>
     <label class="exam-confirm"><input id="examReadyCheck" type="checkbox"><span>Tôi đã sẵn sàng, bắt đầu tính giờ ngay.</span></label>
     <div class="dialog-actions"><button class="dialog-close" type="button">Để sau</button><button id="startExamBtn" class="primary" type="button" disabled>Bắt đầu thi</button></div>
   </dialog>

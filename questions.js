@@ -1,3 +1,5 @@
+import{EXAMS,buildExamPool}from"./exam-config.js";
+
 const $=id=>document.getElementById(id);
 const STORAGE_KEY="thay_dat_600_progress_v1";
 const TOPICS=[
@@ -8,8 +10,8 @@ const TOPICS=[
   {id:5,icon:"△",short:"Báo hiệu đường bộ",name:"Hệ thống báo hiệu đường bộ",count:185,color:"#d14b36",soft:"#ffe5df"},
   {id:6,icon:"⌖",short:"Sa hình và tình huống",name:"Giải thế sa hình và xử lý tình huống",count:115,color:"#1767b7",soft:"#e2effc"}
 ];
-const EXAM={count:50,minutes:33,pass:45};
 let questions=[],pool=[],currentIndex=0,currentMode="learn",activeTopic="all",examAnswers=new Map(),examStartedAt=0,examTimer=null,examPool=[],examResult=null;
+let activeExamKey="B";
 let progress=readProgress();
 
 function readProgress(){
@@ -33,6 +35,9 @@ function bookmarked(id){return progress.bookmarks.includes(Number(id))}
 function learnedAnswer(id){return Number(progress.answers[id])||0}
 function answerIsCorrect(question){return learnedAnswer(question.id)===question.answer}
 function answerIsWrong(question){return learnedAnswer(question.id)>0&&!answerIsCorrect(question)}
+function displayedCritical(question){
+  return currentMode==="exam"||currentMode==="exam-review"?Boolean(question.examCritical):Boolean(question.critical);
+}
 
 async function loadQuestions(){
   const response=await fetch("/data/600-cau-hoi-2025.json");
@@ -161,7 +166,7 @@ function renderQuestion(){
   const selected=currentMode==="exam"||currentMode==="exam-review"?examAnswers.get(question.id):learnedAnswer(question.id);
   const reveal=currentMode!=="exam"&&Boolean(selected);
   $("topicBadge").textContent=`Chương ${question.topicId} · ${itemTopic.short}`;
-  $("criticalBadge").classList.toggle("hidden",!question.critical);
+  $("criticalBadge").classList.toggle("hidden",!displayedCritical(question));
   $("questionNumber").textContent=`CÂU ${question.id} · ${currentIndex+1} / ${pool.length}`;
   $("questionText").textContent=question.question;
   $("bookmarkBtn").classList.toggle("active",bookmarked(question.id));
@@ -197,7 +202,7 @@ function renderFeedback(question,selected,reveal){
   const correct=Number(selected)===question.answer;
   const answerText=question.options.find(option=>option.n===question.answer)?.text||"";
   $("answerFeedback").className=`answer-feedback ${correct?"":"wrong"}`;
-  $("answerFeedback").innerHTML=`<span>${correct?"✓":"!"}</span><div><strong>${correct?"Chính xác!":"Chưa chính xác"}</strong><p>Đáp án đúng: <b>${question.answer}. ${esc(answerText)}</b>${question.critical?" Đây là câu điểm liệt, hãy ghi nhớ kỹ.":""}</p></div>`;
+  $("answerFeedback").innerHTML=`<span>${correct?"✓":"!"}</span><div><strong>${correct?"Chính xác!":"Chưa chính xác"}</strong><p>Đáp án đúng: <b>${question.answer}. ${esc(answerText)}</b>${displayedCritical(question)?" Đây là câu điểm liệt, hãy ghi nhớ kỹ.":""}</p></div>`;
 }
 function chooseAnswer(answer){
   const question=currentQuestion();if(!question)return;
@@ -236,23 +241,37 @@ function renderPalette(){
 }
 
 function openExamIntro(){
+  renderExamIntro();
   $("examReadyCheck").checked=false;
   $("startExamBtn").disabled=true;
   $("examIntroDialog").showModal();
 }
+function renderExamIntro(){
+  const exam=EXAMS[activeExamKey];
+  $("examDialogTitle").textContent=`Giấy phép lái xe hạng ${exam.label}`;
+  $("examDialogVehicle").textContent=exam.vehicle;
+  $("examQuestionCount").textContent=exam.count;
+  $("examMinutes").textContent=`${exam.minutes}'`;
+  $("examPassScore").textContent=exam.pass;
+  $("examDescription").textContent=`Đề được chọn ngẫu nhiên từ ${exam.questionIds?"nhóm 250 câu dành cho mô tô":"bộ 600 câu chính thức"}. Bài thi không đạt nếu trả lời sai câu điểm liệt, kể cả khi đủ điểm.`;
+  document.querySelectorAll("[data-exam-class]").forEach(button=>{
+    const selected=button.dataset.examClass===activeExamKey;
+    button.classList.toggle("active",selected);
+    button.setAttribute("aria-pressed",selected?"true":"false");
+  });
+}
 function beginExam(){
   closeDialog($("examIntroDialog"));
-  const critical=shuffle(questions.filter(question=>question.critical)).slice(0,1);
-  const regular=shuffle(questions.filter(question=>!question.critical)).slice(0,EXAM.count-1);
-  examPool=shuffle([...critical,...regular]);
+  const exam=EXAMS[activeExamKey];
+  examPool=buildExamPool(questions,activeExamKey,shuffle);
   pool=examPool;
   examAnswers=new Map();
   examResult=null;
   examStartedAt=Date.now();
   currentMode="exam";
   currentIndex=0;
-  $("workspaceKicker").textContent="THI THỬ HẠNG B";
-  $("workspaceTitle").textContent="50 câu · đạt từ 45 điểm";
+  $("workspaceKicker").textContent=`THI THỬ HẠNG ${exam.label}`;
+  $("workspaceTitle").textContent=`${exam.count} câu · đạt từ ${exam.pass} điểm`;
   $("studySidebar").classList.add("hidden");
   $("examTimer").classList.remove("hidden");
   $("finishExamBtn").classList.remove("hidden");
@@ -263,8 +282,9 @@ function beginExam(){
   renderQuestion();
 }
 function updateExamTimer(){
+  const exam=EXAMS[activeExamKey];
   const elapsed=Math.floor((Date.now()-examStartedAt)/1000);
-  const remaining=Math.max(0,EXAM.minutes*60-elapsed);
+  const remaining=Math.max(0,exam.minutes*60-elapsed);
   const minutes=Math.floor(remaining/60),seconds=remaining%60;
   $("examTimer").textContent=`${String(minutes).padStart(2,"0")}:${String(seconds).padStart(2,"0")}`;
   $("examTimer").classList.toggle("warning",remaining<=60);
@@ -275,24 +295,26 @@ function finishExam(auto=false){
   const unanswered=pool.length-examAnswers.size;
   if(!auto&&!confirm(unanswered?`Bạn còn ${unanswered} câu chưa trả lời. Vẫn nộp bài?`:"Bạn muốn nộp bài và xem kết quả?"))return;
   clearInterval(examTimer);
+  const exam=EXAMS[activeExamKey];
   const correct=pool.filter(question=>examAnswers.get(question.id)===question.answer).length;
-  const criticalQuestion=pool.find(question=>question.critical);
+  const criticalQuestion=pool.find(question=>question.examCritical);
   const criticalCorrect=examAnswers.get(criticalQuestion.id)===criticalQuestion.answer;
-  const elapsed=Math.min(EXAM.minutes*60,Math.floor((Date.now()-examStartedAt)/1000));
-  const passed=correct>=EXAM.pass&&criticalCorrect;
-  examResult={correct,wrong:pool.length-correct,criticalCorrect,elapsed,passed};
-  progress.exams.unshift({date:new Date().toISOString(),score:correct,passed,criticalCorrect,elapsed});
+  const elapsed=Math.min(exam.minutes*60,Math.floor((Date.now()-examStartedAt)/1000));
+  const passed=correct>=exam.pass&&criticalCorrect;
+  examResult={correct,wrong:pool.length-correct,criticalCorrect,elapsed,passed,examKey:activeExamKey};
+  progress.exams.unshift({date:new Date().toISOString(),licenseClass:activeExamKey,score:correct,total:exam.count,passed,criticalCorrect,elapsed});
   progress.exams=progress.exams.slice(0,20);
   saveProgress();
   showExamResult();
 }
 function showExamResult(){
-  const result=examResult,rate=Math.round(result.correct/EXAM.count*100);
+  const result=examResult,exam=EXAMS[result.examKey],rate=Math.round(result.correct/exam.count*100);
+  $("resultKicker").textContent=`KẾT QUẢ THI THỬ HẠNG ${exam.label}`;
   $("resultIcon").textContent=result.passed?"✓":"×";
   $("resultIcon").classList.toggle("fail",!result.passed);
   $("resultTitle").textContent=result.passed?"Bạn đã đạt!":"Bạn chưa đạt";
-  $("resultSummary").textContent=!result.criticalCorrect?"Bạn đã trả lời sai câu điểm liệt. Hãy xem lại bài trước khi thi đề tiếp theo.":result.passed?"Kết quả rất tốt. Hãy duy trì luyện tập để giữ phong độ.":`Bạn cần đúng ít nhất ${EXAM.pass}/${EXAM.count} câu để đạt.`;
-  $("resultScore").textContent=`${result.correct}/${EXAM.count}`;
+  $("resultSummary").textContent=!result.criticalCorrect?"Bạn đã trả lời sai câu điểm liệt. Hãy xem lại bài trước khi thi đề tiếp theo.":result.passed?"Kết quả rất tốt. Hãy duy trì luyện tập để giữ phong độ.":`Bạn cần đúng ít nhất ${exam.pass}/${exam.count} câu để đạt.`;
+  $("resultScore").textContent=`${result.correct}/${exam.count}`;
   $("resultRate").textContent=`${rate}% chính xác`;
   $("resultCorrect").textContent=result.correct;
   $("resultWrong").textContent=result.wrong;
@@ -303,8 +325,9 @@ function reviewExam(){
   closeDialog($("examResultDialog"));
   currentMode="exam-review";
   currentIndex=0;
-  $("workspaceKicker").textContent="XEM LẠI BÀI THI";
-  $("workspaceTitle").textContent=`Kết quả ${examResult.correct}/${EXAM.count}`;
+  const exam=EXAMS[examResult.examKey];
+  $("workspaceKicker").textContent=`XEM LẠI BÀI THI HẠNG ${exam.label}`;
+  $("workspaceTitle").textContent=`Kết quả ${examResult.correct}/${exam.count}`;
   $("examTimer").classList.add("hidden");
   $("finishExamBtn").classList.add("hidden");
   renderQuestion();
@@ -322,6 +345,12 @@ $("openPaletteBtn").onclick=()=>{$("paletteDialog").showModal();renderPalette()}
 $("mobileFilterBtn").onclick=()=>$("studySidebar").classList.add("open");
 $("closeSidebarBtn").onclick=()=>$("studySidebar").classList.remove("open");
 $("examReadyCheck").onchange=event=>$("startExamBtn").disabled=!event.target.checked;
+document.querySelectorAll("[data-exam-class]").forEach(button=>button.onclick=()=>{
+  activeExamKey=button.dataset.examClass;
+  renderExamIntro();
+  $("examReadyCheck").checked=false;
+  $("startExamBtn").disabled=true;
+});
 $("startExamBtn").onclick=beginExam;
 $("finishExamBtn").onclick=()=>finishExam(false);
 $("reviewExamBtn").onclick=reviewExam;
