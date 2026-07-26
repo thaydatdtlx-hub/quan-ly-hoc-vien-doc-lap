@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#075fce">
+  <meta name="description" content="Ôn tập 600 câu hỏi sát hạch lái xe của Cục Cảnh sát giao thông, có câu điểm liệt và thi thử hạng B.">
+  <title>600 câu hỏi sát hạch lái xe · Thầy Đạt</title>
+  <link rel="stylesheet" href="/questions.css?v=1">
+</head>
+<body>
+  <header class="quiz-topbar">
+    <a class="quiz-brand" href="/">
+      <span><img src="/logo-thay-dat.png?v=2" alt=""></span>
+      <div><strong>THẦY ĐẠT</strong><small>Đào tạo lái xe trọn gói</small></div>
+    </a>
+    <nav aria-label="Điều hướng">
+      <a href="/hoc-vien.html">Cổng học viên</a>
+      <a class="topbar-primary" href="#studyHome">Học ngay</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="studyHome" class="study-home">
+      <div class="study-hero">
+        <div class="hero-copy">
+          <p class="hero-kicker"><span></span> BỘ CÂU HỎI CHÍNH THỨC · CẬP NHẬT HIỆN HÀNH</p>
+          <h1><b>600</b> câu hỏi<br>sát hạch lái xe</h1>
+          <p>Học theo từng chương, luyện riêng câu điểm liệt và thi thử hạng B ngay trên điện thoại.</p>
+          <div class="hero-actions">
+            <button class="hero-primary" type="button" data-start-mode="continue">Tiếp tục học <span>→</span></button>
+            <button type="button" data-start-mode="exam">Thi thử hạng B</button>
+          </div>
+          <div class="hero-trust">
+            <span>✓ 600 câu đầy đủ</span>
+            <span>✓ 60 câu điểm liệt</span>
+            <span>✓ 318 hình minh họa</span>
+          </div>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="road-sign sign-main"><strong>600</strong><small>CÂU HỎI</small></div>
+          <div class="road-sign sign-stop">!</div>
+          <div class="road-sign sign-pass">✓</div>
+          <div class="road-lines"><i></i><i></i><i></i></div>
+          <div class="hero-car">🚘</div>
+        </div>
+      </div>
+
+      <div class="current-rule">
+        <span class="rule-icon">NEW</span>
+        <div>
+          <strong>Thi lý thuyết hạng B từ 01/07/2026</strong>
+          <p>50 câu · 33 phút · đạt từ 45/50 câu và không sai câu điểm liệt.</p>
+        </div>
+        <a href="https://xaydungchinhsach.chinhphu.vn/nhung-diem-moi-trong-sat-hach-lai-xe-119260703113320777.htm" target="_blank" rel="noopener noreferrer">Xem quy định ↗</a>
+      </div>
+
+      <section class="progress-overview" aria-labelledby="progressTitle">
+        <div class="section-title">
+          <div><p>TIẾN ĐỘ CỦA BẠN</p><h2 id="progressTitle">Hôm nay học gì?</h2></div>
+          <button id="resetProgressBtn" class="text-button" type="button">Làm mới tiến độ</button>
+        </div>
+        <div class="progress-layout">
+          <div class="progress-ring" id="progressRing"><div><strong id="progressPercent">0%</strong><small>đã học</small></div></div>
+          <div class="progress-stats">
+            <article><span class="tone-blue">▤</span><div><strong id="learnedCount">0</strong><small>Câu đã học</small></div></article>
+            <article><span class="tone-green">✓</span><div><strong id="correctCount">0</strong><small>Trả lời đúng</small></div></article>
+            <article><span class="tone-red">×</span><div><strong id="wrongCount">0</strong><small>Cần ôn lại</small></div></article>
+            <article><span class="tone-yellow">★</span><div><strong id="bookmarkCount">0</strong><small>Đã đánh dấu</small></div></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="mode-section" aria-labelledby="modeTitle">
+        <div class="section-title"><div><p>CHỌN CÁCH HỌC</p><h2 id="modeTitle">Luyện tập hiệu quả</h2></div></div>
+        <div class="mode-grid">
+          <button class="mode-card learn" type="button" data-start-mode="learn">
+            <span class="mode-icon">▤</span><div><small>HỌC CÓ HƯỚNG DẪN</small><strong>Ôn theo 6 chương</strong><p>Xem đáp án ngay, học tuần tự hoặc chọn chủ đề.</p></div><b>→</b>
+          </button>
+          <button class="mode-card critical" type="button" data-start-mode="critical">
+            <span class="mode-icon">!</span><div><small>KHÔNG ĐƯỢC SAI</small><strong>60 câu điểm liệt</strong><p>Tập trung các tình huống mất an toàn nghiêm trọng.</p></div><b>→</b>
+          </button>
+          <button class="mode-card exam" type="button" data-start-mode="exam">
+            <span class="mode-icon">⏱</span><div><small>MÔ PHỎNG KỲ THI</small><strong>Thi thử hạng B</strong><p>50 câu trong 33 phút, chấm điểm ngay khi nộp bài.</p></div><b>→</b>
+          </button>
+          <button class="mode-card review" type="button" data-start-mode="wrong">
+            <span class="mode-icon">↻</span><div><small>CÁ NHÂN HÓA</small><strong>Ôn câu đã sai</strong><p>Tự động gom những câu bạn cần luyện thêm.</p></div><b>→</b>
+          </button>
+        </div>
+      </section>
+
+      <section class="topic-section" aria-labelledby="topicTitle">
+        <div class="section-title">
+          <div><p>HỌC THEO CHỦ ĐỀ</p><h2 id="topicTitle">6 chương trong bộ đề</h2></div>
+          <span>600 câu · áp dụng từ 01/06/2025</span>
+        </div>
+        <div id="topicCards" class="topic-grid"></div>
+      </section>
+
+      <section class="source-note">
+        <div><span>i</span><p><strong>Nguồn nội dung</strong>Bộ 600 câu hỏi do Cục Cảnh sát giao thông, Bộ Công an biên soạn. Đáp án đúng được đối chiếu theo phần gạch chân trong tài liệu chính thức.</p></div>
+        <a href="https://csgt.bocongan.gov.vn/van-ban/bo-600-cau-hoi-dung-cho-sat-hach-lai-xe-co-gioi-duong-bo" target="_blank" rel="noopener noreferrer">Mở nguồn Cục CSGT ↗</a>
+      </section>
+    </section>
+
+    <section id="studyWorkspace" class="study-workspace hidden" aria-live="polite">
+      <div class="workspace-head">
+        <button id="backHomeBtn" class="back-button" type="button">← <span>Trang ôn tập</span></button>
+        <div class="workspace-title"><small id="workspaceKicker">ÔN TẬP</small><strong id="workspaceTitle">600 câu hỏi</strong></div>
+        <div class="workspace-tools">
+          <span id="examTimer" class="exam-timer hidden">33:00</span>
+          <button id="openPaletteBtn" type="button">Danh sách câu</button>
+          <button id="finishExamBtn" class="finish-exam hidden" type="button">Nộp bài</button>
+        </div>
+      </div>
+
+      <div class="workspace-body">
+        <aside id="studySidebar" class="study-sidebar">
+          <div class="sidebar-heading"><strong>Bộ lọc câu hỏi</strong><button id="closeSidebarBtn" type="button" aria-label="Đóng bộ lọc">×</button></div>
+          <label class="search-field"><span>⌕</span><input id="questionSearch" type="search" placeholder="Tìm nội dung hoặc số câu"></label>
+          <label>Chương
+            <select id="topicFilter">
+              <option value="all">Tất cả 6 chương</option>
+            </select>
+          </label>
+          <label>Trạng thái
+            <select id="statusFilter">
+              <option value="all">Tất cả câu hỏi</option>
+              <option value="unanswered">Chưa học</option>
+              <option value="correct">Đã trả lời đúng</option>
+              <option value="wrong">Cần ôn lại</option>
+              <option value="bookmarked">Đã đánh dấu</option>
+              <option value="critical">Câu điểm liệt</option>
+            </select>
+          </label>
+          <button id="applyFilterBtn" class="apply-filter" type="button">Áp dụng bộ lọc</button>
+          <div class="sidebar-summary">
+            <span><i class="dot current"></i> Đang xem</span>
+            <span><i class="dot done"></i> Đã trả lời</span>
+            <span><i class="dot flagged"></i> Đã đánh dấu</span>
+          </div>
+        </aside>
+
+        <section class="question-stage">
+          <div class="question-progress"><span id="questionProgressBar"></span></div>
+          <div class="question-meta">
+            <div><span id="topicBadge">Chương 1</span><b id="criticalBadge" class="critical-badge hidden">⚠ CÂU ĐIỂM LIỆT</b></div>
+            <button id="bookmarkBtn" class="bookmark-button" type="button" aria-pressed="false">☆ <span>Đánh dấu</span></button>
+          </div>
+          <article id="questionCard" class="question-card">
+            <p id="questionNumber">CÂU 1 / 600</p>
+            <h2 id="questionText">Đang tải câu hỏi…</h2>
+            <figure id="questionFigure" class="question-figure hidden"><div id="questionImage" class="question-image" role="img" aria-label="Hình minh họa câu hỏi"></div></figure>
+            <div id="answerOptions" class="answer-options"></div>
+            <div id="answerFeedback" class="answer-feedback hidden"></div>
+          </article>
+          <div id="emptyQuestions" class="empty-questions hidden"><span>⌕</span><strong>Không tìm thấy câu hỏi phù hợp</strong><p>Hãy thay đổi từ khóa hoặc bộ lọc.</p></div>
+          <div class="question-actions">
+            <button id="prevQuestionBtn" type="button">← Câu trước</button>
+            <button id="mobileFilterBtn" class="mobile-filter" type="button">Bộ lọc</button>
+            <button id="nextQuestionBtn" class="next-question" type="button">Câu tiếp →</button>
+          </div>
+          <p class="keyboard-hint">Mẹo: dùng phím 1–4 để chọn đáp án, phím ← → để chuyển câu.</p>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="paletteDialog" class="palette-dialog">
+    <div class="dialog-head"><div><small>ĐIỀU HƯỚNG NHANH</small><h2>Danh sách câu hỏi</h2></div><button class="dialog-close" type="button" aria-label="Đóng">×</button></div>
+    <div class="palette-legend"><span><i class="dot done"></i> Đã trả lời</span><span><i class="dot current"></i> Hiện tại</span><span><i class="dot flagged"></i> Đánh dấu</span></div>
+    <div id="questionPalette" class="question-palette"></div>
+  </dialog>
+
+  <dialog id="examIntroDialog" class="exam-intro-dialog">
+    <div class="exam-dialog-hero"><span>⏱</span><div><small>THI THỬ LÝ THUYẾT</small><h2>Giấy phép lái xe hạng B</h2></div></div>
+    <div class="exam-rule-grid">
+      <article><strong>50</strong><span>Câu hỏi</span></article>
+      <article><strong>33'</strong><span>Thời gian</span></article>
+      <article><strong>45</strong><span>Điểm đạt</span></article>
+      <article class="danger"><strong>01</strong><span>Câu điểm liệt</span></article>
+    </div>
+    <p>Đề được chọn ngẫu nhiên từ bộ 600 câu chính thức. Bài thi không đạt nếu trả lời sai câu điểm liệt, kể cả khi đủ điểm.</p>
+    <label class="exam-confirm"><input id="examReadyCheck" type="checkbox"><span>Tôi đã sẵn sàng, bắt đầu tính giờ ngay.</span></label>
+    <div class="dialog-actions"><button class="dialog-close" type="button">Để sau</button><button id="startExamBtn" class="primary" type="button" disabled>Bắt đầu thi</button></div>
+  </dialog>
+
+  <dialog id="examResultDialog" class="exam-result-dialog">
+    <div id="resultIcon" class="result-icon">✓</div>
+    <p id="resultKicker">KẾT QUẢ THI THỬ</p>
+    <h2 id="resultTitle">Bạn đã đạt!</h2>
+    <p id="resultSummary"></p>
+    <div class="result-score"><strong id="resultScore">0/50</strong><span id="resultRate">0% chính xác</span></div>
+    <div class="result-details">
+      <span><b id="resultCorrect">0</b> câu đúng</span>
+      <span><b id="resultWrong">0</b> câu sai</span>
+      <span><b id="resultTime">0:00</b> thời gian</span>
+    </div>
+    <div class="dialog-actions"><button id="reviewExamBtn" type="button">Xem lại bài</button><button id="retryExamBtn" class="primary" type="button">Thi đề khác</button></div>
+  </dialog>
+
+  <div id="questionToast" role="status"></div>
+  <script type="module" src="/questions.js?v=1"></script>
+</body>
+</html>
