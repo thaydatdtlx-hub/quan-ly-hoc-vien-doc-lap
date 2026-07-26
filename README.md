@@ -8,7 +8,8 @@ Trang `/600-cau-hoi.html` cung cấp:
 
 - Đủ 600 câu hỏi, 60 câu điểm liệt và 318 hình minh họa.
 - Ôn theo 6 chương, tìm kiếm, đánh dấu và tự lưu tiến độ trên thiết bị.
-- Thi thử hạng B theo quy định từ 01/07/2026: 50 câu, 33 phút, đạt từ 45/50 và không sai câu điểm liệt.
+- Thi thử A1, A, B và C1 theo quy định từ 01/07/2026; A1/A dùng đúng nhóm 250 câu dành cho mô tô.
+- A1/A: 40 câu, 27 phút, đạt 36; B: 50 câu, 33 phút, đạt 45; C1: 60 câu, 40 phút, đạt 54.
 
 Nội dung được đối chiếu với [bộ câu hỏi của Cục Cảnh sát giao thông](https://csgt.bocongan.gov.vn/van-ban/bo-600-cau-hoi-dung-cho-sat-hach-lai-xe-co-gioi-duong-bo) và Công văn số 2262/CSGT-P5 ngày 07/05/2025.
 
