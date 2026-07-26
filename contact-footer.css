@@ -1,0 +1,100 @@
+.contact-footer{
+  position:relative;
+  z-index:2;
+  width:min(1240px,calc(100% - 32px));
+  margin:36px auto 24px;
+  padding:26px;
+  border:1px solid #d7e5f3;
+  border-radius:22px;
+  background:linear-gradient(120deg,#fff,#f1f7ff);
+  box-shadow:0 14px 35px #193b6312;
+  color:#153b63;
+  text-align:center;
+}
+.contact-footer__brand{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  margin-bottom:16px;
+}
+.contact-footer__brand strong{
+  color:#0b4d9f;
+  font-size:14px;
+  letter-spacing:.06em;
+}
+.contact-footer__brand span{
+  padding-left:10px;
+  border-left:1px solid #c9d7e6;
+  color:#718398;
+  font-size:13px;
+}
+.contact-footer__links{
+  display:flex;
+  justify-content:center;
+  gap:12px;
+}
+.contact-footer__link{
+  display:inline-flex;
+  min-width:164px;
+  min-height:54px;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  padding:10px 18px;
+  border-radius:14px;
+  color:#fff;
+  text-decoration:none;
+  font-size:16px;
+  font-weight:850;
+  box-shadow:0 8px 20px #153b6720;
+  transition:transform .2s,box-shadow .2s,filter .2s;
+}
+.contact-footer__link:hover{
+  filter:brightness(1.05);
+  transform:translateY(-3px);
+  box-shadow:0 12px 25px #153b6735;
+}
+.contact-footer__link:focus-visible{
+  outline:3px solid #74b9ff;
+  outline-offset:3px;
+}
+.contact-footer__icon{
+  display:grid;
+  width:32px;
+  height:32px;
+  place-items:center;
+  border-radius:9px;
+  background:#ffffff24;
+  font-size:18px;
+  font-weight:950;
+}
+.contact-footer__link--tiktok{background:linear-gradient(135deg,#15151c,#33333e)}
+.contact-footer__link--facebook{background:linear-gradient(135deg,#1877f2,#0756bd)}
+.contact-footer__link--zalo{background:linear-gradient(135deg,#0879e7,#00a8ff)}
+.contact-footer__copyright{
+  margin:18px 0 0;
+  color:#7b8da2;
+  font-size:12px;
+}
+@media(max-width:650px){
+  .contact-footer{
+    width:min(100% - 20px,1240px);
+    margin:24px auto 14px;
+    padding:20px 14px;
+    border-radius:18px;
+  }
+  .contact-footer__brand{flex-direction:column;gap:5px}
+  .contact-footer__brand strong{font-size:12px}
+  .contact-footer__brand span{padding:0;border:0;font-size:11px}
+  .contact-footer__links{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+  .contact-footer__link{
+    min-width:0;
+    min-height:48px;
+    gap:6px;
+    padding:8px 5px;
+    font-size:12px;
+  }
+  .contact-footer__icon{width:27px;height:27px;font-size:15px}
+  .contact-footer__copyright{font-size:10px;line-height:1.5}
+}
