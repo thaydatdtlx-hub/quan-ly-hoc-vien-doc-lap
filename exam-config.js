@@ -20,10 +20,10 @@ export const MOTORCYCLE_CRITICAL_IDS=Object.freeze([
 ]);
 
 export const EXAMS=Object.freeze({
-  A1:Object.freeze({key:"A1",label:"A1",vehicle:"Xe mô tô đến 125 cm³",count:40,minutes:27,pass:36,questionIds:MOTORCYCLE_QUESTION_IDS,criticalIds:MOTORCYCLE_CRITICAL_IDS}),
-  A:Object.freeze({key:"A",label:"A",vehicle:"Xe mô tô trên 125 cm³",count:40,minutes:27,pass:36,questionIds:MOTORCYCLE_QUESTION_IDS,criticalIds:MOTORCYCLE_CRITICAL_IDS}),
-  B:Object.freeze({key:"B",label:"B",vehicle:"Xe ô tô hạng B",count:50,minutes:33,pass:45,questionIds:null,criticalIds:null}),
-  C1:Object.freeze({key:"C1",label:"C1",vehicle:"Xe tải từ trên 3.500 kg đến 7.500 kg",count:60,minutes:40,pass:54,questionIds:null,criticalIds:null})
+  A1:Object.freeze({key:"A1",label:"A1",vehicle:"Xe mô tô đến 125 cm³",count:25,minutes:19,pass:21,questionIds:MOTORCYCLE_QUESTION_IDS,criticalIds:MOTORCYCLE_CRITICAL_IDS}),
+  A:Object.freeze({key:"A",label:"A",vehicle:"Xe mô tô trên 125 cm³",count:25,minutes:19,pass:23,questionIds:MOTORCYCLE_QUESTION_IDS,criticalIds:MOTORCYCLE_CRITICAL_IDS}),
+  B:Object.freeze({key:"B",label:"B",vehicle:"Xe ô tô hạng B",count:30,minutes:20,pass:27,questionIds:null,criticalIds:null}),
+  C1:Object.freeze({key:"C1",label:"C1",vehicle:"Xe tải từ trên 3.500 kg đến 7.500 kg",count:35,minutes:22,pass:32,questionIds:null,criticalIds:null})
 });
 
 export function buildExamPool(questions,examKey,shuffle){
