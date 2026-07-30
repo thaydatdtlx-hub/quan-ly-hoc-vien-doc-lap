@@ -25,12 +25,27 @@ function dateTime(value){
   const parsed=new Date(value);if(Number.isNaN(parsed.valueOf()))return String(value);
   return new Intl.DateTimeFormat("vi-VN",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}).format(parsed);
 }
+function dateOnly(value){
+  if(!value)return"";
+  const match=String(value).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(match)return`${match[3]}/${match[2]}/${match[1]}`;
+  const parsed=new Date(value);
+  return Number.isNaN(parsed.valueOf())?String(value):new Intl.DateTimeFormat("vi-VN",{day:"2-digit",month:"2-digit",year:"numeric"}).format(parsed);
+}
+function dateRange(start,end){
+  if(!start&&!end)return"";
+  if(start&&end)return`${dateOnly(start)} – ${dateOnly(end)}`;
+  return start?`Từ ${dateOnly(start)}`:`Đến ${dateOnly(end)}`;
+}
 function theoryDuration(seconds){
   const value=Math.max(0,Number(seconds)||0),minutes=Math.floor(value/60),rest=value%60;
   return `${minutes}:${String(rest).padStart(2,"0")}`;
 }
 function progressTone(v){const n=normalize(v);if(n.includes("thi rot"))return"fail";if(n.includes("dang"))return"doing";if(n.includes("da hoan thanh")||n==="da dau")return"done";return"pending"}
-function progressHtml(s){return `<div class="progress-list"><span class="progress-chip ${progressTone(s.online_status)}"><b>Online</b>${esc(s.online_status||"Chưa hoàn thành")}</span><span class="progress-chip ${progressTone(s.cabin_status)}"><b>Cabin</b>${esc(s.cabin_status||"Chưa hoàn thành")}</span><span class="progress-chip ${progressTone(s.dat_status)}"><b>DAT</b>${esc(s.dat_status||"Chưa thực hiện")}</span><span class="progress-chip ${progressTone(s.graduation_status)}"><b>Tốt nghiệp</b>${esc(s.graduation_status||"Chưa hoàn thành")}</span><span class="progress-chip ${progressTone(s.exam_status)}"><b>Sát hạch</b>${esc(s.exam_status||"Chưa thi sát hạch")}</span></div>`}
+function progressHtml(s){
+  const dates=(parseScheduleFromNotes(s.notes)||{}).dates||{},onlineDates=dateRange(dates.online_start,dates.online_end);
+  return `<div class="progress-list"><span class="progress-chip ${progressTone(s.online_status)}"><b>Online</b><span>${esc(s.online_status||"Chưa hoàn thành")}${onlineDates?`<small>${esc(onlineDates)}</small>`:""}</span></span><span class="progress-chip ${progressTone(s.cabin_status)}"><b>Cabin</b>${esc(s.cabin_status||"Chưa hoàn thành")}</span><span class="progress-chip ${progressTone(s.dat_status)}"><b>DAT</b>${esc(s.dat_status||"Chưa thực hiện")}</span><span class="progress-chip ${progressTone(s.graduation_status)}"><b>Tốt nghiệp</b>${esc(s.graduation_status||"Chưa hoàn thành")}</span><span class="progress-chip ${progressTone(s.exam_status)}"><b>Sát hạch</b>${esc(s.exam_status||"Chưa thi sát hạch")}</span></div>`;
+}
 
 async function boot(){
   if(!token)return showLogin();
@@ -223,8 +238,9 @@ function setSelect(id,value){const el=$(id),v=value??"";if(v&&![...el.options].s
 function showPhoto(value=""){currentPhoto=value||"";$("photoPreview").src=currentPhoto;$("photoPreview").classList.toggle("hidden",!currentPhoto);$("photoPlaceholder").classList.toggle("hidden",Boolean(currentPhoto))}
 async function compressPhoto(file){return new Promise((resolve,reject)=>{const img=new Image(),url=URL.createObjectURL(file);img.onload=()=>{const ratio=img.width/img.height;if(Math.abs(ratio-.75)>.045){URL.revokeObjectURL(url);return reject(new Error("Ảnh không đúng tỷ lệ 3×4. Vui lòng chọn ảnh dọc 3×4 nền trắng."))}const check=document.createElement("canvas"),cw=180,ch=240;check.width=cw;check.height=ch;const cx=check.getContext("2d",{willReadFrequently:true});cx.drawImage(img,0,0,cw,ch);const p=cx.getImageData(0,0,cw,ch).data;let white=0,total=0;for(let y=0;y<ch*.72;y+=3)for(let x=0;x<cw;x+=3)if(y<ch*.18||x<cw*.1||x>cw*.9){const i=(y*cw+x)*4,totalPixel=p[i]+p[i+1]+p[i+2];total++;if(totalPixel>690&&Math.max(p[i],p[i+1],p[i+2])-Math.min(p[i],p[i+1],p[i+2])<32)white++}if(!total||white/total<.58){URL.revokeObjectURL(url);return reject(new Error("Ảnh chưa đạt yêu cầu nền trắng. Vui lòng chọn ảnh thẻ 3×4 có nền trắng rõ ràng."))}const canvas=document.createElement("canvas");canvas.width=450;canvas.height=600;canvas.getContext("2d").drawImage(img,0,0,450,600);URL.revokeObjectURL(url);resolve(canvas.toDataURL("image/jpeg",.82))};img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error("Không đọc được file ảnh"))};img.src=url})}
 function openStudent(s=null){
+  const schedule=parseScheduleFromNotes(s?.notes||"")||{dates:{}};
   $("studentForm").reset();$("studentError").textContent="";$("studentId").value=s?.id||"";$("studentTitle").textContent=s?"Sửa thông tin học viên":"Thêm học viên";
-  $("name").value=s?.name||"";$("dob").value=s?.date_of_birth||"";$("cccd").value=s?.cccd||"";$("phone").value=s?.phone||"";$("course").value=s?.course||"";$("tuitionTotal").value=s?.tuition_total||"";$("paid").value=s?.paid||"";$("address").value=s?.address||"";$("notes").value=stripScheduleFromNotes(s?.notes||"");$("photoFile").value="";showPhoto(s?.photo_data||"");
+  $("name").value=s?.name||"";$("dob").value=s?.date_of_birth||"";$("cccd").value=s?.cccd||"";$("phone").value=s?.phone||"";$("course").value=s?.course||"";$("tuitionTotal").value=s?.tuition_total||"";$("paid").value=s?.paid||"";$("address").value=s?.address||"";$("notes").value=stripScheduleFromNotes(s?.notes||"");$("onlineStart").value=String(schedule.dates?.online_start||"").slice(0,10);$("onlineEnd").value=String(schedule.dates?.online_end||"").slice(0,10);$("photoFile").value="";showPhoto(s?.photo_data||"");
   setSelect("licenseClass",s?.license_class||"B số tự động");setSelect("profileStatus",s?.profile_status||"Đã ghi nhận");setSelect("onlineStatus",s?.online_status||"Chưa hoàn thành");setSelect("cabinStatus",s?.cabin_status||"Chưa hoàn thành");setSelect("datStatus",s?.dat_status||"Chưa thực hiện");setSelect("graduationStatus",s?.graduation_status||"Chưa hoàn thành");setSelect("examStatus",s?.exam_status||"Chưa thi sát hạch");
   if(me.role==="admin"){$("studentOwner").value=s?.owner_id||$("ownerFilter").value||me.id;$("studentOwner").disabled=Boolean(s)}
   $("studentDialog").showModal();setTimeout(()=>$("name").focus(),50);
@@ -246,8 +262,16 @@ $("studentForm").onsubmit=async e=>{
   e.preventDefault();$("studentError").textContent="";
   if(!$("name").value.trim())return $("studentError").textContent="Vui lòng nhập họ và tên.";
   if($("paid").value&&Number($("paid").value)>Number($("tuitionTotal").value||0))return $("studentError").textContent="Số tiền đã thu không được lớn hơn tổng học phí.";
-  const current=students.find(s=>s.id===$("studentId").value),schedule=parseScheduleFromNotes(current?.notes||"");
-  const data={name:$("name").value.trim(),date_of_birth:$("dob").value||null,cccd:$("cccd").value.trim(),phone:$("phone").value.trim(),license_class:$("licenseClass").value,course:$("course").value.trim(),profile_status:$("profileStatus").value,online_status:$("onlineStatus").value,cabin_status:$("cabinStatus").value,dat_status:$("datStatus").value,graduation_status:$("graduationStatus").value,exam_status:$("examStatus").value,tuition_total:Number($("tuitionTotal").value||0),paid:Number($("paid").value||0),address:$("address").value.trim(),notes:embedScheduleInNotes($("notes").value.trim(),schedule),photo_data:currentPhoto};
+  const current=students.find(s=>s.id===$("studentId").value),schedule=parseScheduleFromNotes(current?.notes||"")||{version:1,dates:{},locations:{},note:""};
+  const onlineStart=$("onlineStart").value,onlineEnd=$("onlineEnd").value;
+  if(Boolean(onlineStart)!==Boolean(onlineEnd))return $("studentError").textContent="Vui lòng nhập đủ ngày bắt đầu và kết thúc lý thuyết online.";
+  if(onlineStart&&onlineEnd<onlineStart)return $("studentError").textContent="Ngày kết thúc lý thuyết online không được trước ngày bắt đầu.";
+  schedule.dates=schedule.dates||{};schedule.locations=schedule.locations||{};
+  if(onlineStart){schedule.dates.online_start=onlineStart;schedule.dates.online_end=onlineEnd}
+  else{delete schedule.dates.online_start;delete schedule.dates.online_end;delete schedule.locations.online_start;delete schedule.locations.online_end}
+  schedule.updatedAt=new Date().toISOString();
+  const hasSchedule=Object.keys(schedule.dates).length||Object.keys(schedule.locations).length||schedule.note;
+  const data={name:$("name").value.trim(),date_of_birth:$("dob").value||null,cccd:$("cccd").value.trim(),phone:$("phone").value.trim(),license_class:$("licenseClass").value,course:$("course").value.trim(),profile_status:$("profileStatus").value,online_status:$("onlineStatus").value,cabin_status:$("cabinStatus").value,dat_status:$("datStatus").value,graduation_status:$("graduationStatus").value,exam_status:$("examStatus").value,tuition_total:Number($("tuitionTotal").value||0),paid:Number($("paid").value||0),address:$("address").value.trim(),notes:embedScheduleInNotes($("notes").value.trim(),hasSchedule?schedule:null),photo_data:currentPhoto};
   $("saveStudentBtn").disabled=true;
   try{const savedId=await rpc("app_save_student",{p_token:token,p_student_id:$("studentId").value||null,p_data:data,p_owner_id:me.role==="admin"?$("studentOwner").value:null});$("studentDialog").close();await loadStudents();const saved=students.find(s=>s.id===savedId);if(currentPhoto&&(!saved||!saved.photo_data)){alert("Thông tin đã lưu nhưng ảnh chưa được cơ sở dữ liệu ghi nhận. Hãy chạy file CAP-NHAT-ANH-3X4.sql trong Supabase rồi tải ảnh lại.")}else toast("Đã lưu thông tin học viên")}
   catch(err){$("studentError").textContent=errText(err)}finally{$("saveStudentBtn").disabled=false}
@@ -381,6 +405,7 @@ function excelDatetime(value){
   const local=localDatetime(value),match=local.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/);
   return match?`${match[3]}/${match[2]}/${match[1]} ${match[4]}:${match[5]}`:String(value);
 }
+function excelDateOnly(value){return dateOnly(value)}
 function dataDatetime(value){
   if(value instanceof Date&&!Number.isNaN(value.valueOf()))return localDatetime(value);
   const text=String(value||"").trim();
@@ -430,12 +455,12 @@ function closeExcelPreview(accepted=false){
   releaseExcelPreview();
 }
 function previewExportFile(file,list){
-  const headers=["Họ và tên","Hạng","DAT","BĐ DAT tự động","KT DAT tự động","BĐ DAT cơ khí","KT DAT cơ khí","Tổng học phí","Đã thu"];
+  const headers=["Họ và tên","Hạng","Lý thuyết online","BĐ Online","KT Online","DAT","BĐ DAT tự động","KT DAT tự động","BĐ DAT cơ khí","KT DAT cơ khí","Tổng học phí","Đã thu"];
   const rows=list.slice(0,20).map(s=>{
     const dates=(parseScheduleFromNotes(s.notes)||{}).dates||{};
-    return[s.name,s.license_class,s.dat_status,excelDatetime(dates.dat_auto_start),excelDatetime(dates.dat_auto_end),excelDatetime(dates.dat_manual_start),excelDatetime(dates.dat_manual_end),money(s.tuition_total),money(s.paid)];
+    return[s.name,s.license_class,s.online_status,excelDateOnly(dates.online_start),excelDateOnly(dates.online_end),s.dat_status,excelDatetime(dates.dat_auto_start),excelDatetime(dates.dat_auto_end),excelDatetime(dates.dat_manual_start),excelDatetime(dates.dat_manual_end),money(s.tuition_total),money(s.paid)];
   });
-  renderExcelPreview({title:"File xuất đã sẵn sàng",file,headers,rows,note:`File có ${list.length} học viên và 23 cột dữ liệu. Bảng đang hiển thị tối đa 20 học viên để kiểm tra nhanh.`,mode:"export"});
+  renderExcelPreview({title:"File xuất đã sẵn sàng",file,headers,rows,note:`File có ${list.length} học viên và 25 cột dữ liệu. Bảng đang hiển thị tối đa 20 học viên để kiểm tra nhanh.`,mode:"export"});
 }
 function confirmExcelImport(file,records){
   renderExcelPreview({
@@ -456,19 +481,20 @@ function financialSummary(list){
 $("exportBtn").onclick=async()=>{
   $("exportBtn").disabled=true;
   try{
-    const X=requireXLSX(),head=["Mã học viên","Họ và tên","Ngày sinh","CCCD","Điện thoại","Địa chỉ","Hạng","Khóa","Hồ sơ","Lý thuyết online","Cabin","DAT","Bắt đầu DAT số tự động","Kết thúc DAT số tự động","Bắt đầu DAT số cơ khí","Kết thúc DAT số cơ khí","Thi tốt nghiệp","Thi sát hạch","Tổng học phí","Đã thu","Còn lại","Tài khoản","Ghi chú"];
+    const X=requireXLSX(),head=["Mã học viên","Họ và tên","Ngày sinh","CCCD","Điện thoại","Địa chỉ","Hạng","Khóa","Hồ sơ","Lý thuyết online","Bắt đầu lý thuyết online","Kết thúc lý thuyết online","Cabin","DAT","Bắt đầu DAT số tự động","Kết thúc DAT số tự động","Bắt đầu DAT số cơ khí","Kết thúc DAT số cơ khí","Thi tốt nghiệp","Thi sát hạch","Tổng học phí","Đã thu","Còn lại","Tài khoản","Ghi chú"];
     const rows=[head,...students.map(s=>{
       const schedule=parseScheduleFromNotes(s.notes)||{dates:{}};
-      return[s.student_code,s.name,s.date_of_birth,s.cccd,s.phone,s.address,s.license_class,s.course,s.profile_status,s.online_status,s.cabin_status,s.dat_status,excelDatetime(schedule.dates?.dat_auto_start),excelDatetime(schedule.dates?.dat_auto_end),excelDatetime(schedule.dates?.dat_manual_start),excelDatetime(schedule.dates?.dat_manual_end),s.graduation_status,s.exam_status,Math.max(0,Number(s.tuition_total)||0),Math.max(0,Number(s.paid)||0),Math.max(0,Number(s.tuition_total||0)-Number(s.paid||0)),s.owner_username,stripScheduleFromNotes(s.notes)];
+      return[s.student_code,s.name,s.date_of_birth,s.cccd,s.phone,s.address,s.license_class,s.course,s.profile_status,s.online_status,excelDateOnly(schedule.dates?.online_start),excelDateOnly(schedule.dates?.online_end),s.cabin_status,s.dat_status,excelDatetime(schedule.dates?.dat_auto_start),excelDatetime(schedule.dates?.dat_auto_end),excelDatetime(schedule.dates?.dat_manual_start),excelDatetime(schedule.dates?.dat_manual_end),s.graduation_status,s.exam_status,Math.max(0,Number(s.tuition_total)||0),Math.max(0,Number(s.paid)||0),Math.max(0,Number(s.tuition_total||0)-Number(s.paid||0)),s.owner_username,stripScheduleFromNotes(s.notes)];
     })];
     const ws=X.utils.aoa_to_sheet(rows,{cellDates:true});
-    ws["!cols"]=[14,24,13,16,15,28,16,16,18,20,18,18,22,22,22,22,20,22,16,16,16,16,28].map(w=>({wch:w}));
-    ws["!autofilter"]={ref:`A1:W${Math.max(1,rows.length)}`};
+    ws["!cols"]=[14,24,13,16,15,28,16,16,18,20,22,22,18,18,22,22,22,22,20,22,16,16,16,16,28].map(w=>({wch:w}));
+    ws["!autofilter"]={ref:`A1:Y${Math.max(1,rows.length)}`};
     ws["!freeze"]={xSplit:0,ySplit:1,topLeftCell:"A2",activePane:"bottomLeft",state:"frozen"};
     for(let r=2;r<=rows.length;r++){
       if(ws[`C${r}`])ws[`C${r}`].z="dd/mm/yyyy";
-      for(const c of ["M","N","O","P"])if(ws[`${c}${r}`])ws[`${c}${r}`].z="dd/mm/yyyy hh:mm";
-      for(const c of ["S","T","U"])if(ws[`${c}${r}`]){ws[`${c}${r}`].t="n";ws[`${c}${r}`].z="#,##0 [$₫-vi-VN]"}
+      for(const c of ["K","L"])if(ws[`${c}${r}`])ws[`${c}${r}`].z="dd/mm/yyyy";
+      for(const c of ["O","P","Q","R"])if(ws[`${c}${r}`])ws[`${c}${r}`].z="dd/mm/yyyy hh:mm";
+      for(const c of ["U","V","W"])if(ws[`${c}${r}`]){ws[`${c}${r}`].t="n";ws[`${c}${r}`].z="#,##0 [$₫-vi-VN]"}
     }
     const summary=financialSummary(students),summaryRows=[
       ["TỔNG HỢP TÀI CHÍNH","GIÁ TRỊ"],
@@ -506,7 +532,7 @@ $("dataFile").onchange=async e=>{
     if(!sheet)throw new Error("File Excel không có trang tính.");
     const rows=X.utils.sheet_to_json(sheet,{header:1,defval:"",raw:false,dateNF:"dd/mm/yyyy"});
     if(rows.length<2)throw new Error("File Excel không có dữ liệu.");
-    const h=rows[0].map(normalize),idx={name:findCol(h,["ho va ten","ho ten","hoc vien"]),dob:findCol(h,["ngay sinh"]),cccd:findCol(h,["cccd","cmnd"]),phone:findCol(h,["dien thoai","so dien thoai","sdt"]),address:findCol(h,["dia chi"]),license:findCol(h,["hang dao tao","hang lai xe","hang"]),course:findCol(h,["khoa hoc","khoa"]),profile:findCol(h,["trang thai ho so","ho so"]),online:findCol(h,["ly thuyet online","online"]),cabin:findCol(h,["cabin"]),dat:findCol(h,["dat"]),datAutoStart:findCol(h,["bat dau dat so tu dong"]),datAutoEnd:findCol(h,["ket thuc dat so tu dong"]),datManualStart:findCol(h,["bat dau dat so co khi"]),datManualEnd:findCol(h,["ket thuc dat so co khi"]),graduation:findCol(h,["thi tot nghiep","tot nghiep"]),exam:findCol(h,["thi sat hach","sat hach"]),total:findCol(h,["tong hoc phi"]),paid:findCol(h,["da thu"]),paid1:findCol(h,["hoc phi lan 1"]),paid2:findCol(h,["hoc phi lan 2"]),paid3:findCol(h,["hoc phi lan 3"]),notes:findCol(h,["ghi chu"])};
+    const h=rows[0].map(normalize),idx={name:findCol(h,["ho va ten","ho ten","hoc vien"]),dob:findCol(h,["ngay sinh"]),cccd:findCol(h,["cccd","cmnd"]),phone:findCol(h,["dien thoai","so dien thoai","sdt"]),address:findCol(h,["dia chi"]),license:findCol(h,["hang dao tao","hang lai xe","hang"]),course:findCol(h,["khoa hoc","khoa"]),profile:findCol(h,["trang thai ho so","ho so"]),online:findCol(h,["ly thuyet online","online"]),onlineStart:findCol(h,["bat dau ly thuyet online","ngay bat dau ly thuyet online","bat dau online"]),onlineEnd:findCol(h,["ket thuc ly thuyet online","ngay ket thuc ly thuyet online","ket thuc online"]),cabin:findCol(h,["cabin"]),dat:findCol(h,["dat"]),datAutoStart:findCol(h,["bat dau dat so tu dong"]),datAutoEnd:findCol(h,["ket thuc dat so tu dong"]),datManualStart:findCol(h,["bat dau dat so co khi"]),datManualEnd:findCol(h,["ket thuc dat so co khi"]),graduation:findCol(h,["thi tot nghiep","tot nghiep"]),exam:findCol(h,["thi sat hach","sat hach"]),total:findCol(h,["tong hoc phi"]),paid:findCol(h,["da thu"]),paid1:findCol(h,["hoc phi lan 1"]),paid2:findCol(h,["hoc phi lan 2"]),paid3:findCol(h,["hoc phi lan 3"]),notes:findCol(h,["ghi chu"])};
     if(idx.name<0)throw new Error("Không tìm thấy cột HỌ VÀ TÊN trong file Excel.");
     if(idx.total<0)throw new Error("Không tìm thấy cột TỔNG HỌC PHÍ trong file Excel.");
     if(idx.paid<0&&idx.paid1<0&&idx.paid2<0&&idx.paid3<0)throw new Error("Không tìm thấy cột ĐÃ THU hoặc các cột HỌC PHÍ LẦN 1, 2, 3.");
@@ -517,10 +543,11 @@ $("dataFile").onchange=async e=>{
       if(total<0||paid<0)throw new Error(`Dòng ${rowNumber}: Học phí không được là số âm.`);
       if(paid>total)throw new Error(`Dòng ${rowNumber}: Số tiền đã thu lớn hơn tổng học phí.`);
       const dates={
+        online_start:dataDate(get("onlineStart")),online_end:dataDate(get("onlineEnd")),
         dat_auto_start:dataDatetime(get("datAutoStart")),dat_auto_end:dataDatetime(get("datAutoEnd")),
         dat_manual_start:dataDatetime(get("datManualStart")),dat_manual_end:dataDatetime(get("datManualEnd"))
       };
-      for(const [startKey,endKey,label] of [["dat_auto_start","dat_auto_end","DAT số tự động"],["dat_manual_start","dat_manual_end","DAT số cơ khí"]]){
+      for(const [startKey,endKey,label] of [["online_start","online_end","lý thuyết online"],["dat_auto_start","dat_auto_end","DAT số tự động"],["dat_manual_start","dat_manual_end","DAT số cơ khí"]]){
         if(Boolean(dates[startKey])!==Boolean(dates[endKey]))throw new Error(`Dòng ${rowNumber}: Vui lòng nhập đủ ngày bắt đầu và kết thúc ${label}.`);
         if(dates[startKey]&&new Date(dates[endKey])<new Date(dates[startKey]))throw new Error(`Dòng ${rowNumber}: Ngày kết thúc ${label} không được trước ngày bắt đầu.`);
       }
