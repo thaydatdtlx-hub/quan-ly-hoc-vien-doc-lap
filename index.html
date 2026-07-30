@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#e8f7ff">
+  <meta name="theme-color" content="#0f5f57">
   <title>Quản lý học viên lái xe</title>
-  <link rel="stylesheet" href="styles.css?v=4"><link rel="stylesheet" href="theme.css?v=9"><link rel="stylesheet" href="/contact-footer.css?v=1">
+  <link rel="preload" as="image" href="/hero-student-car.webp?v=1">
+  <link rel="stylesheet" href="styles.css?v=4"><link rel="stylesheet" href="theme.css?v=11"><link rel="stylesheet" href="/contact-footer.css?v=1">
 </head>
 <body>
   <div id="login" class="login-page">
@@ -20,22 +21,21 @@
             <span class="intro-mark"><img src="/logo-thay-dat.png?v=2" alt=""></span>
             <div><strong>THẦY ĐẠT</strong><small>Đào tạo lái xe trọn gói</small></div>
           </div>
-          <p class="intro-kicker"><span></span> HỆ THỐNG ĐANG HOẠT ĐỘNG</p>
           <h2>HỆ THỐNG QUẢN LÝ<br><span>ĐÀO TẠO HỌC VIÊN LÁI XE</span></h2>
-          <p>Tập trung hồ sơ, tiến độ học tập và học phí trên một nền tảng duy nhất — dễ theo dõi, nhanh xử lý và luôn bảo mật.</p>
-          <div class="intro-overview" aria-hidden="true">
-            <div class="overview-icon">
-              <svg viewBox="0 0 24 24"><path d="M5 19V9m7 10V5m7 14v-7"/></svg>
-            </div>
-            <div><strong>Trung tâm điều hành đào tạo</strong><span>Hồ sơ · Tiến độ · Học phí</span></div>
-            <div class="overview-status"><i></i> Trực tuyến</div>
-          </div>
+          <p>Học lý thuyết, theo dõi tiến độ và chủ động lịch học trên một nền tảng duy nhất.</p>
+          <a class="intro-study-cta" href="/600-cau-hoi.html">
+            <span aria-hidden="true">📖</span>
+            <div><strong>HỌC LÝ THUYẾT 600 CÂU</strong><small>Ôn tập miễn phí · Thi thử trực tuyến</small></div>
+            <b aria-hidden="true">→</b>
+          </a>
           <div class="intro-features">
-            <span>Hồ sơ tập trung</span>
-            <span>Tiến độ trực quan</span>
-            <span>Dữ liệu bảo mật</span>
+            <span>🛡️ An toàn bảo mật</span>
+            <span>✓ Dữ liệu chính xác</span>
+            <span>👥 Đồng hành cùng học viên</span>
           </div>
-          <a class="intro-website" href="https://daotaolaixetrongoi.com" target="_blank" rel="noopener noreferrer">daotaolaixetrongoi.com <span>↗</span></a>
+          <div class="intro-hero-visual" aria-hidden="true">
+            <img src="/hero-student-car.webp?v=1" alt="">
+          </div>
         </section>
 
         <form id="loginForm" class="login-card">
@@ -45,7 +45,7 @@
         <div class="mobile-brand"><strong>THẦY ĐẠT</strong><span>Đào tạo lái xe trọn gói</span></div>
         <div class="login-heading">
           <p class="eyebrow">CỔNG ĐÀO TẠO THẦY ĐẠT</p>
-          <h1>Đăng nhập</h1>
+          <h1>Đăng nhập hệ thống</h1>
           <p class="muted">Dành cho quản trị viên, tài khoản quản lý và học viên.</p>
         </div>
 
@@ -72,10 +72,11 @@
         <p id="loginError" class="error login-error" role="alert"></p>
         <button id="loginBtn" class="primary login-submit" type="submit"><span>Đăng nhập</span><span aria-hidden="true">→</span></button>
 
-        <a class="public-study-link" href="/600-cau-hoi.html"><span>600</span><div><strong>Học lý thuyết miễn phí</strong><small>Ôn câu hỏi · Câu điểm liệt · Thi thử hạng B</small></div><b>→</b></a>
+        <a class="public-study-link" href="/600-cau-hoi.html"><span>600</span><div><strong>Học lý thuyết miễn phí</strong><small>Ôn câu hỏi · Câu điểm liệt · Thi thử A1, A, B, C1</small></div><b>→</b></a>
         <div class="login-divider"><span>hoặc</span></div>
-        <a class="zalo-contact" href="https://zalo.me/0984811037" target="_blank" rel="noopener noreferrer"><strong>Z</strong><span>Liên hệ quản trị viên qua Zalo</span></a>
-        <p class="login-register">Chưa có tài khoản? <a href="https://zalo.me/0984811037" target="_blank" rel="noopener noreferrer">Liên hệ quản trị viên</a></p>
+        <button id="openPublicRegisterBtn" class="public-register-cta" type="button"><span>＋</span><div><strong>Tạo tài khoản học 600 câu</strong><small>Dành cho người học chưa phải học viên Thầy Đạt</small></div><b>→</b></button>
+        <a class="zalo-contact" href="https://zalo.me/0984811037" target="_blank" rel="noopener noreferrer"><strong>Z</strong><span>Cần hỗ trợ? Liên hệ qua Zalo</span></a>
+        <p class="login-register">Đã có tài khoản? Đăng nhập ngay phía trên.</p>
         <div class="login-security" aria-label="Kết nối bảo mật">
           <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.6 2.9 8.1 7 10 4.1-1.9 7-5.4 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg>
           <span>Dữ liệu được bảo vệ và mã hóa an toàn</span>
@@ -93,6 +94,26 @@
       <p class="contact-footer__copyright">Copyright © Quốc Đạt · Hệ thống quản lý học viên lái xe</p>
     </footer>
   </div>
+
+  <dialog id="publicRegisterDialog" class="public-register-dialog">
+    <form id="publicRegisterForm">
+      <div class="dialog-head">
+        <div><p class="dialog-kicker">HỌC LÝ THUYẾT TRỰC TUYẾN</p><h2>Tạo tài khoản học 600 câu</h2></div>
+        <button type="button" class="close" aria-label="Đóng">×</button>
+      </div>
+      <div class="public-register-note"><span>📘</span><p><strong>Tài khoản tự học miễn phí</strong><small>Ôn 600 câu, lưu tiến độ và thi thử A1 · A · B · C1. Tài khoản này không truy cập hồ sơ học viên.</small></p></div>
+      <div class="public-register-grid">
+        <label>Họ và tên<input id="publicRegisterName" autocomplete="name" minlength="2" maxlength="80" placeholder="Nguyễn Văn An" required></label>
+        <label>Số điện thoại<input id="publicRegisterPhone" inputmode="tel" autocomplete="tel" minlength="9" maxlength="14" placeholder="0984 811 037" required></label>
+        <label>Tên đăng nhập<input id="publicRegisterUsername" autocomplete="username" minlength="4" maxlength="40" pattern="[a-z0-9._-]{4,40}" placeholder="nguyenvanan" required><small>4–40 ký tự: chữ thường không dấu, số, dấu chấm, gạch ngang.</small></label>
+        <label>Mật khẩu<input id="publicRegisterPassword" type="password" autocomplete="new-password" minlength="8" placeholder="Ít nhất 8 ký tự" required></label>
+        <label>Nhập lại mật khẩu<input id="publicRegisterConfirm" type="password" autocomplete="new-password" minlength="8" placeholder="Nhập lại mật khẩu" required></label>
+      </div>
+      <label class="public-register-remember"><input id="publicRegisterRemember" type="checkbox" checked> Ghi nhớ đăng nhập trên thiết bị này</label>
+      <p id="publicRegisterError" class="error" role="alert"></p>
+      <div class="actions"><button type="button" class="close">Hủy</button><button id="publicRegisterSubmit" class="primary" type="submit">Tạo tài khoản &amp; bắt đầu học</button></div>
+    </form>
+  </dialog>
 
   <div id="app" class="hidden">
     <header class="topbar">
@@ -117,6 +138,7 @@
           <span><strong>XUẤT FILE</strong><small>Mở / lưu .xlsx</small></span>
         </button>
         <button id="usersBtn" class="admin-only hidden">Tài khoản quản lý</button>
+        <button id="publicTheoryAccountsBtn" class="admin-only hidden">Người học bên ngoài</button>
         <input id="dataFile" class="hidden" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" aria-label="Chọn file Excel .xlsx để nhập dữ liệu">
       </section>
 
@@ -234,6 +256,23 @@
     <p id="userError" class="error" role="alert"></p><div id="userList" class="user-list"></div>
   </dialog>
 
+  <dialog id="publicTheoryAccountsDialog" class="public-theory-accounts-dialog">
+    <div class="dialog-head">
+      <div><p class="dialog-kicker">HỌC LÝ THUYẾT 600 CÂU</p><h2>Người học bên ngoài</h2></div>
+      <button type="button" class="close" aria-label="Đóng">×</button>
+    </div>
+    <div class="public-account-metrics">
+      <article><small>Tổng tài khoản</small><strong id="publicAccountTotal">0</strong></article>
+      <article><small>Đang hoạt động</small><strong id="publicAccountActive">0</strong></article>
+      <article><small>Đã bắt đầu học</small><strong id="publicAccountStarted">0</strong></article>
+      <article><small>Bài thi đã đạt</small><strong id="publicAccountPassed">0</strong></article>
+    </div>
+    <input id="publicTheoryAccountSearch" class="public-account-search" placeholder="Tìm theo họ tên, số điện thoại, tên đăng nhập">
+    <p id="publicTheoryAccountError" class="error" role="alert"></p>
+    <div id="publicTheoryAccountList" class="public-account-list"></div>
+    <div class="actions"><button type="button" class="close">Đóng</button></div>
+  </dialog>
+
   <dialog id="studentAccountDialog">
     <div class="dialog-head"><div><p class="dialog-kicker">CỔNG HỌC VIÊN</p><h2>Tài khoản đăng nhập</h2></div><button type="button" class="close">×</button></div>
     <div id="studentAccountSummary" class="student-account-summary"></div>
@@ -310,6 +349,6 @@
   </dialog>
 
   <div id="loading" class="loading hidden">Đang xử lý…</div><div id="toast" role="status"></div>
-  <script type="module" src="/app.js"></script>
+  <script type="module" src="/app.js?v=2"></script>
 </body>
 </html>

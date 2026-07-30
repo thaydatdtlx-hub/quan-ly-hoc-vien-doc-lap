@@ -5,7 +5,7 @@ import {managerNotifications,markNoticesRead,readNoticeIds} from "./account-noti
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
-let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"",me=null,students=[],users=[],studentAccounts=[],trainingRequests=[],theoryProgress=[],accountNotices=[],serverNotices=[],studentAccountsReady=false,theoryProgressReady=false,selectedStudentAccount=null,forcePasswordChange=false,currentPhoto="",statFilter="all",notificationTimer=null,excelPreviewFile=null,excelPreviewUrl="",excelImportResolve=null;
+let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"",me=null,students=[],users=[],studentAccounts=[],publicTheoryAccounts=[],trainingRequests=[],theoryProgress=[],accountNotices=[],serverNotices=[],studentAccountsReady=false,publicTheoryAccountsReady=false,theoryProgressReady=false,selectedStudentAccount=null,forcePasswordChange=false,currentPhoto="",statFilter="all",notificationTimer=null,excelPreviewFile=null,excelPreviewUrl="",excelImportResolve=null;
 
 async function rpc(fn,body={}){
   const r=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
@@ -50,20 +50,21 @@ function progressHtml(s){
 async function boot(){
   if(!token)return showLogin();
   try{
-    if(authKind==="student"){
+    if(authKind==="student"||authKind==="public_theory"){
       me=await rpc("app_student_me",{p_token:token});
-      return location.replace("/hoc-vien.html");
+      authKind=me.role==="public_theory"?"public_theory":"student";
+      return location.replace(authKind==="public_theory"?"/600-cau-hoi.html":"/hoc-vien.html");
     }
     try{me=await rpc("app_me",{p_token:token})}
     catch{
       me=await rpc("app_student_me",{p_token:token});
-      authKind="student";
-      return location.replace("/hoc-vien.html");
+      authKind=me.role==="public_theory"?"public_theory":"student";
+      return location.replace(authKind==="public_theory"?"/600-cau-hoi.html":"/hoc-vien.html");
     }
     if(!me?.id)throw new Error("Phiên đăng nhập hết hạn");
     authKind="manager";
     showApp();
-    if(me.role==="admin"){await loadUsers();await loadStudentAccounts()}
+    if(me.role==="admin"){await loadUsers();await loadStudentAccounts();await loadPublicTheoryAccounts()}
     await loadStudents();
     notificationTimer=setInterval(async()=>{
       if(document.visibilityState!=="visible")return;
@@ -90,7 +91,7 @@ $("loginForm").onsubmit=async e=>{
     let x;
     try{x=await rpc("app_login",{p_username:username,p_password:$("password").value});authKind="manager"}
     catch(managerError){
-      try{x=await rpc("app_student_login",{p_username:username,p_password:$("password").value});authKind="student"}
+      try{x=await rpc("app_student_login",{p_username:username,p_password:$("password").value});authKind=x.role==="public_theory"?"public_theory":"student"}
       catch(studentError){
         if(/app_student_login|schema cache|PGRST202/i.test(errText(studentError)))throw managerError;
         throw studentError;
@@ -102,6 +103,38 @@ $("loginForm").onsubmit=async e=>{
   }
   catch(err){$("loginError").textContent=errText(err)}
   finally{$("loginBtn").disabled=false;$("loginBtn").removeAttribute("aria-busy");$("loginBtn").querySelector("span").textContent="Đăng nhập"}
+};
+$("openPublicRegisterBtn").onclick=()=>{
+  $("publicRegisterError").textContent="";
+  $("publicRegisterDialog").showModal();
+  setTimeout(()=>$("publicRegisterName").focus(),50);
+};
+$("publicRegisterForm").onsubmit=async event=>{
+  event.preventDefault();
+  $("publicRegisterError").textContent="";
+  const password=$("publicRegisterPassword").value;
+  if(password!==$("publicRegisterConfirm").value){
+    $("publicRegisterError").textContent="Hai lần nhập mật khẩu chưa giống nhau.";
+    return;
+  }
+  const button=$("publicRegisterSubmit");
+  button.disabled=true;button.textContent="Đang tạo tài khoản…";
+  try{
+    const result=await rpc("app_public_theory_register",{
+      p_full_name:$("publicRegisterName").value.trim(),
+      p_phone:$("publicRegisterPhone").value.trim(),
+      p_username:$("publicRegisterUsername").value.trim().toLowerCase(),
+      p_password:password
+    });
+    token=result.token;authKind="public_theory";
+    saveAuth($("publicRegisterRemember").checked);
+    location.replace("/600-cau-hoi.html");
+  }catch(error){
+    const message=errText(error);
+    $("publicRegisterError").textContent=/app_public_theory_register|schema cache|PGRST202/i.test(message)
+      ?"Tính năng đăng ký đang được quản trị viên kích hoạt. Vui lòng thử lại sau."
+      :message;
+  }finally{button.disabled=false;button.textContent="Tạo tài khoản & bắt đầu học"}
 };
 $("logoutBtn").onclick=async()=>{busy(true);try{await rpc("app_logout",{p_token:token})}catch{}clearAuth();location.reload()};
 
@@ -295,6 +328,81 @@ async function loadStudentAccounts(){
     if(!missing)toast(errText(error));
   }
 }
+async function loadPublicTheoryAccounts(){
+  try{
+    publicTheoryAccounts=await rpc("app_admin_list_public_theory_accounts",{p_token:token})||[];
+    publicTheoryAccountsReady=true;
+  }catch(error){
+    publicTheoryAccounts=[];publicTheoryAccountsReady=false;
+    const missing=/app_admin_list_public_theory_accounts|schema cache|PGRST202/i.test(errText(error));
+    if(!missing)toast(errText(error));
+  }
+}
+function renderPublicTheoryAccounts(){
+  const query=normalize($("publicTheoryAccountSearch").value);
+  const items=publicTheoryAccounts.filter(account=>!query||normalize(`${account.full_name} ${account.phone} ${account.username}`).includes(query));
+  $("publicAccountTotal").textContent=publicTheoryAccounts.length;
+  $("publicAccountActive").textContent=publicTheoryAccounts.filter(account=>account.active).length;
+  $("publicAccountStarted").textContent=publicTheoryAccounts.filter(account=>Number(account.answered_count)>0||Number(account.exam_count)>0).length;
+  $("publicAccountPassed").textContent=publicTheoryAccounts.reduce((sum,account)=>sum+(Number(account.passed_exam_count)||0),0);
+  if(!publicTheoryAccountsReady){
+    $("publicTheoryAccountList").innerHTML='<div class="public-account-empty">Cần chạy file <b>CAP-NHAT-TAI-KHOAN-NGUOI-HOC-BEN-NGOAI.sql</b> trong Supabase để kích hoạt tính năng này.</div>';
+    return;
+  }
+  $("publicTheoryAccountList").innerHTML=items.length?items.map(account=>`
+    <article class="public-account-card ${account.active?"":"is-locked"}">
+      <div class="public-account-main">
+        <span class="public-account-avatar">${esc((account.full_name||account.username||"?").trim().charAt(0).toUpperCase())}</span>
+        <div><strong>${esc(account.full_name||"Chưa có tên")}</strong><span>@${esc(account.username)} · ${esc(account.phone||"Chưa có SĐT")}</span></div>
+        <em class="${account.active?"active":"locked"}">${account.active?"Đang hoạt động":"Đã khóa"}</em>
+      </div>
+      <div class="public-account-progress">
+        <span><small>Đã học</small><b>${Number(account.answered_count)||0}/600</b></span>
+        <span><small>Thi thử</small><b>${Number(account.exam_count)||0} bài</b></span>
+        <span><small>Đã đạt</small><b>${Number(account.passed_exam_count)||0} bài</b></span>
+        <span><small>Điểm tốt nhất</small><b>${account.best_score==null?"—":`${Number(account.best_score)}/${Number(account.best_total)||0}`}</b></span>
+      </div>
+      <div class="public-account-meta"><span>Tạo: ${esc(dateTime(account.created_at))}</span><span>Đăng nhập: ${esc(dateTime(account.last_login_at))}</span><span>Học gần nhất: ${esc(dateTime(account.last_activity))}</span></div>
+      <div class="public-account-actions">
+        <button data-public-reset="${account.id}" type="button">Đặt lại mật khẩu</button>
+        <button data-public-toggle="${account.id}" data-active="${account.active}" type="button">${account.active?"Khóa tài khoản":"Mở khóa"}</button>
+        <button class="danger" data-public-delete="${account.id}" data-name="${esc(account.full_name||account.username)}" type="button">Xóa</button>
+      </div>
+    </article>`).join(""):'<div class="public-account-empty">Không tìm thấy tài khoản phù hợp.</div>';
+}
+$("publicTheoryAccountsBtn").onclick=async()=>{
+  $("publicTheoryAccountError").textContent="";
+  $("publicTheoryAccountSearch").value="";
+  $("publicTheoryAccountsDialog").showModal();
+  await loadPublicTheoryAccounts();renderPublicTheoryAccounts();
+};
+$("publicTheoryAccountSearch").oninput=renderPublicTheoryAccounts;
+$("publicTheoryAccountList").onclick=async event=>{
+  const button=event.target.closest("button");if(!button)return;
+  const id=button.dataset.publicReset||button.dataset.publicToggle||button.dataset.publicDelete;
+  if(!id)return;
+  $("publicTheoryAccountError").textContent="";
+  button.disabled=true;
+  try{
+    if(button.dataset.publicReset){
+      const password=prompt("Nhập mật khẩu tạm mới (ít nhất 8 ký tự):");
+      if(!password)return;
+      await rpc("app_admin_reset_public_theory_password",{p_token:token,p_account_id:id,p_password:password});
+      toast("Đã đặt lại mật khẩu và mở khóa tài khoản");
+    }else if(button.dataset.publicToggle){
+      const active=button.dataset.active==="true";
+      await rpc("app_admin_set_public_theory_active",{p_token:token,p_account_id:id,p_active:!active});
+      toast(active?"Đã khóa tài khoản":"Đã mở khóa tài khoản");
+    }else{
+      const name=button.dataset.name||"tài khoản này";
+      if(!confirm(`Xóa vĩnh viễn ${name} và toàn bộ tiến độ học, lịch sử thi?`))return;
+      await rpc("app_admin_delete_public_theory_account",{p_token:token,p_account_id:id});
+      toast("Đã xóa tài khoản người học");
+    }
+    await loadPublicTheoryAccounts();renderPublicTheoryAccounts();
+  }catch(error){$("publicTheoryAccountError").textContent=errText(error)}
+  finally{button.disabled=false}
+};
 async function openTheoryDetail(student){
   if(me?.role!=="admin"||!student)return;
   if(!theoryProgressReady){

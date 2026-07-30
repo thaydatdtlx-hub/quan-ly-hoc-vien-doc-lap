@@ -54,7 +54,8 @@ async function flushRemoteProgress(keepalive=false){
   remoteSyncing=true;
   try{
     const body=JSON.stringify({p_token:token,p_progress:remoteProgressPayload()});
-    const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/app_student_save_theory_progress`,{
+    const syncFunction=authKind==="public_theory"?"app_public_theory_save_progress":"app_student_save_theory_progress";
+    const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${syncFunction}`,{
       method:"POST",
       headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},
       body,
@@ -62,7 +63,7 @@ async function flushRemoteProgress(keepalive=false){
     });
     const data=await response.json().catch(()=>null);
     if(!response.ok)throw new Error(data?.message||data?.details||"Không thể đồng bộ tiến độ");
-    setSyncStatus("synced",`Đã đồng bộ · ${remoteStudent?.student_name||"Học viên"}`);
+    setSyncStatus("synced",`Đã đồng bộ · ${remoteStudent?.student_name||remoteStudent?.account_name||"Người học"}`);
   }catch(error){
     setSyncStatus("error","Chưa đồng bộ · vẫn lưu trên máy");
     if(!keepalive)toast(error?.message||"Không thể đồng bộ tiến độ.");
@@ -91,30 +92,40 @@ function examKeyForLicense(value){
   return"B";
 }
 async function initStudentSync(){
-  if(!token||authKind!=="student"){
+  if(!token||!["student","public_theory"].includes(authKind)){
     setSyncStatus("local","Lưu trên thiết bị");
     return;
   }
   try{
     const me=await rpc("app_student_me",{p_token:token});
-    const studentId=String(me.student_id||"");
-    if(!studentId)throw new Error("Tài khoản chưa liên kết hồ sơ học viên.");
-    storageKey=`thay_dat_600_progress_v2_${studentId}`;
+    const isPublic=me.role==="public_theory";
+    const accountKey=isPublic?String(me.id||""):String(me.student_id||"");
+    if(!accountKey)throw new Error(isPublic?"Không tìm thấy tài khoản người học.":"Tài khoản chưa liên kết hồ sơ học viên.");
+    storageKey=isPublic?`thay_dat_600_progress_public_${accountKey}`:`thay_dat_600_progress_v2_${accountKey}`;
     let accountLocal=readProgress(storageKey);
     const hasAccountLocal=Boolean(localStorage.getItem(storageKey));
     const legacyClaim=localStorage.getItem("thay_dat_600_progress_v1_claimed_by");
     if(!hasAccountLocal&&!legacyClaim&&localStorage.getItem(DEFAULT_STORAGE_KEY)){
       accountLocal=readProgress(DEFAULT_STORAGE_KEY);
-      localStorage.setItem("thay_dat_600_progress_v1_claimed_by",studentId);
+      localStorage.setItem("thay_dat_600_progress_v1_claimed_by",accountKey);
     }
     progress=accountLocal;
     $("studentPortalLink").classList.remove("hidden");
-    $("studentPortalLink").textContent="Tài khoản học viên";
-    remoteStudent=await rpc("app_student_get_theory_progress",{p_token:token});
+    $("studentPortalLink").textContent=isPublic?"Đang tải tài khoản…":"Tài khoản học viên";
+    remoteStudent=await rpc(isPublic?"app_public_theory_get_progress":"app_student_get_theory_progress",{p_token:token});
     progress=mergeProgress(remoteStudent,accountLocal);
-    activeExamKey=examKeyForLicense(remoteStudent.license_class);
+    activeExamKey=isPublic?"B":examKeyForLicense(remoteStudent.license_class);
     remoteSyncEnabled=true;
-    $("studentPortalLink").textContent=`${remoteStudent.student_name||"Học viên"} · Tài khoản`;
+    $("studentPortalLink").textContent=isPublic?`${remoteStudent.account_name||me.full_name||"Người học"} · Đăng xuất`:`${remoteStudent.student_name||"Học viên"} · Tài khoản`;
+    if(isPublic){
+      $("studentPortalLink").href="#";
+      $("studentPortalLink").onclick=async event=>{
+        event.preventDefault();
+        try{await rpc("app_student_logout",{p_token:token})}catch{}
+        for(const store of [localStorage,sessionStorage]){store.removeItem("hv_token");store.removeItem("hv_auth_kind")}
+        location.replace("/");
+      };
+    }
     localStorage.setItem(storageKey,JSON.stringify(progress));
     await questionsReady;
     renderHome();
@@ -398,7 +409,7 @@ function updateExamTimer(){
 async function saveRemoteExamAttempt(result){
   if(!remoteSyncEnabled)return;
   try{
-    await rpc("app_student_save_exam_attempt",{
+    await rpc(authKind==="public_theory"?"app_public_theory_save_exam_attempt":"app_student_save_exam_attempt",{
       p_token:token,
       p_license_class:result.examKey,
       p_score:result.correct,
@@ -406,7 +417,7 @@ async function saveRemoteExamAttempt(result){
       p_critical_correct:result.criticalCorrect,
       p_elapsed_seconds:result.elapsed
     });
-    setSyncStatus("synced",`Đã lưu bài thi · ${remoteStudent?.student_name||"Học viên"}`);
+    setSyncStatus("synced",`Đã lưu bài thi · ${remoteStudent?.student_name||remoteStudent?.account_name||"Người học"}`);
   }catch(error){
     setSyncStatus("error","Bài thi chưa đồng bộ");
     toast(error?.message||"Không thể lưu kết quả thi vào tài khoản.");
