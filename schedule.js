@@ -318,8 +318,8 @@ function openSessionEditor(sessionId=""){
   $("trainingStartsAt").value=toDatetimeLocal(session?.starts_at);
   $("trainingLocation").value=session?.location||"";
   $("trainingNote").value=session?.note||"";
-  $("sessionDialogTitle").textContent=session?"Sửa buổi thực hành":"Thêm buổi thực hành";
-  $("saveSessionBtn").textContent=session?"Lưu thay đổi":"Lưu buổi thực hành";
+  $("sessionDialogTitle").textContent=session?"Sửa ca học riêng":"Tạo ca học riêng";
+  $("saveSessionBtn").textContent=session?"Lưu thay đổi":"Lưu ca học riêng";
   $("sessionDialog").showModal();
 }
 function openRequestApproval(requestId){
@@ -535,7 +535,7 @@ $("sessionForm").onsubmit=async event=>{
         p_note:$("trainingNote").value.trim()
       });
       await loadTrainingSessions();
-      $("sessionDialog").close();renderAll();toast($("trainingSessionId").value?"Đã cập nhật buổi thực hành":"Đã thêm buổi thực hành");
+      $("sessionDialog").close();renderAll();toast($("trainingSessionId").value?"Đã cập nhật ca học riêng":"Đã tạo ca học riêng");
     }
   }catch(error){$("sessionError").textContent=error?.message||"Không thể lưu buổi thực hành."}
   finally{$("saveSessionBtn").disabled=false;busy(false)}

@@ -30,7 +30,7 @@
       <div class="hero-actions admin-only hidden">
         <button id="openRequestsBtn" class="request-light" type="button">✋ Yêu cầu <b id="requestCountBadge">0</b></button>
         <button id="openSlotBtn" class="secondary-light" type="button">＋ Tạo ca học</button>
-        <button id="openSessionBtn" class="secondary-light legacy-session-btn" type="button">＋ Xếp lịch riêng</button>
+        <button id="openSessionBtn" class="secondary-light private-session-btn" type="button">＋ Tạo ca học riêng</button>
         <button id="openEditorBtn" class="primary" type="button">＋ Lập mốc đào tạo</button>
       </div>
     </section>
@@ -187,7 +187,7 @@
   <dialog id="sessionDialog" class="session-dialog">
     <form id="sessionForm">
       <div class="dialog-head">
-        <div><p>BUỔI THỰC HÀNH</p><h2 id="sessionDialogTitle">Thêm buổi thực hành</h2></div>
+        <div><p>CA HỌC RIÊNG</p><h2 id="sessionDialogTitle">Tạo ca học riêng</h2></div>
         <button class="dialog-close" type="button" aria-label="Đóng">×</button>
       </div>
       <input id="trainingSessionId" type="hidden">
@@ -217,7 +217,7 @@
       <p id="sessionError" class="form-error" role="alert"></p>
       <div class="dialog-actions">
         <button class="dialog-close" type="button">Hủy</button>
-        <button id="saveSessionBtn" class="primary" type="submit">Lưu buổi thực hành</button>
+        <button id="saveSessionBtn" class="primary" type="submit">Lưu ca học riêng</button>
       </div>
     </form>
   </dialog>
