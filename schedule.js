@@ -5,7 +5,7 @@ const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
 const token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"";
 const authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"";
-const REPEATABLE_KEYS=new Set(["familiar","practice"]);
+const REPEATABLE_KEYS=new Set(["familiar","dat_practice","practice"]);
 const MILESTONE_FIELDS=SCHEDULE_FIELDS.filter(field=>!REPEATABLE_KEYS.has(field.key));
 const ONLINE_RANGE_PAIRS=[
   ["online_start","online_end","lý thuyết online"]
@@ -46,6 +46,19 @@ function formatDate(value){
 function formatDuration(minutes){
   const value=Number(minutes)||0,hours=Math.floor(value/60),rest=value%60;
   return [hours?`${hours} giờ`:"",rest?`${rest} phút`:""].filter(Boolean).join(" ")||"Chưa xác định";
+}
+function formatTimeRange(value,minutes){
+  const start=new Date(value);
+  if(Number.isNaN(start.valueOf()))return"Chưa chọn khung giờ";
+  const end=new Date(start.getTime()+(Number(minutes)||120)*60000);
+  const formatter=new Intl.DateTimeFormat("vi-VN",{hour:"2-digit",minute:"2-digit"});
+  return `${formatter.format(start)} – ${formatter.format(end)}`;
+}
+function renderSlotTimePreview(){
+  const startsAt=$("slotStartsAt").value,duration=Number($("slotDuration").value)||120;
+  $("slotTimePreview").textContent=startsAt
+    ?`Khung giờ đã chọn: ${formatTimeRange(startsAt,duration)} · ${formatDuration(duration)}`
+    :"Khung giờ sẽ hiển thị sau khi chọn ngày, giờ bắt đầu và thời lượng.";
 }
 function dateParts(value){
   const date=new Date(value);
@@ -218,7 +231,7 @@ function renderTrainingSlots(){
     const booked=Number(slot.booked_count)||0,capacity=Math.max(1,Number(slot.capacity)||1),percent=Math.min(100,Math.round(booked/capacity*100));
     return `<article class="training-slot-card ${slot.status!=="open"?"is-closed":""}">
       <div class="training-slot-head">
-        <div><span>${field.icon}</span><div><small>${esc(formatDate(slot.starts_at))}</small><strong>${esc(field.label)}</strong></div></div>
+        <div><span>${field.icon}</span><div><small>${esc(formatDate(slot.starts_at))} · ${esc(formatTimeRange(slot.starts_at,slot.duration_minutes))}</small><strong>${esc(field.label)}</strong></div></div>
         <span class="slot-status ${esc(slot.status)}">${esc(slotStatusLabel(slot.status))}</span>
       </div>
       <div class="training-slot-info">
@@ -250,6 +263,7 @@ function openSlotEditor(slotId=""){
   $("slotLocation").value=slot?.location||"";
   $("slotStatus").value=slot?.status||"open";
   $("slotNote").value=slot?.note||"";
+  renderSlotTimePreview();
   $("slotDialogTitle").textContent=slot?"Sửa ca học thực hành":"Tạo ca học thực hành";
   $("saveSlotBtn").textContent=slot?"Lưu thay đổi":"Tạo ca học";
   $("deleteSlotBtn").classList.toggle("hidden",!slot);
@@ -448,6 +462,8 @@ $("slotForm").onsubmit=async event=>{
   }catch(error){$("slotError").textContent=error?.message||"Không thể lưu ca học."}
   finally{$("saveSlotBtn").disabled=false;busy(false)}
 };
+$("slotStartsAt").oninput=renderSlotTimePreview;
+$("slotDuration").onchange=renderSlotTimePreview;
 
 $("deleteSlotBtn").onclick=async()=>{
   const slot=trainingSlots.find(item=>String(item.id)===String($("trainingSlotId").value));

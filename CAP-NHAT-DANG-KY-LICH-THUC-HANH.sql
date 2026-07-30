@@ -9,7 +9,7 @@ begin;
 create table if not exists public.student_training_requests (
   id uuid primary key default extensions.gen_random_uuid(),
   student_id uuid not null references public.students(id) on delete cascade,
-  request_type text not null check (request_type in ('familiar', 'practice')),
+  request_type text not null check (request_type in ('familiar', 'dat_practice', 'practice')),
   requested_at timestamptz not null,
   note text not null default '',
   status text not null default 'pending'
@@ -118,7 +118,7 @@ declare
 begin
   v_me := public.app_student_me(p_token);
 
-  if coalesce(p_request_type, '') not in ('familiar', 'practice') then
+  if coalesce(p_request_type, '') not in ('familiar', 'dat_practice', 'practice') then
     raise exception 'Nội dung đăng ký không hợp lệ.';
   end if;
 

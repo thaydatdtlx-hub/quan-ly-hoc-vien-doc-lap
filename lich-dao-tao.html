@@ -133,13 +133,14 @@
         <label>Nội dung đào tạo
           <select id="slotType" required>
             <option value="familiar">🚘 Thực hành làm quen xe</option>
+            <option value="dat_practice">🛰️ Thực hành DAT</option>
             <option value="practice">🛣️ Học sa hình</option>
           </select>
         </label>
-        <label>Ngày và giờ bắt đầu
+        <label>Ngày và giờ bắt đầu khung
           <input id="slotStartsAt" type="datetime-local" required>
         </label>
-        <label>Thời lượng
+        <label>Thời lượng khung giờ
           <select id="slotDuration" required>
             <option value="60">60 phút</option>
             <option value="90">90 phút</option>
@@ -171,6 +172,7 @@
           <textarea id="slotNote" rows="3" placeholder="Nội dung cần học viên chuẩn bị…"></textarea>
         </label>
       </div>
+      <p id="slotTimePreview" class="slot-time-preview">Khung giờ sẽ hiển thị sau khi chọn ngày, giờ bắt đầu và thời lượng.</p>
       <p class="slot-help">Hệ thống tự động chặn giáo viên hoặc xe bị xếp trùng giờ và không cho duyệt vượt quá số lượng.</p>
       <p id="slotError" class="form-error" role="alert"></p>
       <div class="dialog-actions">
@@ -197,6 +199,7 @@
         <label>Nội dung đào tạo
           <select id="trainingType" required>
             <option value="familiar">🚘 Thực hành làm quen xe</option>
+            <option value="dat_practice">🛰️ Thực hành DAT</option>
             <option value="practice">🛣️ Học sa hình</option>
           </select>
         </label>

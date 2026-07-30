@@ -10,6 +10,10 @@ function formatDate(value){
   const date=new Date(value);
   return new Intl.DateTimeFormat("vi-VN",{weekday:"short",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}).format(date);
 }
+function formatDuration(minutes){
+  const value=Number(minutes)||0,hours=Math.floor(value/60),rest=value%60;
+  return [hours?`${hours} giờ`:"",rest?`${rest} phút`:""].filter(Boolean).join(" ")||"Chưa xác định";
+}
 function scheduleEvents(students){
   return students.flatMap(student=>{
     const schedule=scheduleOf(student);
@@ -73,8 +77,20 @@ export function managerNotifications(students,role="user"){
   return notices;
 }
 
-export function studentNotifications(student){
+export function studentNotifications(student,trainingSlots=[]){
   const notices=[],today=startOfToday(),total=Math.max(0,Number(student.tuition_total)||0),paid=Math.max(0,Number(student.paid)||0),debt=Math.max(0,total-paid);
+  const datSlots=trainingSlots
+    .filter(slot=>slot.session_type==="dat_practice"&&slot.status==="open"&&new Date(slot.starts_at)>=today&&Number(slot.available_count)>0)
+    .sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
+  if(datSlots.length){
+    const nearest=datSlots[0];
+    notices.push({
+      id:`student-dat-slots-${datSlots.map(slot=>`${slot.id}-${slot.updated_at||slot.starts_at}`).join("-")}`,
+      tone:"blue",icon:"🛰️",title:`Có ${datSlots.length} ca Thực hành DAT đang mở`,
+      body:`Ca gần nhất: ${formatDate(nearest.starts_at)} · ${formatDuration(nearest.duration_minutes)}${nearest.location?` · ${nearest.location}`:" · Chưa cập nhật địa điểm"}.`,
+      href:"/hoc-vien.html#trainingBooking",action:"Chọn khung giờ DAT"
+    });
+  }
   if(debt)notices.push({
     id:`student-debt-${debt}`,tone:"orange",icon:"₫",title:"Học phí chưa hoàn tất",
     body:`Anh/chị còn ${money(debt)} cần hoàn tất. Đã đóng ${money(paid)} trên tổng ${money(total)}.`

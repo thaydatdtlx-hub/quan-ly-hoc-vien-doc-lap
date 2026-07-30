@@ -114,6 +114,9 @@
         <button class="booking-action practice" type="button" data-booking-type="practice">
           <span>🛣️</span><div><strong>Đăng ký học sa hình</strong><small>Chọn ca và gửi Admin duyệt</small></div><b>＋</b>
         </button>
+        <button class="booking-action dat-practice" type="button" data-booking-type="dat_practice">
+          <span>🛰️</span><div><strong>Đăng ký thực hành DAT</strong><small>Chọn đúng khung giờ còn chỗ</small></div><b>＋</b>
+        </button>
       </div>
       <div class="booking-history-head"><strong>Yêu cầu gần đây</strong><small>Admin có thể điều chỉnh thời gian trước khi duyệt</small></div>
       <div id="studentBookingRequests" class="booking-request-list"></div>
@@ -154,6 +157,7 @@
       <label>Nội dung đăng ký
         <select id="requestType" required>
           <option value="familiar">🚘 Thực hành làm quen xe</option>
+          <option value="dat_practice">🛰️ Thực hành DAT</option>
           <option value="practice">🛣️ Học sa hình</option>
         </select>
       </label>

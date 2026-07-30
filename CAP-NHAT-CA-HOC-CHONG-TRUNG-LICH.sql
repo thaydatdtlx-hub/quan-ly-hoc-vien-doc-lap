@@ -11,7 +11,7 @@ begin;
 
 create table if not exists public.training_slots (
   id uuid primary key default extensions.gen_random_uuid(),
-  session_type text not null check (session_type in ('familiar', 'practice')),
+  session_type text not null check (session_type in ('familiar', 'dat_practice', 'practice')),
   starts_at timestamptz not null,
   duration_minutes integer not null default 120
     check (duration_minutes between 30 and 480),
@@ -171,7 +171,7 @@ declare
 begin
   perform public.app_require_admin(p_token);
 
-  if coalesce(p_session_type, '') not in ('familiar', 'practice') then
+  if coalesce(p_session_type, '') not in ('familiar', 'dat_practice', 'practice') then
     raise exception 'Nội dung ca học không hợp lệ.';
   end if;
   if coalesce(p_status, '') not in ('open', 'closed', 'cancelled') then

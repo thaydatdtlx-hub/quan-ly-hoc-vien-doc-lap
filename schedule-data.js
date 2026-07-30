@@ -2,6 +2,7 @@ export const SCHEDULE_FIELDS=[
   {key:"online_start",label:"Bắt đầu lý thuyết online",short:"BĐ Online",icon:"▶",tone:"blue",dateOnly:true},
   {key:"online_end",label:"Kết thúc lý thuyết online",short:"KT Online",icon:"■",tone:"green",dateOnly:true},
   {key:"familiar",label:"Thực hành làm quen xe",short:"Làm quen xe",icon:"🚘",tone:"cyan"},
+  {key:"dat_practice",label:"Thực hành DAT",short:"Thực hành DAT",icon:"🛰️",tone:"blue"},
   {key:"cabin",label:"Học cabin",short:"Cabin",icon:"🧭",tone:"violet"},
   {key:"practice",label:"Học sa hình",short:"Sa hình",icon:"🛣️",tone:"orange"},
   {key:"dat_auto_start",label:"Bắt đầu DAT số tự động",short:"BĐ DAT tự động",icon:"▶",tone:"cyan",onlyFor:"b_manual"},

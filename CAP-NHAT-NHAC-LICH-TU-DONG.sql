@@ -87,6 +87,7 @@ as $$
   select case p_type
     when 'online' then 'Học lý thuyết online'
     when 'familiar' then 'Thực hành làm quen xe'
+    when 'dat_practice' then 'Thực hành DAT'
     when 'cabin' then 'Học cabin'
     when 'practice' then 'Học sa hình'
     when 'dat_auto_start' then 'Bắt đầu DAT số tự động'

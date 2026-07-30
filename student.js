@@ -168,7 +168,7 @@ function openTrainingRequest(type){
   $("trainingRequestForm").reset();
   $("requestType").value=type;
   $("requestType").disabled=true;
-  $("trainingRequestTitle").textContent=type==="practice"?"Đăng ký học sa hình":"Đăng ký làm quen xe";
+  $("trainingRequestTitle").textContent=type==="practice"?"Đăng ký học sa hình":type==="dat_practice"?"Đăng ký thực hành DAT":"Đăng ký làm quen xe";
   $("trainingRequestError").textContent="";
   $("requestSlotField").classList.toggle("hidden",!slotFeatureAvailable);
   $("requestSlotDetails").classList.toggle("hidden",!slotFeatureAvailable);
@@ -270,7 +270,7 @@ async function loadServerNotifications(){
 }
 function isNoticeRead(notice,read){return notice.server_id?Boolean(notice.read_at):read.has(notice.id)}
 function renderStudentNotifications(){
-  const local=studentNotifications(student),serverKeys=new Set(serverNotices.map(notice=>`${notice.title}|${notice.body}`));
+  const local=studentNotifications(student,trainingSlots),serverKeys=new Set(serverNotices.map(notice=>`${notice.title}|${notice.body}`));
   studentNotices=[...serverNotices,...local.filter(notice=>!serverKeys.has(`${notice.title}|${notice.body}`))];
   const read=readNoticeIds(me),unread=studentNotices.filter(notice=>!isNoticeRead(notice,read)).length;
   $("studentNotificationBadge").textContent=unread;$("studentNotificationBadge").classList.toggle("hidden",unread===0);

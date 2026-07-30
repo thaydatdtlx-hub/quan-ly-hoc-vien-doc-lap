@@ -8,7 +8,7 @@ begin;
 create table if not exists public.student_training_sessions (
   id uuid primary key default extensions.gen_random_uuid(),
   student_id uuid not null references public.students(id) on delete cascade,
-  session_type text not null check (session_type in ('familiar', 'practice')),
+  session_type text not null check (session_type in ('familiar', 'dat_practice', 'practice')),
   starts_at timestamptz not null,
   location text not null default '',
   note text not null default '',
@@ -104,8 +104,8 @@ declare
 begin
   perform public.app_require_admin(p_token);
 
-  if coalesce(p_session_type, '') not in ('familiar', 'practice') then
-    raise exception 'Nội dung chỉ có thể là Làm quen xe hoặc Học sa hình.';
+  if coalesce(p_session_type, '') not in ('familiar', 'dat_practice', 'practice') then
+    raise exception 'Nội dung ca học không hợp lệ.';
   end if;
 
   begin
