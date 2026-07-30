@@ -1,5 +1,6 @@
 export const SCHEDULE_FIELDS=[
-  {key:"online",label:"Lý thuyết online",short:"Online",icon:"💻",tone:"blue"},
+  {key:"online_start",label:"Bắt đầu lý thuyết online",short:"BĐ Online",icon:"▶",tone:"blue",dateOnly:true},
+  {key:"online_end",label:"Kết thúc lý thuyết online",short:"KT Online",icon:"■",tone:"green",dateOnly:true},
   {key:"familiar",label:"Thực hành làm quen xe",short:"Làm quen xe",icon:"🚘",tone:"cyan"},
   {key:"cabin",label:"Học cabin",short:"Cabin",icon:"🧭",tone:"violet"},
   {key:"practice",label:"Học sa hình",short:"Sa hình",icon:"🛣️",tone:"orange"},
@@ -34,7 +35,14 @@ export function parseScheduleFromNotes(notes=""){
   if(!match)return null;
   try{
     const value=decode(match[1]);
-    return value&&typeof value==="object"?value:null;
+    if(!value||typeof value!=="object")return null;
+    value.dates=value.dates&&typeof value.dates==="object"?value.dates:{};
+    value.locations=value.locations&&typeof value.locations==="object"?value.locations:{};
+    if(value.dates.online&&!value.dates.online_start)value.dates.online_start=String(value.dates.online).slice(0,10);
+    if(value.locations.online&&!value.locations.online_start)value.locations.online_start=value.locations.online;
+    delete value.dates.online;
+    delete value.locations.online;
+    return value;
   }catch{return null}
 }
 
