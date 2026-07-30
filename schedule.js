@@ -7,6 +7,9 @@ const token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")
 const authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"";
 const REPEATABLE_KEYS=new Set(["familiar","practice"]);
 const MILESTONE_FIELDS=SCHEDULE_FIELDS.filter(field=>!REPEATABLE_KEYS.has(field.key));
+const ONLINE_RANGE_PAIRS=[
+  ["online_start","online_end","lý thuyết online"]
+];
 const DAT_RANGE_PAIRS=[
   ["dat_auto_start","dat_auto_end","DAT số tự động"],
   ["dat_manual_start","dat_manual_end","DAT số cơ khí"]
@@ -37,7 +40,8 @@ function endOfWeek(){const date=startOfToday();date.setDate(date.getDate()+7);da
 function formatDate(value){
   const date=new Date(value);
   if(Number.isNaN(date.valueOf()))return"Chưa xác định";
-  return new Intl.DateTimeFormat("vi-VN",{weekday:"long",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}).format(date);
+  const dateOnly=/^\d{4}-\d{2}-\d{2}$/.test(String(value));
+  return new Intl.DateTimeFormat("vi-VN",dateOnly?{weekday:"long",day:"2-digit",month:"2-digit",year:"numeric"}:{weekday:"long",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}).format(date);
 }
 function formatDuration(minutes){
   const value=Number(minutes)||0,hours=Math.floor(value/60),rest=value%60;
@@ -45,7 +49,8 @@ function formatDuration(minutes){
 }
 function dateParts(value){
   const date=new Date(value);
-  return{day:String(date.getDate()).padStart(2,"0"),month:`THÁNG ${date.getMonth()+1}`,time:new Intl.DateTimeFormat("vi-VN",{hour:"2-digit",minute:"2-digit"}).format(date)};
+  const dateOnly=/^\d{4}-\d{2}-\d{2}$/.test(String(value));
+  return{day:String(date.getDate()).padStart(2,"0"),month:`THÁNG ${date.getMonth()+1}`,time:dateOnly?"CẢ NGÀY":new Intl.DateTimeFormat("vi-VN",{hour:"2-digit",minute:"2-digit"}).format(date)};
 }
 function studentSchedule(student){return parseScheduleFromNotes(student.notes)||{version:1,dates:{},locations:{},note:""}}
 function isManualBStudent(student){return normalize(student?.license_class).includes("b so co khi")}
@@ -128,9 +133,14 @@ function renderEditorFields(student){
   $("scheduleFields").innerHTML=editorFieldsFor(student).map(field=>`
     <section class="schedule-field tone-${field.tone}">
       <div class="field-title"><span>${field.icon}</span><strong>${field.label}</strong></div>
-      <label>Ngày và giờ<input id="date-${field.key}" type="datetime-local"></label>
-      <label>Địa điểm / hình thức<input id="location-${field.key}" placeholder="${field.key==="online"?"Link hoặc nền tảng học":"Nhập địa điểm"}"></label>
+      <label>${field.dateOnly?"Ngày":"Ngày và giờ"}<input id="date-${field.key}" type="${field.dateOnly?"date":"datetime-local"}"></label>
+      <label>Địa điểm / hình thức<input id="location-${field.key}" placeholder="${field.key.startsWith("online_")?"Link hoặc nền tảng học":"Nhập địa điểm"}"></label>
     </section>`).join("");
+  $("scheduleFields").insertAdjacentHTML("afterbegin",`
+    <div class="dat-range-note">
+      <strong>Thời gian lý thuyết online</strong>
+      <span>Nhập đủ ngày bắt đầu và ngày kết thúc của khóa học online.</span>
+    </div>`);
   if(isManualBStudent(student))$("scheduleFields").insertAdjacentHTML("afterbegin",`
     <div class="dat-range-note">
       <strong>DAT dành cho học viên B số cơ khí</strong>
@@ -465,12 +475,11 @@ $("scheduleForm").onsubmit=async event=>{
     if(date)schedule.dates[field.key]=date;
     if(location)schedule.locations[field.key]=location;
   }
-  if(isManualBStudent(student)){
-    for(const [startKey,endKey,label] of DAT_RANGE_PAIRS){
+  const rangePairs=[...ONLINE_RANGE_PAIRS,...(isManualBStudent(student)?DAT_RANGE_PAIRS:[])];
+  for(const [startKey,endKey,label] of rangePairs){
       const start=schedule.dates[startKey],end=schedule.dates[endKey];
       if(Boolean(start)!==Boolean(end))return $("scheduleError").textContent=`Vui lòng nhập đủ ngày bắt đầu và kết thúc ${label}.`;
       if(start&&new Date(end)<new Date(start))return $("scheduleError").textContent=`Ngày kết thúc ${label} không được trước ngày bắt đầu.`;
-    }
   }
   if(!Object.keys(schedule.dates).length)return $("scheduleError").textContent="Vui lòng nhập ít nhất một mốc đào tạo.";
   $("saveScheduleBtn").disabled=true;busy(true);

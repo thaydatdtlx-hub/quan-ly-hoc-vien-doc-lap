@@ -44,9 +44,12 @@ function tuitionQrPayload(amount,content){
 }
 function date(value,withTime=false){
   if(!value)return"Chưa cập nhật";
+  const dateOnly=String(value).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(dateOnly)return`${dateOnly[3]}/${dateOnly[2]}/${dateOnly[1]}`;
   const parsed=new Date(value);if(Number.isNaN(parsed.valueOf()))return String(value);
   return new Intl.DateTimeFormat("vi-VN",withTime?{weekday:"long",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}:{day:"2-digit",month:"2-digit",year:"numeric"}).format(parsed);
 }
+function dateRange(start,end){return start&&end?`${date(start)} – ${date(end)}`:""}
 function toast(message){$("studentToast").textContent=message;$("studentToast").classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>$("studentToast").classList.remove("show"),2800)}
 function progressTone(value){
   const status=normalize(value);
@@ -212,15 +215,16 @@ function renderPortal(){
     $("tuitionQrOpen").removeAttribute("href");
   }
 
+  const schedule=parseScheduleFromNotes(student.notes||"")||{dates:{},locations:{},note:""};
   const progress=[
-    ["▤","Hồ sơ",student.profile_status||"Chưa cập nhật"],
-    ["◉","Lý thuyết online",student.online_status||"Chưa hoàn thành"],
-    ["▣","Cabin",student.cabin_status||"Chưa hoàn thành"],
-    ["⌖","DAT",student.dat_status||"Chưa thực hiện"],
-    ["✓","Thi tốt nghiệp",student.graduation_status||"Chưa hoàn thành"],
-    ["★","Thi sát hạch",student.exam_status||"Chưa thi sát hạch"]
+    ["▤","Hồ sơ",student.profile_status||"Chưa cập nhật",""],
+    ["◉","Lý thuyết online",student.online_status||"Chưa hoàn thành",dateRange(schedule.dates?.online_start,schedule.dates?.online_end)],
+    ["▣","Cabin",student.cabin_status||"Chưa hoàn thành",""],
+    ["⌖","DAT",student.dat_status||"Chưa thực hiện",""],
+    ["✓","Thi tốt nghiệp",student.graduation_status||"Chưa hoàn thành",""],
+    ["★","Thi sát hạch",student.exam_status||"Chưa thi sát hạch",""]
   ];
-  $("studentProgress").innerHTML=progress.map(([icon,label,status])=>`<article class="progress-card ${progressTone(status)}"><span>${icon}</span><div><small>${esc(label)}</small><strong>${esc(status)}</strong></div><i></i></article>`).join("");
+  $("studentProgress").innerHTML=progress.map(([icon,label,status,detail])=>`<article class="progress-card ${progressTone(status)}"><span>${icon}</span><div><small>${esc(label)}</small><strong>${esc(status)}</strong>${detail?`<em>${esc(detail)}</em>`:""}</div><i></i></article>`).join("");
 
   const profile=[
     ["Ngày sinh",date(student.date_of_birth)],
@@ -232,7 +236,7 @@ function renderPortal(){
   ];
   $("studentProfile").innerHTML=profile.map(([label,value])=>`<div><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`).join("");
 
-  const schedule=parseScheduleFromNotes(student.notes||"")||{dates:{},locations:{},note:""},now=new Date();
+  const now=new Date();
   const fixedEvents=SCHEDULE_FIELDS.filter(field=>schedule.dates?.[field.key]).map(field=>({field,date:schedule.dates[field.key],location:schedule.locations?.[field.key]||""}));
   const repeatEvents=trainingSessions.map(session=>({
     field:SCHEDULE_FIELDS.find(field=>field.key===session.session_type),
