@@ -2471,11 +2471,7 @@ body{background:radial-gradient(circle at 8% 8%,#dcecff 0,transparent 26%),radia
   .intro-hero-visual img{transform:none}
 }
 
-/*
- * iOS Safari safety layer:
- * keep the form in its own stacking context and avoid mobile backdrop
- * compositing that can paint the navy decoration above the login content.
- */
+/* iOS Safari safety layer */
 .login-card{
   isolation:isolate;
 }
@@ -2486,30 +2482,89 @@ body{background:radial-gradient(circle at 8% 8%,#dcecff 0,transparent 26%),radia
   position:relative;
   z-index:1;
 }
-@media(max-width:960px){
+@media(max-width:1100px){
+  html,
+  body{
+    min-height:100%;
+    background:#07182f!important;
+  }
+  #login.login-page{
+    min-height:100vh!important;
+    min-height:100dvh!important;
+    padding:0!important;
+    overflow:visible!important;
+    background:linear-gradient(155deg,#030a16,#07182f 52%,#0c2846)!important;
+  }
+  #login .login-shell{
+    position:static!important;
+    display:block!important;
+    width:100%!important;
+    min-height:100vh!important;
+    min-height:100dvh!important;
+    margin:0!important;
+    overflow:visible!important;
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+  }
+  #login .login-intro,
+  #login .login-bg-shape,
+  #login .login-dots,
+  #login .login-shell:before,
+  #login .login-shell:after{
+    display:none!important;
+  }
   .login-shell:after,
   .login-card:after{
     display:none!important;
   }
-  .login-layout{
-    position:relative!important;
+  #login .login-layout{
+    position:static!important;
     z-index:2!important;
-    display:grid!important;
+    display:block!important;
+    width:100%!important;
+    min-height:0!important;
+    margin:0!important;
+    padding:20px 12px 36px!important;
     visibility:visible!important;
     opacity:1!important;
+    overflow:visible!important;
   }
-  .login-card{
+  #login #loginForm.login-card{
     position:relative!important;
     z-index:3!important;
     display:block!important;
+    width:min(100%,560px)!important;
     height:auto!important;
-    min-height:0!important;
+    min-height:680px!important;
+    margin:0 auto!important;
+    padding:28px 20px 24px!important;
+    overflow:visible!important;
+    border:1px solid #d8bf8654!important;
+    border-radius:24px!important;
+    background:#0b2440!important;
+    box-shadow:0 24px 60px #0007!important;
     visibility:visible!important;
     opacity:1!important;
     transform:none!important;
+    -webkit-transform:none!important;
     animation:none!important;
     -webkit-backdrop-filter:none!important;
     backdrop-filter:none!important;
+    filter:none!important;
+    clip:auto!important;
+    clip-path:none!important;
+    mask:none!important;
+    -webkit-mask:none!important;
+  }
+  #login #loginForm.login-card:before,
+  #login #loginForm.login-card:after{
+    display:none!important;
+  }
+  #login #loginForm.login-card>*{
+    visibility:visible!important;
+    opacity:1!important;
   }
   .public-register-cta,
   .intro-features span{
