@@ -14,6 +14,8 @@ Trang `/600-cau-hoi.html` cung cấp:
 
 Nội dung được đối chiếu với [bộ câu hỏi của Cục Cảnh sát giao thông](https://csgt.bocongan.gov.vn/van-ban/bo-600-cau-hoi-dung-cho-sat-hach-lai-xe-co-gioi-duong-bo) và Công văn số 2262/CSGT-P5 ngày 07/05/2025.
 
+Ngày 30/07/2026, toàn bộ 600 câu và phần đáp án gạch chân trong PDF 186 trang của Cục CSGT đã được kiểm tra tự động. Có thể chạy lại kiểm tra tính toàn vẹn bằng lệnh `npm run check:questions`.
+
 Để bật đồng bộ tài khoản trên cơ sở dữ liệu hiện có, chạy file `CAP-NHAT-TIEN-DO-600-CAU.sql` trong Supabase SQL Editor.
 
 ## Chạy thử
