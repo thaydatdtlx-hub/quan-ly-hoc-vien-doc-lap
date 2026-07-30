@@ -2470,3 +2470,50 @@ body{background:radial-gradient(circle at 8% 8%,#dcecff 0,transparent 26%),radia
   .login-card{animation:none}
   .intro-hero-visual img{transform:none}
 }
+
+/*
+ * iOS Safari safety layer:
+ * keep the form in its own stacking context and avoid mobile backdrop
+ * compositing that can paint the navy decoration above the login content.
+ */
+.login-card{
+  isolation:isolate;
+}
+.login-card:after{
+  z-index:0;
+}
+.login-card>*{
+  position:relative;
+  z-index:1;
+}
+@media(max-width:960px){
+  .login-shell:after,
+  .login-card:after{
+    display:none!important;
+  }
+  .login-layout{
+    position:relative!important;
+    z-index:2!important;
+    display:grid!important;
+    visibility:visible!important;
+    opacity:1!important;
+  }
+  .login-card{
+    position:relative!important;
+    z-index:3!important;
+    display:block!important;
+    height:auto!important;
+    min-height:0!important;
+    visibility:visible!important;
+    opacity:1!important;
+    transform:none!important;
+    animation:none!important;
+    -webkit-backdrop-filter:none!important;
+    backdrop-filter:none!important;
+  }
+  .public-register-cta,
+  .intro-features span{
+    -webkit-backdrop-filter:none!important;
+    backdrop-filter:none!important;
+  }
+}
