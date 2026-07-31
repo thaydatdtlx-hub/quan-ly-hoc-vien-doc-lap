@@ -8,7 +8,7 @@ let questionBankPromise=null;
 const pageSuggestions=()=>{
   if(location.pathname.includes("600-cau-hoi"))return["Giải thích câu này dễ hiểu","Mẹo ghi nhớ đáp án","Tra cứu câu 1"];
   if(location.pathname.includes("lich-dao-tao"))return["Cách xem ca học của tôi?","DAT là gì?","Tôi muốn đổi lịch học"];
-  if(location.pathname.includes("hoc-vien"))return["Lịch học sắp tới của tôi","Cách đăng ký thực hành DAT","Xem tiến độ 600 câu"];
+  if(location.pathname.includes("hoc-vien"))return["Tra cứu học phí của tôi","Lịch học sắp tới của tôi","Cách đăng ký thực hành DAT","Xem tiến độ 600 câu"];
   return["Hướng dẫn học 600 câu","Cách tạo tài khoản học","Liên hệ Thầy Đạt"];
 };
 
@@ -73,6 +73,20 @@ function progressAnswer(){
   if(learned)return`Tiến độ hiện tại: đã học ${learned}, trả lời đúng ${correct||"đang cập nhật"}, thi thử ${exams||"0 lần"}, kết quả tốt nhất ${best||"chưa thi"}.`;
   return"Mở trang “Học lý thuyết 600 câu”. Tiến độ được lưu theo tài khoản và Admin có thể theo dõi số câu đã học cùng kết quả thi thử.";
 }
+function tuitionAnswer(){
+  const portal=document.getElementById("studentPortal");
+  if(!portal||portal.classList.contains("hidden"))return"Để bảo mật, học phí chỉ được tra cứu sau khi học viên đăng nhập đúng tài khoản và mở Cổng học viên.";
+  const total=textOf("#tuitionTotal"),paid=textOf("#tuitionPaid"),debt=textOf("#tuitionDebt"),status=textOf("#tuitionStatus"),note=textOf("#tuitionDebtNote");
+  if(!total)return"Dữ liệu học phí đang được tải. Vui lòng chờ vài giây rồi hỏi lại.";
+  return[
+    "Học phí của tài khoản đang đăng nhập:",
+    `• Tổng học phí: ${total}`,
+    `• Đã đóng: ${paid||"Đang cập nhật"}`,
+    `• Còn lại: ${debt||"Đang cập nhật"}`,
+    `• Trạng thái: ${status||note||"Đang cập nhật"}`,
+    "Số liệu được cập nhật sau khi Thầy Đạt đối soát thanh toán."
+  ].join("\n");
+}
 function faqAnswer(query){
   const value=normalize(query);
   if(/^(xin chao|chao|hello|hi)\b/.test(value))return"Chào anh/chị! Tôi hỗ trợ tra cứu miễn phí bộ 600 câu, lịch học, DAT và cách sử dụng website.";
@@ -87,7 +101,7 @@ function faqAnswer(query){
   if(/600 cau|ly thuyet|hoc cau hoi/.test(value))return"Bạn vào mục “Học lý thuyết” để học theo 6 chương, luyện câu sai, câu đã đánh dấu và câu điểm liệt. Có thể gõ “Tra cứu câu 123” để xem nhanh đáp án một câu cụ thể.";
   if(/tao tai khoan|dang ky tai khoan/.test(value))return"Tại trang đăng nhập, bấm “Tạo tài khoản học 600 câu”, nhập họ tên, số điện thoại, tên đăng nhập và mật khẩu. Tài khoản bên ngoài chỉ truy cập phần học lý thuyết.";
   if(/mat khau|khong dang nhap|quen.*khau/.test(value))return"Nếu đã đăng nhập, chọn “Đổi mật khẩu”. Nếu quên mật khẩu hoặc không đăng nhập được, liên hệ Thầy Đạt qua Zalo để được đặt lại tài khoản.";
-  if(/hoc phi|dong tien|thanh toan|qr/.test(value))return"Học viên xem mục “Đóng học phí” trong tài khoản để kiểm tra số tiền còn lại và mã QR. Luôn đối chiếu đúng thông tin người nhận trước khi chuyển khoản.";
+  if(/hoc phi|da dong bao nhieu|con no bao nhieu|con thieu bao nhieu|dong tien|thanh toan|qr/.test(value))return tuitionAnswer();
   if(/lien he|zalo|so dien thoai|thay dat/.test(value))return"Liên hệ Thầy Đạt qua Zalo: 0984 811 037. Khi cần hỗ trợ tài khoản, hãy gửi họ tên và tên đăng nhập; không gửi mật khẩu hoặc mã OTP.";
   if(/ca hoc rieng/.test(value))return"“Tạo ca học riêng” là chức năng của Admin để xếp trực tiếp một buổi học cho một học viên. Khi lưu, ca sẽ xuất hiện trong lịch và thông báo của học viên.";
   return"Tôi chưa nhận ra nội dung này. Anh/chị có thể hỏi theo mẫu: “Tra cứu câu 125”, “DAT là gì?”, “Lịch học sắp tới” hoặc “Cách thi thử”. Nếu cần hỗ trợ riêng, liên hệ Zalo Thầy Đạt: 0984 811 037.";
