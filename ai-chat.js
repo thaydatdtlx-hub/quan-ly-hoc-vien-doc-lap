@@ -172,15 +172,15 @@ function writeHistory(messages){
 
 function buildChat(){
   const launcher=document.createElement("button");
-  launcher.type="button";launcher.className="ai-chat-launcher";launcher.setAttribute("aria-label","Mở trợ lý học lái xe");launcher.setAttribute("aria-expanded","false");
-  launcher.innerHTML='<span class="ai-chat-launcher__mark" aria-hidden="true">✦</span><span class="ai-chat-launcher__label">Hỏi trợ lý<small>MIỄN PHÍ · KHÔNG DÙNG API</small></span><i class="ai-chat-launcher__dot" aria-hidden="true"></i>';
+  launcher.type="button";launcher.className="ai-chat-launcher";launcher.setAttribute("aria-label","Mở Trợ lý của Đạt");launcher.setAttribute("aria-expanded","false");
+  launcher.innerHTML='<span class="ai-chat-launcher__mark" aria-hidden="true">✦</span><span class="ai-chat-launcher__label">Trợ lý của Đạt<small>MIỄN PHÍ · KHÔNG DÙNG API</small></span><i class="ai-chat-launcher__dot" aria-hidden="true"></i>';
 
   const panel=document.createElement("section");
-  panel.className="ai-chat-panel";panel.setAttribute("aria-label","Trợ lý học lái xe Thầy Đạt");panel.setAttribute("aria-hidden","true");
+  panel.className="ai-chat-panel";panel.setAttribute("aria-label","Trợ lý của Đạt");panel.setAttribute("aria-hidden","true");
   panel.innerHTML=`
     <header class="ai-chat-header">
       <span class="ai-chat-avatar" aria-hidden="true">✦</span>
-      <div class="ai-chat-title"><strong>Trợ lý Thầy Đạt</strong><span><i></i> Tra cứu tự động miễn phí</span></div>
+      <div class="ai-chat-title"><strong>Trợ lý của Đạt</strong><span><i></i> Tra cứu tự động miễn phí</span></div>
       <div class="ai-chat-header-actions"><button class="ai-chat-icon-btn ai-chat-clear" type="button" aria-label="Xóa cuộc trò chuyện" title="Xóa cuộc trò chuyện">↻</button><button class="ai-chat-icon-btn ai-chat-close" type="button" aria-label="Đóng">×</button></div>
     </header>
     <div class="ai-chat-messages" aria-live="polite"></div>
