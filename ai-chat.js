@@ -1,14 +1,18 @@
 import "./ai-chat.css";
+import {SCHEDULE_FIELDS,parseScheduleFromNotes} from "./schedule-data.js";
 
 const HISTORY_KEY="thay_dat_free_assistant_v2";
 const MAX_HISTORY=8;
 const QUESTION_DATA_URL="/data/600-cau-hoi-2025.json";
+const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
+const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 let questionBankPromise=null;
+let privateSchedulePromise=null;
 
 const pageSuggestions=()=>{
   if(location.pathname.includes("600-cau-hoi"))return["Giải thích câu này dễ hiểu","Mẹo ghi nhớ đáp án","Tra cứu câu 1"];
   if(location.pathname.includes("lich-dao-tao"))return["Cách xem ca học của tôi?","DAT là gì?","Tôi muốn đổi lịch học"];
-  if(location.pathname.includes("hoc-vien"))return["Tra cứu học phí của tôi","Lịch học sắp tới của tôi","Cách đăng ký thực hành DAT","Xem tiến độ 600 câu"];
+  if(location.pathname.includes("hoc-vien"))return["Lịch học Cabin","Lịch chạy DAT","Lịch thi tốt nghiệp","Lịch thi sát hạch","Tra cứu học phí của tôi","Lịch học sắp tới của tôi"];
   return["Hướng dẫn học 600 câu","Cách tạo tài khoản học","Liên hệ Thầy Đạt"];
 };
 
@@ -22,6 +26,42 @@ function textOf(selector){
 }
 function currentQuestion(){
   return typeof window.__THAY_DAT_AI_CONTEXT__==="function"?window.__THAY_DAT_AI_CONTEXT__():null;
+}
+async function studentRpc(name,body={}){
+  const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`,{method:"POST",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
+  if(!response.ok)return null;
+  return response.json().catch(()=>null);
+}
+async function loadPrivateSchedule(){
+  const token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"";
+  const authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"";
+  if(!token||authKind!=="student")return null;
+  if(!privateSchedulePromise)privateSchedulePromise=(async()=>{
+    const student=await studentRpc("app_student_portal",{p_token:token});
+    if(!student?.id)return null;
+    const sessions=await studentRpc("app_list_training_sessions",{p_token:token,p_student_id:student.id});
+    return{student,sessions:Array.isArray(sessions)?sessions:[]};
+  })();
+  return privateSchedulePromise;
+}
+function formatScheduleDate(value){
+  const parsed=new Date(value);if(Number.isNaN(parsed.valueOf()))return String(value||"Chưa cập nhật");
+  return new Intl.DateTimeFormat("vi-VN",{weekday:"long",day:"2-digit",month:"2-digit",year:"numeric",...(/^\d{4}-\d{2}-\d{2}$/.test(String(value))?{}:{hour:"2-digit",minute:"2-digit"})}).format(parsed);
+}
+async function scheduleEventsForStudent(){
+  const data=await loadPrivateSchedule();if(!data)return null;
+  const schedule=parseScheduleFromNotes(data.student.notes||"")||{dates:{},locations:{}};
+  const fixed=SCHEDULE_FIELDS.filter(field=>schedule.dates?.[field.key]).map(field=>({key:field.key,label:field.label,date:schedule.dates[field.key],location:schedule.locations?.[field.key]||""}));
+  const repeat=data.sessions.map(session=>{const field=SCHEDULE_FIELDS.find(item=>item.key===session.session_type);return field?{key:field.key,label:field.label,date:session.starts_at,location:session.location||""}:null}).filter(Boolean);
+  const today=new Date();today.setHours(0,0,0,0);
+  return[...fixed,...repeat].filter(event=>new Date(event.date)>=today).sort((a,b)=>new Date(a.date)-new Date(b.date));
+}
+async function specificScheduleAnswer(keys,title){
+  const events=await scheduleEventsForStudent();
+  if(!events)return`Để bảo mật, ${title.toLowerCase()} chỉ được tra cứu khi học viên đăng nhập đúng tài khoản.`;
+  const matches=events.filter(event=>keys.includes(event.key));
+  if(!matches.length)return`Chưa có ${title.toLowerCase()} sắp tới trong tài khoản. Khi Admin cập nhật, lịch sẽ xuất hiện tại mục Thông báo và Lịch đào tạo.`;
+  return[`${title} của bạn:`,...matches.map(event=>`• ${event.label}: ${formatScheduleDate(event.date)} · ${event.location||"Chưa cập nhật địa điểm"}`),"Lịch chính thức căn cứ theo thông báo đã được Admin cập nhật."].join("\n");
 }
 async function loadQuestionBank(){
   if(!questionBankPromise)questionBankPromise=fetch(QUESTION_DATA_URL).then(response=>{
@@ -63,10 +103,12 @@ function explainQuestion(question,query=""){
   return lines.join("\n");
 }
 
-function scheduleAnswer(){
+async function scheduleAnswer(){
+  const events=await scheduleEventsForStudent();
+  if(events?.length)return["Các lịch sắp tới của bạn:",...events.slice(0,8).map(event=>`• ${event.label}: ${formatScheduleDate(event.date)} · ${event.location||"Chưa cập nhật địa điểm"}`),"Lịch chính thức căn cứ theo thông báo đã được Admin cập nhật."].join("\n");
   const upcoming=textOf("#studentUpcoming");
   if(upcoming&&!/chua co|dang tai/i.test(normalize(upcoming)))return`Lịch đang hiển thị trong tài khoản của bạn:\n${upcoming}\n\nLịch chính thức vẫn căn cứ theo mục Thông báo và lịch đã được Admin duyệt.`;
-  return"Bạn mở mục “Lịch đào tạo” hoặc nút “Thông báo” trong tài khoản để xem ca đã được Admin duyệt. Nếu chưa thấy lịch, hãy liên hệ Thầy Đạt để kiểm tra.";
+  return events?"Chưa có lịch sắp tới trong tài khoản. Khi Admin cập nhật, lịch sẽ xuất hiện tại mục Thông báo và Lịch đào tạo.":"Để bảo mật, lịch cá nhân chỉ được tra cứu khi học viên đăng nhập đúng tài khoản.";
 }
 function progressAnswer(){
   const learned=textOf("#theoryLearned"),correct=textOf("#theoryCorrect"),exams=textOf("#theoryExamCount"),best=textOf("#theoryBestScore");
@@ -87,10 +129,14 @@ function tuitionAnswer(){
     "Số liệu được cập nhật sau khi Thầy Đạt đối soát thanh toán."
   ].join("\n");
 }
-function faqAnswer(query){
+async function faqAnswer(query){
   const value=normalize(query);
   if(/^(xin chao|chao|hello|hi)\b/.test(value))return"Chào anh/chị! Tôi hỗ trợ tra cứu miễn phí bộ 600 câu, lịch học, DAT và cách sử dụng website.";
   if(/cam on|thank/.test(value))return"Rất vui được hỗ trợ anh/chị. Hãy tiếp tục hỏi về 600 câu, DAT hoặc lịch học nhé.";
+  if(/lich.*cabin|cabin.*lich/.test(value))return specificScheduleAnswer(["cabin"],"Lịch học Cabin");
+  if(/lich.*(chay|hoc|thuc hanh)?\s*dat|dat.*lich/.test(value))return specificScheduleAnswer(["dat_practice","dat_auto_start","dat_auto_end","dat_manual_start","dat_manual_end"],"Lịch chạy DAT");
+  if(/lich.*(thi)?\s*tot nghiep|tot nghiep.*lich/.test(value))return specificScheduleAnswer(["graduation"],"Lịch thi tốt nghiệp");
+  if(/lich.*(thi)?\s*sat hach|sat hach.*lich/.test(value))return specificScheduleAnswer(["exam"],"Lịch thi sát hạch");
   if(/dang ky.*dat|dat.*dang ky/.test(value))return"Vào Cổng học viên → mục “Thực hành theo nhu cầu” → chọn “Đăng ký thực hành DAT” → chọn khung giờ còn chỗ → gửi yêu cầu. Ca chỉ có hiệu lực sau khi Admin duyệt và gửi thông báo.";
   if(/dat la gi|thuc hanh dat|hoc dat/.test(value))return"DAT là nội dung thực hành có thiết bị giám sát thời gian và quãng đường học lái trên xe. Học viên cần học đúng ca được xếp, mang giấy tờ theo hướng dẫn và thực hiện đủ nội dung của giáo viên. Muốn đăng ký, vào Cổng học viên → Thực hành theo nhu cầu → Đăng ký thực hành DAT.";
   if(/lich.*sap toi|ca hoc cua toi|xem.*lich|lich hoc/.test(value))return scheduleAnswer();
