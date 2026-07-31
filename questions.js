@@ -1,4 +1,5 @@
 import{EXAMS,buildExamPool}from"./exam-config.js";
+import"./ai-chat.js";
 
 const $=id=>document.getElementById(id);
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
@@ -266,6 +267,20 @@ function applyFilters(preferredId=null){
 }
 
 function currentQuestion(){return pool[currentIndex]}
+window.__THAY_DAT_AI_CONTEXT__=()=>{
+  const question=currentQuestion();
+  if(!question)return null;
+  const selected=currentMode==="exam"||currentMode==="exam-review"?examAnswers.get(question.id):learnedAnswer(question.id);
+  return{
+    mode:currentMode,
+    id:question.id,
+    question:question.question,
+    options:question.options.map(option=>`${option.n}. ${option.text}`),
+    correctAnswer:question.answer,
+    selectedAnswer:selected||null,
+    critical:displayedCritical(question)
+  };
+};
 function renderQuestion(){
   const question=currentQuestion();
   const empty=!question;

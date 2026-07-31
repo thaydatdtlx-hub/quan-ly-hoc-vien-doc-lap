@@ -1,4 +1,5 @@
 import {SCHEDULE_FIELDS,parseScheduleFromNotes} from "./schedule-data.js";
+import "./ai-chat.js";
 
 function normalize(value){
   return String(value??"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d");
@@ -143,3 +144,4 @@ export function readNoticeIds(me){
   try{return new Set(JSON.parse(localStorage.getItem(noticeReadKey(me))||"[]"))}catch{return new Set()}
 }
 export function markNoticesRead(me,notices){localStorage.setItem(noticeReadKey(me),JSON.stringify(notices.map(notice=>notice.id)))}
+import "./ai-chat.js";

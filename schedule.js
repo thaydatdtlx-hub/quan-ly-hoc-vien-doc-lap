@@ -1,4 +1,5 @@
 import {SCHEDULE_FIELDS,embedScheduleInNotes,parseScheduleFromNotes} from "./schedule-data.js";
+import "./ai-chat.js";
 
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
