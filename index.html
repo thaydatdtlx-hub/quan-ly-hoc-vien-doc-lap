@@ -390,10 +390,20 @@
       <button id="excelPreviewClose" type="button" aria-label="Đóng">×</button>
     </div>
     <div id="excelPreviewMeta" class="excel-preview-meta"></div>
+    <div id="excelDuplicateSummary" class="excel-duplicate-summary hidden" aria-live="polite"></div>
     <div class="excel-preview-table-wrap">
       <table class="excel-preview-table"><thead id="excelPreviewHead"></thead><tbody id="excelPreviewBody"></tbody></table>
     </div>
     <p id="excelPreviewNote" class="excel-preview-note"></p>
+    <div id="excelConflictOptions" class="excel-conflict-options hidden">
+      <label for="excelDuplicateMode">Cách xử lý hồ sơ trùng</label>
+      <select id="excelDuplicateMode">
+        <option value="update">Cập nhật hồ sơ trùng, thêm hồ sơ mới (Đề xuất)</option>
+        <option value="skip">Bỏ qua hồ sơ trùng, chỉ thêm hồ sơ mới</option>
+        <option value="stop">Dừng nhập nếu phát hiện hồ sơ trùng</option>
+      </select>
+      <small>Hồ sơ nằm trong Thùng rác, dòng bị lặp trong cùng file và hồ sơ cần kiểm tra thủ công luôn được bỏ qua để bảo vệ dữ liệu.</small>
+    </div>
     <div class="actions excel-preview-actions">
       <button id="excelPreviewCancel" type="button">Đóng</button>
       <a id="excelOpenBtn" class="excel-action-link" target="_blank" rel="noopener">Mở file</a>

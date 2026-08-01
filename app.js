@@ -1,5 +1,6 @@
 import {embedScheduleInNotes,parseScheduleFromNotes,stripScheduleFromNotes} from "./schedule-data.js";
 import {managerNotifications,markNoticesRead,readNoticeIds} from "./account-notifications.js";
+import {analyzeStudentImport,importSummary} from "./import-dedup.js";
 
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
@@ -659,7 +660,7 @@ function releaseExcelPreview(){
   if(excelPreviewUrl)URL.revokeObjectURL(excelPreviewUrl);
   excelPreviewUrl="";excelPreviewFile=null;
 }
-function renderExcelPreview({title,file,headers,rows,note,mode}){
+function renderExcelPreview({title,file,headers,rows,note,mode,duplicateSummary=null}){
   releaseExcelPreview();
   excelPreviewFile=file||null;
   if(file)excelPreviewUrl=URL.createObjectURL(file);
@@ -673,6 +674,9 @@ function renderExcelPreview({title,file,headers,rows,note,mode}){
   $("excelPreviewBody").innerHTML=rows.length?rows.map(row=>`<tr>${row.map(value=>`<td>${esc(value)}</td>`).join("")}</tr>`).join(""):`<tr><td colspan="${headers.length}">Không có dữ liệu để xem trước</td></tr>`;
   $("excelPreviewNote").textContent=note||"";
   const exporting=mode==="export";
+  $("excelConflictOptions").classList.toggle("hidden",exporting);
+  $("excelDuplicateSummary").classList.toggle("hidden",exporting||!duplicateSummary);
+  if(duplicateSummary)$("excelDuplicateSummary").innerHTML=`<span class="is-new"><b>${duplicateSummary.new}</b> hồ sơ mới</span><span class="is-existing"><b>${duplicateSummary.existing}</b> trùng dữ liệu</span><span class="is-review"><b>${duplicateSummary.review}</b> cần kiểm tra</span><span class="is-blocked"><b>${duplicateSummary.deleted+duplicateSummary.duplicate_file}</b> sẽ bỏ qua</span>`;
   $("excelOpenBtn").classList.toggle("hidden",!exporting);
   $("excelDownloadBtn").classList.toggle("hidden",!exporting);
   $("excelShareBtn").classList.toggle("hidden",!exporting);
@@ -686,7 +690,7 @@ function renderExcelPreview({title,file,headers,rows,note,mode}){
   $("excelPreviewDialog").showModal();
 }
 function closeExcelPreview(accepted=false){
-  if(excelImportResolve){const resolve=excelImportResolve;excelImportResolve=null;resolve(accepted)}
+  if(excelImportResolve){const resolve=excelImportResolve;excelImportResolve=null;resolve(accepted?$("excelDuplicateMode").value:false)}
   if($("excelPreviewDialog").open)$("excelPreviewDialog").close();
   releaseExcelPreview();
 }
@@ -698,16 +702,41 @@ function previewExportFile(file,list){
   });
   renderExcelPreview({title:"File xuất đã sẵn sàng",file,headers,rows,note:`File có ${list.length} học viên và 25 cột dữ liệu. Bảng đang hiển thị tối đa 20 học viên để kiểm tra nhanh.`,mode:"export"});
 }
-function confirmExcelImport(file,records){
+function importStatusLabel(item){
+  const status=item._import?.status;
+  return status==="new"?"Mới":status==="existing"?"Sẽ cập nhật":status==="deleted"?"Trong Thùng rác":status==="duplicate_file"?"Trùng trong file":"Cần kiểm tra";
+}
+function confirmExcelImport(file,analysis,summary){
+  $("excelDuplicateMode").value="update";
   renderExcelPreview({
-    title:"Kiểm tra trước khi nhập",
+    title:"Kiểm tra trùng trước khi nhập",
     file,
-    headers:["Họ và tên","Hạng","Khóa","Tổng học phí","Đã thu","Ghi chú"],
-    rows:records.slice(0,20).map(r=>[r.name,r.license_class,r.course,money(r.tuition_total),money(r.paid),stripScheduleFromNotes(r.notes)]),
-    note:`Tìm thấy ${records.length} học viên. Kiểm tra dữ liệu rồi bấm “Xác nhận nhập dữ liệu”. Bảng hiển thị tối đa 20 dòng.`,
-    mode:"import"
+    headers:["Dòng","Trạng thái","Họ và tên","Mã học viên","CCCD","Điện thoại","Lý do đối chiếu"],
+    rows:analysis.slice(0,40).map(item=>[item._import.rowNumber,importStatusLabel(item),item.name,item.student_code||"—",item.cccd||"—",item.phone||"—",item._import.reason]),
+    note:`Đã kiểm tra ${analysis.length} dòng theo mã học viên, CCCD và số điện thoại. Bảng hiển thị tối đa 40 dòng; hồ sơ cần kiểm tra sẽ được bỏ qua để Admin đối chiếu thủ công.`,
+    mode:"import",duplicateSummary:summary
   });
   return new Promise(resolve=>{excelImportResolve=resolve});
+}
+const importFields=["name","date_of_birth","cccd","phone","address","license_class","course","profile_status","online_status","cabin_status","dat_status","graduation_status","exam_status","tuition_total","paid"];
+function studentDataForSave(student){
+  return Object.fromEntries(importFields.map(field=>[field,student?.[field]??(field==="tuition_total"||field==="paid"?0:"")]).concat([["notes",student?.notes||""],["photo_data",student?.photo_data||""]]));
+}
+function importDataForSave(item){
+  const existing=item._import?.status==="existing"?item._import.match:null;
+  if(!existing){const data=studentDataForSave(item);data.notes=item.notes||"";data.photo_data="";return data}
+  const data=studentDataForSave(existing);
+  for(const field of importFields)if(item._present?.[field])data[field]=item[field];
+  const touched=item._scheduleTouched||[],notesTouched=Boolean(item._present?.notes);
+  if(touched.length||notesTouched){
+    const schedule=parseScheduleFromNotes(existing.notes)||{version:1,dates:{},locations:{},note:""};
+    schedule.dates=schedule.dates||{};schedule.locations=schedule.locations||{};
+    for(const key of touched){if(item._scheduleDates?.[key])schedule.dates[key]=item._scheduleDates[key];else{delete schedule.dates[key];delete schedule.locations[key]}}
+    schedule.updatedAt=new Date().toISOString();
+    const plainNotes=notesTouched?item._noteText:stripScheduleFromNotes(existing.notes||""),hasSchedule=Object.keys(schedule.dates).length||Object.keys(schedule.locations).length||schedule.note;
+    data.notes=embedScheduleInNotes(plainNotes,hasSchedule?schedule:null);
+  }
+  return data;
 }
 function financialSummary(list){
   const total=list.reduce((sum,s)=>sum+Math.max(0,Number(s.tuition_total)||0),0);
@@ -780,7 +809,7 @@ $("dataFile").onchange=async e=>{
     const columnCount=Math.max(1,sheet.columnCount),rows=[];
     sheet.eachRow({includeEmpty:true},row=>rows.push(Array.from({length:columnCount},(_,index)=>excelCellValue(row.getCell(index+1).value))));
     if(rows.length<2)throw new Error("File Excel không có dữ liệu.");
-    const h=rows[0].map(normalize),idx={name:findCol(h,["ho va ten","ho ten","hoc vien"]),dob:findCol(h,["ngay sinh"]),cccd:findCol(h,["cccd","cmnd"]),phone:findCol(h,["dien thoai","so dien thoai","sdt"]),address:findCol(h,["dia chi"]),license:findCol(h,["hang dao tao","hang lai xe","hang"]),course:findCol(h,["khoa hoc","khoa"]),profile:findCol(h,["trang thai ho so","ho so"]),online:findCol(h,["ly thuyet online","online"]),onlineStart:findCol(h,["bat dau ly thuyet online","ngay bat dau ly thuyet online","bat dau online"]),onlineEnd:findCol(h,["ket thuc ly thuyet online","ngay ket thuc ly thuyet online","ket thuc online"]),cabin:findCol(h,["cabin"]),dat:findCol(h,["dat"]),datAutoStart:findCol(h,["bat dau dat so tu dong"]),datAutoEnd:findCol(h,["ket thuc dat so tu dong"]),datManualStart:findCol(h,["bat dau dat so co khi"]),datManualEnd:findCol(h,["ket thuc dat so co khi"]),graduation:findCol(h,["thi tot nghiep","tot nghiep"]),exam:findCol(h,["thi sat hach","sat hach"]),total:findCol(h,["tong hoc phi"]),paid:findCol(h,["da thu"]),paid1:findCol(h,["hoc phi lan 1"]),paid2:findCol(h,["hoc phi lan 2"]),paid3:findCol(h,["hoc phi lan 3"]),notes:findCol(h,["ghi chu"])};
+    const h=rows[0].map(normalize),idx={code:findCol(h,["ma hoc vien","ma hv"]),name:findCol(h,["ho va ten","ho ten","hoc vien"]),dob:findCol(h,["ngay sinh"]),cccd:findCol(h,["cccd","cmnd"]),phone:findCol(h,["dien thoai","so dien thoai","sdt"]),address:findCol(h,["dia chi"]),license:findCol(h,["hang dao tao","hang lai xe","hang"]),course:findCol(h,["khoa hoc","khoa"]),profile:findCol(h,["trang thai ho so","ho so"]),online:findCol(h,["ly thuyet online","online"]),onlineStart:findCol(h,["bat dau ly thuyet online","ngay bat dau ly thuyet online","bat dau online"]),onlineEnd:findCol(h,["ket thuc ly thuyet online","ngay ket thuc ly thuyet online","ket thuc online"]),cabin:findCol(h,["cabin"]),dat:findCol(h,["dat"]),datAutoStart:findCol(h,["bat dau dat so tu dong"]),datAutoEnd:findCol(h,["ket thuc dat so tu dong"]),datManualStart:findCol(h,["bat dau dat so co khi"]),datManualEnd:findCol(h,["ket thuc dat so co khi"]),graduation:findCol(h,["thi tot nghiep","tot nghiep"]),exam:findCol(h,["thi sat hach","sat hach"]),total:findCol(h,["tong hoc phi"]),paid:findCol(h,["da thu"]),paid1:findCol(h,["hoc phi lan 1"]),paid2:findCol(h,["hoc phi lan 2"]),paid3:findCol(h,["hoc phi lan 3"]),notes:findCol(h,["ghi chu"])};
     if(idx.name<0)throw new Error("Không tìm thấy cột HỌ VÀ TÊN trong file Excel.");
     if(idx.total<0)throw new Error("Không tìm thấy cột TỔNG HỌC PHÍ trong file Excel.");
     if(idx.paid<0&&idx.paid1<0&&idx.paid2<0&&idx.paid3<0)throw new Error("Không tìm thấy cột ĐÃ THU hoặc các cột HỌC PHÍ LẦN 1, 2, 3.");
@@ -799,19 +828,28 @@ $("dataFile").onchange=async e=>{
         if(Boolean(dates[startKey])!==Boolean(dates[endKey]))throw new Error(`Dòng ${rowNumber}: Vui lòng nhập đủ ngày bắt đầu và kết thúc ${label}.`);
         if(dates[startKey]&&new Date(dates[endKey])<new Date(dates[startKey]))throw new Error(`Dòng ${rowNumber}: Ngày kết thúc ${label} không được trước ngày bắt đầu.`);
       }
-      const scheduleDates=Object.fromEntries(Object.entries(dates).filter(([,value])=>value));
-      const notes=embedScheduleInNotes(get("notes"),Object.keys(scheduleDates).length?{version:1,dates:scheduleDates,locations:{},note:"",updatedAt:new Date().toISOString()}:null);
-      return{name:get("name"),date_of_birth:dataDate(get("dob"))||null,cccd:get("cccd"),phone:get("phone"),address:get("address"),license_class:get("license")||"B số tự động",course:get("course"),profile_status:get("profile")||"Đã ghi nhận",online_status:get("online")||"Chưa hoàn thành",cabin_status:get("cabin")||"Chưa hoàn thành",dat_status:get("dat")||"Chưa thực hiện",graduation_status:get("graduation")||"Chưa hoàn thành",exam_status:get("exam")||"Chưa thi sát hạch",tuition_total:total,paid,notes};
+      const scheduleDates=Object.fromEntries(Object.entries(dates).filter(([,value])=>value)),scheduleTouched=[["onlineStart","online_start"],["onlineEnd","online_end"],["datAutoStart","dat_auto_start"],["datAutoEnd","dat_auto_end"],["datManualStart","dat_manual_start"],["datManualEnd","dat_manual_end"]].filter(([column])=>idx[column]>=0).map(([,key])=>key);
+      const noteText=get("notes"),notes=embedScheduleInNotes(noteText,Object.keys(scheduleDates).length?{version:1,dates:scheduleDates,locations:{},note:"",updatedAt:new Date().toISOString()}:null);
+      return{_rowNumber:rowNumber,student_code:get("code"),name:get("name"),date_of_birth:dataDate(get("dob"))||null,cccd:get("cccd"),phone:get("phone"),address:get("address"),license_class:get("license")||"B số tự động",course:get("course"),profile_status:get("profile")||"Đã ghi nhận",online_status:get("online")||"Chưa hoàn thành",cabin_status:get("cabin")||"Chưa hoàn thành",dat_status:get("dat")||"Chưa thực hiện",graduation_status:get("graduation")||"Chưa hoàn thành",exam_status:get("exam")||"Chưa thi sát hạch",tuition_total:total,paid,notes,_noteText:noteText,_scheduleDates:scheduleDates,_scheduleTouched:scheduleTouched,_present:{name:idx.name>=0,date_of_birth:idx.dob>=0,cccd:idx.cccd>=0,phone:idx.phone>=0,address:idx.address>=0,license_class:idx.license>=0,course:idx.course>=0,profile_status:idx.profile>=0,online_status:idx.online>=0,cabin_status:idx.cabin>=0,dat_status:idx.dat>=0,graduation_status:idx.graduation>=0,exam_status:idx.exam>=0,tuition_total:idx.total>=0,paid:idx.paid>=0||idx.paid1>=0||idx.paid2>=0||idx.paid3>=0,notes:idx.notes>=0}};
     });
+    const allStudents=$("ownerFilter").value?await rpc("app_list_students",{p_token:token,p_owner_id:null}):students;
+    if(!operationsReady)await loadOperations();
+    const analysis=analyzeStudentImport(records,allStudents,deletedStudents),summary=importSummary(analysis);
     busy(false);
-    if(!await confirmExcelImport(file,records))return;
+    const duplicateMode=await confirmExcelImport(file,analysis,summary);if(!duplicateMode)return;
+    const conflictCount=summary.existing+summary.deleted+summary.duplicate_file+summary.review;
+    if(duplicateMode==="stop"&&conflictCount)throw new Error(`Đã dừng nhập vì phát hiện ${conflictCount} hồ sơ trùng hoặc cần kiểm tra.`);
     busy(true);
-    let done=0;
-    for(const data of records){
-      await rpc("app_save_student",{p_token:token,p_student_id:null,p_data:data,p_owner_id:$("ownerFilter").value||me.id});done++;
+    let created=0,updated=0,skipped=0;
+    for(const item of analysis){
+      const status=item._import.status;
+      if(status==="deleted"||status==="duplicate_file"||status==="review"||(status==="existing"&&duplicateMode==="skip")){skipped++;continue}
+      const existing=status==="existing"?item._import.match:null,data=importDataForSave(item);
+      await rpc("app_save_student",{p_token:token,p_student_id:existing?.id||null,p_data:data,p_owner_id:$("ownerFilter").value||me.id});
+      if(existing)updated++;else created++;
     }
-    await recordAudit("excel_import","student_data","",file.name,{student_count:done});
-    await loadStudents();toast(`Đã nhập thành công ${done} học viên từ file .xlsx`);
+    await recordAudit("excel_import","student_data","",file.name,{created,updated,skipped,duplicate_mode:duplicateMode});
+    await loadStudents();toast(`Excel hoàn tất: thêm ${created}, cập nhật ${updated}, bỏ qua ${skipped}`);
   }catch(err){alert(errText(err))}finally{busy(false);e.target.value=""}
 };
 

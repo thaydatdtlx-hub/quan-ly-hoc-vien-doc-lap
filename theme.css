@@ -1623,6 +1623,7 @@ body{background:radial-gradient(circle at 8% 8%,#dcecff 0,transparent 26%),radia
 .excel-preview-dialog{width:min(980px,calc(100vw - 24px));padding:22px}
 .excel-preview-meta{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 10px}
 .excel-preview-meta span{padding:7px 10px;border-radius:10px;background:#eaf4ff;color:#1a5f9f;font-size:10px;font-weight:800}
+.excel-duplicate-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0 0 11px}.excel-duplicate-summary span{display:flex;align-items:center;gap:6px;padding:10px;border:1px solid #dce7ef;border-radius:11px;background:#f7fafc;color:#527087;font-size:9px;font-weight:800}.excel-duplicate-summary b{font-size:15px}.excel-duplicate-summary .is-new{border-color:#bfe6d5;background:#edfaf4;color:#087653}.excel-duplicate-summary .is-existing{border-color:#bed8ef;background:#edf6ff;color:#1767b5}.excel-duplicate-summary .is-review{border-color:#f2d4a7;background:#fff8e9;color:#9a611a}.excel-duplicate-summary .is-blocked{border-color:#efc6c0;background:#fff2f0;color:#a9483d}.excel-conflict-options{display:grid;grid-template-columns:190px minmax(0,1fr);align-items:center;gap:5px 12px;margin-top:12px;padding:12px;border:1px solid #cfdfeb;border-radius:13px;background:#f7fbfe}.excel-conflict-options label{margin:0;color:#315c7f;font-size:10px;font-weight:850}.excel-conflict-options select{padding:10px;font-size:10px}.excel-conflict-options small{grid-column:2;color:#71869a;font-size:8px;line-height:1.45}
 .excel-preview-table-wrap{max-height:52vh;overflow:auto;border:1px solid #d9e6f1;border-radius:14px;background:#fff}
 .excel-preview-table{width:100%;min-width:760px;border-collapse:collapse}
 .excel-preview-table th,.excel-preview-table td{padding:9px 11px;border-bottom:1px solid #e7eef5;color:#34536f;font-size:10px;text-align:left;white-space:nowrap}
@@ -1633,6 +1634,7 @@ body{background:radial-gradient(circle at 8% 8%,#dcecff 0,transparent 26%),radia
 .excel-preview-actions{flex-wrap:wrap}
 @media(max-width:650px){
   .excel-preview-dialog{padding:15px}
+  .excel-duplicate-summary{grid-template-columns:1fr 1fr}.excel-conflict-options{grid-template-columns:1fr}.excel-conflict-options small{grid-column:1}
   .excel-preview-table-wrap{max-height:48vh}
   .excel-preview-actions{display:grid;grid-template-columns:1fr 1fr}
   .excel-preview-actions>*{width:100%}

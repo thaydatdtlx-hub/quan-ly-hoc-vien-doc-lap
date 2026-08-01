@@ -2,6 +2,7 @@
   "name": "quan-ly-hoc-vien-doc-lap",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -9,7 +10,8 @@
     "check:questions": "node scripts/validate-question-data.mjs",
     "check:site": "node scripts/validate-site.mjs",
     "check:excel": "node scripts/validate-excel.mjs",
-    "check": "npm run check:questions && npm run check:site && npm run check:excel"
+    "check:duplicates": "node scripts/validate-import-dedup.mjs",
+    "check": "npm run check:questions && npm run check:site && npm run check:excel && npm run check:duplicates"
   },
   "devDependencies": {
     "vite": "^7.0.0"
