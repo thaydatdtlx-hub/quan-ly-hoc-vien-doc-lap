@@ -53,6 +53,45 @@ function progressHtml(s){
   return `<div class="progress-list"><span class="progress-chip ${progressTone(s.online_status)}"><b>Online</b><span>${esc(s.online_status||"Chưa hoàn thành")}${onlineDates?`<small>${esc(onlineDates)}</small>`:""}</span></span><span class="progress-chip ${progressTone(s.cabin_status)}"><b>Cabin</b>${esc(s.cabin_status||"Chưa hoàn thành")}</span><span class="progress-chip ${progressTone(s.dat_status)}"><b>DAT</b>${esc(s.dat_status||"Chưa thực hiện")}</span><span class="progress-chip ${progressTone(s.graduation_status)}"><b>Tốt nghiệp</b>${esc(s.graduation_status||"Chưa hoàn thành")}</span><span class="progress-chip ${progressTone(s.exam_status)}"><b>Sát hạch</b>${esc(s.exam_status||"Chưa thi sát hạch")}</span></div>`;
 }
 
+function publishAdminAssistantContext(){
+  if(me?.role!=="admin")return;
+  const theoryByStudent=new Map(theoryProgress.map(item=>[String(item.student_id),item]));
+  const warningsByStudent=new Map();
+  for(const warning of earlyWarnings){
+    const key=String(warning.student_id),items=warningsByStudent.get(key)||[];
+    items.push({id:warning.id,type:warning.type,severity:warning.severity,title:warning.title,detail:warning.detail});warningsByStudent.set(key,items);
+  }
+  const now=Date.now();
+  const rows=students.map(student=>{
+    const theory=theoryByStudent.get(String(student.id))||{};
+    const records=attendanceRecords.filter(item=>String(item.student_id)===String(student.id));
+    const attendance=attendanceSummary(records);
+    const account=studentAccounts.find(item=>String(item.student_id)===String(student.id));
+    const schedule=parseScheduleFromNotes(student.notes||"")||{dates:{},locations:{}};
+    const upcoming=Object.entries(schedule.dates||{}).map(([type,date])=>({type,date,location:schedule.locations?.[type]||""})).filter(item=>{const time=new Date(item.date).valueOf();return Number.isFinite(time)&&time>=now}).sort((a,b)=>new Date(a.date)-new Date(b.date));
+    return{
+      id:String(student.id),name:student.name||"Chưa có tên",studentCode:student.student_code||"",phone:student.phone||"",cccd:student.cccd||"",course:student.course||"",licenseClass:student.license_class||"",address:student.address||"",profileStatus:student.profile_status||"",onlineStatus:student.online_status||"",cabinStatus:student.cabin_status||"",datStatus:student.dat_status||"",graduationStatus:student.graduation_status||"",examStatus:student.exam_status||"",tuitionTotal:Number(student.tuition_total)||0,paid:Number(student.paid)||0,debt:Math.max(0,(Number(student.tuition_total)||0)-(Number(student.paid)||0)),account:account?{username:account.username||"",active:Boolean(account.active)}:null,
+      theory:{answered:Number(theory.answered_count)||0,correct:Number(theory.correct_count)||0,exams:Number(theory.exam_count)||0,passedExams:Number(theory.passed_exam_count)||0,bestScore:Number(theory.best_score)||0,bestTotal:Number(theory.best_total)||0,lastActivity:theory.last_activity||theory.latest_exam?.submitted_at||""},
+      attendance:{sessions:attendance.sessions||0,present:attendance.present||0,absent:attendance.absent||0,excused:attendance.excused||0,actualMinutes:attendance.actualMinutes||0,rate:attendance.rate||0},
+      warnings:warningsByStudent.get(String(student.id))||[],upcoming
+    };
+  });
+  window.__THAY_DAT_ADMIN_ASSISTANT_CONTEXT__=()=>({role:"admin",adminName:me.username||"Admin",updatedAt:new Date().toISOString(),students:rows,warnings:earlyWarnings.map(item=>({id:item.id,studentId:String(item.student_id),studentName:item.student_name,studentCode:item.student_code,type:item.type,severity:item.severity,title:item.title,detail:item.detail}))});
+  window.__THAY_DAT_ADMIN_ASSISTANT_ACTION__=(action,studentId="")=>{
+    if(me?.role!=="admin")return false;
+    if(action==="warnings"){$("warningViewAll")?.click();return true}
+    if(action==="schedule"){location.href="/lich-dao-tao.html";return true}
+    const student=students.find(item=>String(item.id)===String(studentId));if(!student)return false;
+    if(action==="profile")openStudent(student);
+    else if(action==="payment")openPaymentLedger(student);
+    else if(action==="theory")openTheoryDetail(student);
+    else if(action==="attendance")openAttendance(student);
+    else return false;
+    return true;
+  };
+  window.dispatchEvent(new CustomEvent("thaydat:admin-context"));
+}
+
 async function boot(){
   if(!token)return showLogin();
   try{
@@ -332,6 +371,7 @@ function renderStudents(){
   $("studentListTitle").textContent=labels[statFilter][0];$("studentListNote").textContent=labels[statFilter][1];
   document.querySelectorAll("[data-stat-filter]").forEach(card=>{const active=card.dataset.statFilter===statFilter;card.classList.toggle("active",active);card.setAttribute("aria-pressed",String(active))});
   renderAccountNotifications();
+  publishAdminAssistantContext();
 }
 function warningIcon(type){return{attendance:"✓",theory:"600",finance:"₫",profile:"▤",schedule:"▣",training:"◷"}[type]||"!"}
 function warningTypeLabel(type){return{attendance:"Chuyên cần",theory:"Lý thuyết",finance:"Học phí",profile:"Hồ sơ",schedule:"Lịch thi",training:"Giờ đào tạo"}[type]||"Cảnh báo"}

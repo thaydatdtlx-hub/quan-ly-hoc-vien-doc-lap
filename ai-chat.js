@@ -231,4 +231,5 @@ function buildChat(){
   render();
 }
 
-if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",buildChat);else buildChat();
+const managerAuth=(localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind"))==="manager";
+if(!managerAuth){if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",buildChat);else buildChat()}
