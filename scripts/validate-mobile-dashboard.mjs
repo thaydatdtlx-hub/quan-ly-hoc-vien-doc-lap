@@ -20,7 +20,7 @@ for(const token of ["@media(max-width:720px)","env(safe-area-inset-bottom)","pos
 for(const token of ["data-mobile-click","data-mobile-scroll","MutationObserver","mobileAdminNotificationBadge","mobileStudentNotificationBadge","MOBILE_ICONS","renderIcons"]){
   if(!client.includes(token))throw new Error(`Điều hướng mobile thiếu: ${token}`);
 }
-for(const token of ["thay-dat-pwa-v6","cache.put(request,copy)"]){
+for(const token of ["thay-dat-pwa-v7","cache.put(request,copy)"]){
   if(!worker.includes(token))throw new Error(`PWA chưa lưu tài nguyên mobile: ${token}`);
 }
 console.log("Mobile dashboard hợp lệ: Admin và học viên có app bar, tab, thẻ kéo ngang, cảnh báo động và thanh điều hướng cố định.");
