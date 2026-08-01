@@ -3,11 +3,23 @@ import webpush from "npm:web-push@3.6.7";
 
 const SUPABASE_URL=Deno.env.get("SUPABASE_URL")??"";
 const SERVICE_ROLE_KEY=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")??"";
+const SECRET_KEYS=(()=>{
+  try{return Object.values(JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS")??"{}")) as string[]}
+  catch{return[]}
+})();
+const ADMIN_KEY=SECRET_KEYS[0]||SERVICE_ROLE_KEY;
 const VAPID_PUBLIC_KEY=Deno.env.get("VAPID_PUBLIC_KEY")??"";
 const VAPID_PRIVATE_KEY=Deno.env.get("VAPID_PRIVATE_KEY")??"";
 const VAPID_SUBJECT=Deno.env.get("VAPID_SUBJECT")??"https://hoc-vien-thay-dat.vercel.app/";
 const SITE_URL="https://hoc-vien-thay-dat.vercel.app";
-const supabase=createClient(SUPABASE_URL,SERVICE_ROLE_KEY,{auth:{persistSession:false}});
+const supabase=createClient(SUPABASE_URL,ADMIN_KEY,{auth:{persistSession:false}});
+
+function isAuthorized(request:Request){
+  const apiKey=request.headers.get("apikey")??"";
+  const authorization=request.headers.get("authorization")??"";
+  const bearer=authorization.startsWith("Bearer ")?authorization.slice(7):"";
+  return [SERVICE_ROLE_KEY,...SECRET_KEYS].filter(Boolean).some(key=>key===apiKey||key===bearer);
+}
 
 function corsHeaders(request:Request){
   const origin=request.headers.get("origin")??"";
@@ -21,8 +33,7 @@ Deno.serve(async request=>{
   if(request.method==="GET")return json(request,{publicKey:VAPID_PUBLIC_KEY,configured:Boolean(VAPID_PUBLIC_KEY&&VAPID_PRIVATE_KEY)});
   if(request.method!=="POST")return json(request,{error:"Method not allowed"},405);
 
-  const authorization=request.headers.get("authorization")??"";
-  if(!SERVICE_ROLE_KEY||authorization!==`Bearer ${SERVICE_ROLE_KEY}`)return json(request,{error:"Unauthorized"},401);
+  if(!ADMIN_KEY||!isAuthorized(request))return json(request,{error:"Unauthorized"},401);
   if(!VAPID_PUBLIC_KEY||!VAPID_PRIVATE_KEY)return json(request,{error:"VAPID secrets are not configured"},503);
 
   const payload=await request.json().catch(()=>null);
