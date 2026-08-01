@@ -1,4 +1,5 @@
 const statusHosts=[
+  ".login-card",
   ".topbar .account",
   ".student-account",
   ".topbar-actions",
@@ -19,24 +20,26 @@ function ensureLiveRegions(){
 
 function addConnectionStatus(){
   if(document.querySelector(".system-status"))return;
-  const status=document.createElement("span");
-  status.className="system-status";
-  status.setAttribute("role","status");
-  status.setAttribute("aria-live","polite");
+  const hosts=statusHosts.map(selector=>document.querySelector(selector)).filter(Boolean);
+  if(!hosts.length)return;
+
+  const statuses=hosts.map(host=>{
+    const status=document.createElement("span");
+    status.className="system-status";
+    status.setAttribute("role","status");
+    status.setAttribute("aria-live","polite");
+    host.prepend(status);
+    return status;
+  });
 
   const update=()=>{
     const online=navigator.onLine;
-    status.dataset.state=online?"online":"offline";
-    status.textContent=online?"Hệ thống trực tuyến":"Đang ngoại tuyến";
+    statuses.forEach(status=>{
+      status.dataset.state=online?"online":"offline";
+      status.textContent=online?"Hệ thống trực tuyến":"Đang ngoại tuyến";
+    });
     document.body.classList.toggle("is-offline",!online);
   };
-
-  const host=statusHosts.map(selector=>document.querySelector(selector)).find(Boolean);
-  if(host)host.prepend(status);
-  else{
-    const heading=document.querySelector(".login-heading");
-    if(heading)heading.insertAdjacentElement("afterend",status);
-  }
 
   update();
   window.addEventListener("online",update);
