@@ -155,6 +155,8 @@
         </button>
         <button id="usersBtn" class="admin-only hidden">Tài khoản quản lý</button>
         <button id="publicTheoryAccountsBtn" class="admin-only hidden">Người học bên ngoài</button>
+        <button id="attendanceBtn" class="attendance-toolbar-btn admin-only hidden" type="button"><span aria-hidden="true">✓</span><strong>ĐIỂM DANH</strong></button>
+        <button id="adminReportBtn" class="report-toolbar-btn admin-only hidden" type="button"><span aria-hidden="true">▤</span><strong>BÁO CÁO ADMIN</strong></button>
         <button id="operationsBtn" class="operations-btn admin-only hidden" type="button"><span aria-hidden="true">↺</span><strong>THÙNG RÁC &amp; NHẬT KÝ</strong><small id="trashToolbarCount">An toàn dữ liệu</small></button>
         <input id="dataFile" class="hidden" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" aria-label="Chọn file Excel .xlsx để nhập dữ liệu">
       </section>
@@ -210,6 +212,20 @@
           <button class="theory-summary-card" data-theory-summary="passed" type="button" aria-haspopup="dialog"><span>✓</span><div><small>Bài thi đạt</small><strong id="theoryExamPassed">0</strong><em>Bấm để xem người thi đạt</em></div><b aria-hidden="true">›</b></button>
         </div>
         <p id="theoryDatabaseNotice" class="theory-database-notice hidden">Cần chạy file <b>CAP-NHAT-TIEN-DO-600-CAU.sql</b> trong Supabase để bắt đầu nhận dữ liệu học viên.</p>
+      </section>
+
+      <section id="attendanceDashboard" class="attendance-dashboard admin-only hidden" aria-labelledby="attendanceDashboardTitle">
+        <div class="attendance-dashboard-head">
+          <div><p>CHUYÊN CẦN &amp; GIỜ THỰC HỌC</p><h2 id="attendanceDashboardTitle">Tổng quan điểm danh</h2></div>
+          <div><button id="attendanceDashboardOpen" type="button">Ghi nhận điểm danh</button><button id="attendanceReportOpen" type="button">Mở báo cáo tổng hợp →</button></div>
+        </div>
+        <div class="attendance-dashboard-grid">
+          <article><span>✓</span><div><small>Buổi đã ghi nhận</small><strong id="attendanceSessionTotal">0</strong><em>Trong toàn bộ dữ liệu</em></div></article>
+          <article><span>◷</span><div><small>Giờ học thực tế</small><strong id="attendanceHoursTotal">0 giờ</strong><em>Tổng thời lượng có mặt</em></div></article>
+          <article><span>%</span><div><small>Tỷ lệ chuyên cần</small><strong id="attendanceRateTotal">0%</strong><em>Số buổi có mặt / tổng buổi</em></div></article>
+          <article><span>!</span><div><small>Buổi vắng</small><strong id="attendanceAbsentTotal">0</strong><em>Gồm vắng và vắng có phép</em></div></article>
+        </div>
+        <p id="attendanceDatabaseNotice" class="attendance-database-notice hidden">Cần chạy file <b>CAP-NHAT-DIEM-DANH-BAO-CAO.sql</b> trong Supabase để kích hoạt.</p>
       </section>
 
       <section class="stats">
@@ -364,6 +380,40 @@
       </table>
     </div>
     <p id="theoryDetailError" class="error" role="alert"></p>
+    <div class="actions"><button type="button" class="close">Đóng</button></div>
+  </dialog>
+
+  <dialog id="attendanceDialog" class="attendance-dialog">
+    <div class="dialog-head attendance-dialog-head"><div><p class="dialog-kicker">BƯỚC 4 · CHUYÊN CẦN</p><h2>Điểm danh &amp; Giờ học thực tế</h2><span class="sub">Ghi nhận từng buổi học và thời lượng học viên thực sự tham gia.</span></div><button type="button" class="close" aria-label="Đóng">×</button></div>
+    <div class="attendance-filter"><label>Học viên<select id="attendanceStudentSelect"><option value="">Tất cả học viên</option></select></label><span id="attendanceFeatureState">Đang kiểm tra dữ liệu…</span></div>
+    <div class="attendance-metrics"><article><small>Tổng buổi</small><strong id="attendanceDialogSessions">0</strong></article><article><small>Có mặt</small><strong id="attendanceDialogPresent">0</strong></article><article><small>Giờ thực học</small><strong id="attendanceDialogHours">0 giờ</strong></article><article><small>Chuyên cần</small><strong id="attendanceDialogRate">0%</strong></article></div>
+    <form id="attendanceForm" class="attendance-entry-form">
+      <input id="attendanceRecordId" type="hidden">
+      <div class="attendance-entry-head"><div><strong id="attendanceFormTitle">Ghi nhận buổi học</strong><small id="attendanceFormNote">Chọn một học viên để bắt đầu.</small></div><button id="attendanceResetBtn" type="button">Nhập mới</button></div>
+      <div class="attendance-entry-grid">
+        <label>Ngày học<input id="attendanceDate" type="date" required></label>
+        <label>Nội dung<select id="attendanceType"><option value="theory">Lý thuyết</option><option value="cabin">Cabin mô phỏng</option><option value="dat_auto">DAT số tự động</option><option value="dat_manual">DAT số cơ khí</option><option value="dat_practice">Thực hành DAT</option><option value="practice">Sa hình</option><option value="familiar">Làm quen xe</option><option value="graduation">Thi tốt nghiệp</option><option value="other">Nội dung khác</option></select></label>
+        <label>Điểm danh<select id="attendanceStatus"><option value="present">Có mặt</option><option value="absent">Vắng</option><option value="excused">Vắng có phép</option></select></label>
+        <label>Giờ bắt đầu<input id="attendanceStart" type="time" required></label>
+        <label>Giờ kết thúc<input id="attendanceEnd" type="time" required></label>
+        <label>Giờ thực tế<input id="attendanceDuration" readonly value="0 giờ"></label>
+        <label class="wide">Ghi chú<input id="attendanceNote" maxlength="500" placeholder="Ví dụ: Hoàn thành nội dung đường trường"></label>
+      </div>
+      <p id="attendanceError" class="error" role="alert"></p>
+      <button id="saveAttendanceBtn" class="primary" type="submit">Lưu điểm danh</button>
+    </form>
+    <div class="attendance-history-head"><div><strong>Lịch sử điểm danh</strong><small id="attendanceHistoryMeta">0 bản ghi</small></div></div>
+    <div class="attendance-history-wrap"><table class="attendance-history-table"><thead><tr><th>Ngày / Nội dung</th><th>Học viên</th><th>Điểm danh</th><th>Giờ thực tế</th><th>Thao tác</th></tr></thead><tbody id="attendanceRows"></tbody></table></div>
+    <div id="attendanceEmpty" class="attendance-empty">Chưa có dữ liệu điểm danh.</div>
+    <div class="actions"><button type="button" class="close">Đóng</button></div>
+  </dialog>
+
+  <dialog id="adminReportDialog" class="admin-report-dialog">
+    <div class="dialog-head admin-report-head"><div><p class="dialog-kicker">BƯỚC 5 · QUẢN TRỊ</p><h2>Báo cáo tổng hợp Admin</h2><span class="sub">Kết hợp chuyên cần, tiến độ học 600 câu và tình trạng học phí.</span></div><button type="button" class="close" aria-label="Đóng">×</button></div>
+    <div class="admin-report-filters"><label>Từ ngày<input id="reportFrom" type="date"></label><label>Đến ngày<input id="reportTo" type="date"></label><label>Tìm học viên<input id="reportSearch" type="search" placeholder="Tên, mã, khóa hoặc hạng"></label><button id="refreshReportBtn" type="button">Cập nhật báo cáo</button><button id="exportReportBtn" class="primary" type="button">Xuất Excel</button></div>
+    <div class="admin-report-metrics"><article><small>Học viên</small><strong id="reportStudentTotal">0</strong></article><article><small>Buổi học</small><strong id="reportSessionTotal">0</strong></article><article><small>Giờ thực học</small><strong id="reportHoursTotal">0 giờ</strong></article><article><small>Chuyên cần TB</small><strong id="reportRateAverage">0%</strong></article><article><small>Tổng công nợ</small><strong id="reportDebtTotal">0 ₫</strong></article></div>
+    <div class="admin-report-wrap"><table class="admin-report-table"><thead><tr><th>Học viên</th><th>Khóa / Hạng</th><th>Điểm danh</th><th>Giờ thực học</th><th>Học 600 câu</th><th>Học phí</th></tr></thead><tbody id="adminReportRows"></tbody></table></div>
+    <div id="adminReportEmpty" class="attendance-empty">Chưa có học viên phù hợp.</div><p id="adminReportError" class="error" role="alert"></p>
     <div class="actions"><button type="button" class="close">Đóng</button></div>
   </dialog>
 

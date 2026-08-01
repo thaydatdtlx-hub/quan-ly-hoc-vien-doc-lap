@@ -2,11 +2,12 @@ import {embedScheduleInNotes,parseScheduleFromNotes,stripScheduleFromNotes} from
 import {managerNotifications,markNoticesRead,readNoticeIds} from "./account-notifications.js";
 import {analyzeStudentImport,importSummary} from "./import-dedup.js";
 import {openPaymentReceipt,paymentMethodLabel} from "./payment-receipt.js";
+import {attendanceStatusLabel,attendanceSummary,attendanceTypeLabel,calculateAttendanceMinutes,formatAttendanceDuration} from "./attendance-utils.js";
 
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
-let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"",me=null,students=[],users=[],studentAccounts=[],publicTheoryAccounts=[],trainingRequests=[],theoryProgress=[],deletedStudents=[],auditLogs=[],paymentHistory=[],accountNotices=[],serverNotices=[],studentAccountsReady=false,publicTheoryAccountsReady=false,theoryProgressReady=false,operationsReady=false,paymentsReady=false,selectedStudentAccount=null,forcePasswordChange=false,currentPhoto="",statFilter="all",theorySummaryFilter="active",notificationTimer=null,excelPreviewFile=null,excelPreviewUrl="",excelImportResolve=null;
+let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"",me=null,students=[],users=[],studentAccounts=[],publicTheoryAccounts=[],trainingRequests=[],theoryProgress=[],deletedStudents=[],auditLogs=[],paymentHistory=[],attendanceRecords=[],attendanceViewRecords=[],adminReportRows=[],accountNotices=[],serverNotices=[],studentAccountsReady=false,publicTheoryAccountsReady=false,theoryProgressReady=false,operationsReady=false,paymentsReady=false,attendanceReady=false,selectedStudentAccount=null,forcePasswordChange=false,currentPhoto="",statFilter="all",theorySummaryFilter="active",notificationTimer=null,excelPreviewFile=null,excelPreviewUrl="",excelImportResolve=null;
 
 async function rpc(fn,body={}){
   const r=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
@@ -68,7 +69,7 @@ async function boot(){
     if(!me?.id)throw new Error("Phiên đăng nhập hết hạn");
     authKind="manager";
     showApp();
-    if(me.role==="admin"){await loadUsers();await loadStudentAccounts();await loadPublicTheoryAccounts();await loadOperations();await loadPaymentFeature()}
+    if(me.role==="admin"){await loadUsers();await loadStudentAccounts();await loadPublicTheoryAccounts();await loadOperations();await loadPaymentFeature();await loadAttendanceFeature()}
     await loadStudents();
     notificationTimer=setInterval(async()=>{
       if(document.visibilityState!=="visible")return;
@@ -234,7 +235,8 @@ const auditLabels={
   manager_created:"Đã tạo tài khoản quản lý",manager_status_changed:"Đã đổi trạng thái tài khoản quản lý",manager_password_reset:"Đã đặt lại mật khẩu quản lý",
   student_account_created:"Đã tạo tài khoản học viên",student_account_status_changed:"Đã đổi trạng thái tài khoản học viên",student_password_reset:"Đã đặt lại mật khẩu học viên",
   public_account_status_changed:"Đã đổi trạng thái người học bên ngoài",public_password_reset:"Đã đặt lại mật khẩu người học bên ngoài",public_account_deleted:"Đã xóa người học bên ngoài",
-  excel_import:"Đã nhập dữ liệu từ Excel",excel_export:"Đã xuất dữ liệu Excel",schedule_changed:"Đã cập nhật lịch đào tạo"
+  excel_import:"Đã nhập dữ liệu từ Excel",excel_export:"Đã xuất dữ liệu Excel",schedule_changed:"Đã cập nhật lịch đào tạo",
+  attendance_created:"Đã ghi nhận điểm danh",attendance_updated:"Đã sửa bản điểm danh",attendance_deleted:"Đã xóa bản điểm danh",admin_report_export:"Đã xuất báo cáo Admin"
 };
 function auditLabel(log){return auditLabels[log.action]||String(log.action||"Thao tác hệ thống").replaceAll("_"," ")}
 function renderDeletedStudents(){
@@ -301,7 +303,7 @@ function renderStudents(){
   $("studentRows").innerHTML=rows.map(s=>{
     const account=studentAccounts.find(item=>item.student_id===String(s.id));
     const accountButton=me.role==="admin"&&studentAccountsReady?`<button class="student-account-btn ${account?.active?"is-active":""}" data-student-account="${s.id}">${account?`Tài khoản: ${esc(account.username)}`:"＋ Tạo tài khoản"}</button>`:"";
-    return `<tr><td><div class="student-cell">${s.photo_data?`<img class="student-photo" src="${s.photo_data}" alt="Ảnh ${esc(s.name)}">`:`<span class="student-photo empty-photo">Ảnh<br>3×4</span>`}<div><span class="student-name">${esc(s.name)}</span><span class="sub">${esc(s.student_code)}${s.owner_username?` · ${esc(s.owner_username)}`:""}</span>${account?`<span class="student-login-state ${account.active?"active":"locked"}">${account.active?"Có tài khoản học viên":"Tài khoản đang khóa"}</span>`:""}</div></div></td><td>${esc(s.license_class||"—")}<span class="sub">${esc(s.course||"Chưa có khóa")}</span></td><td>${esc(s.phone||"—")}</td><td>${progressHtml(s)}</td>${me.role==="admin"?`<td>${theoryProgressHtml(s)}</td>`:""}<td>${money(s.tuition_total)}<span class="sub">Đã thu ${money(s.paid)} · Còn ${money(Math.max(0,(s.tuition_total||0)-(s.paid||0)))}</span></td><td><div class="row-actions">${accountButton}${me.role==="admin"?`<button class="payment-row-btn" data-payment-student="${s.id}">Học phí / Phiếu thu</button>`:""}<button data-edit="${s.id}">Sửa</button>${me.role==="admin"&&s.photo_data?`<button data-download-photo="${s.id}">Tải ảnh</button>`:""}${me.role==="admin"?`<button class="danger" data-delete="${s.id}">Xóa</button>`:""}</div></td></tr>`;
+    return `<tr><td><div class="student-cell">${s.photo_data?`<img class="student-photo" src="${s.photo_data}" alt="Ảnh ${esc(s.name)}">`:`<span class="student-photo empty-photo">Ảnh<br>3×4</span>`}<div><span class="student-name">${esc(s.name)}</span><span class="sub">${esc(s.student_code)}${s.owner_username?` · ${esc(s.owner_username)}`:""}</span>${account?`<span class="student-login-state ${account.active?"active":"locked"}">${account.active?"Có tài khoản học viên":"Tài khoản đang khóa"}</span>`:""}</div></div></td><td>${esc(s.license_class||"—")}<span class="sub">${esc(s.course||"Chưa có khóa")}</span></td><td>${esc(s.phone||"—")}</td><td>${progressHtml(s)}</td>${me.role==="admin"?`<td>${theoryProgressHtml(s)}</td>`:""}<td>${money(s.tuition_total)}<span class="sub">Đã thu ${money(s.paid)} · Còn ${money(Math.max(0,(s.tuition_total||0)-(s.paid||0)))}</span></td><td><div class="row-actions">${accountButton}${me.role==="admin"?`<button class="attendance-row-btn" data-attendance-student="${s.id}">Điểm danh</button><button class="payment-row-btn" data-payment-student="${s.id}">Học phí / Phiếu thu</button>`:""}<button data-edit="${s.id}">Sửa</button>${me.role==="admin"&&s.photo_data?`<button data-download-photo="${s.id}">Tải ảnh</button>`:""}${me.role==="admin"?`<button class="danger" data-delete="${s.id}">Xóa</button>`:""}</div></td></tr>`;
   }).join("");
   $("empty").classList.toggle("hidden",rows.length>0);$("resultCount").textContent=`${rows.length} học viên`;
   $("totalStudents").textContent=students.length;
@@ -309,6 +311,7 @@ function renderStudents(){
   $("debtStudents").textContent=students.filter(s=>(s.tuition_total||0)>(s.paid||0)).length;
   renderTheoryDashboard();
   renderFinanceDashboard();
+  renderAttendanceDashboard();
   const labels={all:["Danh sách tất cả học viên","Toàn bộ hồ sơ đang quản lý"],learning:["Học viên đang học","Các học viên chưa đậu kỳ thi sát hạch"],debt:["Học viên còn nợ học phí","Các hồ sơ có số tiền đã thu thấp hơn tổng học phí"]};
   $("studentListTitle").textContent=labels[statFilter][0];$("studentListNote").textContent=labels[statFilter][1];
   document.querySelectorAll("[data-stat-filter]").forEach(card=>{const active=card.dataset.statFilter===statFilter;card.classList.toggle("active",active);card.setAttribute("aria-pressed",String(active))});
@@ -427,6 +430,96 @@ $("paymentRows").onclick=async event=>{
   try{await rpc("app_void_student_payment",{p_token:token,p_payment_id:voidId,p_reason:reason.trim()});await loadStudents();await loadPaymentHistory($("paymentStudentSelect").value||null);toast("Đã hủy phiếu và cập nhật lại công nợ")}
   catch(error){$("paymentError").textContent=errText(error)}finally{busy(false)}
 };
+async function loadAttendanceFeature(){
+  try{
+    attendanceRecords=await rpc("app_list_attendance_records",{p_token:token,p_student_id:null,p_from:null,p_to:null})||[];
+    attendanceReady=true;
+  }catch(error){
+    attendanceRecords=[];attendanceReady=false;
+    if(!/app_list_attendance_records|schema cache|PGRST202/i.test(errText(error)))toast(errText(error));
+  }
+}
+function renderAttendanceDashboard(){
+  if(me?.role!=="admin")return;
+  const summary=attendanceSummary(attendanceRecords);
+  $("attendanceSessionTotal").textContent=summary.sessions;
+  $("attendanceHoursTotal").textContent=formatAttendanceDuration(summary.actualMinutes);
+  $("attendanceRateTotal").textContent=`${summary.rate}%`;
+  $("attendanceAbsentTotal").textContent=summary.absent+summary.excused;
+  $("attendanceDatabaseNotice").classList.toggle("hidden",attendanceReady);
+}
+function attendanceStudent(){return students.find(student=>String(student.id)===String($("attendanceStudentSelect").value))}
+function resetAttendanceForm(){
+  $("attendanceForm").reset();$("attendanceRecordId").value="";$("attendanceDate").value=excelDate();$("attendanceStart").value="08:00";$("attendanceEnd").value="10:00";$("attendanceFormTitle").textContent="Ghi nhận buổi học";$("attendanceError").textContent="";syncAttendanceDuration();
+}
+function setAttendanceFormState(){
+  const selected=attendanceStudent(),present=$("attendanceStatus").value==="present",enabled=attendanceReady&&Boolean(selected);
+  for(const id of ["attendanceDate","attendanceType","attendanceStatus","attendanceNote","saveAttendanceBtn"])$(id).disabled=!enabled;
+  for(const id of ["attendanceStart","attendanceEnd"])$(id).disabled=!enabled||!present;
+  $("attendanceStart").required=present;$("attendanceEnd").required=present;
+  $("attendanceFormNote").textContent=!attendanceReady?"Cần kích hoạt CSDL điểm danh.":!selected?"Chọn một học viên để bắt đầu.":present?"Số giờ thực tế được tính từ giờ bắt đầu và kết thúc.":"Buổi vắng được ghi nhận 0 giờ thực học.";
+  syncAttendanceDuration();
+}
+function syncAttendanceDuration(){
+  const minutes=$("attendanceStatus").value==="present"?calculateAttendanceMinutes($("attendanceStart").value,$("attendanceEnd").value):0;
+  $("attendanceDuration").value=formatAttendanceDuration(minutes);$("attendanceDuration").dataset.minutes=String(minutes);
+}
+function renderAttendanceLedger(){
+  const summary=attendanceSummary(attendanceViewRecords);
+  $("attendanceDialogSessions").textContent=summary.sessions;$("attendanceDialogPresent").textContent=summary.present;$("attendanceDialogHours").textContent=formatAttendanceDuration(summary.actualMinutes);$("attendanceDialogRate").textContent=`${summary.rate}%`;
+  $("attendanceFeatureState").textContent=attendanceReady?(attendanceStudent()?`${attendanceStudent().student_code} · ${attendanceStudent().name}`:"Toàn bộ học viên"):`Cần chạy file CAP-NHAT-DIEM-DANH-BAO-CAO.sql`;
+  $("attendanceFeatureState").className=attendanceReady?"is-ready":"is-warning";$("attendanceHistoryMeta").textContent=`${attendanceViewRecords.length} bản ghi`;
+  $("attendanceRows").innerHTML=attendanceViewRecords.map(record=>`<tr><td><strong>${esc(dateOnly(record.session_date))}</strong><small>${esc(attendanceTypeLabel(record.session_type))}${record.started_at&&record.ended_at?` · ${esc(String(record.started_at).slice(0,5))}–${esc(String(record.ended_at).slice(0,5))}`:""}</small></td><td><strong>${esc(record.student_name)}</strong><small>${esc(record.student_code||"—")}</small></td><td><span class="attendance-status ${esc(record.status)}">${esc(attendanceStatusLabel(record.status))}</span>${record.note?`<small>${esc(record.note)}</small>`:""}</td><td><b>${esc(formatAttendanceDuration(record.actual_minutes))}</b></td><td><div class="attendance-actions"><button type="button" data-edit-attendance="${record.id}">Sửa</button><button class="danger" type="button" data-delete-attendance="${record.id}">Xóa</button></div></td></tr>`).join("");
+  $("attendanceEmpty").classList.toggle("hidden",attendanceViewRecords.length>0);setAttendanceFormState();
+}
+async function loadAttendanceRecords(studentId=null){
+  attendanceViewRecords=await rpc("app_list_attendance_records",{p_token:token,p_student_id:studentId||null,p_from:null,p_to:null})||[];renderAttendanceLedger();
+}
+async function openAttendance(student=null){
+  if(!attendanceReady){await loadAttendanceFeature();if(!attendanceReady)return alert("Để kích hoạt Điểm danh và Báo cáo Admin, hãy chạy file CAP-NHAT-DIEM-DANH-BAO-CAO.sql trong Supabase SQL Editor.")}
+  $("attendanceStudentSelect").innerHTML='<option value="">Tất cả học viên</option>'+students.map(item=>`<option value="${item.id}">${esc(item.student_code)} · ${esc(item.name)}</option>`).join("");$("attendanceStudentSelect").value=student?.id||"";resetAttendanceForm();$("attendanceDialog").showModal();busy(true);
+  try{await loadAttendanceRecords(student?.id||null)}catch(error){$("attendanceError").textContent=errText(error)}finally{busy(false)}
+}
+$("attendanceBtn").onclick=()=>openAttendance();$("attendanceDashboardOpen").onclick=()=>openAttendance();
+$("attendanceStudentSelect").onchange=async()=>{resetAttendanceForm();busy(true);try{await loadAttendanceRecords($("attendanceStudentSelect").value||null)}catch(error){$("attendanceError").textContent=errText(error)}finally{busy(false)}};
+for(const id of ["attendanceStart","attendanceEnd"])$(id).oninput=syncAttendanceDuration;
+$("attendanceStatus").onchange=setAttendanceFormState;$("attendanceResetBtn").onclick=resetAttendanceForm;
+$("attendanceForm").onsubmit=async event=>{
+  event.preventDefault();$("attendanceError").textContent="";const selected=attendanceStudent(),minutes=Number($("attendanceDuration").dataset.minutes||0);
+  if(!selected)return $("attendanceError").textContent="Vui lòng chọn học viên.";
+  if($("attendanceStatus").value==="present"&&minutes<=0)return $("attendanceError").textContent="Giờ kết thúc phải sau giờ bắt đầu.";
+  $("saveAttendanceBtn").disabled=true;busy(true);
+  try{
+    await rpc("app_save_attendance_record",{p_token:token,p_record_id:$("attendanceRecordId").value||null,p_student_id:selected.id,p_session_date:$("attendanceDate").value,p_session_type:$("attendanceType").value,p_status:$("attendanceStatus").value,p_started_at:$("attendanceStatus").value==="present"?$("attendanceStart").value:null,p_ended_at:$("attendanceStatus").value==="present"?$("attendanceEnd").value:null,p_actual_minutes:minutes,p_note:$("attendanceNote").value.trim()});
+    await Promise.all([loadAttendanceRecords(selected.id),loadAttendanceFeature()]);renderAttendanceDashboard();resetAttendanceForm();toast("Đã lưu điểm danh và giờ học thực tế");
+  }catch(error){$("attendanceError").textContent=errText(error)}finally{busy(false);setAttendanceFormState()}
+};
+$("attendanceRows").onclick=async event=>{
+  const editId=event.target.dataset.editAttendance,deleteId=event.target.dataset.deleteAttendance;
+  if(editId){const record=attendanceViewRecords.find(item=>String(item.id)===String(editId));if(!record)return;$("attendanceStudentSelect").value=String(record.student_id);$("attendanceRecordId").value=record.id;$("attendanceDate").value=record.session_date;$("attendanceType").value=record.session_type;$("attendanceStatus").value=record.status;$("attendanceStart").value=String(record.started_at||"08:00").slice(0,5);$("attendanceEnd").value=String(record.ended_at||"10:00").slice(0,5);$("attendanceNote").value=record.note||"";$("attendanceFormTitle").textContent="Sửa bản điểm danh";setAttendanceFormState();$("attendanceForm").scrollIntoView({behavior:"smooth",block:"center"});return}
+  if(!deleteId||!confirm("Xóa bản điểm danh này? Nhật ký hệ thống vẫn ghi lại thao tác."))return;event.target.disabled=true;busy(true);
+  try{await rpc("app_delete_attendance_record",{p_token:token,p_record_id:deleteId});await Promise.all([loadAttendanceRecords($("attendanceStudentSelect").value||null),loadAttendanceFeature()]);renderAttendanceDashboard();resetAttendanceForm();toast("Đã xóa bản điểm danh")}
+  catch(error){$("attendanceError").textContent=errText(error)}finally{busy(false)}
+};
+function reportTheory(item){return theoryProgress.find(theory=>String(theory.student_id)===String(item.student_id))||{}}
+function filteredAdminReport(){const query=normalize($("reportSearch").value);return adminReportRows.filter(item=>!query||normalize(`${item.name} ${item.student_code} ${item.course} ${item.license_class}`).includes(query))}
+function renderAdminReport(){
+  const rows=filteredAdminReport(),sessions=rows.reduce((sum,item)=>sum+(Number(item.session_count)||0),0),minutes=rows.reduce((sum,item)=>sum+(Number(item.actual_minutes)||0),0),present=rows.reduce((sum,item)=>sum+(Number(item.present_count)||0),0),debt=rows.reduce((sum,item)=>sum+(Number(item.debt)||0),0),rate=sessions?Math.round(present/sessions*100):0;
+  $("reportStudentTotal").textContent=rows.length;$("reportSessionTotal").textContent=sessions;$("reportHoursTotal").textContent=formatAttendanceDuration(minutes);$("reportRateAverage").textContent=`${rate}%`;$("reportDebtTotal").textContent=money(debt);
+  $("adminReportRows").innerHTML=rows.map(item=>{const theory=reportTheory(item);return `<tr><td><strong>${esc(item.name)}</strong><small>${esc(item.student_code||"—")}</small></td><td>${esc(item.course||"Chưa có khóa")}<small>Hạng ${esc(item.license_class||"—")}</small></td><td><b>${Number(item.present_count)||0}/${Number(item.session_count)||0} buổi</b><small>Vắng ${Number(item.absent_count)||0} · Có phép ${Number(item.excused_count)||0} · ${Math.round(Number(item.attendance_rate)||0)}%</small></td><td><b>${esc(formatAttendanceDuration(item.actual_minutes))}</b></td><td><b>${Number(theory.answered_count)||0}/600 câu</b><small>${Number(theory.exam_count)||0} bài thi thử</small></td><td><b>Còn ${money(item.debt)}</b><small>Đã thu ${money(item.paid)}</small></td></tr>`}).join("");$("adminReportEmpty").classList.toggle("hidden",rows.length>0);
+}
+async function loadAdminReport(){
+  adminReportRows=await rpc("app_admin_attendance_report",{p_token:token,p_from:$("reportFrom").value||null,p_to:$("reportTo").value||null,p_owner_id:$("ownerFilter").value||null})||[];renderAdminReport();
+}
+async function openAdminReport(){
+  if(!attendanceReady){await loadAttendanceFeature();if(!attendanceReady)return alert("Để kích hoạt Điểm danh và Báo cáo Admin, hãy chạy file CAP-NHAT-DIEM-DANH-BAO-CAO.sql trong Supabase SQL Editor.")}
+  const today=excelDate();$("reportFrom").value=`${today.slice(0,8)}01`;$("reportTo").value=today;$("reportSearch").value="";$("adminReportError").textContent="";$("adminReportDialog").showModal();busy(true);try{await loadAdminReport()}catch(error){$("adminReportError").textContent=errText(error)}finally{busy(false)}
+}
+$("adminReportBtn").onclick=openAdminReport;$("attendanceReportOpen").onclick=openAdminReport;$("refreshReportBtn").onclick=async()=>{busy(true);try{await loadAdminReport()}catch(error){$("adminReportError").textContent=errText(error)}finally{busy(false)}};$("reportSearch").oninput=renderAdminReport;
+$("exportReportBtn").onclick=async()=>{
+  const rows=filteredAdminReport();if(!rows.length)return toast("Không có dữ liệu để xuất báo cáo.");$("exportReportBtn").disabled=true;
+  try{const ExcelJS=await getExcelJS(),wb=new ExcelJS.Workbook(),ws=wb.addWorksheet("BÁO CÁO ADMIN",{views:[{state:"frozen",ySplit:1}]});ws.addRow(["Mã học viên","Họ và tên","Khóa","Hạng","Tổng buổi","Có mặt","Vắng","Vắng có phép","Giờ thực học","Tỷ lệ chuyên cần","Đã học 600 câu","Bài thi thử","Tổng học phí","Đã thu","Còn nợ"]);for(const item of rows){const theory=reportTheory(item);ws.addRow([item.student_code,item.name,item.course,item.license_class,Number(item.session_count)||0,Number(item.present_count)||0,Number(item.absent_count)||0,Number(item.excused_count)||0,Math.round((Number(item.actual_minutes)||0)/60*100)/100,Number(item.attendance_rate)||0,Number(theory.answered_count)||0,Number(theory.exam_count)||0,Number(item.tuition_total)||0,Number(item.paid)||0,Number(item.debt)||0])}ws.columns=[14,24,16,12,12,10,10,14,14,16,16,12,16,16,16].map(width=>({width}));const header=ws.getRow(1);header.font={bold:true,color:{argb:"FFFFFFFF"}};header.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF155FAF"}};for(let row=2;row<=ws.rowCount;row++){ws.getCell(`I${row}`).numFmt='0.00 "giờ"';ws.getCell(`J${row}`).numFmt='0.0"%"';for(const col of ["M","N","O"])ws.getCell(`${col}${row}`).numFmt='#,##0 [$₫-vi-VN]'}const file=await buildExcelFile(wb,`Bao-cao-Admin-${$("reportFrom").value}-${$("reportTo").value}.xlsx`);renderExcelPreview({title:"Báo cáo Admin đã sẵn sàng",file,headers:["Học viên","Buổi","Giờ","Chuyên cần","Còn nợ"],rows:rows.slice(0,20).map(item=>[item.name,item.session_count,formatAttendanceDuration(item.actual_minutes),`${Math.round(Number(item.attendance_rate)||0)}%`,money(item.debt)]),note:`Báo cáo gồm ${rows.length} học viên trong khoảng thời gian đã chọn.`,mode:"export"});await recordAudit("admin_report_export","attendance_report","","Báo cáo tổng hợp",{student_count:rows.length,from:$("reportFrom").value,to:$("reportTo").value})}catch(error){$("adminReportError").textContent=errText(error)}finally{$("exportReportBtn").disabled=false}
+};
 $("search").oninput=renderStudents;
 $("ownerFilter").onchange=loadStudents;
 function selectStat(card){statFilter=card.dataset.statFilter;$("search").value="";renderStudents();document.querySelector(".panel").scrollIntoView({behavior:"smooth",block:"start"})}
@@ -448,10 +541,11 @@ $("addStudentBtn").onclick=()=>openStudent();
 $("photoFile").onchange=async e=>{const file=e.target.files[0];if(!file)return;const ext=file.name.toLowerCase().split(".").pop(),validType=["image/jpeg","image/png"].includes(file.type)&&["jpg","jpeg","png"].includes(ext);if(!validType){e.target.value="";return $("studentError").textContent="Chỉ chấp nhận file ảnh JPG, JPEG hoặc PNG."}if(file.size>10*1024*1024){e.target.value="";return $("studentError").textContent="Ảnh gốc không được lớn hơn 10 MB."}try{$("studentError").textContent="Đang kiểm tra ảnh 3×4 nền trắng…";showPhoto(await compressPhoto(file));$("studentError").textContent=""}catch(err){e.target.value="";$("studentError").textContent=errText(err)}};
 $("removePhotoBtn").onclick=()=>{$("photoFile").value="";showPhoto("")};
 $("studentRows").onclick=async e=>{
-  const edit=e.target.dataset.edit,del=e.target.dataset.delete,download=e.target.dataset.downloadPhoto,account=e.target.dataset.studentAccount,theory=e.target.dataset.theoryProgress,payment=e.target.dataset.paymentStudent;
+  const edit=e.target.dataset.edit,del=e.target.dataset.delete,download=e.target.dataset.downloadPhoto,account=e.target.dataset.studentAccount,theory=e.target.dataset.theoryProgress,payment=e.target.dataset.paymentStudent,attendance=e.target.dataset.attendanceStudent;
   if(theory)return openTheoryDetail(students.find(s=>String(s.id)===String(theory)));
   if(account)return openStudentAccount(students.find(s=>String(s.id)===account));
   if(payment)return openPaymentLedger(students.find(s=>String(s.id)===String(payment)));
+  if(attendance)return openAttendance(students.find(s=>String(s.id)===String(attendance)));
   if(download&&me.role==="admin"){const s=students.find(x=>x.id===download);if(!s?.photo_data)return toast("Học viên chưa có ảnh thẻ");const a=document.createElement("a"),safe=normalize(s.name).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"hoc-vien";a.href=s.photo_data;a.download=`anh-the-3x4-${safe}.jpg`;document.body.appendChild(a);a.click();a.remove();return}
   if(edit)return openStudent(students.find(s=>s.id===edit));
   if(del&&!operationsReady){await loadOperations();if(!operationsReady)return toast("Cần chạy file SQL Thùng rác trước khi xóa học viên.")}

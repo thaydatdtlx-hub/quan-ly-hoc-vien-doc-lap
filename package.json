@@ -12,7 +12,8 @@
     "check:excel": "node scripts/validate-excel.mjs",
     "check:duplicates": "node scripts/validate-import-dedup.mjs",
     "check:payments": "node scripts/validate-payments.mjs",
-    "check": "npm run check:questions && npm run check:site && npm run check:excel && npm run check:duplicates && npm run check:payments"
+    "check:attendance": "node scripts/validate-attendance.mjs",
+    "check": "npm run check:questions && npm run check:site && npm run check:excel && npm run check:duplicates && npm run check:payments && npm run check:attendance"
   },
   "devDependencies": {
     "vite": "^7.0.0"

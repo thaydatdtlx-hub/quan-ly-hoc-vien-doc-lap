@@ -1,12 +1,13 @@
 import {SCHEDULE_FIELDS,parseScheduleFromNotes} from "./schedule-data.js";
 import {markNoticesRead,readNoticeIds,studentNotifications} from "./account-notifications.js";
 import {openPaymentReceipt,paymentMethodLabel} from "./payment-receipt.js";
+import {attendanceStatusLabel,attendanceSummary,attendanceTypeLabel,formatAttendanceDuration} from "./attendance-utils.js";
 import QRCode from "qrcode";
 
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
-let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",me=null,student=null,trainingSessions=[],trainingRequests=[],trainingSlots=[],studentPayments=[],studentNotices=[],serverNotices=[],theoryProgress=null,forcePasswordChange=false,bookingFeatureAvailable=true,slotFeatureAvailable=true,theoryFeatureAvailable=true,paymentHistoryAvailable=true,notificationTimer=null;
+let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",me=null,student=null,trainingSessions=[],trainingRequests=[],trainingSlots=[],studentPayments=[],studentAttendance=[],studentNotices=[],serverNotices=[],theoryProgress=null,forcePasswordChange=false,bookingFeatureAvailable=true,slotFeatureAvailable=true,theoryFeatureAvailable=true,paymentHistoryAvailable=true,attendanceHistoryAvailable=true,notificationTimer=null;
 
 async function rpc(fn,body={}){
   const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
@@ -109,6 +110,30 @@ async function loadStudentPayments(){
     studentPayments=[];paymentHistoryAvailable=false;
     if(!/app_student_list_payments|schema cache|PGRST202/i.test(error?.message||""))throw error;
   }
+}
+async function loadStudentAttendance(){
+  try{
+    studentAttendance=await rpc("app_student_list_attendance",{p_token:token})||[];
+    attendanceHistoryAvailable=true;
+  }catch(error){
+    studentAttendance=[];attendanceHistoryAvailable=false;
+    if(!/app_student_list_attendance|schema cache|PGRST202/i.test(error?.message||""))throw error;
+  }
+}
+function renderStudentAttendance(){
+  const summary=attendanceSummary(studentAttendance);
+  $("studentAttendanceRate").textContent=`${summary.rate}% chuyên cần`;
+  $("studentAttendanceSessions").textContent=summary.sessions;
+  $("studentAttendancePresent").textContent=summary.present;
+  $("studentAttendanceHours").textContent=formatAttendanceDuration(summary.actualMinutes);
+  $("studentAttendanceAbsent").textContent=`${summary.absent} / ${summary.excused}`;
+  $("studentAttendanceNotice").classList.toggle("hidden",attendanceHistoryAvailable);
+  $("studentAttendanceList").innerHTML=studentAttendance.length?studentAttendance.slice(0,30).map(record=>`
+    <article class="student-attendance-item status-${esc(record.status)}">
+      <span class="student-attendance-date"><b>${esc(date(record.session_date))}</b><small>${esc(attendanceTypeLabel(record.session_type))}</small></span>
+      <div><strong>${esc(attendanceStatusLabel(record.status))}</strong><small>${record.started_at&&record.ended_at?`${esc(String(record.started_at).slice(0,5))} – ${esc(String(record.ended_at).slice(0,5))}`:"Không ghi khung giờ"}</small>${record.note?`<em>${esc(record.note)}</em>`:""}</div>
+      <b>${esc(formatAttendanceDuration(record.actual_minutes))}</b>
+    </article>`).join(""):`<div class="student-attendance-empty"><span>◷</span><strong>Chưa có dữ liệu điểm danh</strong><small>Buổi học được Admin ghi nhận sẽ hiển thị tại đây.</small></div>`;
 }
 function renderStudentPaymentHistory(){
   $("studentPaymentHistoryCount").textContent=`${studentPayments.length} phiếu thu`;
@@ -220,6 +245,7 @@ function renderPortal(){
   $("tuitionDebtNote").textContent=debt?"Vui lòng hoàn tất theo lịch hẹn":"Không còn công nợ";
   $("tuitionPaymentLink").classList.toggle("hidden",debt===0);
   renderStudentPaymentHistory();
+  renderStudentAttendance();
 
   const paymentContent=paymentReference();
   $("paymentDebt").textContent=money(debt);
@@ -390,7 +416,7 @@ async function boot(){
       if(!/app_list_training_sessions|schema cache|PGRST202/i.test(error?.message||""))throw error;
       trainingSessions=[];
     }
-    await Promise.all([loadTrainingRequests(),loadTrainingSlots(),loadServerNotifications(),loadTheoryProgress(),loadStudentPayments()]);
+    await Promise.all([loadTrainingRequests(),loadTrainingSlots(),loadServerNotifications(),loadTheoryProgress(),loadStudentPayments(),loadStudentAttendance()]);
     student.training_sessions=trainingSessions;
     renderPortal();
     notificationTimer=setInterval(async()=>{

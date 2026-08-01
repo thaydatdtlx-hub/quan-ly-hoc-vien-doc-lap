@@ -40,6 +40,16 @@ Chạy file `CAP-NHAT-LICH-SU-HOC-PHI-PHIEU-THU.sql` trong Supabase SQL Editor �
 - Học viên tự xem các lần đã đóng và phiếu thu trong tài khoản của mình.
 - Số tiền “Đã thu” hiện có được bảo toàn dưới dạng số dư ban đầu.
 
+## Điểm danh, giờ thực học và báo cáo Admin
+
+Chạy file `CAP-NHAT-DIEM-DANH-BAO-CAO.sql` trong Supabase SQL Editor để bật:
+
+- Admin ghi nhận từng buổi học theo ngày, nội dung, trạng thái có mặt/vắng/vắng có phép và giờ bắt đầu–kết thúc.
+- Hệ thống tự tính số giờ học thực tế, tỷ lệ chuyên cần và lưu nhật ký khi thêm, sửa hoặc xóa bản điểm danh.
+- Học viên tự xem tổng số buổi, giờ thực học và lịch sử điểm danh trong tài khoản cá nhân.
+- Báo cáo Admin lọc theo khoảng ngày và tài khoản phụ trách, kết hợp chuyên cần, tiến độ 600 câu, học phí và công nợ.
+- Xuất báo cáo tổng hợp ra Excel để lưu trữ hoặc đối soát.
+
 ## Chạy thử
 
 ```bash
