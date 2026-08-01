@@ -41,6 +41,9 @@ for(const token of ['data-refresh-view="1"','data-refresh-view="2"','data-refres
 for(const token of ["stageViews","stageButtons","setStage","stageFromHash","currentStage"]){
   if(!script.includes(token))throw new Error(`Điều hướng ba màn hình thiếu: ${token}`);
 }
+for(const token of ["Mobile-first refinement","font-size:16px",":has(input:focus","@media(max-width:360px)","line-height:1.02"]){
+  if(!stylesV2.includes(token))throw new Error(`Tối ưu giao diện điện thoại thiếu: ${token}`);
+}
 for(const token of ["heroTransmissionButtons","heroHourPresetButtons","heroWeekendButtons","setHeroHours","refreshHeroHoursMinus","refreshHeroHoursPlus"]){
   if(!script.includes(token))throw new Error(`Tương tác bảng tính đầu trang thiếu: ${token}`);
 }
@@ -51,7 +54,7 @@ for(const token of ["driving_refresh_registrations","enable row level security",
   if(!sql.includes(token))throw new Error(`Cơ sở dữ liệu bổ túc tay lái thiếu: ${token}`);
 }
 if(!vite.includes('drivingRefresh:resolve(__dirname,"bo-tuc-tay-lai.html")'))throw new Error("Vite chưa xuất bản trang bổ túc tay lái.");
-for(const token of ['thay-dat-pwa-v11','"/bo-tuc-tay-lai.html"'])if(!worker.includes(token))throw new Error(`PWA thiếu: ${token}`);
+for(const token of ['thay-dat-pwa-v12','"/bo-tuc-tay-lai.html"'])if(!worker.includes(token))throw new Error(`PWA thiếu: ${token}`);
 
 if(DRIVING_REFRESH_RATES["Số tự động"]!==300000||DRIVING_REFRESH_RATES["Số sàn"]!==290000||WEEKEND_SURCHARGE_PER_HOUR!==50000)throw new Error("Bảng đơn giá bổ túc tay lái chưa đúng.");
 const pricingCases=[
