@@ -4,7 +4,10 @@ const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
 const form=$("refreshForm"),button=$("refreshSubmit"),error=$("refreshError");
-let currentPricing=calculateDrivingRefreshCost({durationHours:2});
+const heroTransmissionButtons=[...document.querySelectorAll("[data-hero-transmission]")];
+const heroHourPresetButtons=[...document.querySelectorAll("[data-hero-hours]")];
+const heroWeekendButtons=[...document.querySelectorAll("[data-hero-weekend]")];
+let currentPricing=calculateDrivingRefreshCost({transmission:"Số tự động",durationHours:10});
 
 function localIsoDate(date){
   const offset=date.getTimezoneOffset()*60000;
@@ -32,6 +35,28 @@ function updatePricing(){
   $("refreshPricingBadge").textContent=!currentPricing.valid?"Chọn loại xe":currentPricing.weekend?"Giá cuối tuần":"Giá ngày thường";
   $("refreshPricingBadge").classList.toggle("is-weekend",currentPricing.weekend&&currentPricing.valid);
   $("refreshPricingNote").textContent=!currentPricing.valid?"Chọn loại xe để hệ thống tính chi phí.":currentPricing.weekend?`Đã gồm phụ thu Thứ 7/Chủ nhật cho ${currentPricing.hours} giờ.`:`Đơn giá ngày thường cho ${currentPricing.hours} giờ.`;
+  if($("refreshHeroTotal"))$("refreshHeroTotal").textContent=currentPricing.valid?formatVnd(currentPricing.estimatedTotal):"—";
+  if($("refreshHeroHours"))$("refreshHeroHours").innerHTML=`${currentPricing.hours} <small>giờ</small>`;
+  heroTransmissionButtons.forEach(item=>{
+    const active=item.dataset.heroTransmission===currentPricing.transmission;
+    item.classList.toggle("active",active);
+    item.setAttribute("aria-pressed",String(active));
+  });
+  heroHourPresetButtons.forEach(item=>{
+    const active=Number(item.dataset.heroHours)===currentPricing.hours;
+    item.classList.toggle("active",active);
+    item.setAttribute("aria-pressed",String(active));
+  });
+  heroWeekendButtons.forEach(item=>{
+    const active=(item.dataset.heroWeekend==="true")===currentPricing.weekend;
+    item.classList.toggle("active",active);
+    item.setAttribute("aria-pressed",String(active));
+  });
+}
+
+function setHeroHours(value){
+  $("refreshDurationHours").value=Math.min(MAX_DURATION_HOURS,Math.max(MIN_DURATION_HOURS,Number(value)||MIN_DURATION_HOURS));
+  updatePricing();
 }
 
 async function rpc(fn,body){
@@ -50,6 +75,19 @@ $("refreshPreferredDate").min=localIsoDate(tomorrow);
 for(const id of ["refreshTransmission","refreshDurationHours","refreshPreferredDate","refreshPreferredTime"]){
   $(id).addEventListener(id==="refreshDurationHours"?"input":"change",updatePricing);
 }
+heroTransmissionButtons.forEach(item=>item.addEventListener("click",()=>{
+  $("refreshTransmission").value=item.dataset.heroTransmission;
+  updatePricing();
+}));
+heroHourPresetButtons.forEach(item=>item.addEventListener("click",()=>setHeroHours(item.dataset.heroHours)));
+$("refreshHeroHoursMinus")?.addEventListener("click",()=>setHeroHours(currentPricing.hours-1));
+$("refreshHeroHoursPlus")?.addEventListener("click",()=>setHeroHours(currentPricing.hours+1));
+heroWeekendButtons.forEach(item=>item.addEventListener("click",()=>{
+  const weekend=item.dataset.heroWeekend==="true";
+  $("refreshPreferredDate").value="";
+  $("refreshPreferredTime").value=weekend?"Cuối tuần":"";
+  updatePricing();
+}));
 $("refreshDurationHours").addEventListener("blur",()=>{
   const value=Number($("refreshDurationHours").value);
   if(!Number.isInteger(value)||value<MIN_DURATION_HOURS)$("refreshDurationHours").value=MIN_DURATION_HOURS;
@@ -107,7 +145,8 @@ form.addEventListener("submit",async event=>{
 $("refreshNewRegistration").addEventListener("click",()=>{
   form.reset();
   $("refreshPreferredDate").min=localIsoDate(tomorrow);
-  $("refreshDurationHours").value=MIN_DURATION_HOURS;
+  $("refreshTransmission").value="Số tự động";
+  $("refreshDurationHours").value=10;
   $("refreshSuccess").hidden=true;
   $("refreshFormFields").hidden=false;
   error.textContent="";
