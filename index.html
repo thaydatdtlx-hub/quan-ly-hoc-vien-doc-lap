@@ -155,6 +155,7 @@
         </button>
         <button id="usersBtn" class="admin-only hidden">Tài khoản quản lý</button>
         <button id="publicTheoryAccountsBtn" class="admin-only hidden">Người học bên ngoài</button>
+        <button id="operationsBtn" class="operations-btn admin-only hidden" type="button"><span aria-hidden="true">↺</span><strong>THÙNG RÁC &amp; NHẬT KÝ</strong><small id="trashToolbarCount">An toàn dữ liệu</small></button>
         <input id="dataFile" class="hidden" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" aria-label="Chọn file Excel .xlsx để nhập dữ liệu">
       </section>
 
@@ -234,6 +235,30 @@
       <p class="contact-footer__copyright">Copyright © Quốc Đạt · Hệ thống quản lý học viên lái xe</p>
     </footer>
   </div>
+
+  <dialog id="operationsDialog" class="operations-dialog">
+    <div class="dialog-head operations-dialog-head">
+      <div><p class="dialog-kicker">AN TOÀN DỮ LIỆU</p><h2>Thùng rác &amp; Nhật ký thao tác</h2><span class="sub">Khôi phục hồ sơ xóa nhầm và kiểm tra lịch sử thay đổi của hệ thống.</span></div>
+      <button type="button" class="close" aria-label="Đóng">×</button>
+    </div>
+    <div class="operations-metrics">
+      <article><span aria-hidden="true">♻</span><div><small>Trong thùng rác</small><strong id="deletedStudentCount">0 học viên</strong></div></article>
+      <article><span aria-hidden="true">◷</span><div><small>Nhật ký gần đây</small><strong id="auditLogCount">0 thao tác</strong></div></article>
+    </div>
+    <div id="operationsSetupNotice" class="operations-setup hidden"><strong>Cần kích hoạt chức năng trên cơ sở dữ liệu</strong><span>Chạy file CAP-NHAT-THUNG-RAC-NHAT-KY.sql trong Supabase SQL Editor, sau đó mở lại mục này.</span></div>
+    <div class="operations-grid">
+      <section class="operations-section" aria-labelledby="trashTitle">
+        <div class="operations-section-head"><div><p>THÙNG RÁC</p><h3 id="trashTitle">Hồ sơ đã xóa</h3></div><input id="trashSearch" type="search" placeholder="Tìm tên hoặc mã học viên" aria-label="Tìm trong thùng rác"></div>
+        <div id="deletedStudentList" class="deleted-student-list"></div>
+      </section>
+      <section class="operations-section" aria-labelledby="auditTitle">
+        <div class="operations-section-head"><div><p>NHẬT KÝ HỆ THỐNG</p><h3 id="auditTitle">Thao tác gần đây</h3></div><input id="auditSearch" type="search" placeholder="Tìm người hoặc nội dung" aria-label="Tìm trong nhật ký thao tác"></div>
+        <div id="auditLogList" class="audit-log-list"></div>
+      </section>
+    </div>
+    <p id="operationsError" class="error" role="alert"></p>
+    <div class="actions"><button id="refreshOperationsBtn" type="button">Làm mới</button><button type="button" class="close">Đóng</button></div>
+  </dialog>
 
   <dialog id="studentDialog">
     <form id="studentForm">

@@ -27,6 +27,9 @@ async function rpc(fn,body={}){
   if(!response.ok)throw new Error(data?.message||data?.details||data?.error||"Không thể kết nối máy chủ");
   return data;
 }
+async function recordAudit(action,entityType="schedule",entityId="",entityLabel="",details={}){
+  try{await rpc("app_record_audit",{p_token:token,p_action:action,p_entity_type:entityType,p_entity_id:String(entityId||""),p_entity_label:entityLabel||"",p_details:details})}catch{}
+}
 
 function normalize(value){
   return String(value??"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d");
@@ -349,6 +352,7 @@ async function approveTrainingRequest(request){
       p_token:token,p_request_id:request.id,p_decision:"approved",
       p_slot_id:request.slot_id,p_admin_note:""
     });
+    await recordAudit("schedule_changed","training_request",request.id,request.student_name||"Học viên",{decision:"approved",slot_id:request.slot_id});
     await Promise.all([loadTrainingSessions(),loadTrainingRequests(),loadTrainingSlots()]);
     renderAll();renderTrainingRequests();renderTrainingSlots();toast("Đã duyệt học viên vào ca học");
   }catch(error){
@@ -375,6 +379,7 @@ async function rejectTrainingRequest(requestId){
         p_starts_at:null,p_location:"",p_admin_note:reason.trim()
       });
     }
+    await recordAudit("schedule_changed","training_request",request.id,request.student_name||"Học viên",{decision:"rejected",reason:reason.trim()});
     await Promise.all([loadTrainingRequests(),loadTrainingSlots()]);
     renderTrainingRequests();renderTrainingSlots();toast("Đã từ chối yêu cầu");
   }catch(error){alert(error?.message||"Không thể từ chối yêu cầu.")}
@@ -390,6 +395,7 @@ async function deleteTrainingSession(sessionId){
   busy(true);
   try{
     await rpc("app_admin_delete_training_session",{p_token:token,p_session_id:session.id});
+    await recordAudit("schedule_changed","training_session",session.id,student.name,{operation:"deleted",session_type:session.session_type,starts_at:session.starts_at});
     trainingSessions=trainingSessions.filter(item=>String(item.id)!==String(session.id));
     await loadTrainingSlots();renderAll();renderTrainingSlots();toast(session.slot_id?"Đã xóa học viên khỏi ca":"Đã xóa buổi thực hành");
   }catch(error){alert(error?.message||"Không thể xóa buổi thực hành.")}
@@ -433,6 +439,7 @@ async function deleteOneSchedule(studentId,fieldKey){
   busy(true);
   try{
     await saveScheduleNotes(student,notes,true);
+    await recordAudit("schedule_changed","student",student.id,student.name,{operation:"milestone_deleted",field:fieldKey});
     student.notes=notes;renderAll();toast(`Đã xóa lịch ${field.label}`);
   }catch(error){alert(error?.message||"Không thể xóa lịch đào tạo.")}
   finally{busy(false)}
@@ -457,6 +464,7 @@ $("slotForm").onsubmit=async event=>{
       p_note:$("slotNote").value.trim(),
       p_status:$("slotStatus").value
     });
+    await recordAudit("schedule_changed","training_slot",$("trainingSlotId").value||"",$("slotLocation").value.trim()||"Ca học",{operation:$("trainingSlotId").value?"updated":"created",session_type:$("slotType").value,starts_at:new Date(startsAt).toISOString()});
     await Promise.all([loadTrainingSlots(),loadTrainingSessions(),loadTrainingRequests()]);
     $("slotDialog").close();renderTrainingSlots();renderTrainingRequests();renderAll();
     toast($("trainingSlotId").value?"Đã cập nhật ca học":"Đã tạo ca học");
@@ -472,6 +480,7 @@ $("deleteSlotBtn").onclick=async()=>{
   $("deleteSlotBtn").disabled=true;busy(true);$("slotError").textContent="";
   try{
     await rpc("app_admin_delete_training_slot",{p_token:token,p_slot_id:slot.id});
+    await recordAudit("schedule_changed","training_slot",slot.id,slot.location||"Ca học",{operation:"deleted",starts_at:slot.starts_at});
     await loadTrainingSlots();$("slotDialog").close();renderTrainingSlots();toast("Đã xóa ca học");
   }catch(error){$("slotError").textContent=error?.message||"Không thể xóa ca học."}
   finally{$("deleteSlotBtn").disabled=false;busy(false)}
@@ -503,6 +512,7 @@ $("scheduleForm").onsubmit=async event=>{
   try{
     const notes=embedScheduleInNotes(student.notes,schedule);
     await saveScheduleNotes(student,notes,true);
+    await recordAudit("schedule_changed","student",student.id,student.name,{operation:"milestones_updated"});
     student.notes=notes;$("scheduleDialog").close();renderAll();toast("Đã lưu lịch đào tạo");
   }catch(error){$("scheduleError").textContent=error?.message||"Không thể lưu lịch đào tạo."}
   finally{$("saveScheduleBtn").disabled=false;busy(false)}
@@ -523,6 +533,8 @@ $("sessionForm").onsubmit=async event=>{
         p_location:$("trainingLocation").value.trim(),
         p_admin_note:$("trainingNote").value.trim()
       });
+      const request=trainingRequests.find(item=>String(item.id)===String(requestId));
+      await recordAudit("schedule_changed","training_request",requestId,request?.student_name||"Học viên",{decision:"approved",starts_at:new Date(startsAt).toISOString()});
       await Promise.all([loadTrainingSessions(),loadTrainingRequests()]);
       $("sessionDialog").close();renderAll();renderTrainingRequests();toast("Đã duyệt và tạo lịch chính thức");
     }else{
@@ -535,6 +547,8 @@ $("sessionForm").onsubmit=async event=>{
         p_location:$("trainingLocation").value.trim(),
         p_note:$("trainingNote").value.trim()
       });
+      const student=students.find(item=>String(item.id)===String($("trainingStudent").value));
+      await recordAudit("schedule_changed","training_session",$("trainingSessionId").value||"",student?.name||"Học viên",{operation:$("trainingSessionId").value?"updated":"created",session_type:$("trainingType").value,starts_at:new Date(startsAt).toISOString()});
       await loadTrainingSessions();
       $("sessionDialog").close();renderAll();toast($("trainingSessionId").value?"Đã cập nhật ca học riêng":"Đã tạo ca học riêng");
     }
@@ -577,6 +591,7 @@ $("deleteAllScheduleBtn").onclick=async()=>{
   $("deleteAllScheduleBtn").disabled=true;busy(true);$("scheduleError").textContent="";
   try{
     await saveScheduleNotes(student,notes,true);
+    await recordAudit("schedule_changed","student",student.id,student.name,{operation:"all_milestones_deleted"});
     student.notes=notes;$("scheduleDialog").close();renderAll();toast("Đã xóa toàn bộ mốc đào tạo");
   }catch(error){$("scheduleError").textContent=error?.message||"Không thể xóa lịch đào tạo."}
   finally{$("deleteAllScheduleBtn").disabled=false;busy(false)}

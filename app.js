@@ -4,13 +4,16 @@ import {managerNotifications,markNoticesRead,readNoticeIds} from "./account-noti
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
-let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"",me=null,students=[],users=[],studentAccounts=[],publicTheoryAccounts=[],trainingRequests=[],theoryProgress=[],accountNotices=[],serverNotices=[],studentAccountsReady=false,publicTheoryAccountsReady=false,theoryProgressReady=false,selectedStudentAccount=null,forcePasswordChange=false,currentPhoto="",statFilter="all",theorySummaryFilter="active",notificationTimer=null,excelPreviewFile=null,excelPreviewUrl="",excelImportResolve=null;
+let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"",me=null,students=[],users=[],studentAccounts=[],publicTheoryAccounts=[],trainingRequests=[],theoryProgress=[],deletedStudents=[],auditLogs=[],accountNotices=[],serverNotices=[],studentAccountsReady=false,publicTheoryAccountsReady=false,theoryProgressReady=false,operationsReady=false,selectedStudentAccount=null,forcePasswordChange=false,currentPhoto="",statFilter="all",theorySummaryFilter="active",notificationTimer=null,excelPreviewFile=null,excelPreviewUrl="",excelImportResolve=null;
 
 async function rpc(fn,body={}){
   const r=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
   const data=await r.json().catch(()=>null);
   if(!r.ok)throw new Error(data?.message||data?.details||data?.error||"Không thể kết nối máy chủ");
   return data;
+}
+async function recordAudit(action,entityType="system",entityId="",entityLabel="",details={}){
+  try{await rpc("app_record_audit",{p_token:token,p_action:action,p_entity_type:entityType,p_entity_id:String(entityId||""),p_entity_label:entityLabel||"",p_details:details})}catch{}
 }
 function busy(on){$("loading").classList.toggle("hidden",!on)}
 function toast(s){$("toast").textContent=s;$("toast").classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>$("toast").classList.remove("show"),2800)}
@@ -63,7 +66,7 @@ async function boot(){
     if(!me?.id)throw new Error("Phiên đăng nhập hết hạn");
     authKind="manager";
     showApp();
-    if(me.role==="admin"){await loadUsers();await loadStudentAccounts();await loadPublicTheoryAccounts()}
+    if(me.role==="admin"){await loadUsers();await loadStudentAccounts();await loadPublicTheoryAccounts();await loadOperations()}
     await loadStudents();
     notificationTimer=setInterval(async()=>{
       if(document.visibilityState!=="visible")return;
@@ -224,6 +227,58 @@ $("theorySummaryList").onclick=event=>{
   const item=theoryFor(button.dataset.theorySummaryDetail);if(!item)return;
   $("theorySummaryDialog").close();openTheoryDetail(theoryStudentFromProgress(item));
 };
+const auditLabels={
+  student_created:"Đã tạo hồ sơ học viên",student_updated:"Đã cập nhật hồ sơ học viên",student_moved_to_trash:"Đã chuyển học viên vào thùng rác",student_restored:"Đã khôi phục học viên",student_deleted_permanently:"Đã xóa vĩnh viễn học viên",
+  manager_created:"Đã tạo tài khoản quản lý",manager_status_changed:"Đã đổi trạng thái tài khoản quản lý",manager_password_reset:"Đã đặt lại mật khẩu quản lý",
+  student_account_created:"Đã tạo tài khoản học viên",student_account_status_changed:"Đã đổi trạng thái tài khoản học viên",student_password_reset:"Đã đặt lại mật khẩu học viên",
+  public_account_status_changed:"Đã đổi trạng thái người học bên ngoài",public_password_reset:"Đã đặt lại mật khẩu người học bên ngoài",public_account_deleted:"Đã xóa người học bên ngoài",
+  excel_import:"Đã nhập dữ liệu từ Excel",excel_export:"Đã xuất dữ liệu Excel",schedule_changed:"Đã cập nhật lịch đào tạo"
+};
+function auditLabel(log){return auditLabels[log.action]||String(log.action||"Thao tác hệ thống").replaceAll("_"," ")}
+function renderDeletedStudents(){
+  const query=normalize($("trashSearch").value),items=deletedStudents.filter(item=>!query||normalize(`${item.name} ${item.student_code} ${item.phone} ${item.course}`).includes(query));
+  $("deletedStudentCount").textContent=`${deletedStudents.length} học viên`;$("trashToolbarCount").textContent=deletedStudents.length?`${deletedStudents.length} hồ sơ có thể khôi phục`:"An toàn dữ liệu";
+  $("deletedStudentList").innerHTML=items.length?items.map(item=>`<article class="deleted-student-card">
+    <div class="deleted-student-main"><span>${esc((item.name||"?").trim().charAt(0).toUpperCase())}</span><div><strong>${esc(item.name||"Chưa có tên")}</strong><small>${esc(item.student_code||"Chưa có mã")} · ${esc(item.license_class||"Chưa có hạng")}</small><em>Xóa lúc ${esc(dateTime(item.deleted_at))} bởi ${esc(item.deleted_by_username||"Tài khoản hệ thống")}</em></div></div>
+    <div class="deleted-student-meta"><span>${esc(item.phone||"Chưa có số điện thoại")}</span><span>${esc(item.course||"Chưa có khóa học")}</span><span>Còn nợ ${money(Math.max(0,(Number(item.tuition_total)||0)-(Number(item.paid)||0)))}</span></div>
+    <div class="deleted-student-actions"><button type="button" data-restore-student="${item.id}">Khôi phục</button><button class="danger" type="button" data-permanent-delete="${item.id}">Xóa vĩnh viễn</button></div>
+  </article>`).join(""):'<div class="operations-empty"><strong>Thùng rác đang trống</strong><span>Học viên bị xóa sẽ xuất hiện tại đây để Admin có thể khôi phục.</span></div>';
+}
+function renderAuditLogs(){
+  const query=normalize($("auditSearch").value),items=auditLogs.filter(log=>!query||normalize(`${log.actor_username} ${log.entity_label} ${auditLabel(log)} ${JSON.stringify(log.details||{})}`).includes(query));
+  $("auditLogCount").textContent=`${auditLogs.length} thao tác`;
+  $("auditLogList").innerHTML=items.length?items.map(log=>`<article class="audit-log-card"><span class="audit-log-dot" aria-hidden="true"></span><div><strong>${esc(auditLabel(log))}</strong><small>${esc(log.entity_label||"Hệ thống")}</small><em>${esc(log.actor_username||"Tài khoản hệ thống")} · ${esc(dateTime(log.created_at))}</em></div></article>`).join(""):'<div class="operations-empty"><strong>Chưa có nhật ký phù hợp</strong><span>Các thao tác mới sẽ tự động được ghi lại tại đây.</span></div>';
+}
+async function loadOperations(){
+  $("operationsError").textContent="";
+  try{
+    [deletedStudents,auditLogs]=await Promise.all([
+      rpc("app_list_deleted_students",{p_token:token}),
+      rpc("app_list_audit_logs",{p_token:token,p_limit:250})
+    ]);
+    deletedStudents=Array.isArray(deletedStudents)?deletedStudents:[];auditLogs=Array.isArray(auditLogs)?auditLogs:[];operationsReady=true;
+    $("operationsSetupNotice").classList.add("hidden");renderDeletedStudents();renderAuditLogs();
+  }catch(error){
+    operationsReady=false;deletedStudents=[];auditLogs=[];renderDeletedStudents();renderAuditLogs();
+    const missing=/app_list_deleted_students|app_list_audit_logs|schema cache|PGRST202/i.test(errText(error));
+    $("operationsSetupNotice").classList.toggle("hidden",!missing);if(!missing)$("operationsError").textContent=errText(error);
+  }
+}
+$("operationsBtn").onclick=async()=>{
+  $("trashSearch").value="";$("auditSearch").value="";$("operationsDialog").showModal();busy(true);try{await loadOperations()}finally{busy(false)}
+};
+$("refreshOperationsBtn").onclick=async()=>{busy(true);try{await loadOperations();toast("Đã làm mới dữ liệu an toàn")}finally{busy(false)}};
+$("trashSearch").oninput=renderDeletedStudents;$("auditSearch").oninput=renderAuditLogs;
+$("deletedStudentList").onclick=async event=>{
+  const button=event.target.closest("button"),restoreId=button?.dataset.restoreStudent,deleteId=button?.dataset.permanentDelete,id=restoreId||deleteId;if(!id)return;
+  const item=deletedStudents.find(student=>String(student.id)===String(id));if(!item)return;
+  if(deleteId&&!confirm(`Xóa vĩnh viễn “${item.name}”? Toàn bộ hồ sơ, lịch học và tiến độ 600 câu sẽ không thể khôi phục.`))return;
+  button.disabled=true;busy(true);
+  try{
+    await rpc(restoreId?"app_restore_student":"app_permanently_delete_student",{p_token:token,p_student_id:id});
+    toast(restoreId?`Đã khôi phục ${item.name}`:`Đã xóa vĩnh viễn ${item.name}`);await Promise.all([loadOperations(),loadStudents(),loadStudentAccounts()]);
+  }catch(error){$("operationsError").textContent=errText(error)}finally{button.disabled=false;busy(false)}
+};
 async function loadServerNotifications(){
   try{
     const rows=await rpc("app_list_notifications",{p_token:token})||[];
@@ -244,7 +299,7 @@ function renderStudents(){
   $("studentRows").innerHTML=rows.map(s=>{
     const account=studentAccounts.find(item=>item.student_id===String(s.id));
     const accountButton=me.role==="admin"&&studentAccountsReady?`<button class="student-account-btn ${account?.active?"is-active":""}" data-student-account="${s.id}">${account?`Tài khoản: ${esc(account.username)}`:"＋ Tạo tài khoản"}</button>`:"";
-    return `<tr><td><div class="student-cell">${s.photo_data?`<img class="student-photo" src="${s.photo_data}" alt="Ảnh ${esc(s.name)}">`:`<span class="student-photo empty-photo">Ảnh<br>3×4</span>`}<div><span class="student-name">${esc(s.name)}</span><span class="sub">${esc(s.student_code)}${s.owner_username?` · ${esc(s.owner_username)}`:""}</span>${account?`<span class="student-login-state ${account.active?"active":"locked"}">${account.active?"Có tài khoản học viên":"Tài khoản đang khóa"}</span>`:""}</div></div></td><td>${esc(s.license_class||"—")}<span class="sub">${esc(s.course||"Chưa có khóa")}</span></td><td>${esc(s.phone||"—")}</td><td>${progressHtml(s)}</td>${me.role==="admin"?`<td>${theoryProgressHtml(s)}</td>`:""}<td>${money(s.tuition_total)}<span class="sub">Đã thu ${money(s.paid)} · Còn ${money(Math.max(0,(s.tuition_total||0)-(s.paid||0)))}</span></td><td><div class="row-actions">${accountButton}<button data-edit="${s.id}">Sửa</button>${me.role==="admin"&&s.photo_data?`<button data-download-photo="${s.id}">Tải ảnh</button>`:""}<button class="danger" data-delete="${s.id}">Xóa</button></div></td></tr>`;
+    return `<tr><td><div class="student-cell">${s.photo_data?`<img class="student-photo" src="${s.photo_data}" alt="Ảnh ${esc(s.name)}">`:`<span class="student-photo empty-photo">Ảnh<br>3×4</span>`}<div><span class="student-name">${esc(s.name)}</span><span class="sub">${esc(s.student_code)}${s.owner_username?` · ${esc(s.owner_username)}`:""}</span>${account?`<span class="student-login-state ${account.active?"active":"locked"}">${account.active?"Có tài khoản học viên":"Tài khoản đang khóa"}</span>`:""}</div></div></td><td>${esc(s.license_class||"—")}<span class="sub">${esc(s.course||"Chưa có khóa")}</span></td><td>${esc(s.phone||"—")}</td><td>${progressHtml(s)}</td>${me.role==="admin"?`<td>${theoryProgressHtml(s)}</td>`:""}<td>${money(s.tuition_total)}<span class="sub">Đã thu ${money(s.paid)} · Còn ${money(Math.max(0,(s.tuition_total||0)-(s.paid||0)))}</span></td><td><div class="row-actions">${accountButton}<button data-edit="${s.id}">Sửa</button>${me.role==="admin"&&s.photo_data?`<button data-download-photo="${s.id}">Tải ảnh</button>`:""}${me.role==="admin"?`<button class="danger" data-delete="${s.id}">Xóa</button>`:""}</div></td></tr>`;
   }).join("");
   $("empty").classList.toggle("hidden",rows.length>0);$("resultCount").textContent=`${rows.length} học viên`;
   $("totalStudents").textContent=students.length;
@@ -322,8 +377,9 @@ $("studentRows").onclick=async e=>{
   if(account)return openStudentAccount(students.find(s=>String(s.id)===account));
   if(download&&me.role==="admin"){const s=students.find(x=>x.id===download);if(!s?.photo_data)return toast("Học viên chưa có ảnh thẻ");const a=document.createElement("a"),safe=normalize(s.name).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"hoc-vien";a.href=s.photo_data;a.download=`anh-the-3x4-${safe}.jpg`;document.body.appendChild(a);a.click();a.remove();return}
   if(edit)return openStudent(students.find(s=>s.id===edit));
-  if(del&&confirm("Anh có chắc muốn xóa học viên này? Dữ liệu đã xóa không thể khôi phục.")){
-    busy(true);try{await rpc("app_delete_student",{p_token:token,p_student_id:del});toast("Đã xóa học viên");await loadStudents()}catch(err){toast(errText(err))}finally{busy(false)}
+  if(del&&!operationsReady){await loadOperations();if(!operationsReady)return toast("Cần chạy file SQL Thùng rác trước khi xóa học viên.")}
+  if(del&&confirm("Chuyển học viên này vào Thùng rác? Admin có thể khôi phục lại sau.")){
+    busy(true);try{await rpc("app_delete_student",{p_token:token,p_student_id:del});toast("Đã chuyển học viên vào Thùng rác");await loadStudents()}catch(err){toast(errText(err))}finally{busy(false)}
   }
 };
 $("studentForm").onsubmit=async e=>{
@@ -341,7 +397,7 @@ $("studentForm").onsubmit=async e=>{
   const hasSchedule=Object.keys(schedule.dates).length||Object.keys(schedule.locations).length||schedule.note;
   const data={name:$("name").value.trim(),date_of_birth:$("dob").value||null,cccd:$("cccd").value.trim(),phone:$("phone").value.trim(),license_class:$("licenseClass").value,course:$("course").value.trim(),profile_status:$("profileStatus").value,online_status:$("onlineStatus").value,cabin_status:$("cabinStatus").value,dat_status:$("datStatus").value,graduation_status:$("graduationStatus").value,exam_status:$("examStatus").value,tuition_total:Number($("tuitionTotal").value||0),paid:Number($("paid").value||0),address:$("address").value.trim(),notes:embedScheduleInNotes($("notes").value.trim(),hasSchedule?schedule:null),photo_data:currentPhoto};
   $("saveStudentBtn").disabled=true;
-  try{const savedId=await rpc("app_save_student",{p_token:token,p_student_id:$("studentId").value||null,p_data:data,p_owner_id:me.role==="admin"?$("studentOwner").value:null});$("studentDialog").close();await loadStudents();const saved=students.find(s=>s.id===savedId);if(currentPhoto&&(!saved||!saved.photo_data)){alert("Thông tin đã lưu nhưng ảnh chưa được cơ sở dữ liệu ghi nhận. Hãy chạy file CAP-NHAT-ANH-3X4.sql trong Supabase rồi tải ảnh lại.")}else toast("Đã lưu thông tin học viên")}
+  try{const editingId=$("studentId").value||null,savedId=await rpc("app_save_student",{p_token:token,p_student_id:editingId,p_data:data,p_owner_id:me.role==="admin"?$("studentOwner").value:null});await recordAudit(editingId?"student_updated":"student_created","student",savedId,data.name,{student_code:current?.student_code||"",tuition_total:data.tuition_total,paid:data.paid});$("studentDialog").close();await loadStudents();const saved=students.find(s=>s.id===savedId);if(currentPhoto&&(!saved||!saved.photo_data)){alert("Thông tin đã lưu nhưng ảnh chưa được cơ sở dữ liệu ghi nhận. Hãy chạy file CAP-NHAT-ANH-3X4.sql trong Supabase rồi tải ảnh lại.")}else toast("Đã lưu thông tin học viên")}
   catch(err){$("studentError").textContent=errText(err)}finally{$("saveStudentBtn").disabled=false}
 };
 
@@ -416,6 +472,7 @@ $("publicTheoryAccountList").onclick=async event=>{
   const button=event.target.closest("button");if(!button)return;
   const id=button.dataset.publicReset||button.dataset.publicToggle||button.dataset.publicDelete;
   if(!id)return;
+  const currentAccount=publicTheoryAccounts.find(account=>String(account.id)===String(id));
   $("publicTheoryAccountError").textContent="";
   button.disabled=true;
   try{
@@ -423,15 +480,18 @@ $("publicTheoryAccountList").onclick=async event=>{
       const password=prompt("Nhập mật khẩu tạm mới (ít nhất 8 ký tự):");
       if(!password)return;
       await rpc("app_admin_reset_public_theory_password",{p_token:token,p_account_id:id,p_password:password});
+      await recordAudit("public_password_reset","public_theory_account",id,currentAccount?.full_name||currentAccount?.username||"");
       toast("Đã đặt lại mật khẩu và mở khóa tài khoản");
     }else if(button.dataset.publicToggle){
       const active=button.dataset.active==="true";
       await rpc("app_admin_set_public_theory_active",{p_token:token,p_account_id:id,p_active:!active});
+      await recordAudit("public_account_status_changed","public_theory_account",id,currentAccount?.full_name||currentAccount?.username||"",{active:!active});
       toast(active?"Đã khóa tài khoản":"Đã mở khóa tài khoản");
     }else{
       const name=button.dataset.name||"tài khoản này";
       if(!confirm(`Xóa vĩnh viễn ${name} và toàn bộ tiến độ học, lịch sử thi?`))return;
       await rpc("app_admin_delete_public_theory_account",{p_token:token,p_account_id:id});
+      await recordAudit("public_account_deleted","public_theory_account",id,name);
       toast("Đã xóa tài khoản người học");
     }
     await loadPublicTheoryAccounts();renderPublicTheoryAccounts();
@@ -502,6 +562,7 @@ $("studentAccountForm").onsubmit=async event=>{
   $("createStudentAccountBtn").disabled=true;
   try{
     await rpc("app_create_student_account",{p_token:token,p_student_id:$("studentAccountStudentId").value,p_username:username,p_password:$("studentAccountPassword").value});
+    await recordAudit("student_account_created","student",selectedStudentAccount?.student?.id,selectedStudentAccount?.student?.name||"",{username});
     await loadStudentAccounts();renderStudents();$("studentAccountDialog").close();
     toast(`Đã tạo tài khoản học viên ${username}`);
   }catch(error){$("studentAccountError").textContent=errText(error)}
@@ -513,6 +574,7 @@ $("resetStudentPasswordBtn").onclick=async()=>{
   if(!password)return;
   try{
     await rpc("app_admin_reset_student_password",{p_token:token,p_account_id:account.id,p_password:password});
+    await recordAudit("student_password_reset","student_account",account.id,selectedStudentAccount?.student?.name||account.username);
     await loadStudentAccounts();renderStudents();$("studentAccountDialog").close();toast("Đã đặt lại mật khẩu học viên");
   }catch(error){$("studentAccountError").textContent=errText(error)}
 };
@@ -520,12 +582,24 @@ $("toggleStudentAccountBtn").onclick=async()=>{
   const account=selectedStudentAccount?.account;if(!account)return;
   try{
     await rpc("app_set_student_account_active",{p_token:token,p_account_id:account.id,p_active:!account.active});
+    await recordAudit("student_account_status_changed","student_account",account.id,selectedStudentAccount?.student?.name||account.username,{active:!account.active});
     await loadStudentAccounts();renderStudents();$("studentAccountDialog").close();toast(account.active?"Đã khóa tài khoản học viên":"Đã mở khóa tài khoản học viên");
   }catch(error){$("studentAccountError").textContent=errText(error)}
 };
 $("usersBtn").onclick=()=>{$("userError").textContent="";$("usersDialog").showModal()};
-$("userForm").onsubmit=async e=>{e.preventDefault();$("userError").textContent="";$("createUserBtn").disabled=true;try{await rpc("app_create_user",{p_token:token,p_username:$("newUsername").value.trim(),p_password:$("newPassword").value});e.target.reset();toast("Đã tạo tài khoản quản lý");await loadUsers()}catch(err){$("userError").textContent=errText(err)}finally{$("createUserBtn").disabled=false}};
-$("userList").onclick=async e=>{try{if(e.target.dataset.toggle){await rpc("app_set_user_active",{p_token:token,p_user_id:e.target.dataset.toggle,p_active:e.target.dataset.active!=="true"});await loadUsers();toast("Đã cập nhật tài khoản")}if(e.target.dataset.reset){const p=prompt("Nhập mật khẩu tạm mới (ít nhất 8 ký tự):");if(p){await rpc("app_admin_reset_password",{p_token:token,p_user_id:e.target.dataset.reset,p_password:p});toast("Đã đặt lại mật khẩu")}}}catch(err){$("userError").textContent=errText(err)}};
+$("userForm").onsubmit=async event=>{
+  event.preventDefault();$("userError").textContent="";$("createUserBtn").disabled=true;
+  const username=$("newUsername").value.trim();
+  try{const created=await rpc("app_create_user",{p_token:token,p_username:username,p_password:$("newPassword").value});await recordAudit("manager_created","manager",created?.id||"",username);event.target.reset();toast("Đã tạo tài khoản quản lý");await loadUsers()}
+  catch(error){$("userError").textContent=errText(error)}finally{$("createUserBtn").disabled=false}
+};
+$("userList").onclick=async event=>{
+  const button=event.target.closest("button");if(!button)return;
+  try{
+    if(button.dataset.toggle){const active=button.dataset.active!=="true",user=users.find(item=>String(item.id)===String(button.dataset.toggle));await rpc("app_set_user_active",{p_token:token,p_user_id:button.dataset.toggle,p_active:active});await recordAudit("manager_status_changed","manager",button.dataset.toggle,user?.username||"",{active});await loadUsers();toast("Đã cập nhật tài khoản")}
+    if(button.dataset.reset){const password=prompt("Nhập mật khẩu tạm mới (ít nhất 8 ký tự):");if(password){const user=users.find(item=>String(item.id)===String(button.dataset.reset));await rpc("app_admin_reset_password",{p_token:token,p_user_id:button.dataset.reset,p_password:password});await recordAudit("manager_password_reset","manager",button.dataset.reset,user?.username||"");toast("Đã đặt lại mật khẩu")}}
+  }catch(error){$("userError").textContent=errText(error)}
+};
 
 function openForcedPassword(){forcePasswordChange=true;$("passwordNotice").textContent="Đây là lần đăng nhập đầu tiên. Anh cần đổi mật khẩu trước khi tiếp tục.";$("passwordClose").classList.add("hidden");$("passwordCancel").classList.add("hidden");$("passwordDialog").showModal()}
 $("changePasswordBtn").onclick=()=>{forcePasswordChange=false;$("passwordNotice").textContent="Mật khẩu mới phải có ít nhất 8 ký tự.";$("passwordClose").classList.remove("hidden");$("passwordCancel").classList.remove("hidden");$("passwordError").textContent="";$("passwordDialog").showModal()};
@@ -685,6 +759,7 @@ $("exportBtn").onclick=async()=>{
     wb.created=new Date();
     const file=await buildExcelFile(wb,`DATA-hoc-vien-${excelDate()}.xlsx`);
     previewExportFile(file,students);
+    await recordAudit("excel_export","student_data","",`${students.length} học viên`,{student_count:students.length});
     toast(`Đã tạo file .xlsx gồm ${students.length} học viên`);
   }catch(err){alert(errText(err))}
   finally{$("exportBtn").disabled=false}
@@ -735,6 +810,7 @@ $("dataFile").onchange=async e=>{
     for(const data of records){
       await rpc("app_save_student",{p_token:token,p_student_id:null,p_data:data,p_owner_id:$("ownerFilter").value||me.id});done++;
     }
+    await recordAudit("excel_import","student_data","",file.name,{student_count:done});
     await loadStudents();toast(`Đã nhập thành công ${done} học viên từ file .xlsx`);
   }catch(err){alert(errText(err))}finally{busy(false);e.target.value=""}
 };

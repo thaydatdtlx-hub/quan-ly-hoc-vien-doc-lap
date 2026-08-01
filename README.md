@@ -18,6 +18,14 @@ Ngày 30/07/2026, toàn bộ 600 câu và phần đáp án gạch chân trong PD
 
 Để bật đồng bộ tài khoản trên cơ sở dữ liệu hiện có, chạy file `CAP-NHAT-TIEN-DO-600-CAU.sql` trong Supabase SQL Editor.
 
+## Thùng rác và nhật ký thao tác
+
+Chạy file `CAP-NHAT-THUNG-RAC-NHAT-KY.sql` trong Supabase SQL Editor để bật:
+
+- Xóa mềm học viên và khôi phục nguyên hồ sơ, lịch học, tiến độ 600 câu.
+- Chỉ Admin được xóa vĩnh viễn hồ sơ đang nằm trong thùng rác.
+- Ghi nhật ký người thực hiện, nội dung và thời gian của các thao tác quản trị quan trọng.
+
 ## Chạy thử
 
 ```bash
