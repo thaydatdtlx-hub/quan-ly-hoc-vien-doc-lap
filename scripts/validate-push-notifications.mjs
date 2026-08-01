@@ -20,7 +20,7 @@ for(const token of ["Notification.requestPermission","pushManager.subscribe","ap
 for(const token of ['addEventListener("push"','showNotification','addEventListener("notificationclick"','openWindow','setAppBadge']){
   if(!worker.includes(token))throw new Error(`Service Worker Push thiếu: ${token}`);
 }
-for(const token of ["webpush.setVapidDetails","webpush.sendNotification","SUPABASE_SERVICE_ROLE_KEY","VAPID_PRIVATE_KEY","statusCode===410","app_push_subscriptions"]){
+for(const token of ["webpush.setVapidDetails","webpush.sendNotification","SUPABASE_SERVICE_ROLE_KEY","SUPABASE_SECRET_KEYS","request.headers.get(\"apikey\")","VAPID_PRIVATE_KEY","statusCode===410","app_push_subscriptions"]){
   if(!edge.includes(token))throw new Error(`Edge Function thiếu: ${token}`);
 }
 for(const [name,html] of [["Admin",adminHtml],["Học viên",studentHtml]]){

@@ -1,4 +1,4 @@
-const CACHE_NAME="thay-dat-pwa-v2";
+const CACHE_NAME="thay-dat-pwa-v3";
 const CORE_ASSETS=[
   "/",
   "/index.html",

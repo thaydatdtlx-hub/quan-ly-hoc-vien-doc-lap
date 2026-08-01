@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="/contact-footer.css?v=1">
   <link rel="stylesheet" href="/professional.css?v=15">
   <link rel="stylesheet" href="/pwa-install.css?v=1">
+  <link rel="stylesheet" href="/mobile-app.css?v=1">
 </head>
 <body>
   <a class="skip-link" href="#studentPortal">Chuyển đến nội dung học viên</a>
@@ -35,7 +36,42 @@
     </div>
   </header>
 
+  <header class="mobile-appbar" aria-label="Điều hướng học viên trên điện thoại">
+    <a class="mobile-app-brand" href="#studentPortal"><img src="/logo-thay-dat-compact.webp?v=15" alt=""><span><strong>THẦY ĐẠT</strong><small>Cổng học viên</small></span></a>
+    <div class="mobile-app-actions">
+      <button type="button" data-mobile-action="student-search" aria-label="Mở chức năng nhanh"><span aria-hidden="true">⌕</span></button>
+      <button class="mobile-notification-trigger" type="button" data-mobile-click="studentNotificationBtn" aria-label="Mở thông báo"><span aria-hidden="true">♢</span><b id="mobileStudentNotificationBadge" class="hidden">0</b></button>
+      <button id="mobileStudentAccountBtn" class="mobile-avatar" type="button" aria-label="Mở tài khoản">HV</button>
+    </div>
+    <div id="mobileStudentAccountMenu" class="mobile-account-menu hidden">
+      <strong id="mobileStudentAccountName">Tài khoản học viên</strong><small>Hồ sơ cá nhân</small>
+      <button type="button" data-mobile-click="studentChangePasswordBtn">Đổi mật khẩu</button>
+      <button class="danger" type="button" data-mobile-click="studentLogoutBtn">Đăng xuất</button>
+    </div>
+  </header>
+  <nav class="mobile-page-tabs" aria-label="Chuyển khu vực học viên">
+    <button class="active" type="button" data-mobile-scroll="#studentPortal">Bảng điều khiển</button>
+    <button type="button" data-mobile-scroll=".profile-panel">Hồ sơ của tôi</button>
+  </nav>
+
   <main id="studentPortal" class="student-main hidden">
+    <section class="mobile-dashboard-home" aria-labelledby="mobileStudentOverviewTitle">
+      <div class="mobile-section-title"><div><small>KHÔNG GIAN HỌC TẬP</small><h2 id="mobileStudentOverviewTitle">Xin chào, học viên</h2></div><span id="mobileStudentClass">Đang học</span></div>
+      <article class="mobile-action-window">
+        <div class="mobile-window-toolbar"><span>30 ngày tới <b aria-hidden="true">⌄</b></span><a href="/lich-dao-tao.html" aria-label="Mở lịch đào tạo">☷</a></div>
+        <div class="mobile-action-state"><span id="mobileStudentActionIcon" aria-hidden="true">✓</span><strong id="mobileStudentActionTitle">Đang cập nhật lịch học</strong><small id="mobileStudentActionDetail">Lịch, học phí và thông báo quan trọng sẽ hiển thị tại đây.</small></div>
+      </article>
+      <section id="mobileStudentShortcuts" class="mobile-recent" aria-labelledby="mobileStudentShortcutsTitle">
+        <div class="mobile-section-heading"><h3 id="mobileStudentShortcutsTitle">Nội dung gần đây</h3><span>Vuốt để xem thêm</span></div>
+        <div class="mobile-module-track">
+          <a class="mobile-module-card tone-violet" href="/600-cau-hoi.html"><span><b>600</b></span><strong>Học lý thuyết</strong><small>Ôn tập và thi thử</small></a>
+          <a class="mobile-module-card tone-blue" href="/lich-dao-tao.html"><span><b>▣</b></span><strong>Lịch đào tạo</strong><small>Lịch học và lịch thi</small></a>
+          <button class="mobile-module-card tone-green" type="button" data-mobile-scroll="#trainingBooking"><span><b>＋</b></span><strong>Đăng ký lịch</strong><small>Thực hành và DAT</small></button>
+          <button class="mobile-module-card tone-gold" type="button" data-mobile-scroll="#studentPayment"><span><b>₫</b></span><strong>Học phí</strong><small>Tra cứu và thanh toán</small></button>
+          <button class="mobile-module-card tone-cyan" type="button" data-mobile-scroll="#studentAttendance"><span><b>✓</b></span><strong>Điểm danh</strong><small>Giờ học thực tế</small></button>
+        </div>
+      </section>
+    </section>
     <section class="student-hero">
       <div class="student-photo-wrap">
         <img id="studentPhoto" class="hidden" alt="Ảnh học viên">
@@ -168,6 +204,14 @@
     </section>
   </main>
 
+  <nav class="mobile-bottom-nav" aria-label="Thanh điều hướng học viên">
+    <button class="active" type="button" data-mobile-scroll="#studentPortal"><span aria-hidden="true">◴</span><small>Tổng quan</small></button>
+    <a href="/600-cau-hoi.html"><span aria-hidden="true">♧</span><small>Học tập</small></a>
+    <a href="/lich-dao-tao.html"><span aria-hidden="true">▣</span><small>Lịch</small></a>
+    <button class="mobile-bottom-notification" type="button" data-mobile-click="studentNotificationBtn"><span aria-hidden="true">♢</span><small>Thông báo</small><b id="mobileStudentBottomBadge" class="hidden">0</b></button>
+    <button type="button" data-mobile-action="student-more"><span aria-hidden="true">•••</span><small>Thêm</small></button>
+  </nav>
+
   <footer class="contact-footer">
     <div class="contact-footer__brand"><strong>THẦY ĐẠT · ĐÀO TẠO LÁI XE TRỌN GÓI</strong><span>Kết nối với chúng tôi</span></div>
     <nav class="contact-footer__links" aria-label="Liên hệ Thầy Đạt">
@@ -234,5 +278,6 @@
   <script type="module" src="/site-enhancements.js?v=15"></script>
   <script type="module" src="/pwa-install.js?v=1"></script>
   <script type="module" src="/push-notifications.js?v=1"></script>
+  <script type="module" src="/mobile-dashboard.js?v=1"></script>
 </body>
 </html>
