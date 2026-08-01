@@ -1,3 +1,8 @@
+import "@fontsource/be-vietnam-pro/400.css";
+import "@fontsource/be-vietnam-pro/600.css";
+import "@fontsource/be-vietnam-pro/700.css";
+import "@fontsource/be-vietnam-pro/800.css";
+import "@fontsource/be-vietnam-pro/900.css";
 import {calculateDrivingRefreshCost,formatVnd,MAX_DURATION_HOURS,MIN_DURATION_HOURS} from "./driving-refresh-pricing.js";
 
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
