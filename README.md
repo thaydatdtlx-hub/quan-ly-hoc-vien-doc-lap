@@ -50,6 +50,17 @@ Chạy file `CAP-NHAT-DIEM-DANH-BAO-CAO.sql` trong Supabase SQL Editor để b�
 - Báo cáo Admin lọc theo khoảng ngày và tài khoản phụ trách, kết hợp chuyên cần, tiến độ 600 câu, học phí và công nợ.
 - Xuất báo cáo tổng hợp ra Excel để lưu trữ hoặc đối soát.
 
+## Cảnh báo sớm học viên
+
+Dashboard Admin tự động ưu tiên học viên cần hỗ trợ dựa trên dữ liệu hiện có:
+
+- Chuyên cần dưới 80% sau tối thiểu 3 buổi hoặc có nhiều buổi vắng.
+- Thi thử từ 3 lần chưa đạt, độ chính xác lý thuyết thấp hoặc gián đoạn học 600 câu từ 14 ngày.
+- Học phí chưa hoàn tất, hồ sơ còn thiếu hoặc sắp thi nhưng chưa có bài thi thử đạt.
+- Trạng thái Cabin/DAT đã hoàn thành nhưng chưa có giờ thực học tương ứng.
+
+Mỗi cảnh báo liên kết trực tiếp đến điểm danh, tiến độ học, sổ học phí, hồ sơ hoặc lịch đào tạo của đúng học viên. Chức năng dùng dữ liệu sẵn có và không cần chạy thêm SQL.
+
 ## Chạy thử
 
 ```bash

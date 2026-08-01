@@ -3,11 +3,12 @@ import {managerNotifications,markNoticesRead,readNoticeIds} from "./account-noti
 import {analyzeStudentImport,importSummary} from "./import-dedup.js";
 import {openPaymentReceipt,paymentMethodLabel} from "./payment-receipt.js";
 import {attendanceStatusLabel,attendanceSummary,attendanceTypeLabel,calculateAttendanceMinutes,formatAttendanceDuration} from "./attendance-utils.js";
+import {buildEarlyWarnings,earlyWarningSummary,EARLY_WARNING_LEVELS} from "./early-warning-utils.js";
 
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
-let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"",me=null,students=[],users=[],studentAccounts=[],publicTheoryAccounts=[],trainingRequests=[],theoryProgress=[],deletedStudents=[],auditLogs=[],paymentHistory=[],attendanceRecords=[],attendanceViewRecords=[],adminReportRows=[],accountNotices=[],serverNotices=[],studentAccountsReady=false,publicTheoryAccountsReady=false,theoryProgressReady=false,operationsReady=false,paymentsReady=false,attendanceReady=false,selectedStudentAccount=null,forcePasswordChange=false,currentPhoto="",statFilter="all",theorySummaryFilter="active",notificationTimer=null,excelPreviewFile=null,excelPreviewUrl="",excelImportResolve=null;
+let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"",me=null,students=[],users=[],studentAccounts=[],publicTheoryAccounts=[],trainingRequests=[],theoryProgress=[],deletedStudents=[],auditLogs=[],paymentHistory=[],attendanceRecords=[],attendanceViewRecords=[],adminReportRows=[],earlyWarnings=[],accountNotices=[],serverNotices=[],studentAccountsReady=false,publicTheoryAccountsReady=false,theoryProgressReady=false,operationsReady=false,paymentsReady=false,attendanceReady=false,selectedStudentAccount=null,forcePasswordChange=false,currentPhoto="",statFilter="all",theorySummaryFilter="active",warningFilter="all",notificationTimer=null,excelPreviewFile=null,excelPreviewUrl="",excelImportResolve=null;
 
 async function rpc(fn,body={}){
   const r=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
@@ -294,7 +295,8 @@ async function loadServerNotifications(){
 function isNoticeRead(notice,read){return notice.server_id?Boolean(notice.read_at):read.has(notice.id)}
 function mergedAccountNotices(){
   const local=managerNotifications(students,me?.role||"user"),serverKeys=new Set(serverNotices.map(notice=>`${notice.title}|${notice.body}`));
-  return [...serverNotices,...local.filter(notice=>!serverKeys.has(`${notice.title}|${notice.body}`))];
+  const summary=earlyWarningSummary(earlyWarnings),warningNotice=me?.role==="admin"&&summary.total?[{id:`early-warning-${summary.total}-${summary.critical}-${summary.high}`,tone:summary.critical?"red":"orange",icon:"!",title:`${summary.students} học viên cần được hỗ trợ`,body:`${summary.critical} cảnh báo khẩn cấp · ${summary.high} ưu tiên cao · ${summary.total} nội dung cần xử lý.`,href:"/#earlyWarningDashboard",action:"Mở cảnh báo sớm"}]:[];
+  return [...warningNotice,...serverNotices,...local.filter(notice=>!serverKeys.has(`${notice.title}|${notice.body}`))];
 }
 function renderStudents(){
   const q=normalize($("search").value);
@@ -312,11 +314,46 @@ function renderStudents(){
   renderTheoryDashboard();
   renderFinanceDashboard();
   renderAttendanceDashboard();
+  renderEarlyWarnings();
   const labels={all:["Danh sách tất cả học viên","Toàn bộ hồ sơ đang quản lý"],learning:["Học viên đang học","Các học viên chưa đậu kỳ thi sát hạch"],debt:["Học viên còn nợ học phí","Các hồ sơ có số tiền đã thu thấp hơn tổng học phí"]};
   $("studentListTitle").textContent=labels[statFilter][0];$("studentListNote").textContent=labels[statFilter][1];
   document.querySelectorAll("[data-stat-filter]").forEach(card=>{const active=card.dataset.statFilter===statFilter;card.classList.toggle("active",active);card.setAttribute("aria-pressed",String(active))});
   renderAccountNotifications();
 }
+function warningIcon(type){return{attendance:"✓",theory:"600",finance:"₫",profile:"▤",schedule:"▣",training:"◷"}[type]||"!"}
+function warningTypeLabel(type){return{attendance:"Chuyên cần",theory:"Lý thuyết",finance:"Học phí",profile:"Hồ sơ",schedule:"Lịch thi",training:"Giờ đào tạo"}[type]||"Cảnh báo"}
+function warningCard(item){return `<article class="early-warning-item severity-${esc(item.severity)}" data-warning-card="${esc(item.id)}"><span class="warning-type-icon">${esc(warningIcon(item.type))}</span><div class="warning-person"><strong>${esc(item.student_name)}</strong><small>${esc(item.student_code||"Chưa có mã")} · ${esc(item.course||item.license_class||"Chưa có khóa")}</small></div><div class="warning-content"><span><b>${esc(EARLY_WARNING_LEVELS[item.severity]?.label||"Cần theo dõi")}</b><em>${esc(warningTypeLabel(item.type))}</em></span><strong>${esc(item.title)}</strong><small>${esc(item.detail)}</small></div><button type="button" data-warning-action="${esc(item.id)}">${esc(item.action_label)} →</button></article>`}
+function warningMatches(item,filter,query){return(filter==="all"||item.severity===filter||item.type===filter)&&(!query||normalize(`${item.student_name} ${item.student_code} ${item.course} ${item.title} ${item.detail}`).includes(query))}
+function renderEarlyWarnings(){
+  if(me?.role!=="admin")return;
+  earlyWarnings=buildEarlyWarnings({students,attendanceRecords,theoryProgress});
+  const summary=earlyWarningSummary(earlyWarnings);
+  $("warningTotal").textContent=summary.total;$("warningCritical").textContent=summary.critical;$("warningHigh").textContent=summary.high;$("warningStudents").textContent=summary.students;
+  $("earlyWarningPreview").innerHTML=earlyWarnings.slice(0,6).map(warningCard).join("");
+  $("earlyWarningEmpty").classList.toggle("hidden",earlyWarnings.length>0);$("warningViewAll").classList.toggle("hidden",earlyWarnings.length===0);
+  $("warningDataNotice").classList.toggle("hidden",attendanceReady&&theoryProgressReady);
+}
+function renderWarningDialog(){
+  const query=normalize($("warningDialogSearch").value),items=earlyWarnings.filter(item=>warningMatches(item,warningFilter,query));
+  $("warningDialogMeta").textContent=`${items.length}/${earlyWarnings.length} cảnh báo`;
+  $("warningDialogList").innerHTML=items.map(warningCard).join("");
+  $("warningDialogEmpty").classList.toggle("hidden",items.length>0);
+  document.querySelectorAll("[data-warning-filter]").forEach(button=>button.classList.toggle("active",button.dataset.warningFilter===warningFilter));
+}
+async function handleWarningAction(event){
+  const button=event.target.closest("[data-warning-action]");if(!button)return;
+  const item=earlyWarnings.find(warning=>warning.id===button.dataset.warningAction),student=students.find(row=>String(row.id)===String(item?.student_id));if(!item||!student)return;
+  $("warningDialog").open&&$("warningDialog").close();
+  if(item.action==="attendance")return openAttendance(student);
+  if(item.action==="theory")return openTheoryDetail(student);
+  if(item.action==="finance")return openPaymentLedger(student);
+  if(item.action==="profile")return openStudent(student);
+  if(item.action==="schedule")location.href="/lich-dao-tao.html";
+}
+$("earlyWarningPreview").onclick=handleWarningAction;
+$("warningViewAll").onclick=()=>{warningFilter="all";$("warningDialogSearch").value="";renderWarningDialog();$("warningDialog").showModal()};
+$("warningDialogList").onclick=handleWarningAction;$("warningDialogSearch").oninput=renderWarningDialog;
+document.querySelectorAll("[data-warning-filter]").forEach(button=>button.onclick=()=>{warningFilter=button.dataset.warningFilter;renderWarningDialog()});
 function renderAccountNotifications(){
   accountNotices=mergedAccountNotices();
   const read=readNoticeIds(me),unread=accountNotices.filter(notice=>!isNoticeRead(notice,read)).length;
@@ -491,14 +528,14 @@ $("attendanceForm").onsubmit=async event=>{
   $("saveAttendanceBtn").disabled=true;busy(true);
   try{
     await rpc("app_save_attendance_record",{p_token:token,p_record_id:$("attendanceRecordId").value||null,p_student_id:selected.id,p_session_date:$("attendanceDate").value,p_session_type:$("attendanceType").value,p_status:$("attendanceStatus").value,p_started_at:$("attendanceStatus").value==="present"?$("attendanceStart").value:null,p_ended_at:$("attendanceStatus").value==="present"?$("attendanceEnd").value:null,p_actual_minutes:minutes,p_note:$("attendanceNote").value.trim()});
-    await Promise.all([loadAttendanceRecords(selected.id),loadAttendanceFeature()]);renderAttendanceDashboard();resetAttendanceForm();toast("Đã lưu điểm danh và giờ học thực tế");
+    await Promise.all([loadAttendanceRecords(selected.id),loadAttendanceFeature()]);renderAttendanceDashboard();renderEarlyWarnings();renderAccountNotifications();resetAttendanceForm();toast("Đã lưu điểm danh và giờ học thực tế");
   }catch(error){$("attendanceError").textContent=errText(error)}finally{busy(false);setAttendanceFormState()}
 };
 $("attendanceRows").onclick=async event=>{
   const editId=event.target.dataset.editAttendance,deleteId=event.target.dataset.deleteAttendance;
   if(editId){const record=attendanceViewRecords.find(item=>String(item.id)===String(editId));if(!record)return;$("attendanceStudentSelect").value=String(record.student_id);$("attendanceRecordId").value=record.id;$("attendanceDate").value=record.session_date;$("attendanceType").value=record.session_type;$("attendanceStatus").value=record.status;$("attendanceStart").value=String(record.started_at||"08:00").slice(0,5);$("attendanceEnd").value=String(record.ended_at||"10:00").slice(0,5);$("attendanceNote").value=record.note||"";$("attendanceFormTitle").textContent="Sửa bản điểm danh";setAttendanceFormState();$("attendanceForm").scrollIntoView({behavior:"smooth",block:"center"});return}
   if(!deleteId||!confirm("Xóa bản điểm danh này? Nhật ký hệ thống vẫn ghi lại thao tác."))return;event.target.disabled=true;busy(true);
-  try{await rpc("app_delete_attendance_record",{p_token:token,p_record_id:deleteId});await Promise.all([loadAttendanceRecords($("attendanceStudentSelect").value||null),loadAttendanceFeature()]);renderAttendanceDashboard();resetAttendanceForm();toast("Đã xóa bản điểm danh")}
+  try{await rpc("app_delete_attendance_record",{p_token:token,p_record_id:deleteId});await Promise.all([loadAttendanceRecords($("attendanceStudentSelect").value||null),loadAttendanceFeature()]);renderAttendanceDashboard();renderEarlyWarnings();renderAccountNotifications();resetAttendanceForm();toast("Đã xóa bản điểm danh")}
   catch(error){$("attendanceError").textContent=errText(error)}finally{busy(false)}
 };
 function reportTheory(item){return theoryProgress.find(theory=>String(theory.student_id)===String(item.student_id))||{}}

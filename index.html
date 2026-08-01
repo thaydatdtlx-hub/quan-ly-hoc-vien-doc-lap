@@ -228,6 +228,14 @@
         <p id="attendanceDatabaseNotice" class="attendance-database-notice hidden">Cần chạy file <b>CAP-NHAT-DIEM-DANH-BAO-CAO.sql</b> trong Supabase để kích hoạt.</p>
       </section>
 
+      <section id="earlyWarningDashboard" class="early-warning-dashboard admin-only hidden" aria-labelledby="earlyWarningTitle">
+        <div class="early-warning-head"><div><p>CẢNH BÁO SỚM · BƯỚC 6</p><h2 id="earlyWarningTitle">Học viên cần hỗ trợ</h2><span>Tự động phân tích chuyên cần, lý thuyết, học phí, hồ sơ và giờ đào tạo.</span></div><button id="warningViewAll" type="button">Xem tất cả cảnh báo →</button></div>
+        <div class="early-warning-metrics"><article><span>!</span><div><small>Tổng cảnh báo</small><strong id="warningTotal">0</strong></div></article><article><span>●</span><div><small>Khẩn cấp</small><strong id="warningCritical">0</strong></div></article><article><span>↑</span><div><small>Ưu tiên cao</small><strong id="warningHigh">0</strong></div></article><article><span>👤</span><div><small>Học viên cần hỗ trợ</small><strong id="warningStudents">0</strong></div></article></div>
+        <div id="earlyWarningPreview" class="early-warning-list"></div>
+        <div id="earlyWarningEmpty" class="early-warning-empty"><span>✓</span><strong>Chưa có cảnh báo cần xử lý</strong><small>Hệ thống sẽ tự động cập nhật khi dữ liệu học viên thay đổi.</small></div>
+        <p id="warningDataNotice" class="warning-data-notice hidden">Một số nguồn dữ liệu chưa được kích hoạt; cảnh báo hiện tại có thể chưa bao gồm điểm danh hoặc tiến độ 600 câu.</p>
+      </section>
+
       <section class="stats">
         <article class="stat-card stat-blue active" data-stat-filter="all" role="button" tabindex="0" aria-pressed="true"><span class="stat-icon">👥</span><div><small>Tổng học viên</small><strong id="totalStudents">0</strong><em>Bấm để xem tất cả hồ sơ</em></div><span class="stat-arrow">›</span></article>
         <article class="stat-card stat-green" data-stat-filter="learning" role="button" tabindex="0" aria-pressed="false"><span class="stat-icon">🚘</span><div><small>Đang học</small><strong id="learningStudents">0</strong><em>Bấm để xem học viên đang học</em></div><span class="stat-arrow">›</span></article>
@@ -414,6 +422,15 @@
     <div class="admin-report-metrics"><article><small>Học viên</small><strong id="reportStudentTotal">0</strong></article><article><small>Buổi học</small><strong id="reportSessionTotal">0</strong></article><article><small>Giờ thực học</small><strong id="reportHoursTotal">0 giờ</strong></article><article><small>Chuyên cần TB</small><strong id="reportRateAverage">0%</strong></article><article><small>Tổng công nợ</small><strong id="reportDebtTotal">0 ₫</strong></article></div>
     <div class="admin-report-wrap"><table class="admin-report-table"><thead><tr><th>Học viên</th><th>Khóa / Hạng</th><th>Điểm danh</th><th>Giờ thực học</th><th>Học 600 câu</th><th>Học phí</th></tr></thead><tbody id="adminReportRows"></tbody></table></div>
     <div id="adminReportEmpty" class="attendance-empty">Chưa có học viên phù hợp.</div><p id="adminReportError" class="error" role="alert"></p>
+    <div class="actions"><button type="button" class="close">Đóng</button></div>
+  </dialog>
+
+  <dialog id="warningDialog" class="warning-dialog">
+    <div class="dialog-head warning-dialog-head"><div><p class="dialog-kicker">TRUNG TÂM CẢNH BÁO SỚM</p><h2>Danh sách cần hỗ trợ</h2><span class="sub">Cảnh báo được sắp xếp theo mức độ ưu tiên và cập nhật theo dữ liệu mới nhất.</span></div><button type="button" class="close" aria-label="Đóng">×</button></div>
+    <div class="warning-dialog-toolbar"><input id="warningDialogSearch" type="search" placeholder="Tìm tên, mã học viên hoặc nội dung" aria-label="Tìm trong cảnh báo"><strong id="warningDialogMeta">0 cảnh báo</strong></div>
+    <div class="warning-filter-tabs" role="group" aria-label="Lọc loại cảnh báo"><button class="active" data-warning-filter="all" type="button">Tất cả</button><button data-warning-filter="critical" type="button">Khẩn cấp</button><button data-warning-filter="high" type="button">Ưu tiên cao</button><button data-warning-filter="attendance" type="button">Chuyên cần</button><button data-warning-filter="theory" type="button">Lý thuyết</button><button data-warning-filter="finance" type="button">Học phí</button><button data-warning-filter="profile" type="button">Hồ sơ</button><button data-warning-filter="schedule" type="button">Lịch thi</button><button data-warning-filter="training" type="button">Giờ đào tạo</button></div>
+    <div id="warningDialogList" class="early-warning-list warning-dialog-list"></div>
+    <div id="warningDialogEmpty" class="early-warning-empty hidden"><span>⌕</span><strong>Không có cảnh báo phù hợp</strong><small>Thử đổi từ khóa hoặc bộ lọc.</small></div>
     <div class="actions"><button type="button" class="close">Đóng</button></div>
   </dialog>
 
