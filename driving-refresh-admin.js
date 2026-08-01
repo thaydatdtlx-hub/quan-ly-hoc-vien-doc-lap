@@ -34,7 +34,7 @@ function goalsMarkup(value){
 
 function render(){
   const query=normalize($("drivingRefreshSearch").value),status=$("drivingRefreshStatus").value;
-  const rows=registrations.filter(item=>(status==="all"||item.status===status)&&(!query||normalize(`${item.registration_code} ${item.full_name} ${item.phone} ${item.area}`).includes(query)));
+  const rows=registrations.filter(item=>(status==="all"||item.status===status)&&(!query||normalize(`${item.registration_code} ${item.full_name} ${item.phone} ${item.area} ${item.service_type} ${item.training_package}`).includes(query)));
   $("drivingRefreshAdminList").innerHTML=rows.length?rows.map(item=>`
     <article class="refresh-admin-item status-${esc(item.status)}" data-refresh-id="${esc(item.id)}">
       <div class="refresh-admin-person">
@@ -44,7 +44,8 @@ function render(){
         <small>Đăng ký ${esc(dateTime(item.created_at))}</small>
       </div>
       <div class="refresh-admin-detail">
-        <strong>${esc(item.transmission||"Chưa chọn")} · ${esc(item.duration_hours||2)} giờ · ${esc(money(item.estimated_total))}</strong>
+        <strong>${esc(item.service_type||"Bổ túc tay lái")} · ${esc(item.transmission||"Chưa chọn")} · ${esc(item.duration_hours||2)} giờ · ${esc(money(item.estimated_total))}</strong>
+        <small>Gói: ${esc(item.training_package||"Kỹ năng thực tế")} · Tiền xe ${esc(money(item.vehicle_hourly_rate??item.base_hourly_rate))}/giờ${Number(item.track_hourly_rate)>0?` · Phí sân ${esc(money(item.track_hourly_rate))}/giờ`:""}</small>
         <small>${esc(item.license_status||"Chưa ghi tình trạng bằng")}${Number(item.weekend_surcharge_per_hour)>0?` · Có phụ thu cuối tuần ${esc(money(item.weekend_surcharge_per_hour))}/giờ`:""}</small>
         <div class="refresh-admin-goals">${goalsMarkup(item.goals)}</div>
         <small>Lịch mong muốn: ${esc(dateOnly(item.preferred_date))}${item.preferred_time?` · ${esc(item.preferred_time)}`:""}</small>
@@ -68,7 +69,7 @@ async function loadRegistrations({silent=false}={}){
     registrations=Array.isArray(data)?data:[];loaded=true;updateSummary();render();
   }catch(error){
     const message=String(error?.message||"");
-    $("drivingRefreshAdminError").textContent=/app_admin_list_driving_refresh_registrations|schema cache|PGRST202|Could not find/i.test(message)?"Cần chạy file SQL bổ túc tay lái trong Supabase để kích hoạt danh sách này.":message;
+    $("drivingRefreshAdminError").textContent=/app_admin_list_driving_refresh_registrations|schema cache|PGRST202|Could not find/i.test(message)?"Cần chạy file SQL bổ túc tay lái và sa hình trong Supabase để kích hoạt danh sách này.":message;
     if(!silent)$("drivingRefreshAdminList").innerHTML='<div class="refresh-admin-empty">Chưa thể tải dữ liệu đăng ký.</div>';
   }finally{loading=false}
 }

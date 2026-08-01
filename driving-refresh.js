@@ -3,12 +3,13 @@ import "@fontsource/be-vietnam-pro/600.css";
 import "@fontsource/be-vietnam-pro/700.css";
 import "@fontsource/be-vietnam-pro/800.css";
 import "@fontsource/be-vietnam-pro/900.css";
-import {calculateDrivingRefreshCost,formatVnd,MAX_DURATION_HOURS,MIN_DURATION_HOURS} from "./driving-refresh-pricing.js";
+import {calculateDrivingRefreshCost,formatVnd,MAX_DURATION_HOURS,MIN_DURATION_HOURS,REFRESH_SERVICE_TYPES,DRIVING_REFRESH_RATES,SA_HINH_REFRESH_RATES} from "./driving-refresh-pricing.js";
 
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
 const form=$("refreshForm"),button=$("refreshSubmit"),error=$("refreshError");
+const heroServiceButtons=[...document.querySelectorAll("[data-hero-service]")];
 const heroTransmissionButtons=[...document.querySelectorAll("[data-hero-transmission]")];
 const heroHourPresetButtons=[...document.querySelectorAll("[data-hero-hours]")];
 const heroWeekendButtons=[...document.querySelectorAll("[data-hero-weekend]")];
@@ -18,7 +19,7 @@ const stageConnectors=[...document.querySelectorAll(".refresh-flow>i")];
 const mobileNext=document.querySelector("[data-refresh-mobile-next]");
 const stageHashes={1:"#gioi-thieu",2:"#tinh-chi-phi",3:"#dang-ky"};
 let currentStage=1;
-let currentPricing=calculateDrivingRefreshCost({transmission:"Số tự động",durationHours:10});
+let currentPricing=calculateDrivingRefreshCost({serviceType:REFRESH_SERVICE_TYPES.DRIVING,transmission:"Số tự động",durationHours:10});
 
 function stageFromHash(){
   const hash=window.location.hash;
@@ -76,28 +77,54 @@ function localIsoDate(date){
 }
 
 function selectedGoals(){
-  return [...form.querySelectorAll('input[name="goals"]:checked')].map(input=>input.value);
+  if($("refreshServiceType").value!==REFRESH_SERVICE_TYPES.SA_HINH){
+    return [...form.querySelectorAll('input[name="goals"]:checked')].map(input=>input.value);
+  }
+  if(selectedSaHinhPackage()==="Luyện tổng hợp")return ["Luyện tổng hợp toàn bộ bài sa hình"];
+  return [...form.querySelectorAll('input[name="sa_hinh_lessons"]:checked')].map(input=>input.value);
+}
+
+function selectedSaHinhPackage(){
+  return form.querySelector('input[name="saHinhPackage"]:checked')?.value||"Luyện tổng hợp";
+}
+
+function updateServiceOptions(){
+  const saHinh=$("refreshServiceType").value===REFRESH_SERVICE_TYPES.SA_HINH;
+  $("refreshDrivingGoals").hidden=saHinh;
+  $("refreshSaHinhOptions").hidden=!saHinh;
+  $("refreshSaHinhLessons").hidden=!saHinh||selectedSaHinhPackage()!=="Chọn từng bài";
 }
 
 function updatePricing(){
   const hoursInput=$("refreshDurationHours"),rawHours=Number(hoursInput.value);
   const normalizedHours=Number.isInteger(rawHours)?Math.min(MAX_DURATION_HOURS,Math.max(MIN_DURATION_HOURS,rawHours)):MIN_DURATION_HOURS;
   currentPricing=calculateDrivingRefreshCost({
+    serviceType:$("refreshServiceType").value,
     transmission:$("refreshTransmission").value,
     durationHours:normalizedHours,
     preferredDate:$("refreshPreferredDate").value,
     preferredTime:$("refreshPreferredTime").value
   });
+  const saHinh=currentPricing.serviceType===REFRESH_SERVICE_TYPES.SA_HINH;
+  updateServiceOptions();
   $("refreshHoursSummary").textContent=`${currentPricing.hours} giờ`;
-  $("refreshBaseRate").textContent=currentPricing.valid?`${formatVnd(currentPricing.baseHourlyRate)}/giờ`:"—";
+  $("refreshVehicleRate").textContent=currentPricing.valid?`${formatVnd(currentPricing.vehicleHourlyRate)}/giờ`:"—";
+  $("refreshTrackRate").textContent=currentPricing.trackHourlyRate?`${formatVnd(currentPricing.trackHourlyRate)}/giờ`:"0 ₫";
+  $("refreshTrackRow").hidden=!saHinh;
   $("refreshWeekendFee").textContent=currentPricing.weekendSurchargeTotal?`${formatVnd(currentPricing.weekendSurchargeTotal)} (${formatVnd(currentPricing.weekendSurchargePerHour)}/giờ)`:"0 ₫";
   $("refreshWeekendRow").classList.toggle("is-active",currentPricing.weekendSurchargeTotal>0);
   $("refreshEstimatedTotal").textContent=currentPricing.valid?formatVnd(currentPricing.estimatedTotal):"—";
   $("refreshPricingBadge").textContent=!currentPricing.valid?"Chọn loại xe":currentPricing.weekend?"Giá cuối tuần":"Giá ngày thường";
   $("refreshPricingBadge").classList.toggle("is-weekend",currentPricing.weekend&&currentPricing.valid);
-  $("refreshPricingNote").textContent=!currentPricing.valid?"Chọn loại xe để hệ thống tính chi phí.":currentPricing.weekend?`Đã gồm phụ thu Thứ 7/Chủ nhật cho ${currentPricing.hours} giờ.`:`Đơn giá ngày thường cho ${currentPricing.hours} giờ.`;
+  $("refreshPricingNote").textContent=!currentPricing.valid?"Chọn loại xe để hệ thống tính chi phí.":currentPricing.weekend?`Đã gồm phụ thu Thứ 7/Chủ nhật cho ${currentPricing.hours} giờ.`:saHinh?`Đã gồm tiền xe và phí sân cho ${currentPricing.hours} giờ.`:`Đơn giá ngày thường cho ${currentPricing.hours} giờ.`;
   if($("refreshHeroTotal"))$("refreshHeroTotal").textContent=currentPricing.valid?formatVnd(currentPricing.estimatedTotal):"—";
   if($("refreshHeroHours"))$("refreshHeroHours").innerHTML=`${currentPricing.hours} <small>giờ</small>`;
+  $("refreshHeroTotalNote").textContent=saHinh?"Đã gồm tiền xe & phí sân sa hình":"Đã gồm xăng xe";
+  heroServiceButtons.forEach(item=>{
+    const active=item.dataset.heroService===currentPricing.serviceType;
+    item.classList.toggle("active",active);
+    item.setAttribute("aria-pressed",String(active));
+  });
   heroTransmissionButtons.forEach(item=>{
     const active=item.dataset.heroTransmission===currentPricing.transmission;
     item.classList.toggle("active",active);
@@ -113,6 +140,12 @@ function updatePricing(){
     item.classList.toggle("active",active);
     item.setAttribute("aria-pressed",String(active));
   });
+  const rates=saHinh?SA_HINH_REFRESH_RATES:DRIVING_REFRESH_RATES;
+  document.querySelectorAll("[data-hero-rate]").forEach(item=>item.textContent=`${formatVnd(rates[item.dataset.heroRate]).replace(" ₫","")}đ/giờ`);
+  $("refreshStageAutoRate").textContent=`${formatVnd(rates["Số tự động"]).replace(" ₫","")}đ`;
+  $("refreshStageManualRate").textContent=`${formatVnd(rates["Số sàn"]).replace(" ₫","")}đ`;
+  $("refreshStageAutoLabel").textContent=saHinh?"Tiền xe tự động / giờ":"Số tự động / giờ";
+  $("refreshStageManualLabel").textContent=saHinh?"Tiền xe số sàn / giờ":"Số sàn / giờ";
 }
 
 function setHeroHours(value){
@@ -145,13 +178,18 @@ function applyStudentPrefill(){
 
 const tomorrow=new Date();tomorrow.setDate(tomorrow.getDate()+1);
 $("refreshPreferredDate").min=localIsoDate(tomorrow);
-for(const id of ["refreshTransmission","refreshDurationHours","refreshPreferredDate","refreshPreferredTime"]){
+for(const id of ["refreshServiceType","refreshTransmission","refreshDurationHours","refreshPreferredDate","refreshPreferredTime"]){
   $(id).addEventListener(id==="refreshDurationHours"?"input":"change",updatePricing);
 }
+heroServiceButtons.forEach(item=>item.addEventListener("click",()=>{
+  $("refreshServiceType").value=item.dataset.heroService;
+  updatePricing();
+}));
 heroTransmissionButtons.forEach(item=>item.addEventListener("click",()=>{
   $("refreshTransmission").value=item.dataset.heroTransmission;
   updatePricing();
 }));
+form.querySelectorAll('input[name="saHinhPackage"]').forEach(item=>item.addEventListener("change",updateServiceOptions));
 heroHourPresetButtons.forEach(item=>item.addEventListener("click",()=>setHeroHours(item.dataset.heroHours)));
 $("refreshHeroHoursMinus")?.addEventListener("click",()=>setHeroHours(currentPricing.hours-1));
 $("refreshHeroHoursPlus")?.addEventListener("click",()=>setHeroHours(currentPricing.hours+1));
@@ -178,7 +216,12 @@ form.addEventListener("submit",async event=>{
   updatePricing();
   if(!currentPricing.valid){error.textContent="Vui lòng chọn loại xe để hệ thống tính chi phí.";$("refreshTransmission").focus();return}
   const goals=selectedGoals();
-  if(!goals.length){error.textContent="Vui lòng chọn ít nhất một kỹ năng muốn luyện.";form.querySelector(".refresh-goals").scrollIntoView({behavior:"smooth",block:"center"});return}
+  if(!goals.length){
+    const saHinh=$("refreshServiceType").value===REFRESH_SERVICE_TYPES.SA_HINH;
+    error.textContent=saHinh?"Vui lòng chọn ít nhất một bài sa hình muốn luyện.":"Vui lòng chọn ít nhất một kỹ năng muốn luyện.";
+    (saHinh?$("refreshSaHinhLessons"):$("refreshDrivingGoals")).scrollIntoView({behavior:"smooth",block:"center"});
+    return;
+  }
   if(!$("refreshConsent").checked){error.textContent="Vui lòng xác nhận đồng ý để Thầy Đạt liên hệ tư vấn.";return}
 
   button.disabled=true;
@@ -187,9 +230,13 @@ form.addEventListener("submit",async event=>{
     const result=await rpc("app_create_driving_refresh_registration",{p_data:{
       full_name:$("refreshFullName").value.trim(),
       phone:$("refreshPhone").value.trim(),
+      service_type:currentPricing.serviceType,
+      training_package:currentPricing.serviceType===REFRESH_SERVICE_TYPES.SA_HINH?selectedSaHinhPackage():"Kỹ năng thực tế",
       license_status:$("refreshLicenseStatus").value,
       transmission:$("refreshTransmission").value,
       duration_hours:currentPricing.hours,
+      vehicle_hourly_rate:currentPricing.vehicleHourlyRate,
+      track_hourly_rate:currentPricing.trackHourlyRate,
       base_hourly_rate:currentPricing.baseHourlyRate,
       weekend_surcharge_per_hour:currentPricing.weekendSurchargePerHour,
       estimated_total:currentPricing.estimatedTotal,
@@ -222,6 +269,7 @@ $("refreshNewRegistration").addEventListener("click",()=>{
   form.reset();
   $("refreshPreferredDate").min=localIsoDate(tomorrow);
   $("refreshTransmission").value="Số tự động";
+  $("refreshServiceType").value=REFRESH_SERVICE_TYPES.DRIVING;
   $("refreshDurationHours").value=10;
   $("refreshSuccess").hidden=true;
   $("refreshFormFields").hidden=false;

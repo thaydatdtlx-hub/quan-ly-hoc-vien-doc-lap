@@ -1,4 +1,4 @@
--- ĐĂNG KÝ BỔ TÚC TAY LÁI · THẦY ĐẠT
+-- ĐĂNG KÝ BỔ TÚC TAY LÁI & SA HÌNH · THẦY ĐẠT
 -- Chạy toàn bộ file này một lần trong Supabase SQL Editor.
 
 create table if not exists public.driving_refresh_registrations (
@@ -7,12 +7,16 @@ create table if not exists public.driving_refresh_registrations (
   full_name text not null,
   phone text not null,
   phone_normalized text not null,
+  service_type text not null default 'Bổ túc tay lái',
+  training_package text not null default 'Kỹ năng thực tế',
   license_status text not null,
   transmission text not null,
   goals jsonb not null default '[]'::jsonb,
   preferred_date date,
   preferred_time text,
   duration_hours integer not null default 2,
+  vehicle_hourly_rate bigint not null default 0,
+  track_hourly_rate bigint not null default 0,
   base_hourly_rate bigint not null default 0,
   weekend_surcharge_per_hour bigint not null default 0,
   estimated_total bigint not null default 0,
@@ -32,9 +36,18 @@ create table if not exists public.driving_refresh_registrations (
 
 -- Bổ sung cột giá khi bảng đã được tạo từ phiên bản trước.
 alter table public.driving_refresh_registrations add column if not exists duration_hours integer not null default 2;
+alter table public.driving_refresh_registrations add column if not exists service_type text not null default 'Bổ túc tay lái';
+alter table public.driving_refresh_registrations add column if not exists training_package text not null default 'Kỹ năng thực tế';
+alter table public.driving_refresh_registrations add column if not exists vehicle_hourly_rate bigint not null default 0;
+alter table public.driving_refresh_registrations add column if not exists track_hourly_rate bigint not null default 0;
 alter table public.driving_refresh_registrations add column if not exists base_hourly_rate bigint not null default 0;
 alter table public.driving_refresh_registrations add column if not exists weekend_surcharge_per_hour bigint not null default 0;
 alter table public.driving_refresh_registrations add column if not exists estimated_total bigint not null default 0;
+
+-- Giữ đúng chi tiết tiền xe cho các đăng ký tay lái đã có từ phiên bản trước.
+update public.driving_refresh_registrations
+set vehicle_hourly_rate = base_hourly_rate
+where service_type = 'Bổ túc tay lái' and vehicle_hourly_rate = 0 and base_hourly_rate > 0;
 
 create index if not exists driving_refresh_status_created_idx
   on public.driving_refresh_registrations(status, created_at desc);
@@ -56,11 +69,15 @@ declare
   v_name text := trim(coalesce(p_data->>'full_name', ''));
   v_phone text := trim(coalesce(p_data->>'phone', ''));
   v_phone_normalized text;
+  v_service_type text := trim(coalesce(p_data->>'service_type', 'Bổ túc tay lái'));
+  v_training_package text := trim(coalesce(p_data->>'training_package', 'Kỹ năng thực tế'));
   v_license_status text := trim(coalesce(p_data->>'license_status', ''));
   v_transmission text := trim(coalesce(p_data->>'transmission', ''));
   v_goals jsonb := coalesce(p_data->'goals', '[]'::jsonb);
   v_preferred_date date;
   v_duration_hours integer;
+  v_vehicle_hourly_rate bigint;
+  v_track_hourly_rate bigint := 0;
   v_base_hourly_rate bigint;
   v_weekend_surcharge_per_hour bigint := 0;
   v_estimated_total bigint;
@@ -88,6 +105,13 @@ begin
   if v_transmission not in ('Số tự động','Số sàn') then
     raise exception 'Vui lòng chọn loại xe muốn luyện.';
   end if;
+  if v_service_type not in ('Bổ túc tay lái','Bổ túc sa hình') then
+    raise exception 'Nội dung bổ túc chưa hợp lệ.';
+  end if;
+  if (v_service_type = 'Bổ túc sa hình' and v_training_package not in ('Luyện tổng hợp','Chọn từng bài'))
+    or (v_service_type = 'Bổ túc tay lái' and v_training_package <> 'Kỹ năng thực tế') then
+    raise exception 'Gói luyện tập chưa hợp lệ.';
+  end if;
   begin
     v_duration_hours := (p_data->>'duration_hours')::integer;
   exception when others then
@@ -96,7 +120,7 @@ begin
   if v_duration_hours is null or v_duration_hours < 2 or v_duration_hours > 20 then
     raise exception 'Số giờ đăng ký phải từ 2 đến 20 giờ.';
   end if;
-  if jsonb_typeof(v_goals) <> 'array' or jsonb_array_length(v_goals) = 0 or jsonb_array_length(v_goals) > 10 then
+  if jsonb_typeof(v_goals) <> 'array' or jsonb_array_length(v_goals) = 0 or jsonb_array_length(v_goals) > 20 then
     raise exception 'Vui lòng chọn ít nhất một kỹ năng muốn luyện.';
   end if;
   if char_length(coalesce(p_data->>'area', '')) > 160 or char_length(coalesce(p_data->>'note', '')) > 800 then
@@ -117,7 +141,14 @@ begin
     v_is_weekend := true;
   end if;
 
-  v_base_hourly_rate := case when v_transmission = 'Số tự động' then 300000 else 290000 end;
+  v_vehicle_hourly_rate := case
+    when v_service_type = 'Bổ túc sa hình' and v_transmission = 'Số tự động' then 250000
+    when v_service_type = 'Bổ túc sa hình' and v_transmission = 'Số sàn' then 200000
+    when v_transmission = 'Số tự động' then 300000
+    else 290000
+  end;
+  v_track_hourly_rate := case when v_service_type = 'Bổ túc sa hình' then 100000 else 0 end;
+  v_base_hourly_rate := v_vehicle_hourly_rate + v_track_hourly_rate;
   v_weekend_surcharge_per_hour := case when v_is_weekend then 50000 else 0 end;
   v_estimated_total := (v_base_hourly_rate + v_weekend_surcharge_per_hour) * v_duration_hours;
 
@@ -129,18 +160,19 @@ begin
     raise exception 'Số điện thoại này vừa gửi đăng ký. Vui lòng chờ ít phút hoặc liên hệ Zalo.';
   end if;
 
-  v_code := 'BT-' || to_char(current_date, 'YYMMDD') || '-' || upper(substr(replace(v_id::text, '-', ''), 1, 6));
+  v_code := case when v_service_type = 'Bổ túc sa hình' then 'SH-' else 'BT-' end
+    || to_char(current_date, 'YYMMDD') || '-' || upper(substr(replace(v_id::text, '-', ''), 1, 6));
 
   insert into public.driving_refresh_registrations(
-    id, registration_code, full_name, phone, phone_normalized,
+    id, registration_code, full_name, phone, phone_normalized, service_type, training_package,
     license_status, transmission, goals, preferred_date,
-    preferred_time, duration_hours, base_hourly_rate,
+    preferred_time, duration_hours, vehicle_hourly_rate, track_hourly_rate, base_hourly_rate,
     weekend_surcharge_per_hour, estimated_total, area, note
   ) values (
-    v_id, v_code, v_name, v_phone, v_phone_normalized,
+    v_id, v_code, v_name, v_phone, v_phone_normalized, v_service_type, v_training_package,
     v_license_status, v_transmission, v_goals, v_preferred_date,
     left(trim(coalesce(p_data->>'preferred_time', 'Linh hoạt')), 80),
-    v_duration_hours, v_base_hourly_rate,
+    v_duration_hours, v_vehicle_hourly_rate, v_track_hourly_rate, v_base_hourly_rate,
     v_weekend_surcharge_per_hour, v_estimated_total,
     nullif(left(trim(coalesce(p_data->>'area', '')), 160), ''),
     nullif(left(trim(coalesce(p_data->>'note', '')), 800), '')
@@ -150,7 +182,11 @@ begin
     'id', v_id,
     'registration_code', v_code,
     'status', 'new',
+    'service_type', v_service_type,
+    'training_package', v_training_package,
     'duration_hours', v_duration_hours,
+    'vehicle_hourly_rate', v_vehicle_hourly_rate,
+    'track_hourly_rate', v_track_hourly_rate,
     'base_hourly_rate', v_base_hourly_rate,
     'weekend_surcharge_per_hour', v_weekend_surcharge_per_hour,
     'estimated_total', v_estimated_total
@@ -179,12 +215,16 @@ begin
         'registration_code', r.registration_code,
         'full_name', r.full_name,
         'phone', r.phone,
+        'service_type', r.service_type,
+        'training_package', r.training_package,
         'license_status', r.license_status,
         'transmission', r.transmission,
         'goals', r.goals,
         'preferred_date', r.preferred_date,
         'preferred_time', r.preferred_time,
         'duration_hours', r.duration_hours,
+        'vehicle_hourly_rate', r.vehicle_hourly_rate,
+        'track_hourly_rate', r.track_hourly_rate,
         'base_hourly_rate', r.base_hourly_rate,
         'weekend_surcharge_per_hour', r.weekend_surcharge_per_hour,
         'estimated_total', r.estimated_total,
