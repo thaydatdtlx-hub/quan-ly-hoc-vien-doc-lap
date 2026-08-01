@@ -12,7 +12,63 @@ const form=$("refreshForm"),button=$("refreshSubmit"),error=$("refreshError");
 const heroTransmissionButtons=[...document.querySelectorAll("[data-hero-transmission]")];
 const heroHourPresetButtons=[...document.querySelectorAll("[data-hero-hours]")];
 const heroWeekendButtons=[...document.querySelectorAll("[data-hero-weekend]")];
+const stageViews=[...document.querySelectorAll("[data-refresh-view]")];
+const stageButtons=[...document.querySelectorAll("[data-refresh-step]")];
+const stageConnectors=[...document.querySelectorAll(".refresh-flow>i")];
+const mobileNext=document.querySelector("[data-refresh-mobile-next]");
+const stageHashes={1:"#gioi-thieu",2:"#tinh-chi-phi",3:"#dang-ky"};
+let currentStage=1;
 let currentPricing=calculateDrivingRefreshCost({transmission:"Số tự động",durationHours:10});
+
+function stageFromHash(){
+  const hash=window.location.hash;
+  if(["#tinh-chi-phi"].includes(hash))return 2;
+  if(["#dang-ky","#refreshForm","#quy-trinh"].includes(hash))return 3;
+  return 1;
+}
+
+function setStage(stage,{updateHistory=true,scroll=true}={}){
+  currentStage=Math.min(3,Math.max(1,Number(stage)||1));
+  stageViews.forEach(view=>{
+    const active=Number(view.dataset.refreshView)===currentStage;
+    view.hidden=!active;
+    view.classList.toggle("active",active);
+    view.setAttribute("aria-hidden",String(!active));
+  });
+  stageButtons.forEach(item=>{
+    const itemStage=Number(item.dataset.refreshStep);
+    const active=itemStage===currentStage;
+    item.classList.toggle("active",active);
+    item.classList.toggle("completed",itemStage<currentStage);
+    if(active)item.setAttribute("aria-current","step");else item.removeAttribute("aria-current");
+  });
+  stageConnectors.forEach((item,index)=>item.classList.toggle("done",index<currentStage-1));
+  document.body.dataset.refreshStage=String(currentStage);
+  if(mobileNext){
+    const label=currentStage===1?"Tiếp tục tính giá":currentStage===2?"Tiếp tục đăng ký":"Gửi đăng ký";
+    mobileNext.querySelector("span").textContent=label;
+    mobileNext.querySelector("b").textContent=currentStage===3?"✓":"→";
+  }
+  if(updateHistory&&window.location.hash!==stageHashes[currentStage])history.pushState({refreshStage:currentStage},"",stageHashes[currentStage]);
+  if(scroll){
+    requestAnimationFrame(()=>{
+      const flow=document.querySelector(".refresh-flow"),header=document.querySelector(".refresh-header");
+      const top=Math.max(0,flow.offsetTop-(header?.offsetHeight||0));
+      window.scrollTo({top,behavior:"smooth"});
+    });
+  }
+}
+
+document.querySelectorAll("[data-refresh-go]").forEach(item=>item.addEventListener("click",event=>{
+  event.preventDefault();
+  setStage(item.dataset.refreshGo);
+}));
+stageButtons.forEach(item=>item.addEventListener("click",()=>setStage(item.dataset.refreshStep)));
+mobileNext?.addEventListener("click",()=>{
+  if(currentStage<3)setStage(currentStage+1);
+  else form.requestSubmit();
+});
+window.addEventListener("popstate",()=>setStage(stageFromHash(),{updateHistory:false}));
 
 function localIsoDate(date){
   const offset=date.getTimezoneOffset()*60000;
@@ -100,6 +156,7 @@ $("refreshDurationHours").addEventListener("blur",()=>{
   updatePricing();
 });
 updatePricing();
+setStage(stageFromHash(),{updateHistory:false,scroll:false});
 
 form.addEventListener("submit",async event=>{
   event.preventDefault();
@@ -135,6 +192,7 @@ form.addEventListener("submit",async event=>{
     $("refreshSuccessTotal").textContent=formatVnd(result?.estimated_total??currentPricing.estimatedTotal);
     $("refreshFormFields").hidden=true;
     $("refreshSuccess").hidden=false;
+    if(mobileNext)mobileNext.hidden=true;
     $("refreshSuccess").scrollIntoView({behavior:"smooth",block:"center"});
   }catch(reason){
     const message=String(reason?.message||"");
@@ -154,7 +212,9 @@ $("refreshNewRegistration").addEventListener("click",()=>{
   $("refreshDurationHours").value=10;
   $("refreshSuccess").hidden=true;
   $("refreshFormFields").hidden=false;
+  if(mobileNext)mobileNext.hidden=false;
   error.textContent="";
   updatePricing();
+  setStage(3,{updateHistory:true,scroll:false});
   $("refreshFullName").focus();
 });
