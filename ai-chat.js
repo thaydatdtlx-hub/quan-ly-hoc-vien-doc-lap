@@ -173,7 +173,7 @@ function writeHistory(messages){
 function buildChat(){
   const launcher=document.createElement("button");
   launcher.type="button";launcher.className="ai-chat-launcher";launcher.setAttribute("aria-label","Mở Trợ lý của Đạt");launcher.setAttribute("aria-expanded","false");
-  launcher.innerHTML='<span class="ai-chat-launcher__mark" aria-hidden="true">✦</span><span class="ai-chat-launcher__label">Trợ lý của Đạt<small>MIỄN PHÍ · KHÔNG DÙNG API</small></span><i class="ai-chat-launcher__dot" aria-hidden="true"></i>';
+  launcher.innerHTML='<span class="ai-chat-launcher__mark" aria-hidden="true">✦</span><span class="ai-chat-launcher__label">Trợ lý của Đạt</span><i class="ai-chat-launcher__dot" aria-hidden="true"></i>';
 
   const panel=document.createElement("section");
   panel.className="ai-chat-panel";panel.setAttribute("aria-label","Trợ lý của Đạt");panel.setAttribute("aria-hidden","true");
