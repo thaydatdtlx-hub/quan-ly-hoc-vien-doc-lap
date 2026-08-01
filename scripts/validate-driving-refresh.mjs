@@ -54,12 +54,15 @@ for(const token of ["heroTransmissionButtons","heroHourPresetButtons","heroWeeke
 }
 if(!script.includes('@fontsource/be-vietnam-pro/400.css')||!script.includes('@fontsource/be-vietnam-pro/900.css'))throw new Error("Trang bổ túc chưa tải đầy đủ kiểu chữ Be Vietnam Pro.");
 if(!stylesV2.includes('--race-font:"Be Vietnam Pro"')||stylesV2.includes('Arial Narrow')||stylesV2.includes('Impact'))throw new Error("Kiểu chữ trang bổ túc chưa được thống nhất.");
-if(!page.includes("/driving-refresh-v2.css"))throw new Error("Trang bổ túc chưa nạp giao diện V2.");
+if(!page.includes("/driving-refresh-v2.css?v=7"))throw new Error("Trang bổ túc chưa nạp đúng phiên bản giao diện V2 mới nhất.");
+for(const token of ["@media(max-width:1100px)","grid-auto-rows:max-content","align-content:start","padding:35px 12px 104px","env(safe-area-inset-top)"]){
+  if(!stylesV2.includes(token))throw new Error(`Giao diện tính chi phí trên điện thoại thiếu: ${token}`);
+}
 for(const token of ["driving_refresh_registrations","enable row level security","duration_hours","base_hourly_rate","weekend_surcharge_per_hour","estimated_total","300000","290000","50000","app_create_driving_refresh_registration","app_admin_list_driving_refresh_registrations","app_admin_update_driving_refresh_registration","v_me->>'role', '') <> 'admin'","notify pgrst"]){
   if(!sql.includes(token))throw new Error(`Cơ sở dữ liệu bổ túc tay lái thiếu: ${token}`);
 }
 if(!vite.includes('drivingRefresh:resolve(__dirname,"bo-tuc-tay-lai.html")'))throw new Error("Vite chưa xuất bản trang bổ túc tay lái.");
-for(const token of ['thay-dat-pwa-v15','"/bo-tuc-tay-lai.html"'])if(!worker.includes(token))throw new Error(`PWA thiếu: ${token}`);
+for(const token of ['thay-dat-pwa-v16','"/bo-tuc-tay-lai.html"'])if(!worker.includes(token))throw new Error(`PWA thiếu: ${token}`);
 
 if(DRIVING_REFRESH_RATES["Số tự động"]!==300000||DRIVING_REFRESH_RATES["Số sàn"]!==290000||WEEKEND_SURCHARGE_PER_HOUR!==50000)throw new Error("Bảng đơn giá bổ túc tay lái chưa đúng.");
 const pricingCases=[
