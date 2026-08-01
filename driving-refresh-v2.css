@@ -254,7 +254,7 @@
   .refresh-page .refresh-hero-intro .refresh-hero-media{position:relative;top:auto;right:auto;bottom:auto;width:100%;opacity:1}
   .refresh-page .refresh-hero-intro .refresh-hero-media img{min-height:560px;clip-path:polygon(12% 0,100% 0,86% 100%,0 100%)}
   .refresh-page .refresh-hero-intro .refresh-hero-media::before,.refresh-page .refresh-hero-intro .refresh-hero-media::after{display:block}
-  .refresh-pricing-stage{grid-template-columns:1fr;gap:40px}.refresh-stage-copy{max-width:none}.refresh-pricing-stage .refresh-hero-visual{width:100%;max-width:690px;justify-self:center}
+  .refresh-pricing-stage{display:flex;min-height:0;flex-direction:column;align-items:stretch;gap:40px}.refresh-stage-copy{max-width:none}.refresh-pricing-stage .refresh-hero-visual{grid-column:auto;grid-row:auto;width:100%;max-width:690px;align-self:center;justify-self:auto}
 }
 @media(max-width:780px){
   .refresh-flow{top:calc(68px + env(safe-area-inset-top));min-height:65px;gap:3px;padding:6px 8px}.refresh-flow>i{width:14px}.refresh-flow button{min-width:0;flex:1;justify-content:center;gap:6px;padding:5px 3px}.refresh-flow button>b{width:29px;height:29px;font-size:9px}.refresh-flow button>span{display:block}.refresh-flow button strong{font-size:9px}.refresh-flow button small{display:none}
