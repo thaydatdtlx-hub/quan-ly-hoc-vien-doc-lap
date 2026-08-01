@@ -4,14 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#0b6bdc">
+  <meta name="description" content="Cổng học viên Thầy Đạt: xem hồ sơ, học phí, tiến độ, lịch đào tạo và đăng ký ca thực hành.">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="canonical" href="https://hoc-vien-thay-dat.vercel.app/hoc-vien.html">
+  <link rel="icon" href="/app-icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="/app-icon-192.png">
+  <link rel="manifest" href="/site.webmanifest">
   <title>Cổng học viên · Thầy Đạt</title>
   <link rel="stylesheet" href="/student.css">
   <link rel="stylesheet" href="/contact-footer.css?v=1">
+  <link rel="stylesheet" href="/professional.css?v=15">
 </head>
 <body>
+  <a class="skip-link" href="#studentPortal">Chuyển đến nội dung học viên</a>
   <header class="student-topbar">
     <a class="student-brand" href="/hoc-vien.html">
-      <span><img src="/logo-thay-dat.png?v=2" alt=""></span>
+      <span><img src="/logo-thay-dat-compact.webp?v=15" alt=""></span>
       <div><strong>THẦY ĐẠT</strong><small>Cổng thông tin học viên</small></div>
     </a>
     <div class="student-account">
@@ -149,7 +158,7 @@
     <p class="contact-footer__copyright">Copyright © Quốc Đạt · Hệ thống quản lý học viên lái xe</p>
   </footer>
 
-  <div id="studentLoading" class="student-loading">Đang tải thông tin học viên…</div>
+  <div id="studentLoading" class="student-loading" role="status" aria-live="polite">Đang tải thông tin học viên…</div>
 
   <dialog id="trainingRequestDialog" class="booking-dialog">
     <form id="trainingRequestForm">
@@ -195,7 +204,8 @@
     </form>
   </dialog>
 
-  <div id="studentToast" role="status"></div>
+  <div id="studentToast" role="status" aria-live="polite"></div>
   <script type="module" src="/student.js"></script>
+  <script type="module" src="/site-enhancements.js?v=15"></script>
 </body>
 </html>

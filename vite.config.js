@@ -8,7 +8,8 @@ export default defineConfig({
         main:resolve(__dirname,"index.html"),
         schedule:resolve(__dirname,"lich-dao-tao.html"),
         student:resolve(__dirname,"hoc-vien.html"),
-        theory:resolve(__dirname,"600-cau-hoi.html")
+        theory:resolve(__dirname,"600-cau-hoi.html"),
+        notFound:resolve(__dirname,"404.html")
       }
     }
   }

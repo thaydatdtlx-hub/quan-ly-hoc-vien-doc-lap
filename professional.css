@@ -1,0 +1,146 @@
+:root{
+  --professional-focus:#f0bd61;
+  --professional-online:#1fba83;
+  --professional-offline:#e65f55;
+}
+
+html{
+  scroll-behavior:smooth;
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
+}
+
+body{
+  min-width:320px;
+  text-rendering:optimizeLegibility;
+  -webkit-font-smoothing:antialiased;
+}
+
+img{max-width:100%}
+
+.skip-link{
+  position:fixed;
+  top:12px;
+  left:12px;
+  z-index:1000;
+  padding:10px 14px;
+  border-radius:10px;
+  background:#fff;
+  color:#113b65;
+  font-weight:850;
+  text-decoration:none;
+  box-shadow:0 10px 30px #061a3452;
+  transform:translateY(-150%);
+  transition:transform .18s ease;
+}
+
+.skip-link:focus{transform:none}
+
+:where(a,button,input,select,textarea,[role="button"],[tabindex]):focus-visible{
+  outline:3px solid var(--professional-focus)!important;
+  outline-offset:3px!important;
+}
+
+:where(button,a,[role="button"]){
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+}
+
+.system-status{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  min-height:30px;
+  padding:5px 10px;
+  border:1px solid #cfe4dc;
+  border-radius:999px;
+  background:#effbf6;
+  color:#177154!important;
+  font-size:10px!important;
+  font-weight:850!important;
+  line-height:1;
+  white-space:nowrap;
+}
+
+.system-status::before{
+  content:"";
+  width:8px;
+  height:8px;
+  flex:0 0 auto;
+  border-radius:50%;
+  background:var(--professional-online);
+  box-shadow:0 0 0 4px #1fba831c;
+}
+
+.system-status[data-state="offline"]{
+  border-color:#f2cbc7;
+  background:#fff3f1;
+  color:#a84339!important;
+}
+
+.system-status[data-state="offline"]::before{
+  background:var(--professional-offline);
+  box-shadow:0 0 0 4px #e65f551c;
+}
+
+.login-card>.system-status{
+  width:max-content;
+  margin:-6px 0 16px;
+}
+
+.topbar .account>.system-status{
+  border-color:#ffffff35;
+  background:#ffffff14;
+  color:#eefaff!important;
+}
+
+.student-account>.system-status,
+.topbar-actions>.system-status,
+.quiz-topbar nav>.system-status{flex:0 0 auto}
+
+[role="status"],[role="alert"]{overflow-wrap:anywhere}
+
+.loading:not(.hidden),
+.student-loading:not(.hidden){
+  backdrop-filter:blur(5px);
+  -webkit-backdrop-filter:blur(5px);
+}
+
+.loading:not(.hidden)::after,
+.student-loading:not(.hidden)::after{
+  content:"";
+  width:20px;
+  height:20px;
+  margin-left:10px;
+  border:3px solid currentColor;
+  border-right-color:transparent;
+  border-radius:50%;
+  animation:professional-spin .75s linear infinite;
+}
+
+@keyframes professional-spin{to{transform:rotate(360deg)}}
+
+@media(pointer:coarse){
+  :where(button,[role="button"],nav a,.schedule-cta,.booking-action){min-height:44px}
+}
+
+@media(max-width:720px){
+  .system-status{min-height:28px;padding:5px 8px;font-size:9px!important}
+  .student-account>.system-status{align-self:flex-end}
+  .topbar-actions>.system-status{order:-1}
+  .quiz-topbar nav>.system-status{display:none}
+  .student-main :where(small,em,.muted,dt),
+  .schedule-main :where(small,em,label),
+  .study-home :where(small,.source-note,.current-rule p){font-size:max(10px,.68rem)}
+}
+
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{
+    scroll-behavior:auto!important;
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+  }
+}
