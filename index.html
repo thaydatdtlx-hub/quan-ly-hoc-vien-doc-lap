@@ -203,9 +203,9 @@
           <a href="/600-cau-hoi.html">Mở giao diện học <span>→</span></a>
         </div>
         <div class="theory-dashboard-grid">
-          <article><span>▤</span><div><small>Học viên đã bắt đầu</small><strong id="theoryStudentsActive">0</strong><em>Có dữ liệu học 600 câu</em></div></article>
-          <article><span>⌁</span><div><small>Tổng bài thi thử</small><strong id="theoryExamTotal">0</strong><em>Tất cả hạng A1 · A · B · C1</em></div></article>
-          <article><span>✓</span><div><small>Bài thi đạt</small><strong id="theoryExamPassed">0</strong><em>Đủ điểm và không sai điểm liệt</em></div></article>
+          <button class="theory-summary-card" data-theory-summary="active" type="button" aria-haspopup="dialog"><span>▤</span><div><small>Học viên đã bắt đầu</small><strong id="theoryStudentsActive">0</strong><em>Bấm để xem học viên</em></div><b aria-hidden="true">›</b></button>
+          <button class="theory-summary-card" data-theory-summary="exams" type="button" aria-haspopup="dialog"><span>⌁</span><div><small>Tổng bài thi thử</small><strong id="theoryExamTotal">0</strong><em>Bấm để xem người đã thi</em></div><b aria-hidden="true">›</b></button>
+          <button class="theory-summary-card" data-theory-summary="passed" type="button" aria-haspopup="dialog"><span>✓</span><div><small>Bài thi đạt</small><strong id="theoryExamPassed">0</strong><em>Bấm để xem người thi đạt</em></div><b aria-hidden="true">›</b></button>
         </div>
         <p id="theoryDatabaseNotice" class="theory-database-notice hidden">Cần chạy file <b>CAP-NHAT-TIEN-DO-600-CAU.sql</b> trong Supabase để bắt đầu nhận dữ liệu học viên.</p>
       </section>
@@ -308,6 +308,20 @@
       <p id="studentAccountStatus"></p>
       <div class="actions"><button id="resetStudentPasswordBtn" type="button">Đặt lại mật khẩu</button><button id="toggleStudentAccountBtn" type="button"></button></div>
     </div>
+  </dialog>
+
+  <dialog id="theorySummaryDialog" class="theory-summary-dialog">
+    <div class="dialog-head">
+      <div><p class="dialog-kicker">THEO DÕI HỌC TẬP</p><h2 id="theorySummaryTitle">Học viên đã bắt đầu học</h2><span id="theorySummaryMeta" class="sub"></span></div>
+      <button type="button" class="close" aria-label="Đóng">×</button>
+    </div>
+    <div class="theory-summary-toolbar">
+      <input id="theorySummarySearch" type="search" placeholder="Tìm theo tên, mã học viên hoặc tài khoản" aria-label="Tìm học viên trong báo cáo">
+      <strong id="theorySummaryCount" role="status" aria-live="polite">0 học viên</strong>
+    </div>
+    <div id="theorySummaryList" class="theory-summary-list"></div>
+    <p id="theorySummaryError" class="error" role="alert"></p>
+    <div class="actions"><button type="button" class="close">Đóng</button></div>
   </dialog>
 
   <dialog id="theoryProgressDialog" class="theory-progress-dialog">

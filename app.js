@@ -4,7 +4,7 @@ import {managerNotifications,markNoticesRead,readNoticeIds} from "./account-noti
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
-let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"",me=null,students=[],users=[],studentAccounts=[],publicTheoryAccounts=[],trainingRequests=[],theoryProgress=[],accountNotices=[],serverNotices=[],studentAccountsReady=false,publicTheoryAccountsReady=false,theoryProgressReady=false,selectedStudentAccount=null,forcePasswordChange=false,currentPhoto="",statFilter="all",notificationTimer=null,excelPreviewFile=null,excelPreviewUrl="",excelImportResolve=null;
+let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"",me=null,students=[],users=[],studentAccounts=[],publicTheoryAccounts=[],trainingRequests=[],theoryProgress=[],accountNotices=[],serverNotices=[],studentAccountsReady=false,publicTheoryAccountsReady=false,theoryProgressReady=false,selectedStudentAccount=null,forcePasswordChange=false,currentPhoto="",statFilter="all",theorySummaryFilter="active",notificationTimer=null,excelPreviewFile=null,excelPreviewUrl="",excelImportResolve=null;
 
 async function rpc(fn,body={}){
   const r=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
@@ -166,6 +166,7 @@ async function loadTheoryProgress(){
   }
 }
 function theoryFor(studentId){return theoryProgress.find(item=>String(item.student_id)===String(studentId))}
+function theoryHasStarted(item){return Number(item?.answered_count)>0||Number(item?.exam_count)>0}
 function theoryProgressHtml(student){
   const account=studentAccounts.find(item=>item.student_id===String(student.id));
   if(!account)return'<div class="theory-table-empty">Chưa có tài khoản học viên</div>';
@@ -180,7 +181,7 @@ function theoryProgressHtml(student){
 }
 function renderTheoryDashboard(){
   if(me?.role!=="admin")return;
-  const active=theoryProgress.filter(item=>Number(item.answered_count)>0).length;
+  const active=theoryProgress.filter(theoryHasStarted).length;
   const exams=theoryProgress.reduce((sum,item)=>sum+(Number(item.exam_count)||0),0);
   const passed=theoryProgress.reduce((sum,item)=>sum+(Number(item.passed_exam_count)||0),0);
   $("theoryStudentsActive").textContent=active;
@@ -188,6 +189,41 @@ function renderTheoryDashboard(){
   $("theoryExamPassed").textContent=passed;
   $("theoryDatabaseNotice").classList.toggle("hidden",theoryProgressReady);
 }
+function theorySummaryItems(filter=theorySummaryFilter){
+  return theoryProgress.filter(item=>filter==="active"?theoryHasStarted(item):filter==="exams"?Number(item.exam_count)>0:Number(item.passed_exam_count)>0);
+}
+function theoryStudentFromProgress(item){
+  return students.find(student=>String(student.id)===String(item.student_id))||{id:item.student_id,name:item.student_name,student_code:item.student_code,license_class:item.license_class};
+}
+function renderTheorySummary(){
+  const query=normalize($("theorySummarySearch").value),all=theorySummaryItems(),items=all.filter(item=>!query||normalize(`${item.student_name} ${item.student_code} ${item.account_username} ${item.license_class}`).includes(query));
+  $("theorySummaryCount").textContent=`${items.length}/${all.length} học viên`;
+  $("theorySummaryList").innerHTML=items.length?items.map(item=>{
+    const answered=Number(item.answered_count)||0,correct=Number(item.correct_count)||0,exams=Number(item.exam_count)||0,passed=Number(item.passed_exam_count)||0,accuracy=answered?Math.round(correct/answered*100):0;
+    const latest=item.last_activity||item.latest_exam?.submitted_at,best=item.best_total?`${Number(item.best_score)||0}/${Number(item.best_total)||0}`:"—";
+    return `<article class="theory-summary-student">
+      <div class="theory-summary-person"><span>${esc((item.student_name||"?").trim().charAt(0).toUpperCase())}</span><div><strong>${esc(item.student_name||"Chưa có tên")}</strong><small>${esc(item.student_code||"Chưa có mã")} · Hạng ${esc(item.license_class||"—")}</small><em>${item.account_username?`@${esc(item.account_username)}${item.account_active?" · Đang hoạt động":" · Đang khóa"}`:"Chưa có tài khoản học viên"}</em></div></div>
+      <div class="theory-summary-progress"><span><small>Đã học</small><b>${answered}/600</b></span><span><small>Chính xác</small><b>${accuracy}%</b></span><span><small>Thi thử</small><b>${exams} bài</b></span><span><small>Đã đạt</small><b>${passed} bài</b></span></div>
+      <div class="theory-summary-action"><span>Điểm tốt nhất: <b>${best}</b></span><small>Hoạt động gần nhất: ${esc(dateTime(latest))}</small><button type="button" data-theory-summary-detail="${item.student_id}">Xem học & thi</button></div>
+    </article>`;
+  }).join(""):'<div class="theory-summary-empty"><strong>Không có học viên phù hợp</strong><span>Thử đổi từ khóa tìm kiếm hoặc chọn một ô thống kê khác.</span></div>';
+}
+function openTheorySummary(filter){
+  if(me?.role!=="admin")return;
+  if(!theoryProgressReady)return toast("Cần cập nhật CSDL tiến độ 600 câu trước.");
+  theorySummaryFilter=filter;
+  const items=theorySummaryItems(filter),examTotal=items.reduce((sum,item)=>sum+(Number(item.exam_count)||0),0),passedTotal=items.reduce((sum,item)=>sum+(Number(item.passed_exam_count)||0),0);
+  const labels={active:["Học viên đã bắt đầu học",`${items.length} học viên đã có dữ liệu học hoặc thi thử`],exams:["Học viên đã thi thử",`${examTotal} lượt thi từ ${items.length} học viên`],passed:["Học viên có bài thi đạt",`${passedTotal} bài thi đạt từ ${items.length} học viên`]};
+  $("theorySummaryTitle").textContent=labels[filter][0];$("theorySummaryMeta").textContent=labels[filter][1];$("theorySummarySearch").value="";$("theorySummaryError").textContent="";
+  renderTheorySummary();$("theorySummaryDialog").showModal();setTimeout(()=>$("theorySummarySearch").focus(),50);
+}
+document.querySelectorAll("[data-theory-summary]").forEach(card=>card.onclick=()=>openTheorySummary(card.dataset.theorySummary));
+$("theorySummarySearch").oninput=renderTheorySummary;
+$("theorySummaryList").onclick=event=>{
+  const button=event.target.closest("[data-theory-summary-detail]");if(!button)return;
+  const item=theoryFor(button.dataset.theorySummaryDetail);if(!item)return;
+  $("theorySummaryDialog").close();openTheoryDetail(theoryStudentFromProgress(item));
+};
 async function loadServerNotifications(){
   try{
     const rows=await rpc("app_list_notifications",{p_token:token})||[];
