@@ -72,6 +72,16 @@ Chạy file `CAP-NHAT-TRUNG-TAM-THONG-BAO-BUOC-11.sql` trong Supabase SQL Editor
 
 File Bước 11 cần các bảng từ `CAP-NHAT-NHAC-LICH-TU-DONG.sql`, `CAP-NHAT-TIEN-DO-600-CAU.sql` và `CAP-NHAT-DIEM-DANH-BAO-CAO.sql`. Nếu Supabase không bật được Cron, thông báo vẫn được tạo tự động mỗi khi người dùng mở trung tâm thông báo.
 
+## Ứng dụng điện thoại PWA
+
+Website có thể cài trực tiếp lên iPhone, iPad và Android mà không cần App Store:
+
+- Biểu tượng Thầy Đạt trên màn hình chính, mở toàn màn hình như ứng dụng độc lập.
+- Android hiển thị nút **Cài ngay** khi trình duyệt hỗ trợ.
+- iPhone/iPad hiển thị hướng dẫn **Chia sẻ → Thêm vào MH chính**.
+- Có màn hình khởi động mang thương hiệu Thầy Đạt và trang hướng dẫn khi mất mạng.
+- Tài khoản, thông báo và dữ liệu vẫn đồng bộ với Supabase; dữ liệu quan trọng không được lưu thay thế trên thiết bị.
+
 ## Chạy thử
 
 ```bash

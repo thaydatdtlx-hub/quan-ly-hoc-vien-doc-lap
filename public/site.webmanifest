@@ -7,9 +7,11 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "any",
   "background_color": "#07182f",
   "theme_color": "#07182f",
+  "categories": ["education", "productivity"],
   "icons": [
     {
       "src": "/app-icon-192.png",
@@ -18,10 +20,16 @@
       "purpose": "any"
     },
     {
-      "src": "/app-icon-512.webp",
+      "src": "/app-icon-512.png",
       "sizes": "512x512",
-      "type": "image/webp",
+      "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "/app-icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "shortcuts": [
