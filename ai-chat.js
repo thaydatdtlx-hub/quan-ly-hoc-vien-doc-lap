@@ -173,13 +173,13 @@ function writeHistory(messages){
 function buildChat(){
   const launcher=document.createElement("button");
   launcher.type="button";launcher.className="ai-chat-launcher";launcher.setAttribute("aria-label","Mở Trợ lý của Đạt");launcher.setAttribute("aria-expanded","false");
-  launcher.innerHTML='<span class="ai-chat-launcher__mark" aria-hidden="true">✦</span><span class="ai-chat-launcher__label">Trợ lý của Đạt</span><i class="ai-chat-launcher__dot" aria-hidden="true"></i>';
+  launcher.innerHTML='<span class="ai-chat-launcher__mark" aria-hidden="true"><img src="/tro-ly-cua-dat.png?v=1" alt=""></span><span class="ai-chat-launcher__label">Trợ lý của Đạt</span><i class="ai-chat-launcher__dot" aria-hidden="true"></i>';
 
   const panel=document.createElement("section");
   panel.className="ai-chat-panel";panel.setAttribute("aria-label","Trợ lý của Đạt");panel.setAttribute("aria-hidden","true");
   panel.innerHTML=`
     <header class="ai-chat-header">
-      <span class="ai-chat-avatar" aria-hidden="true">✦</span>
+      <span class="ai-chat-avatar" aria-hidden="true"><img src="/tro-ly-cua-dat.png?v=1" alt=""></span>
       <div class="ai-chat-title"><strong>Trợ lý của Đạt</strong><span><i></i> Tra cứu tự động miễn phí</span></div>
       <div class="ai-chat-header-actions"><button class="ai-chat-icon-btn ai-chat-clear" type="button" aria-label="Xóa cuộc trò chuyện" title="Xóa cuộc trò chuyện">↻</button><button class="ai-chat-icon-btn ai-chat-close" type="button" aria-label="Đóng">×</button></div>
     </header>
@@ -194,7 +194,7 @@ function buildChat(){
 
   function appendMessage(role,content,{temporary=false,error=false}={}){
     const row=document.createElement("div");row.className=`ai-chat-message ${role}`;
-    if(role==="assistant"){const avatar=document.createElement("span");avatar.className="ai-chat-mini-avatar";avatar.textContent="TD";row.append(avatar)}
+    if(role==="assistant"){const avatar=document.createElement("span");avatar.className="ai-chat-mini-avatar";avatar.innerHTML='<img src="/tro-ly-cua-dat.png?v=1" alt="">';row.append(avatar)}
     const bubble=document.createElement("div");bubble.className=`ai-chat-bubble${error?" ai-chat-error":""}`;
     if(temporary)bubble.innerHTML='<span class="ai-chat-typing" aria-label="Đang tra cứu"><i></i><i></i><i></i></span>';else bubble.textContent=content;
     row.append(bubble);messagesEl.append(row);messagesEl.scrollTop=messagesEl.scrollHeight;return row;
