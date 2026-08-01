@@ -43,7 +43,7 @@ function studentDetail(student){
   };
 }
 function overview(data){
-  const total=data.students.length,learning=data.students.filter(item=>!normalize(item.examStatus).includes("da dau")).length,debtStudents=data.students.filter(item=>item.debt>0),debt=debtStudents.reduce((sum,item)=>sum+item.debt,0),activeTheory=data.students.filter(item=>item.theory.answered>0||item.theory.exams>0).length,lowAttendance=data.students.filter(item=>item.attendance.sessions>=2&&item.attendance.rate<80).length;
+  const total=data.students.length,learning=data.students.filter(item=>!/da dau|da nhan bang/.test(normalize(item.examStatus))).length,debtStudents=data.students.filter(item=>item.debt>0),debt=debtStudents.reduce((sum,item)=>sum+item.debt,0),activeTheory=data.students.filter(item=>item.theory.answered>0||item.theory.exams>0).length,lowAttendance=data.students.filter(item=>item.attendance.sessions>=2&&item.attendance.rate<80).length;
   return{text:`Tổng quan hiện tại: ${total} học viên; ${learning} đang học; ${debtStudents.length} học viên còn nợ ${money(debt)}; ${data.warnings.length} cảnh báo; ${activeTheory} học viên đã bắt đầu 600 câu; ${lowAttendance} học viên có chuyên cần dưới 80%.`,metrics:[{label:"Học viên",value:total},{label:"Còn nợ",value:debtStudents.length},{label:"Cảnh báo",value:data.warnings.length},{label:"Đã học 600 câu",value:activeTheory}]};
 }
 function listResult(text,students,note){return{text,cards:students.slice(0,8).map(student=>card(student,typeof note==="function"?note(student):note)),truncated:students.length>8}}

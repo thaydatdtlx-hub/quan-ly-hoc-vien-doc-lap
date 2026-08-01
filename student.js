@@ -57,8 +57,18 @@ function progressTone(value){
   const status=normalize(value);
   if(status.includes("thi rot"))return"fail";
   if(status.includes("dang"))return"doing";
-  if(status.includes("da hoan thanh")||status==="da dau")return"done";
+  if(status.includes("da hoan thanh")||status==="da dau"||status.includes("da nhan bang"))return"done";
   return"pending";
+}
+function hasReceivedLicense(value){return normalize(value).includes("da nhan bang")}
+function renderDrivingRefreshAccess(){
+  const unlocked=hasReceivedLicense(student.exam_status);
+  document.querySelectorAll(".student-refresh-access").forEach(link=>{
+    link.classList.toggle("is-locked",!unlocked);
+    link.setAttribute("aria-disabled",String(!unlocked));
+  });
+  $("studentDrivingRefreshStatus").textContent=unlocked?"Tính chi phí và chọn lịch luyện phù hợp":"Tính năng mở khi Admin ghi nhận đã nhận bằng lái";
+  $("studentDrivingRefreshShortcutStatus").textContent=unlocked?"Tính giá và đăng ký ngay":"Mở sau khi nhận bằng";
 }
 const requestStatus={
   pending:{label:"Chờ Admin duyệt",className:"pending"},
@@ -234,6 +244,7 @@ function renderPortal(){
   $("studentCode").textContent=student.student_code||"Chưa có mã";
   $("studentCourse").textContent=student.course||"Chưa có khóa";
   $("studentLicense").textContent=student.license_class||"Chưa có hạng";
+  renderDrivingRefreshAccess();
   if(student.photo_data){$("studentPhoto").src=student.photo_data;$("studentPhoto").classList.remove("hidden");$("studentPhotoPlaceholder").classList.add("hidden")}
   renderTheoryProgress();
 
@@ -280,6 +291,7 @@ function renderPortal(){
     ["Điện thoại",student.phone||"Chưa cập nhật"],
     ["Địa chỉ",student.address||"Chưa cập nhật"],
     ["Hạng đào tạo",student.license_class||"Chưa cập nhật"],
+    ["Sát hạch / bằng lái",student.exam_status||"Chưa thi sát hạch"],
     ["Trạng thái hồ sơ",student.profile_status||"Chưa cập nhật"]
   ];
   $("studentProfile").innerHTML=profile.map(([label,value])=>`<div><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`).join("");
@@ -297,6 +309,18 @@ function renderPortal(){
   renderStudentNotifications();
   $("studentLoading").classList.add("hidden");$("studentPortal").classList.remove("hidden");
 }
+document.querySelectorAll(".student-refresh-access").forEach(link=>link.addEventListener("click",event=>{
+  if(!hasReceivedLicense(student?.exam_status)){
+    event.preventDefault();
+    toast("Chức năng bổ túc tay lái sẽ mở sau khi Admin ghi nhận bạn đã nhận bằng lái.");
+    return;
+  }
+  sessionStorage.setItem("driving_refresh_student_prefill",JSON.stringify({
+    fullName:student.name||"",
+    phone:student.phone||"",
+    licenseStatus:"Đã có bằng lái"
+  }));
+}));
 $("studentPaymentHistoryList").onclick=event=>{
   const id=event.target.dataset.studentReceipt;if(!id)return;
   const payment=studentPayments.find(item=>String(item.id)===String(id));

@@ -131,6 +131,18 @@ async function rpc(fn,body){
   return data;
 }
 
+function applyStudentPrefill(){
+  const key="driving_refresh_student_prefill",raw=sessionStorage.getItem(key);
+  if(!raw)return;
+  sessionStorage.removeItem(key);
+  try{
+    const data=JSON.parse(raw);
+    if(data.fullName)$("refreshFullName").value=String(data.fullName).slice(0,80);
+    if(data.phone)$("refreshPhone").value=String(data.phone).slice(0,15);
+    $("refreshLicenseStatus").value="Đã có bằng lái";
+  }catch{}
+}
+
 const tomorrow=new Date();tomorrow.setDate(tomorrow.getDate()+1);
 $("refreshPreferredDate").min=localIsoDate(tomorrow);
 for(const id of ["refreshTransmission","refreshDurationHours","refreshPreferredDate","refreshPreferredTime"]){
@@ -149,6 +161,7 @@ heroWeekendButtons.forEach(item=>item.addEventListener("click",()=>{
   $("refreshPreferredTime").value=weekend?"Cuối tuần":"";
   updatePricing();
 }));
+applyStudentPrefill();
 $("refreshDurationHours").addEventListener("blur",()=>{
   const value=Number($("refreshDurationHours").value);
   if(!Number.isInteger(value)||value<MIN_DURATION_HOURS)$("refreshDurationHours").value=MIN_DURATION_HOURS;

@@ -47,7 +47,8 @@ function theoryDuration(seconds){
   const value=Math.max(0,Number(seconds)||0),minutes=Math.floor(value/60),rest=value%60;
   return `${minutes}:${String(rest).padStart(2,"0")}`;
 }
-function progressTone(v){const n=normalize(v);if(n.includes("thi rot"))return"fail";if(n.includes("dang"))return"doing";if(n.includes("da hoan thanh")||n==="da dau")return"done";return"pending"}
+function isExamPassed(value){const status=normalize(value);return status.includes("da dau")||status.includes("da nhan bang")}
+function progressTone(v){const n=normalize(v);if(n.includes("thi rot"))return"fail";if(n.includes("dang"))return"doing";if(n.includes("da hoan thanh")||isExamPassed(n))return"done";return"pending"}
 function progressHtml(s){
   const dates=(parseScheduleFromNotes(s.notes)||{}).dates||{},onlineDates=dateRange(dates.online_start,dates.online_end);
   return `<div class="progress-list"><span class="progress-chip ${progressTone(s.online_status)}"><b>Online</b><span>${esc(s.online_status||"Chưa hoàn thành")}${onlineDates?`<small>${esc(onlineDates)}</small>`:""}</span></span><span class="progress-chip ${progressTone(s.cabin_status)}"><b>Cabin</b>${esc(s.cabin_status||"Chưa hoàn thành")}</span><span class="progress-chip ${progressTone(s.dat_status)}"><b>DAT</b>${esc(s.dat_status||"Chưa thực hiện")}</span><span class="progress-chip ${progressTone(s.graduation_status)}"><b>Tốt nghiệp</b>${esc(s.graduation_status||"Chưa hoàn thành")}</span><span class="progress-chip ${progressTone(s.exam_status)}"><b>Sát hạch</b>${esc(s.exam_status||"Chưa thi sát hạch")}</span></div>`;
@@ -352,7 +353,7 @@ function mergedAccountNotices(){
 }
 function renderStudents(){
   const q=normalize($("search").value);
-  const inStat=s=>statFilter==="all"||(statFilter==="learning"&&!normalize(s.exam_status).includes("da dau"))||(statFilter==="debt"&&(Number(s.tuition_total)||0)>(Number(s.paid)||0));
+  const inStat=s=>statFilter==="all"||(statFilter==="learning"&&!isExamPassed(s.exam_status))||(statFilter==="debt"&&(Number(s.tuition_total)||0)>(Number(s.paid)||0));
   const rows=students.filter(s=>inStat(s)&&normalize([s.name,s.cccd,s.phone,s.student_code,s.course].join(" ")).includes(q));
   $("studentRows").innerHTML=rows.map(s=>{
     const account=studentAccounts.find(item=>item.student_id===String(s.id));
@@ -361,7 +362,7 @@ function renderStudents(){
   }).join("");
   $("empty").classList.toggle("hidden",rows.length>0);$("resultCount").textContent=`${rows.length} học viên`;
   $("totalStudents").textContent=students.length;
-  $("learningStudents").textContent=students.filter(s=>!normalize(s.exam_status).includes("da dau")).length;
+  $("learningStudents").textContent=students.filter(s=>!isExamPassed(s.exam_status)).length;
   $("debtStudents").textContent=students.filter(s=>(s.tuition_total||0)>(s.paid||0)).length;
   renderTheoryDashboard();
   renderFinanceDashboard();

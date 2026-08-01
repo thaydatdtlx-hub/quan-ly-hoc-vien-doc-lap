@@ -132,9 +132,15 @@ export function studentNotifications(student,trainingSlots=[]){
     id:"student-profile-missing",category:"profile",tone:"red",icon:"!",title:"Hồ sơ cần bổ sung",
     body:"Vui lòng liên hệ quản lý để biết giấy tờ còn thiếu."
   });
-  if(normalize(student.exam_status)==="da dau")notices.push({
+  const examStatus=normalize(student.exam_status),licenseReceived=examStatus.includes("da nhan bang");
+  if(licenseReceived)notices.push({
+    id:"student-license-received",category:"general",tone:"green",icon:"✓",title:"Đăng ký bổ túc tay lái đã mở",
+    body:"Hệ thống đã ghi nhận bạn nhận bằng lái. Bạn có thể tính chi phí và đăng ký luyện thêm kỹ năng.",
+    href:"/bo-tuc-tay-lai.html#tinh-chi-phi",action:"Đăng ký bổ túc tay lái"
+  });
+  else if(examStatus==="da dau")notices.push({
     id:"student-exam-passed",category:"theory",tone:"green",icon:"★",title:"Đã đậu kỳ thi sát hạch",
-    body:"Chúc mừng anh/chị đã hoàn thành kỳ thi sát hạch."
+    body:"Chúc mừng anh/chị đã hoàn thành kỳ thi sát hạch. Chức năng bổ túc tay lái sẽ mở sau khi Admin ghi nhận đã nhận bằng."
   });
   return notices;
 }
