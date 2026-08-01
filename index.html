@@ -471,8 +471,30 @@
 
   <dialog id="notificationDialog" class="notification-dialog">
     <div class="dialog-head notification-head"><div><p class="dialog-kicker">TRUNG TÂM THÔNG BÁO</p><h2 id="notificationTitle">Thông báo tài khoản</h2></div><button type="button" class="close" aria-label="Đóng">×</button></div>
-    <div class="notification-toolbar"><span id="notificationSummary">0 thông báo</span><button id="markNotificationsRead" type="button">Đánh dấu đã đọc</button></div>
+    <div class="notification-toolbar"><span id="notificationSummary">0 thông báo</span><div><button id="notificationSettingsBtn" class="admin-only" type="button">Cài đặt giờ học</button><button id="markNotificationsRead" type="button">Đánh dấu đã đọc</button></div></div>
+    <label class="notification-search"><span>⌕</span><input id="notificationSearch" type="search" placeholder="Tìm theo nội dung thông báo" autocomplete="off"></label>
+    <div class="notification-filters" aria-label="Lọc thông báo">
+      <button class="active" type="button" data-notification-filter="all">Tất cả</button><button type="button" data-notification-filter="schedule">Lịch học</button><button type="button" data-notification-filter="attendance">Điểm danh</button><button type="button" data-notification-filter="training">Giờ học</button><button type="button" data-notification-filter="theory">Kết quả thi</button><button type="button" data-notification-filter="finance">Học phí</button><button type="button" data-notification-filter="profile">Hồ sơ</button>
+    </div>
     <div id="notificationList" class="notification-list"></div>
+  </dialog>
+
+  <dialog id="notificationSettingsDialog" class="notification-settings-dialog">
+    <form id="notificationSettingsForm">
+      <div class="dialog-head"><div><p class="dialog-kicker">THÔNG BÁO GIỜ HỌC</p><h2>Định mức theo hạng đào tạo</h2><span class="sub">Nhập định mức nội bộ để hệ thống tính và nhắc chính xác số giờ còn thiếu.</span></div><button type="button" class="close" aria-label="Đóng">×</button></div>
+      <label class="notification-class-field">Hạng đào tạo<select id="notificationTargetClass"><option>B số tự động</option><option>B số cơ khí</option><option>C1</option><option>A1</option><option>A</option></select></label>
+      <div class="notification-target-grid">
+        <label>Lý thuyết<input type="number" min="0" max="1000" step="0.5" data-hour-target="theory" inputmode="decimal"><span>giờ</span></label>
+        <label>Cabin<input type="number" min="0" max="1000" step="0.5" data-hour-target="cabin" inputmode="decimal"><span>giờ</span></label>
+        <label>DAT số tự động<input type="number" min="0" max="1000" step="0.5" data-hour-target="dat_auto" inputmode="decimal"><span>giờ</span></label>
+        <label>DAT số cơ khí<input type="number" min="0" max="1000" step="0.5" data-hour-target="dat_manual" inputmode="decimal"><span>giờ</span></label>
+        <label>Thực hành DAT<input type="number" min="0" max="1000" step="0.5" data-hour-target="dat_practice" inputmode="decimal"><span>giờ</span></label>
+        <label>Sa hình<input type="number" min="0" max="1000" step="0.5" data-hour-target="practice" inputmode="decimal"><span>giờ</span></label>
+        <label>Làm quen xe<input type="number" min="0" max="1000" step="0.5" data-hour-target="familiar" inputmode="decimal"><span>giờ</span></label>
+      </div>
+      <p id="notificationSettingsError" class="error" role="alert"></p>
+      <div class="actions"><button type="button" class="close">Hủy</button><button id="saveNotificationSettingsBtn" class="primary" type="submit">Lưu định mức</button></div>
+    </form>
   </dialog>
 
   <dialog id="passwordDialog">

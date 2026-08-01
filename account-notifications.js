@@ -38,7 +38,7 @@ export function managerNotifications(students,role="user"){
   const trainingRequests=students.flatMap(student=>(student.training_requests||[]).map(request=>({student,request})));
   const pendingRequests=trainingRequests.filter(item=>item.request.status==="pending");
   if(role==="admin"&&pendingRequests.length)notices.push({
-    id:`training-requests-${pendingRequests.map(item=>item.request.id).join("-")}`,tone:"cyan",icon:"✋",
+    id:`training-requests-${pendingRequests.map(item=>item.request.id).join("-")}`,category:"schedule",tone:"cyan",icon:"✋",
     title:`${pendingRequests.length} yêu cầu đăng ký lịch đang chờ duyệt`,
     body:`Mới nhất: ${pendingRequests[0].student.name} đăng ký ${SCHEDULE_FIELDS.find(field=>field.key===pendingRequests[0].request.request_type)?.short||"buổi thực hành"}.`,
     href:"/lich-dao-tao.html#trainingRequests",action:"Duyệt yêu cầu"
@@ -46,13 +46,13 @@ export function managerNotifications(students,role="user"){
   const debtStudents=students.filter(student=>(Number(student.tuition_total)||0)>(Number(student.paid)||0));
   const debt=debtStudents.reduce((sum,student)=>sum+Math.max(0,(Number(student.tuition_total)||0)-(Number(student.paid)||0)),0);
   if(debtStudents.length)notices.push({
-    id:`debt-${debtStudents.length}-${debt}`,tone:"orange",icon:"₫",title:`${debtStudents.length} học viên còn nợ học phí`,
+    id:`debt-${debtStudents.length}-${debt}`,category:"finance",tone:"orange",icon:"₫",title:`${debtStudents.length} học viên còn nợ học phí`,
     body:`Tổng số tiền cần thu: ${money(debt)}.`,action:"Xem danh sách công nợ"
   });
 
   const upcoming=scheduleEvents(students).filter(event=>new Date(event.date)>=today&&new Date(event.date)<=weekEnd);
   if(upcoming.length)notices.push({
-    id:`week-${upcoming.map(event=>`${event.student.id}-${event.field.key}-${event.date}`).join("-")}`,tone:"blue",icon:"▣",
+    id:`week-${upcoming.map(event=>`${event.student.id}-${event.field.key}-${event.date}`).join("-")}`,category:"schedule",tone:"blue",icon:"▣",
     title:`${upcoming.length} lịch đào tạo trong 7 ngày tới`,
     body:`Gần nhất: ${upcoming[0].field.label} của ${upcoming[0].student.name} · ${formatDate(upcoming[0].date)}.`,
     href:"/lich-dao-tao.html",action:"Mở lịch đào tạo"
@@ -60,19 +60,19 @@ export function managerNotifications(students,role="user"){
 
   const unscheduled=students.filter(student=>!SCHEDULE_FIELDS.some(field=>scheduleOf(student).dates?.[field.key]));
   if(unscheduled.length)notices.push({
-    id:`unscheduled-${unscheduled.map(student=>student.id).join("-")}`,tone:"violet",icon:"◷",
+    id:`unscheduled-${unscheduled.map(student=>student.id).join("-")}`,category:"schedule",tone:"violet",icon:"◷",
     title:`${unscheduled.length} học viên chưa có lịch đào tạo`,
     body:"Cần bổ sung ít nhất một mốc lịch học hoặc lịch thi.",href:"/lich-dao-tao.html",action:"Lập lịch ngay"
   });
 
   const incomplete=students.filter(student=>normalize(student.profile_status).includes("thieu"));
   if(incomplete.length)notices.push({
-    id:`profiles-${incomplete.map(student=>student.id).join("-")}`,tone:"red",icon:"!",title:`${incomplete.length} hồ sơ đang thiếu`,
+    id:`profiles-${incomplete.map(student=>student.id).join("-")}`,category:"profile",tone:"red",icon:"!",title:`${incomplete.length} hồ sơ đang thiếu`,
     body:`${incomplete.slice(0,3).map(student=>student.name).join(", ")}${incomplete.length>3?"…":""}.`,action:"Kiểm tra hồ sơ"
   });
 
   if(role==="admin")notices.unshift({
-    id:`admin-summary-${students.length}`,tone:"green",icon:"✓",title:"Tổng quan hệ thống",
+    id:`admin-summary-${students.length}`,category:"general",tone:"green",icon:"✓",title:"Tổng quan hệ thống",
     body:`Hệ thống đang quản lý ${students.length} học viên. Các thông báo được cập nhật tự động theo dữ liệu mới.`
   });
   return notices;
@@ -87,31 +87,31 @@ export function studentNotifications(student,trainingSlots=[]){
     const nearest=datSlots[0];
     notices.push({
       id:`student-dat-slots-${datSlots.map(slot=>`${slot.id}-${slot.updated_at||slot.starts_at}`).join("-")}`,
-      tone:"blue",icon:"🛰️",title:`Có ${datSlots.length} ca Thực hành DAT đang mở`,
+      category:"schedule",tone:"blue",icon:"🛰️",title:`Có ${datSlots.length} ca Thực hành DAT đang mở`,
       body:`Ca gần nhất: ${formatDate(nearest.starts_at)} · ${formatDuration(nearest.duration_minutes)}${nearest.location?` · ${nearest.location}`:" · Chưa cập nhật địa điểm"}.`,
       href:"/hoc-vien.html#trainingBooking",action:"Chọn khung giờ DAT"
     });
   }
   if(debt)notices.push({
-    id:`student-debt-${debt}`,tone:"orange",icon:"₫",title:"Học phí chưa hoàn tất",
+    id:`student-debt-${debt}`,category:"finance",tone:"orange",icon:"₫",title:"Học phí chưa hoàn tất",
     body:`Anh/chị còn ${money(debt)} cần hoàn tất. Đã đóng ${money(paid)} trên tổng ${money(total)}.`
   });
-  else if(total)notices.push({id:`student-paid-${total}`,tone:"green",icon:"✓",title:"Đã hoàn tất học phí",body:`Hệ thống đã ghi nhận đủ ${money(total)}.`});
+  else if(total)notices.push({id:`student-paid-${total}`,category:"finance",tone:"green",icon:"✓",title:"Đã hoàn tất học phí",body:`Hệ thống đã ghi nhận đủ ${money(total)}.`});
 
   const requests=student.training_requests||[];
   for(const request of requests.slice(0,3)){
     const field=SCHEDULE_FIELDS.find(item=>item.key===request.request_type),label=field?.label||"Buổi thực hành";
     if(request.status==="pending")notices.push({
-      id:`request-pending-${request.id}`,tone:"orange",icon:"◷",title:`Đang chờ duyệt: ${label}`,
+      id:`request-pending-${request.id}`,category:"schedule",tone:"orange",icon:"◷",title:`Đang chờ duyệt: ${label}`,
       body:`Thời gian mong muốn: ${formatDate(request.requested_at)}.`
     });
     if(request.status==="approved")notices.push({
-      id:`request-approved-${request.id}`,tone:"green",icon:"✓",title:`Đã duyệt: ${label}`,
+      id:`request-approved-${request.id}`,category:"schedule",tone:"green",icon:"✓",title:`Đã duyệt: ${label}`,
       body:`Yêu cầu đăng ký đã được Admin duyệt${request.admin_note?` · ${request.admin_note}`:""}.`,
       href:"/lich-dao-tao.html",action:"Xem lịch chính thức"
     });
     if(request.status==="rejected")notices.push({
-      id:`request-rejected-${request.id}`,tone:"red",icon:"!",title:`Chưa duyệt: ${label}`,
+      id:`request-rejected-${request.id}`,category:"schedule",tone:"red",icon:"!",title:`Chưa duyệt: ${label}`,
       body:request.admin_note||"Vui lòng chọn thời gian khác hoặc liên hệ Admin."
     });
   }
@@ -119,21 +119,21 @@ export function studentNotifications(student,trainingSlots=[]){
   const events=scheduleEvents([student]).filter(event=>new Date(event.date)>=today).slice(0,3);
   if(events.length){
     for(const event of events)notices.push({
-      id:`student-event-${event.id||`${event.field.key}-${event.date}`}`,tone:event.field.tone||"blue",icon:event.field.icon,
+      id:`student-event-${event.id||`${event.field.key}-${event.date}`}`,category:"schedule",tone:event.field.tone||"blue",icon:event.field.icon,
       title:event.field.label,body:`${formatDate(event.date)}${event.location?` · ${event.location}`:" · Chưa cập nhật địa điểm"}`,
       href:"/lich-dao-tao.html",action:"Xem lịch chi tiết"
     });
   }else notices.push({
-    id:"student-no-schedule",tone:"violet",icon:"◷",title:"Chưa có lịch đào tạo sắp tới",
+    id:"student-no-schedule",category:"schedule",tone:"violet",icon:"◷",title:"Chưa có lịch đào tạo sắp tới",
     body:"Lịch học và lịch thi mới sẽ xuất hiện tại đây khi trung tâm cập nhật."
   });
 
   if(normalize(student.profile_status).includes("thieu"))notices.push({
-    id:"student-profile-missing",tone:"red",icon:"!",title:"Hồ sơ cần bổ sung",
+    id:"student-profile-missing",category:"profile",tone:"red",icon:"!",title:"Hồ sơ cần bổ sung",
     body:"Vui lòng liên hệ quản lý để biết giấy tờ còn thiếu."
   });
   if(normalize(student.exam_status)==="da dau")notices.push({
-    id:"student-exam-passed",tone:"green",icon:"★",title:"Đã đậu kỳ thi sát hạch",
+    id:"student-exam-passed",category:"theory",tone:"green",icon:"★",title:"Đã đậu kỳ thi sát hạch",
     body:"Chúc mừng anh/chị đã hoàn thành kỳ thi sát hạch."
   });
   return notices;

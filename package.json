@@ -14,7 +14,8 @@
     "check:payments": "node scripts/validate-payments.mjs",
     "check:attendance": "node scripts/validate-attendance.mjs",
     "check:warnings": "node scripts/validate-early-warnings.mjs",
-    "check": "npm run check:questions && npm run check:site && npm run check:excel && npm run check:duplicates && npm run check:payments && npm run check:attendance && npm run check:warnings"
+    "check:notifications": "node scripts/validate-notification-center.mjs",
+    "check": "npm run check:questions && npm run check:site && npm run check:excel && npm run check:duplicates && npm run check:payments && npm run check:attendance && npm run check:warnings && npm run check:notifications"
   },
   "devDependencies": {
     "vite": "^7.0.0"

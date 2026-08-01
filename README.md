@@ -61,6 +61,17 @@ Dashboard Admin tự động ưu tiên học viên cần hỗ trợ dựa trên 
 
 Mỗi cảnh báo liên kết trực tiếp đến điểm danh, tiến độ học, sổ học phí, hồ sơ hoặc lịch đào tạo của đúng học viên. Chức năng dùng dữ liệu sẵn có và không cần chạy thêm SQL.
 
+## Trung tâm thông báo tự động
+
+Chạy file `CAP-NHAT-TRUNG-TAM-THONG-BAO-BUOC-11.sql` trong Supabase SQL Editor để bật:
+
+- Nhắc lịch học cho học viên, Admin và tài khoản quản lý trước 24 giờ; báo ngay khi yêu cầu được duyệt, từ chối, đổi ca hoặc hủy.
+- Nhắc học phí chưa hoàn tất, hồ sơ còn thiếu, kết quả thi thử, trạng thái điểm danh và số giờ thực học.
+- Đồng bộ trạng thái chưa đọc/đã đọc giữa các thiết bị, tự cập nhật mỗi 60 giây và phân nhóm để tìm kiếm nhanh.
+- Admin đặt định mức giờ nội bộ cho từng hạng đào tạo; hệ thống dùng định mức này để tính chính xác số giờ còn thiếu.
+
+File Bước 11 cần các bảng từ `CAP-NHAT-NHAC-LICH-TU-DONG.sql`, `CAP-NHAT-TIEN-DO-600-CAU.sql` và `CAP-NHAT-DIEM-DANH-BAO-CAO.sql`. Nếu Supabase không bật được Cron, thông báo vẫn được tạo tự động mỗi khi người dùng mở trung tâm thông báo.
+
 ## Chạy thử
 
 ```bash

@@ -8,7 +8,7 @@ import {buildEarlyWarnings,earlyWarningSummary,EARLY_WARNING_LEVELS} from "./ear
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
-let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"",me=null,students=[],users=[],studentAccounts=[],publicTheoryAccounts=[],trainingRequests=[],theoryProgress=[],deletedStudents=[],auditLogs=[],paymentHistory=[],attendanceRecords=[],attendanceViewRecords=[],adminReportRows=[],earlyWarnings=[],accountNotices=[],serverNotices=[],studentAccountsReady=false,publicTheoryAccountsReady=false,theoryProgressReady=false,operationsReady=false,paymentsReady=false,attendanceReady=false,selectedStudentAccount=null,forcePasswordChange=false,currentPhoto="",statFilter="all",theorySummaryFilter="active",warningFilter="all",notificationTimer=null,excelPreviewFile=null,excelPreviewUrl="",excelImportResolve=null;
+let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"",me=null,students=[],users=[],studentAccounts=[],publicTheoryAccounts=[],trainingRequests=[],theoryProgress=[],deletedStudents=[],auditLogs=[],paymentHistory=[],attendanceRecords=[],attendanceViewRecords=[],adminReportRows=[],earlyWarnings=[],accountNotices=[],serverNotices=[],notificationTargets=[],studentAccountsReady=false,publicTheoryAccountsReady=false,theoryProgressReady=false,operationsReady=false,paymentsReady=false,attendanceReady=false,selectedStudentAccount=null,forcePasswordChange=false,currentPhoto="",statFilter="all",theorySummaryFilter="active",warningFilter="all",notificationFilter="all",notificationTimer=null,excelPreviewFile=null,excelPreviewUrl="",excelImportResolve=null;
 
 async function rpc(fn,body={}){
   const r=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
@@ -293,9 +293,22 @@ async function loadServerNotifications(){
   }
 }
 function isNoticeRead(notice,read){return notice.server_id?Boolean(notice.read_at):read.has(notice.id)}
+const notificationCategoryLabels={general:"Hệ thống",schedule:"Lịch học",attendance:"Điểm danh",training:"Giờ học",theory:"Kết quả thi",finance:"Học phí",profile:"Hồ sơ"};
+function notificationCategory(notice){
+  if(notice.category&&notice.category!=="general")return notice.category;
+  const text=normalize(`${notice.title} ${notice.body}`);
+  if(text.includes("hoc phi")||text.includes("con no")||text.includes("da dong"))return"finance";
+  if(text.includes("ho so")||text.includes("giay to"))return"profile";
+  if(text.includes("diem danh")||text.includes("chuyen can")||text.includes("vang"))return"attendance";
+  if(text.includes("gio thuc")||text.includes("thieu gio"))return"training";
+  if(text.includes("thi thu")||text.includes("600 cau")||text.includes("diem liet")||text.includes("ket qua thi"))return"theory";
+  if(text.includes("lich")||text.includes("ca hoc")||text.includes("duyet")||text.includes("dao tao"))return"schedule";
+  return"general";
+}
+function noticeTime(notice){return notice.event_at||notice.created_at?dateTime(notice.event_at||notice.created_at):""}
 function mergedAccountNotices(){
   const local=managerNotifications(students,me?.role||"user"),serverKeys=new Set(serverNotices.map(notice=>`${notice.title}|${notice.body}`));
-  const summary=earlyWarningSummary(earlyWarnings),warningNotice=me?.role==="admin"&&summary.total?[{id:`early-warning-${summary.total}-${summary.critical}-${summary.high}`,tone:summary.critical?"red":"orange",icon:"!",title:`${summary.students} học viên cần được hỗ trợ`,body:`${summary.critical} cảnh báo khẩn cấp · ${summary.high} ưu tiên cao · ${summary.total} nội dung cần xử lý.`,href:"/#earlyWarningDashboard",action:"Mở cảnh báo sớm"}]:[];
+  const summary=earlyWarningSummary(earlyWarnings),warningNotice=me?.role==="admin"&&summary.total?[{id:`early-warning-${summary.total}-${summary.critical}-${summary.high}`,category:"general",tone:summary.critical?"red":"orange",icon:"!",title:`${summary.students} học viên cần được hỗ trợ`,body:`${summary.critical} cảnh báo khẩn cấp · ${summary.high} ưu tiên cao · ${summary.total} nội dung cần xử lý.`,href:"/#earlyWarningDashboard",action:"Mở cảnh báo sớm"}]:[];
   return [...warningNotice,...serverNotices,...local.filter(notice=>!serverKeys.has(`${notice.title}|${notice.body}`))];
 }
 function renderStudents(){
@@ -357,13 +370,15 @@ document.querySelectorAll("[data-warning-filter]").forEach(button=>button.onclic
 function renderAccountNotifications(){
   accountNotices=mergedAccountNotices();
   const read=readNoticeIds(me),unread=accountNotices.filter(notice=>!isNoticeRead(notice,read)).length;
+  const query=normalize($("notificationSearch").value),visible=accountNotices.filter(notice=>(notificationFilter==="all"||notificationCategory(notice)===notificationFilter)&&(!query||normalize(`${notice.title} ${notice.body}`).includes(query)));
   $("notificationBadge").textContent=unread;$("notificationBadge").classList.toggle("hidden",unread===0);
   $("notificationTitle").textContent=me?.role==="admin"?"Thông báo Admin":"Thông báo tài khoản quản lý";
-  $("notificationSummary").textContent=`${accountNotices.length} thông báo · ${unread} chưa đọc`;
-  $("notificationList").innerHTML=accountNotices.length?accountNotices.map(notice=>`
+  $("notificationSummary").textContent=`${visible.length}/${accountNotices.length} thông báo · ${unread} chưa đọc`;
+  document.querySelectorAll("[data-notification-filter]").forEach(button=>button.classList.toggle("active",button.dataset.notificationFilter===notificationFilter));
+  $("notificationList").innerHTML=visible.length?visible.map(notice=>`
     <article class="notification-item tone-${esc(notice.tone||"blue")} ${isNoticeRead(notice,read)?"is-read":""}">
       <span class="notification-icon">${esc(notice.icon||"•")}</span>
-      <div><strong>${esc(notice.title)}</strong><p>${esc(notice.body)}</p>${notice.href?`<a href="${esc(notice.href)}">${esc(notice.action||"Xem chi tiết")} →</a>`:""}</div>
+      <div><div class="notification-item-meta"><span>${esc(notificationCategoryLabels[notificationCategory(notice)]||"Hệ thống")}</span>${noticeTime(notice)?`<time>${esc(noticeTime(notice))}</time>`:""}${!isNoticeRead(notice,read)?"<b>Mới</b>":""}</div><strong>${esc(notice.title)}</strong><p>${esc(notice.body)}</p>${notice.href?`<a href="${esc(notice.href)}">${esc(notice.action||"Xem chi tiết")} →</a>`:""}</div>
     </article>`).join(""):`<div class="notification-empty"><span>🔔</span><strong>Chưa có thông báo</strong><p>Các thay đổi quan trọng sẽ hiển thị tại đây.</p></div>`;
 }
 $("notificationBtn").onclick=async()=>{
@@ -378,6 +393,33 @@ $("markNotificationsRead").onclick=async()=>{
     markNoticesRead(me,accountNotices.filter(notice=>!notice.server_id));
     renderAccountNotifications();toast("Đã đánh dấu tất cả thông báo là đã đọc");
   }catch(error){toast(errText(error))}
+};
+$("notificationSearch").oninput=renderAccountNotifications;
+document.querySelectorAll("[data-notification-filter]").forEach(button=>button.onclick=()=>{notificationFilter=button.dataset.notificationFilter;renderAccountNotifications()});
+async function loadNotificationTargets(){
+  notificationTargets=await rpc("app_list_training_hour_targets",{p_token:token})||[];
+}
+function renderNotificationTargets(){
+  const licenseClass=$("notificationTargetClass").value;
+  document.querySelectorAll("[data-hour-target]").forEach(input=>{
+    const target=notificationTargets.find(item=>item.license_class===licenseClass&&item.session_type===input.dataset.hourTarget);
+    input.value=target?String(Math.round(Number(target.required_minutes)/6)/10):"";
+  });
+}
+$("notificationSettingsBtn").onclick=async()=>{
+  $("notificationSettingsError").textContent="";
+  try{
+    await loadNotificationTargets();renderNotificationTargets();$("notificationSettingsDialog").showModal();
+  }catch(error){toast(/app_list_training_hour_targets|schema cache|PGRST202/i.test(errText(error))?"Cần chạy file SQL Bước 11 trên Supabase trước.":errText(error))}
+};
+$("notificationTargetClass").onchange=renderNotificationTargets;
+$("notificationSettingsForm").onsubmit=async event=>{
+  event.preventDefault();$("notificationSettingsError").textContent="";$("saveNotificationSettingsBtn").disabled=true;
+  try{
+    const targets={};document.querySelectorAll("[data-hour-target]").forEach(input=>targets[input.dataset.hourTarget]=Math.round(Math.max(0,Number(input.value)||0)*60));
+    await rpc("app_save_training_hour_targets",{p_token:token,p_license_class:$("notificationTargetClass").value,p_targets:targets});
+    await Promise.all([loadNotificationTargets(),loadServerNotifications()]);renderAccountNotifications();$("notificationSettingsDialog").close();toast("Đã lưu định mức và cập nhật nhắc giờ học");
+  }catch(error){$("notificationSettingsError").textContent=errText(error)}finally{$("saveNotificationSettingsBtn").disabled=false}
 };
 function renderFinanceDashboard(){
   if(me?.role!=="admin")return;

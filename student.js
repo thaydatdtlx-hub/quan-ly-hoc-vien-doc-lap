@@ -7,7 +7,7 @@ import QRCode from "qrcode";
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
-let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",me=null,student=null,trainingSessions=[],trainingRequests=[],trainingSlots=[],studentPayments=[],studentAttendance=[],studentNotices=[],serverNotices=[],theoryProgress=null,forcePasswordChange=false,bookingFeatureAvailable=true,slotFeatureAvailable=true,theoryFeatureAvailable=true,paymentHistoryAvailable=true,attendanceHistoryAvailable=true,notificationTimer=null;
+let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",me=null,student=null,trainingSessions=[],trainingRequests=[],trainingSlots=[],studentPayments=[],studentAttendance=[],studentNotices=[],serverNotices=[],theoryProgress=null,forcePasswordChange=false,bookingFeatureAvailable=true,slotFeatureAvailable=true,theoryFeatureAvailable=true,paymentHistoryAvailable=true,attendanceHistoryAvailable=true,studentNotificationFilter="all",notificationTimer=null;
 
 async function rpc(fn,body={}){
   const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
@@ -322,16 +322,31 @@ async function loadServerNotifications(){
   }
 }
 function isNoticeRead(notice,read){return notice.server_id?Boolean(notice.read_at):read.has(notice.id)}
+const notificationCategoryLabels={general:"Hệ thống",schedule:"Lịch học",attendance:"Điểm danh",training:"Giờ học",theory:"Kết quả thi",finance:"Học phí",profile:"Hồ sơ"};
+function notificationCategory(notice){
+  if(notice.category&&notice.category!=="general")return notice.category;
+  const text=normalize(`${notice.title} ${notice.body}`);
+  if(text.includes("hoc phi")||text.includes("con no")||text.includes("da dong"))return"finance";
+  if(text.includes("ho so")||text.includes("giay to"))return"profile";
+  if(text.includes("diem danh")||text.includes("chuyen can")||text.includes("vang"))return"attendance";
+  if(text.includes("gio thuc")||text.includes("thieu gio"))return"training";
+  if(text.includes("thi thu")||text.includes("600 cau")||text.includes("diem liet")||text.includes("ket qua thi"))return"theory";
+  if(text.includes("lich")||text.includes("ca hoc")||text.includes("duyet")||text.includes("dao tao"))return"schedule";
+  return"general";
+}
+function noticeTime(notice){return notice.event_at||notice.created_at?date(notice.event_at||notice.created_at,true):""}
 function renderStudentNotifications(){
   const local=studentNotifications(student,trainingSlots),serverKeys=new Set(serverNotices.map(notice=>`${notice.title}|${notice.body}`));
   studentNotices=[...serverNotices,...local.filter(notice=>!serverKeys.has(`${notice.title}|${notice.body}`))];
   const read=readNoticeIds(me),unread=studentNotices.filter(notice=>!isNoticeRead(notice,read)).length;
+  const query=normalize($("studentNotificationSearch").value),visible=studentNotices.filter(notice=>(studentNotificationFilter==="all"||notificationCategory(notice)===studentNotificationFilter)&&(!query||normalize(`${notice.title} ${notice.body}`).includes(query)));
   $("studentNotificationBadge").textContent=unread;$("studentNotificationBadge").classList.toggle("hidden",unread===0);
-  $("studentNotificationSummary").textContent=`${studentNotices.length} thông báo · ${unread} chưa đọc`;
-  $("studentNotificationList").innerHTML=studentNotices.length?studentNotices.map(notice=>`
+  $("studentNotificationSummary").textContent=`${visible.length}/${studentNotices.length} thông báo · ${unread} chưa đọc`;
+  document.querySelectorAll("[data-student-notification-filter]").forEach(button=>button.classList.toggle("active",button.dataset.studentNotificationFilter===studentNotificationFilter));
+  $("studentNotificationList").innerHTML=visible.length?visible.map(notice=>`
     <article class="notification-item tone-${esc(notice.tone||"blue")} ${isNoticeRead(notice,read)?"is-read":""}">
       <span class="notification-icon">${esc(notice.icon||"•")}</span>
-      <div><strong>${esc(notice.title)}</strong><p>${esc(notice.body)}</p>${notice.href?`<a href="${esc(notice.href)}">${esc(notice.action||"Xem chi tiết")} →</a>`:""}</div>
+      <div><div class="notification-item-meta"><span>${esc(notificationCategoryLabels[notificationCategory(notice)]||"Hệ thống")}</span>${noticeTime(notice)?`<time>${esc(noticeTime(notice))}</time>`:""}${!isNoticeRead(notice,read)?"<b>Mới</b>":""}</div><strong>${esc(notice.title)}</strong><p>${esc(notice.body)}</p>${notice.href?`<a href="${esc(notice.href)}">${esc(notice.action||"Xem chi tiết")} →</a>`:""}</div>
     </article>`).join(""):`<div class="notification-empty"><span>🔔</span><strong>Chưa có thông báo</strong><p>Các cập nhật của trung tâm sẽ hiển thị tại đây.</p></div>`;
 }
 $("studentNotificationBtn").onclick=async()=>{
@@ -347,6 +362,8 @@ $("studentMarkNotificationsRead").onclick=async()=>{
     renderStudentNotifications();toast("Đã đánh dấu tất cả thông báo là đã đọc");
   }catch(error){toast(error?.message||"Không thể cập nhật thông báo.")}
 };
+$("studentNotificationSearch").oninput=renderStudentNotifications;
+document.querySelectorAll("[data-student-notification-filter]").forEach(button=>button.onclick=()=>{studentNotificationFilter=button.dataset.studentNotificationFilter;renderStudentNotifications()});
 document.querySelectorAll("[data-booking-type]").forEach(button=>button.onclick=()=>openTrainingRequest(button.dataset.bookingType));
 $("requestSlot").onchange=renderRequestSlotDetails;
 $("trainingRequestForm").onsubmit=async event=>{

@@ -205,6 +205,10 @@
   <dialog id="studentNotificationDialog" class="notification-dialog">
     <div class="dialog-head notification-head"><div><p>TRUNG TÂM THÔNG BÁO</p><h2>Thông báo học viên</h2></div><button class="dialog-close" type="button" aria-label="Đóng">×</button></div>
     <div class="notification-toolbar"><span id="studentNotificationSummary">0 thông báo</span><button id="studentMarkNotificationsRead" type="button">Đánh dấu đã đọc</button></div>
+    <label class="notification-search"><span>⌕</span><input id="studentNotificationSearch" type="search" placeholder="Tìm theo nội dung thông báo" autocomplete="off"></label>
+    <div class="notification-filters" aria-label="Lọc thông báo">
+      <button class="active" type="button" data-student-notification-filter="all">Tất cả</button><button type="button" data-student-notification-filter="schedule">Lịch học</button><button type="button" data-student-notification-filter="attendance">Điểm danh</button><button type="button" data-student-notification-filter="training">Giờ học</button><button type="button" data-student-notification-filter="theory">Kết quả thi</button><button type="button" data-student-notification-filter="finance">Học phí</button><button type="button" data-student-notification-filter="profile">Hồ sơ</button>
+    </div>
     <div id="studentNotificationList" class="notification-list"></div>
   </dialog>
 
