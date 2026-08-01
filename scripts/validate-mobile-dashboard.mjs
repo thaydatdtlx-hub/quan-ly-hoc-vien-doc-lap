@@ -10,17 +10,17 @@ const [admin,student,css,client,worker]=await Promise.all([
 ]);
 
 for(const [name,html] of [["Admin",admin],["Học viên",student]]){
-  for(const token of ["mobile-appbar","mobile-page-tabs","mobile-dashboard-home","mobile-module-track","mobile-bottom-nav","/mobile-app.css","/mobile-dashboard.js"]){
+  for(const token of ["mobile-appbar","mobile-page-tabs","mobile-dashboard-home","mobile-module-track","mobile-bottom-nav","data-mobile-icon","/mobile-app.css","/mobile-dashboard.js"]){
     if(!html.includes(token))throw new Error(`${name} thiếu thành phần mobile: ${token}`);
   }
 }
-for(const token of ["@media(max-width:720px)","env(safe-area-inset-bottom)","position:fixed","scroll-snap-type","mobile-account-menu"]){
+for(const token of ["@media(max-width:720px)","env(safe-area-inset-bottom)","position:fixed","scroll-snap-type","mobile-account-menu","flex-direction:row!important","min-height:44px"]){
   if(!css.includes(token))throw new Error(`CSS mobile thiếu: ${token}`);
 }
-for(const token of ["data-mobile-click","data-mobile-scroll","MutationObserver","mobileAdminNotificationBadge","mobileStudentNotificationBadge"]){
+for(const token of ["data-mobile-click","data-mobile-scroll","MutationObserver","mobileAdminNotificationBadge","mobileStudentNotificationBadge","MOBILE_ICONS","renderIcons"]){
   if(!client.includes(token))throw new Error(`Điều hướng mobile thiếu: ${token}`);
 }
-for(const token of ["thay-dat-pwa-v3","cache.put(request,copy)"]){
+for(const token of ["thay-dat-pwa-v4","cache.put(request,copy)"]){
   if(!worker.includes(token))throw new Error(`PWA chưa lưu tài nguyên mobile: ${token}`);
 }
 console.log("Mobile dashboard hợp lệ: Admin và học viên có app bar, tab, thẻ kéo ngang, cảnh báo động và thanh điều hướng cố định.");

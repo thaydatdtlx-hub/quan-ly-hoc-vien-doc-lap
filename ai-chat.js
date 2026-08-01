@@ -131,7 +131,7 @@ function tuitionAnswer(){
 }
 async function faqAnswer(query){
   const value=normalize(query);
-  if(/^(xin chao|chao|hello|hi)\b/.test(value))return"Chào anh/chị! Tôi hỗ trợ tra cứu miễn phí bộ 600 câu, lịch học, DAT và cách sử dụng website.";
+  if(/^(xin chao|chao|hello|hi)\b/.test(value))return"Chào anh/chị! Tôi hỗ trợ tra cứu bộ 600 câu, lịch học, DAT và cách sử dụng website.";
   if(/cam on|thank/.test(value))return"Rất vui được hỗ trợ anh/chị. Hãy tiếp tục hỏi về 600 câu, DAT hoặc lịch học nhé.";
   if(/lich.*cabin|cabin.*lich/.test(value))return specificScheduleAnswer(["cabin"],"Lịch học Cabin");
   if(/lich.*(chay|hoc|thuc hanh)?\s*dat|dat.*lich/.test(value))return specificScheduleAnswer(["dat_practice","dat_auto_start","dat_auto_end","dat_manual_start","dat_manual_end"],"Lịch chạy DAT");
@@ -180,13 +180,13 @@ function buildChat(){
   panel.innerHTML=`
     <header class="ai-chat-header">
       <span class="ai-chat-avatar" aria-hidden="true"><img src="/tro-ly-cua-dat.png?v=1" alt=""></span>
-      <div class="ai-chat-title"><strong>Trợ lý của Đạt</strong><span><i></i> Tra cứu tự động miễn phí</span></div>
+      <div class="ai-chat-title"><strong>Trợ lý của Đạt</strong><span><i></i> Đang sẵn sàng hỗ trợ</span></div>
       <div class="ai-chat-header-actions"><button class="ai-chat-icon-btn ai-chat-clear" type="button" aria-label="Xóa cuộc trò chuyện" title="Xóa cuộc trò chuyện">↻</button><button class="ai-chat-icon-btn ai-chat-close" type="button" aria-label="Đóng">×</button></div>
     </header>
     <div class="ai-chat-messages" aria-live="polite"></div>
     <div class="ai-chat-suggestions"></div>
     <form class="ai-chat-form"><textarea rows="1" maxlength="500" placeholder="Hỏi về 600 câu, lịch học, DAT…" aria-label="Nội dung câu hỏi"></textarea><button class="ai-chat-send" type="submit" aria-label="Gửi câu hỏi">↑</button></form>
-    <p class="ai-chat-note">Trợ lý tra cứu dữ liệu có sẵn, không dùng API trả phí. Lịch chính thức theo thông báo của Thầy Đạt.</p>`;
+    <p class="ai-chat-note">Thông tin lịch chính thức theo thông báo của Thầy Đạt.</p>`;
   document.body.append(launcher,panel);
 
   const messagesEl=panel.querySelector(".ai-chat-messages"),suggestionsEl=panel.querySelector(".ai-chat-suggestions"),form=panel.querySelector("form"),input=panel.querySelector("textarea"),send=panel.querySelector(".ai-chat-send");
@@ -201,7 +201,7 @@ function buildChat(){
   }
   function render(){
     messagesEl.textContent="";
-    if(!messages.length)appendMessage("assistant","Chào anh/chị! Tôi hỗ trợ miễn phí việc tra cứu 600 câu, lịch học, DAT và cách sử dụng website. Anh/chị cần hỏi gì?");
+    if(!messages.length)appendMessage("assistant","Chào anh/chị! Tôi hỗ trợ tra cứu 600 câu, lịch học, DAT và cách sử dụng website. Anh/chị cần hỏi gì?");
     else messages.forEach(item=>appendMessage(item.role,item.content));
   }
   function setOpen(open){panel.classList.toggle("is-open",open);panel.setAttribute("aria-hidden",String(!open));launcher.setAttribute("aria-expanded",String(open));if(open)setTimeout(()=>input.focus(),180)}

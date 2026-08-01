@@ -143,8 +143,8 @@
     <header class="mobile-appbar" aria-label="Điều hướng quản lý trên điện thoại">
       <a class="mobile-app-brand" href="#dashboardMain"><img src="/logo-thay-dat-compact.webp?v=15" alt=""><span><strong>THẦY ĐẠT</strong><small>Quản lý đào tạo</small></span></a>
       <div class="mobile-app-actions">
-        <button type="button" data-mobile-action="admin-search" aria-label="Tìm kiếm học viên"><span aria-hidden="true">⌕</span></button>
-        <button class="mobile-notification-trigger" type="button" data-mobile-click="notificationBtn" aria-label="Mở thông báo"><span aria-hidden="true">♢</span><b id="mobileAdminNotificationBadge" class="hidden">0</b></button>
+        <button type="button" data-mobile-action="admin-search" aria-label="Tìm kiếm học viên"><span data-mobile-icon="search"></span></button>
+        <button class="mobile-notification-trigger" type="button" data-mobile-click="notificationBtn" aria-label="Mở thông báo"><span data-mobile-icon="bell"></span><b id="mobileAdminNotificationBadge" class="hidden">0</b></button>
         <button id="mobileAdminAccountBtn" class="mobile-avatar" type="button" aria-label="Mở tài khoản">ĐĐ</button>
       </div>
       <div id="mobileAdminAccountMenu" class="mobile-account-menu hidden">
@@ -162,17 +162,17 @@
       <section class="mobile-dashboard-home" aria-labelledby="mobileAdminOverviewTitle">
         <div class="mobile-section-title"><div><small>TỔNG QUAN HÔM NAY</small><h2 id="mobileAdminOverviewTitle">Trung tâm điều hành</h2></div><span>Admin</span></div>
         <article class="mobile-action-window">
-          <div class="mobile-window-toolbar"><span>30 ngày tới <b aria-hidden="true">⌄</b></span><button type="button" data-mobile-click="warningViewAll" aria-label="Mở danh sách cần xử lý">☷</button></div>
-          <div class="mobile-action-state"><span id="mobileAdminActionIcon" aria-hidden="true">✓</span><strong id="mobileAdminActionTitle">Đang đồng bộ dữ liệu</strong><small id="mobileAdminActionDetail">Các cảnh báo và công việc quan trọng sẽ hiển thị tại đây.</small></div>
+          <div class="mobile-window-toolbar"><span><i data-mobile-icon="calendar"></i>30 ngày tới</span><button type="button" data-mobile-click="warningViewAll" aria-label="Mở danh sách cần xử lý"><span data-mobile-icon="list"></span></button></div>
+          <div class="mobile-action-state"><span id="mobileAdminActionIcon" data-mobile-icon="check"></span><strong id="mobileAdminActionTitle">Đang đồng bộ dữ liệu</strong><small id="mobileAdminActionDetail">Các cảnh báo và công việc quan trọng sẽ hiển thị tại đây.</small></div>
         </article>
         <section id="mobileAdminShortcuts" class="mobile-recent" aria-labelledby="mobileAdminShortcutsTitle">
           <div class="mobile-section-heading"><h3 id="mobileAdminShortcutsTitle">Truy cập nhanh</h3><span>Vuốt để xem thêm</span></div>
           <div class="mobile-module-track">
-            <button class="mobile-module-card tone-gold" type="button" data-mobile-click="addStudentBtn"><span><b>＋</b></span><strong>Thêm học viên</strong><small>Tạo hồ sơ mới</small></button>
-            <a class="mobile-module-card tone-blue" href="/lich-dao-tao.html"><span><b>▣</b></span><strong>Lịch đào tạo</strong><small>Xếp lịch và ca học</small></a>
+            <button class="mobile-module-card tone-gold" type="button" data-mobile-click="addStudentBtn"><span><b><i data-mobile-icon="userPlus"></i></b></span><strong>Thêm học viên</strong><small>Tạo hồ sơ mới</small></button>
+            <a class="mobile-module-card tone-blue" href="/lich-dao-tao.html"><span><b><i data-mobile-icon="calendar"></i></b></span><strong>Lịch đào tạo</strong><small>Xếp lịch và ca học</small></a>
             <a class="mobile-module-card tone-violet" href="/600-cau-hoi.html"><span><b>600</b></span><strong>Lý thuyết</strong><small>Theo dõi tiến độ</small></a>
-            <button class="mobile-module-card tone-green" type="button" data-mobile-click="attendanceBtn"><span><b>✓</b></span><strong>Điểm danh</strong><small>Giờ học thực tế</small></button>
-            <button class="mobile-module-card tone-cyan" type="button" data-mobile-click="adminReportBtn"><span><b>▤</b></span><strong>Báo cáo Admin</strong><small>Tổng hợp đào tạo</small></button>
+            <button class="mobile-module-card tone-green" type="button" data-mobile-click="attendanceBtn"><span><b><i data-mobile-icon="clipboard"></i></b></span><strong>Điểm danh</strong><small>Giờ học thực tế</small></button>
+            <button class="mobile-module-card tone-cyan" type="button" data-mobile-click="adminReportBtn"><span><b><i data-mobile-icon="chart"></i></b></span><strong>Báo cáo Admin</strong><small>Tổng hợp đào tạo</small></button>
           </div>
         </section>
       </section>
@@ -288,11 +288,11 @@
       </section>
     </main>
     <nav class="mobile-bottom-nav" aria-label="Thanh điều hướng Admin">
-      <button class="active" type="button" data-mobile-scroll="#dashboardMain"><span aria-hidden="true">◴</span><small>Tổng quan</small></button>
-      <button type="button" data-mobile-scroll=".panel"><span aria-hidden="true">♙</span><small>Học viên</small></button>
-      <a href="/lich-dao-tao.html"><span aria-hidden="true">▣</span><small>Lịch</small></a>
-      <button class="mobile-bottom-notification" type="button" data-mobile-click="notificationBtn"><span aria-hidden="true">♢</span><small>Thông báo</small><b id="mobileAdminBottomBadge" class="hidden">0</b></button>
-      <button type="button" data-mobile-action="admin-more"><span aria-hidden="true">•••</span><small>Thêm</small></button>
+      <button class="active" type="button" data-mobile-scroll="#dashboardMain"><span data-mobile-icon="home"></span><small>Tổng quan</small></button>
+      <button type="button" data-mobile-scroll=".panel"><span data-mobile-icon="users"></span><small>Học viên</small></button>
+      <a href="/lich-dao-tao.html"><span data-mobile-icon="calendar"></span><small>Lịch</small></a>
+      <button class="mobile-bottom-notification" type="button" data-mobile-click="notificationBtn"><span data-mobile-icon="bell"></span><small>Thông báo</small><b id="mobileAdminBottomBadge" class="hidden">0</b></button>
+      <button type="button" data-mobile-action="admin-more"><span data-mobile-icon="more"></span><small>Thêm</small></button>
     </nav>
     <footer class="contact-footer">
       <div class="contact-footer__brand"><strong>THẦY ĐẠT · ĐÀO TẠO LÁI XE TRỌN GÓI</strong><span>Kết nối với chúng tôi</span></div>
