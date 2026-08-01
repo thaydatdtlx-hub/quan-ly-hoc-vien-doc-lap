@@ -9,6 +9,7 @@ const normalize=value=>String(value??"").toLowerCase().normalize("NFD").replace(
 const managerToken=()=>localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"";
 const dateTime=value=>value?new Intl.DateTimeFormat("vi-VN",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}).format(new Date(value)):"";
 const dateOnly=value=>value?String(value).split("-").reverse().join("/"):"Linh hoạt";
+const money=value=>new Intl.NumberFormat("vi-VN").format(Number(value)||0)+" ₫";
 
 async function rpc(fn,body={}){
   const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
@@ -43,7 +44,8 @@ function render(){
         <small>Đăng ký ${esc(dateTime(item.created_at))}</small>
       </div>
       <div class="refresh-admin-detail">
-        <strong>${esc(item.transmission||"Chưa chọn")} · ${esc(item.license_status||"Chưa ghi tình trạng bằng")}</strong>
+        <strong>${esc(item.transmission||"Chưa chọn")} · ${esc(item.duration_hours||2)} giờ · ${esc(money(item.estimated_total))}</strong>
+        <small>${esc(item.license_status||"Chưa ghi tình trạng bằng")}${Number(item.weekend_surcharge_per_hour)>0?` · Có phụ thu cuối tuần ${esc(money(item.weekend_surcharge_per_hour))}/giờ`:""}</small>
         <div class="refresh-admin-goals">${goalsMarkup(item.goals)}</div>
         <small>Lịch mong muốn: ${esc(dateOnly(item.preferred_date))}${item.preferred_time?` · ${esc(item.preferred_time)}`:""}</small>
         ${item.area?`<small>Khu vực: ${esc(item.area)}</small>`:""}
@@ -95,4 +97,3 @@ if(adminButton){
   const observer=new MutationObserver(()=>{if(!adminButton.classList.contains("hidden")&&!loaded)loadRegistrations({silent:true})});
   observer.observe(adminButton,{attributes:true,attributeFilter:["class"]});
 }
-

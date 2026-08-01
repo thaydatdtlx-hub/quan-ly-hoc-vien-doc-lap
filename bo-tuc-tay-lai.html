@@ -111,10 +111,22 @@
             <label>Họ và tên <b>*</b><input id="refreshFullName" name="fullName" autocomplete="name" minlength="2" maxlength="80" placeholder="Nguyễn Văn An" required></label>
             <label>Số điện thoại <b>*</b><input id="refreshPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" minlength="9" maxlength="15" placeholder="09xx xxx xxx" required></label>
             <label>Tình trạng bằng lái <b>*</b><select id="refreshLicenseStatus" name="licenseStatus" required><option value="">Chọn tình trạng</option><option value="Đã có bằng lái">Đã có bằng lái</option><option value="Đang học lái xe">Đang học lái xe</option><option value="Lâu chưa lái lại">Lâu chưa lái lại</option><option value="Chưa có bằng lái">Chưa có bằng lái</option></select></label>
-            <label>Loại xe muốn luyện <b>*</b><select id="refreshTransmission" name="transmission" required><option value="">Chọn loại xe</option><option value="Số tự động">Số tự động</option><option value="Số sàn">Số sàn</option><option value="Cần tư vấn">Cần tư vấn</option></select></label>
+            <label>Loại xe muốn luyện <b>*</b><select id="refreshTransmission" name="transmission" required><option value="">Chọn loại xe</option><option value="Số tự động">Số tự động</option><option value="Số sàn">Số sàn</option></select></label>
+            <label class="refresh-duration-field">Số giờ dự kiến <b>*</b><div class="refresh-hours-input"><input id="refreshDurationHours" name="durationHours" type="number" inputmode="numeric" min="2" max="20" step="1" value="2" required><span>giờ</span></div><small>Tối thiểu 2 giờ, tối đa 20 giờ.</small></label>
             <label>Ngày mong muốn<input id="refreshPreferredDate" name="preferredDate" type="date"></label>
             <label>Khung giờ phù hợp<select id="refreshPreferredTime" name="preferredTime"><option value="">Linh hoạt</option><option>Sáng (07:00–11:00)</option><option>Chiều (13:00–17:00)</option><option>Tối (17:00–20:00)</option><option>Cuối tuần</option></select></label>
           </div>
+
+          <section id="refreshPricing" class="refresh-pricing" aria-labelledby="refreshPricingTitle" aria-live="polite">
+            <div class="refresh-pricing-head"><div><p>CHI PHÍ DỰ TÍNH</p><h3 id="refreshPricingTitle">Minh bạch trước khi đăng ký</h3></div><span id="refreshPricingBadge">Chọn loại xe</span></div>
+            <div class="refresh-pricing-breakdown">
+              <div><span>Đơn giá thực hành</span><strong id="refreshBaseRate">—</strong></div>
+              <div><span>Thời lượng</span><strong id="refreshHoursSummary">2 giờ</strong></div>
+              <div id="refreshWeekendRow"><span>Phụ thu cuối tuần</span><strong id="refreshWeekendFee">0 ₫</strong></div>
+            </div>
+            <div class="refresh-pricing-total"><span><small>TỔNG DỰ TÍNH</small><em id="refreshPricingNote">Chọn loại xe để hệ thống tính chi phí.</em></span><strong id="refreshEstimatedTotal">—</strong></div>
+            <p><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>Chi phí được xác nhận lại khi Thầy Đạt sắp xếp lịch và địa điểm.</p>
+          </section>
 
           <fieldset class="refresh-goals"><legend>Kỹ năng muốn luyện <b>*</b><small>Có thể chọn nhiều mục</small></legend>
             <label><input type="checkbox" name="goals" value="Làm quen và kiểm soát xe"><span><svg viewBox="0 0 24 24"><path d="M5 17 3 15v-4l2-5h14l2 5v4l-2 2Z"/><path d="M5 11h14"/></svg>Làm quen xe</span></label>
@@ -139,6 +151,7 @@
           <p>ĐĂNG KÝ THÀNH CÔNG</p>
           <h3>Cảm ơn bạn đã gửi nhu cầu!</h3>
           <div>Mã đăng ký: <strong id="refreshSuccessCode">Đang cập nhật</strong></div>
+          <div>Chi phí dự tính: <strong id="refreshSuccessTotal">Đang cập nhật</strong></div>
           <small>Thầy Đạt sẽ liên hệ qua số điện thoại bạn cung cấp để tư vấn và xác nhận lịch.</small>
           <a href="https://zalo.me/0984811037" target="_blank" rel="noopener noreferrer">Nhắn Zalo nếu cần hỗ trợ ngay</a>
           <button id="refreshNewRegistration" type="button">Tạo đăng ký khác</button>

@@ -1,7 +1,10 @@
+import {calculateDrivingRefreshCost,formatVnd,MAX_DURATION_HOURS,MIN_DURATION_HOURS} from "./driving-refresh-pricing.js";
+
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
 const form=$("refreshForm"),button=$("refreshSubmit"),error=$("refreshError");
+let currentPricing=calculateDrivingRefreshCost({durationHours:2});
 
 function localIsoDate(date){
   const offset=date.getTimezoneOffset()*60000;
@@ -10,6 +13,25 @@ function localIsoDate(date){
 
 function selectedGoals(){
   return [...form.querySelectorAll('input[name="goals"]:checked')].map(input=>input.value);
+}
+
+function updatePricing(){
+  const hoursInput=$("refreshDurationHours"),rawHours=Number(hoursInput.value);
+  const normalizedHours=Number.isInteger(rawHours)?Math.min(MAX_DURATION_HOURS,Math.max(MIN_DURATION_HOURS,rawHours)):MIN_DURATION_HOURS;
+  currentPricing=calculateDrivingRefreshCost({
+    transmission:$("refreshTransmission").value,
+    durationHours:normalizedHours,
+    preferredDate:$("refreshPreferredDate").value,
+    preferredTime:$("refreshPreferredTime").value
+  });
+  $("refreshHoursSummary").textContent=`${currentPricing.hours} giờ`;
+  $("refreshBaseRate").textContent=currentPricing.valid?`${formatVnd(currentPricing.baseHourlyRate)}/giờ`:"—";
+  $("refreshWeekendFee").textContent=currentPricing.weekendSurchargeTotal?`${formatVnd(currentPricing.weekendSurchargeTotal)} (${formatVnd(currentPricing.weekendSurchargePerHour)}/giờ)`:"0 ₫";
+  $("refreshWeekendRow").classList.toggle("is-active",currentPricing.weekendSurchargeTotal>0);
+  $("refreshEstimatedTotal").textContent=currentPricing.valid?formatVnd(currentPricing.estimatedTotal):"—";
+  $("refreshPricingBadge").textContent=!currentPricing.valid?"Chọn loại xe":currentPricing.weekend?"Giá cuối tuần":"Giá ngày thường";
+  $("refreshPricingBadge").classList.toggle("is-weekend",currentPricing.weekend&&currentPricing.valid);
+  $("refreshPricingNote").textContent=!currentPricing.valid?"Chọn loại xe để hệ thống tính chi phí.":currentPricing.weekend?`Đã gồm phụ thu Thứ 7/Chủ nhật cho ${currentPricing.hours} giờ.`:`Đơn giá ngày thường cho ${currentPricing.hours} giờ.`;
 }
 
 async function rpc(fn,body){
@@ -25,11 +47,23 @@ async function rpc(fn,body){
 
 const tomorrow=new Date();tomorrow.setDate(tomorrow.getDate()+1);
 $("refreshPreferredDate").min=localIsoDate(tomorrow);
+for(const id of ["refreshTransmission","refreshDurationHours","refreshPreferredDate","refreshPreferredTime"]){
+  $(id).addEventListener(id==="refreshDurationHours"?"input":"change",updatePricing);
+}
+$("refreshDurationHours").addEventListener("blur",()=>{
+  const value=Number($("refreshDurationHours").value);
+  if(!Number.isInteger(value)||value<MIN_DURATION_HOURS)$("refreshDurationHours").value=MIN_DURATION_HOURS;
+  else if(value>MAX_DURATION_HOURS)$("refreshDurationHours").value=MAX_DURATION_HOURS;
+  updatePricing();
+});
+updatePricing();
 
 form.addEventListener("submit",async event=>{
   event.preventDefault();
   error.textContent="";
   if(!form.reportValidity())return;
+  updatePricing();
+  if(!currentPricing.valid){error.textContent="Vui lòng chọn loại xe để hệ thống tính chi phí.";$("refreshTransmission").focus();return}
   const goals=selectedGoals();
   if(!goals.length){error.textContent="Vui lòng chọn ít nhất một kỹ năng muốn luyện.";form.querySelector(".refresh-goals").scrollIntoView({behavior:"smooth",block:"center"});return}
   if(!$("refreshConsent").checked){error.textContent="Vui lòng xác nhận đồng ý để Thầy Đạt liên hệ tư vấn.";return}
@@ -42,6 +76,10 @@ form.addEventListener("submit",async event=>{
       phone:$("refreshPhone").value.trim(),
       license_status:$("refreshLicenseStatus").value,
       transmission:$("refreshTransmission").value,
+      duration_hours:currentPricing.hours,
+      base_hourly_rate:currentPricing.baseHourlyRate,
+      weekend_surcharge_per_hour:currentPricing.weekendSurchargePerHour,
+      estimated_total:currentPricing.estimatedTotal,
       goals,
       preferred_date:$("refreshPreferredDate").value||null,
       preferred_time:$("refreshPreferredTime").value||"Linh hoạt",
@@ -51,6 +89,7 @@ form.addEventListener("submit",async event=>{
       website:$("refreshWebsite").value
     }});
     $("refreshSuccessCode").textContent=result?.registration_code||result?.code||"Đã ghi nhận";
+    $("refreshSuccessTotal").textContent=formatVnd(result?.estimated_total??currentPricing.estimatedTotal);
     $("refreshFormFields").hidden=true;
     $("refreshSuccess").hidden=false;
     $("refreshSuccess").scrollIntoView({behavior:"smooth",block:"center"});
@@ -68,9 +107,10 @@ form.addEventListener("submit",async event=>{
 $("refreshNewRegistration").addEventListener("click",()=>{
   form.reset();
   $("refreshPreferredDate").min=localIsoDate(tomorrow);
+  $("refreshDurationHours").value=MIN_DURATION_HOURS;
   $("refreshSuccess").hidden=true;
   $("refreshFormFields").hidden=false;
   error.textContent="";
+  updatePricing();
   $("refreshFullName").focus();
 });
-

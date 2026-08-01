@@ -12,6 +12,10 @@ create table if not exists public.driving_refresh_registrations (
   goals jsonb not null default '[]'::jsonb,
   preferred_date date,
   preferred_time text,
+  duration_hours integer not null default 2,
+  base_hourly_rate bigint not null default 0,
+  weekend_surcharge_per_hour bigint not null default 0,
+  estimated_total bigint not null default 0,
   area text,
   note text,
   status text not null default 'new',
@@ -22,8 +26,15 @@ create table if not exists public.driving_refresh_registrations (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint driving_refresh_status_check check (status in ('new','contacted','scheduled','completed','cancelled')),
-  constraint driving_refresh_goals_array_check check (jsonb_typeof(goals) = 'array')
+  constraint driving_refresh_goals_array_check check (jsonb_typeof(goals) = 'array'),
+  constraint driving_refresh_duration_check check (duration_hours between 2 and 20)
 );
+
+-- Bổ sung cột giá khi bảng đã được tạo từ phiên bản trước.
+alter table public.driving_refresh_registrations add column if not exists duration_hours integer not null default 2;
+alter table public.driving_refresh_registrations add column if not exists base_hourly_rate bigint not null default 0;
+alter table public.driving_refresh_registrations add column if not exists weekend_surcharge_per_hour bigint not null default 0;
+alter table public.driving_refresh_registrations add column if not exists estimated_total bigint not null default 0;
 
 create index if not exists driving_refresh_status_created_idx
   on public.driving_refresh_registrations(status, created_at desc);
@@ -49,6 +60,11 @@ declare
   v_transmission text := trim(coalesce(p_data->>'transmission', ''));
   v_goals jsonb := coalesce(p_data->'goals', '[]'::jsonb);
   v_preferred_date date;
+  v_duration_hours integer;
+  v_base_hourly_rate bigint;
+  v_weekend_surcharge_per_hour bigint := 0;
+  v_estimated_total bigint;
+  v_is_weekend boolean := false;
 begin
   -- Honeypot: phản hồi như thành công nhưng không ghi dữ liệu spam.
   if trim(coalesce(p_data->>'website', '')) <> '' then
@@ -69,8 +85,16 @@ begin
   if v_license_status not in ('Đã có bằng lái','Đang học lái xe','Lâu chưa lái lại','Chưa có bằng lái') then
     raise exception 'Vui lòng chọn tình trạng bằng lái.';
   end if;
-  if v_transmission not in ('Số tự động','Số sàn','Cần tư vấn') then
+  if v_transmission not in ('Số tự động','Số sàn') then
     raise exception 'Vui lòng chọn loại xe muốn luyện.';
+  end if;
+  begin
+    v_duration_hours := (p_data->>'duration_hours')::integer;
+  exception when others then
+    raise exception 'Số giờ dự kiến chưa hợp lệ.';
+  end;
+  if v_duration_hours is null or v_duration_hours < 2 or v_duration_hours > 20 then
+    raise exception 'Số giờ đăng ký phải từ 2 đến 20 giờ.';
   end if;
   if jsonb_typeof(v_goals) <> 'array' or jsonb_array_length(v_goals) = 0 or jsonb_array_length(v_goals) > 10 then
     raise exception 'Vui lòng chọn ít nhất một kỹ năng muốn luyện.';
@@ -88,7 +112,14 @@ begin
     if v_preferred_date < current_date then
       raise exception 'Ngày mong muốn không được ở trong quá khứ.';
     end if;
+    v_is_weekend := extract(isodow from v_preferred_date) in (6, 7);
+  elsif trim(coalesce(p_data->>'preferred_time', '')) = 'Cuối tuần' then
+    v_is_weekend := true;
   end if;
+
+  v_base_hourly_rate := case when v_transmission = 'Số tự động' then 300000 else 290000 end;
+  v_weekend_surcharge_per_hour := case when v_is_weekend then 50000 else 0 end;
+  v_estimated_total := (v_base_hourly_rate + v_weekend_surcharge_per_hour) * v_duration_hours;
 
   if exists (
     select 1 from public.driving_refresh_registrations
@@ -103,16 +134,27 @@ begin
   insert into public.driving_refresh_registrations(
     id, registration_code, full_name, phone, phone_normalized,
     license_status, transmission, goals, preferred_date,
-    preferred_time, area, note
+    preferred_time, duration_hours, base_hourly_rate,
+    weekend_surcharge_per_hour, estimated_total, area, note
   ) values (
     v_id, v_code, v_name, v_phone, v_phone_normalized,
     v_license_status, v_transmission, v_goals, v_preferred_date,
     left(trim(coalesce(p_data->>'preferred_time', 'Linh hoạt')), 80),
+    v_duration_hours, v_base_hourly_rate,
+    v_weekend_surcharge_per_hour, v_estimated_total,
     nullif(left(trim(coalesce(p_data->>'area', '')), 160), ''),
     nullif(left(trim(coalesce(p_data->>'note', '')), 800), '')
   );
 
-  return jsonb_build_object('id', v_id, 'registration_code', v_code, 'status', 'new');
+  return jsonb_build_object(
+    'id', v_id,
+    'registration_code', v_code,
+    'status', 'new',
+    'duration_hours', v_duration_hours,
+    'base_hourly_rate', v_base_hourly_rate,
+    'weekend_surcharge_per_hour', v_weekend_surcharge_per_hour,
+    'estimated_total', v_estimated_total
+  );
 end;
 $$;
 
@@ -142,6 +184,10 @@ begin
         'goals', r.goals,
         'preferred_date', r.preferred_date,
         'preferred_time', r.preferred_time,
+        'duration_hours', r.duration_hours,
+        'base_hourly_rate', r.base_hourly_rate,
+        'weekend_surcharge_per_hour', r.weekend_surcharge_per_hour,
+        'estimated_total', r.estimated_total,
         'area', r.area,
         'note', r.note,
         'status', r.status,
@@ -219,4 +265,3 @@ grant execute on function public.app_admin_list_driving_refresh_registrations(te
 grant execute on function public.app_admin_update_driving_refresh_registration(text,uuid,text,text) to anon, authenticated;
 
 notify pgrst, 'reload schema';
-
