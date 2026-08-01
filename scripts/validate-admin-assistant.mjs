@@ -23,6 +23,6 @@ for(const token of ["admin-assistant-launcher","admin-assistant-panel","safe-are
   if(!styles.includes(token))throw new Error(`Giao diện Trợ lý Admin thiếu: ${token}`);
 }
 if(!genericChat.includes("managerAuth"))throw new Error("Trợ lý chung chưa được tách khỏi phiên quản trị.");
-if(!worker.includes('thay-dat-pwa-v5'))throw new Error("PWA chưa làm mới bộ nhớ đệm cho Trợ lý Admin.");
+if(!worker.includes('thay-dat-pwa-v6'))throw new Error("PWA chưa làm mới bộ nhớ đệm cho Trợ lý Admin.");
 
 console.log("Trợ lý Admin hợp lệ: chỉ dành cho Admin, tra cứu học viên, học phí, 600 câu, điểm danh, lịch và cảnh báo; mở đúng chức năng liên quan.");

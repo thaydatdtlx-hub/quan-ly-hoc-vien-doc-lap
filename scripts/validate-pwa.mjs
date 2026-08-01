@@ -23,7 +23,7 @@ for(const token of ["serviceWorker.register","beforeinstallprompt","appinstalled
   if(!installer.includes(token))throw new Error(`Luồng cài ứng dụng thiếu: ${token}`);
 }
 
-for(const file of ["index.html","hoc-vien.html","lich-dao-tao.html","600-cau-hoi.html"]){
+for(const file of ["index.html","hoc-vien.html","lich-dao-tao.html","600-cau-hoi.html","bo-tuc-tay-lai.html"]){
   const html=await readFile(new URL(file,root),"utf8");
   for(const token of ["/site.webmanifest","/apple-touch-icon-180.png","mobile-web-app-capable","/pwa-install.css","/pwa-install.js"]){
     if(!html.includes(token))throw new Error(`${file} thiếu ${token}.`);

@@ -9,6 +9,7 @@ export default defineConfig({
         schedule:resolve(__dirname,"lich-dao-tao.html"),
         student:resolve(__dirname,"hoc-vien.html"),
         theory:resolve(__dirname,"600-cau-hoi.html"),
+        drivingRefresh:resolve(__dirname,"bo-tuc-tay-lai.html"),
         notFound:resolve(__dirname,"404.html")
       }
     }

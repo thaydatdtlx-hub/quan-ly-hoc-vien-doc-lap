@@ -22,7 +22,7 @@
   <link rel="manifest" href="/site.webmanifest">
   <title>Hệ thống quản lý đào tạo · Thầy Đạt</title>
   <link rel="preload" as="image" href="/hero-vip-navy-champagne.webp?v=1">
-  <link rel="stylesheet" href="styles.css?v=4"><link rel="stylesheet" href="theme.css?v=15"><link rel="stylesheet" href="/contact-footer.css?v=1"><link rel="stylesheet" href="/professional.css?v=15"><link rel="stylesheet" href="/pwa-install.css?v=1"><link rel="stylesheet" href="/mobile-app.css?v=1">
+  <link rel="stylesheet" href="styles.css?v=4"><link rel="stylesheet" href="theme.css?v=15"><link rel="stylesheet" href="/contact-footer.css?v=1"><link rel="stylesheet" href="/professional.css?v=15"><link rel="stylesheet" href="/pwa-install.css?v=1"><link rel="stylesheet" href="/mobile-app.css?v=1"><link rel="stylesheet" href="/driving-refresh.css?v=1">
 </head>
 <body>
   <div id="login" class="login-page" data-vip-version="15-professional">
@@ -44,6 +44,11 @@
           <a class="intro-study-cta" href="/600-cau-hoi.html">
             <span aria-hidden="true">📖</span>
             <div><strong>HỌC LÝ THUYẾT 600 CÂU</strong><small>Ôn tập miễn phí · Thi thử trực tuyến</small></div>
+            <b aria-hidden="true">→</b>
+          </a>
+          <a class="intro-refresh-cta" href="/bo-tuc-tay-lai.html">
+            <span aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 17 3 15v-4l2-5h14l2 5v4l-2 2Z"/><path d="M5 11h14M7 17v2M17 17v2"/><circle cx="7" cy="14" r="1"/><circle cx="17" cy="14" r="1"/></svg></span>
+            <div><strong>ĐĂNG KÝ BỔ TÚC TAY LÁI</strong><small>Luyện kỹ năng thực tế · Chọn lịch phù hợp</small></div>
             <b aria-hidden="true">→</b>
           </a>
           <div class="intro-features">
@@ -92,6 +97,7 @@
 
         <div class="login-divider"><span>hoặc</span></div>
         <button id="openPublicRegisterBtn" class="public-register-cta" type="button"><span>＋</span><div><strong>Tạo tài khoản học 600 câu</strong><small>Dành cho người học chưa phải học viên Thầy Đạt</small></div><b>→</b></button>
+        <a class="login-refresh-link" href="/bo-tuc-tay-lai.html"><span aria-hidden="true">🚘</span><div><strong>Đăng ký bổ túc tay lái</strong><small>Gửi nhu cầu và lịch mong muốn trong 2 phút</small></div><b aria-hidden="true">→</b></a>
         <a class="zalo-contact" href="https://zalo.me/0984811037" target="_blank" rel="noopener noreferrer"><strong>Z</strong><span>Cần hỗ trợ? Liên hệ qua Zalo</span></a>
         <p class="login-register">Đã có tài khoản? Đăng nhập ngay phía trên.</p>
         <div class="login-security" aria-label="Kết nối bảo mật">
@@ -104,6 +110,7 @@
     <footer class="contact-footer">
       <div class="contact-footer__brand"><strong>THẦY ĐẠT · ĐÀO TẠO LÁI XE TRỌN GÓI</strong><span>Kết nối với chúng tôi</span></div>
       <nav class="contact-footer__links" aria-label="Liên hệ Thầy Đạt">
+        <a class="contact-footer__link" href="/bo-tuc-tay-lai.html"><span class="contact-footer__icon">🚘</span><span>Bổ túc tay lái</span></a>
         <a class="contact-footer__link contact-footer__link--tiktok" href="https://www.tiktok.com/@datdidaydo99?is_from_webapp=1&amp;sender_device=pc" target="_blank" rel="noopener noreferrer"><span class="contact-footer__icon">♪</span><span>TikTok</span></a>
         <a class="contact-footer__link contact-footer__link--facebook" href="https://www.facebook.com/profile.php?id=61579863779611" target="_blank" rel="noopener noreferrer"><span class="contact-footer__icon">f</span><span>Facebook</span></a>
         <a class="contact-footer__link contact-footer__link--zalo" href="https://zalo.me/0984811037" target="_blank" rel="noopener noreferrer"><span class="contact-footer__icon">Z</span><span>Zalo</span></a>
@@ -173,6 +180,7 @@
             <a class="mobile-module-card tone-violet" href="/600-cau-hoi.html"><span><b>600</b></span><strong>Lý thuyết</strong><small>Theo dõi tiến độ</small></a>
             <button class="mobile-module-card tone-green" type="button" data-mobile-click="attendanceBtn"><span><b><i data-mobile-icon="clipboard"></i></b></span><strong>Điểm danh</strong><small>Giờ học thực tế</small></button>
             <button class="mobile-module-card tone-cyan" type="button" data-mobile-click="adminReportBtn"><span><b><i data-mobile-icon="chart"></i></b></span><strong>Báo cáo Admin</strong><small>Tổng hợp đào tạo</small></button>
+            <button class="mobile-module-card tone-orange admin-only hidden" type="button" data-mobile-click="drivingRefreshAdminBtn"><span><b><i data-mobile-icon="car"></i></b></span><strong>Đăng ký bổ túc</strong><small>Tiếp nhận khách mới</small></button>
           </div>
         </section>
       </section>
@@ -182,6 +190,7 @@
         <button id="addStudentBtn" class="primary">＋ Thêm học viên</button>
         <a class="schedule-link" href="/lich-dao-tao.html"><span aria-hidden="true">▣</span><strong>LỊCH ĐÀO TẠO</strong></a>
         <a class="schedule-link question-bank-link" href="/600-cau-hoi.html"><span aria-hidden="true">600</span><strong>HỌC LÝ THUYẾT</strong></a>
+        <a class="schedule-link refresh-public-link" href="/bo-tuc-tay-lai.html" target="_blank" rel="noopener"><span aria-hidden="true">🚘</span><strong>TRANG ĐĂNG KÝ BỔ TÚC</strong></a>
         <button id="importBtn" class="data-action data-import admin-only hidden" type="button" title="Chỉ nhận file Excel .xlsx">
           <span class="data-action-icon" aria-hidden="true">↑</span>
           <span><strong>NHẬP FILE</strong><small>Chọn file .xlsx</small></span>
@@ -194,6 +203,7 @@
         <button id="publicTheoryAccountsBtn" class="admin-only hidden">Người học bên ngoài</button>
         <button id="attendanceBtn" class="attendance-toolbar-btn admin-only hidden" type="button"><span aria-hidden="true">✓</span><strong>ĐIỂM DANH</strong></button>
         <button id="adminReportBtn" class="report-toolbar-btn admin-only hidden" type="button"><span aria-hidden="true">▤</span><strong>BÁO CÁO ADMIN</strong></button>
+        <button id="drivingRefreshAdminBtn" class="refresh-admin-btn admin-only hidden" type="button"><span aria-hidden="true">🚘</span><strong>ĐĂNG KÝ BỔ TÚC</strong><small id="drivingRefreshToolbarCount">Khách mới</small></button>
         <button id="operationsBtn" class="operations-btn admin-only hidden" type="button"><span aria-hidden="true">↺</span><strong>THÙNG RÁC &amp; NHẬT KÝ</strong><small id="trashToolbarCount">An toàn dữ liệu</small></button>
         <input id="dataFile" class="hidden" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" aria-label="Chọn file Excel .xlsx để nhập dữ liệu">
       </section>
@@ -542,6 +552,34 @@
     </form>
   </dialog>
 
+  <dialog id="drivingRefreshAdminDialog" class="refresh-admin-dialog">
+    <div class="dialog-head refresh-admin-head">
+      <div><p class="dialog-kicker">KHÁCH HÀNG TIỀM NĂNG</p><h2>Đăng ký bổ túc tay lái</h2><span class="sub">Tiếp nhận, liên hệ và theo dõi lịch luyện tập của khách đăng ký từ website.</span></div>
+      <button type="button" class="close" aria-label="Đóng">×</button>
+    </div>
+    <div class="refresh-admin-summary" aria-label="Tổng hợp đăng ký bổ túc tay lái">
+      <article><small>Tổng đăng ký</small><strong id="drivingRefreshTotal">0</strong></article>
+      <article><small>Chưa liên hệ</small><strong id="drivingRefreshNew">0</strong></article>
+      <article><small>Đã xếp lịch</small><strong id="drivingRefreshScheduled">0</strong></article>
+      <article><small>Hoàn thành</small><strong id="drivingRefreshCompleted">0</strong></article>
+    </div>
+    <div class="refresh-admin-toolbar">
+      <input id="drivingRefreshSearch" type="search" placeholder="Tìm tên, số điện thoại, mã đăng ký" aria-label="Tìm đăng ký bổ túc tay lái">
+      <select id="drivingRefreshStatus" aria-label="Lọc trạng thái">
+        <option value="all">Tất cả trạng thái</option>
+        <option value="new">Chưa liên hệ</option>
+        <option value="contacted">Đã liên hệ</option>
+        <option value="scheduled">Đã xếp lịch</option>
+        <option value="completed">Hoàn thành</option>
+        <option value="cancelled">Không tiếp tục</option>
+      </select>
+      <button id="drivingRefreshReload" type="button">Làm mới</button>
+      <a href="/bo-tuc-tay-lai.html" target="_blank" rel="noopener">Mở trang đăng ký ↗</a>
+    </div>
+    <p id="drivingRefreshAdminError" class="refresh-admin-error" role="alert"></p>
+    <div id="drivingRefreshAdminList" class="refresh-admin-list"><div class="refresh-admin-empty">Đang tải danh sách đăng ký…</div></div>
+  </dialog>
+
   <dialog id="passwordDialog">
     <form id="passwordForm">
       <div class="dialog-head"><h2>Đổi mật khẩu</h2><button id="passwordClose" type="button" class="close" aria-label="Đóng hộp thoại">×</button></div>
@@ -590,5 +628,6 @@
   <script type="module" src="/push-notifications.js?v=1"></script>
   <script type="module" src="/mobile-dashboard.js?v=1"></script>
   <script type="module" src="/admin-assistant.js?v=1"></script>
+  <script type="module" src="/driving-refresh-admin.js?v=1"></script>
 </body>
 </html>

@@ -2,7 +2,7 @@ import {access,readFile} from "node:fs/promises";
 import {resolve} from "node:path";
 
 const root=resolve(import.meta.dirname,"..");
-const pages=["index.html","hoc-vien.html","600-cau-hoi.html","lich-dao-tao.html","404.html"];
+const pages=["index.html","hoc-vien.html","600-cau-hoi.html","lich-dao-tao.html","bo-tuc-tay-lai.html","404.html"];
 const errors=[];
 
 async function exists(path){

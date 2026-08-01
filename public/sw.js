@@ -1,10 +1,11 @@
-const CACHE_NAME="thay-dat-pwa-v5";
+const CACHE_NAME="thay-dat-pwa-v6";
 const CORE_ASSETS=[
   "/",
   "/index.html",
   "/hoc-vien.html",
   "/lich-dao-tao.html",
   "/600-cau-hoi.html",
+  "/bo-tuc-tay-lai.html",
   "/offline.html",
   "/site.webmanifest",
   "/app-icon-192.png",
