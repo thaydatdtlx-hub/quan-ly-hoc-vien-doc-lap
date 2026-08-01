@@ -82,6 +82,17 @@ Website có thể cài trực tiếp lên iPhone, iPad và Android mà không c�
 - Có màn hình khởi động mang thương hiệu Thầy Đạt và trang hướng dẫn khi mất mạng.
 - Tài khoản, thông báo và dữ liệu vẫn đồng bộ với Supabase; dữ liệu quan trọng không được lưu thay thế trên thiết bị.
 
+## Thông báo đẩy ra màn hình điện thoại
+
+Chạy file `CAP-NHAT-THONG-BAO-DAY-BUOC-12.sql` trong Supabase SQL Editor, sau đó:
+
+1. Tạo Edge Function tên `web-push` từ file `supabase/functions/web-push/index.ts` và tắt **Verify JWT**. Function tự kiểm tra Service Role đối với yêu cầu gửi nên không chấp nhận lệnh gửi công khai.
+2. Chạy `node scripts/generate-vapid-keys.mjs` một lần. Lưu ba giá trị trả về vào Supabase Edge Function Secrets: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`. Không ghi khóa riêng vào GitHub hoặc mã nguồn.
+3. Trong **Database Webhooks**, tạo webhook cho bảng `app_notifications`, sự kiện **Insert**, đích là Edge Function `web-push`; thêm Authorization header bằng Service Role theo tùy chọn của Supabase.
+4. Cài PWA lên điện thoại, đăng nhập, mở **Thông báo → Bật thông báo điện thoại → Gửi thử**.
+
+Mỗi thiết bị có thể tự bật hoặc tắt. Subscription được gắn với đúng tài khoản Admin/học viên, bảo vệ bằng RLS và tự vô hiệu hóa khi dịch vụ Push báo thiết bị đã hủy đăng ký. Thông báo mới từ lịch học, duyệt ca, học phí, hồ sơ, thi và điểm danh sẽ dùng chung trung tâm thông báo Bước 11.
+
 ## Chạy thử
 
 ```bash

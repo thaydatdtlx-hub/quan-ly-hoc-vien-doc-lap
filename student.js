@@ -341,6 +341,7 @@ function renderStudentNotifications(){
   const read=readNoticeIds(me),unread=studentNotices.filter(notice=>!isNoticeRead(notice,read)).length;
   const query=normalize($("studentNotificationSearch").value),visible=studentNotices.filter(notice=>(studentNotificationFilter==="all"||notificationCategory(notice)===studentNotificationFilter)&&(!query||normalize(`${notice.title} ${notice.body}`).includes(query)));
   $("studentNotificationBadge").textContent=unread;$("studentNotificationBadge").classList.toggle("hidden",unread===0);
+  if(unread&&"setAppBadge" in navigator)navigator.setAppBadge(unread).catch(()=>{});else if(!unread&&"clearAppBadge" in navigator)navigator.clearAppBadge().catch(()=>{});
   $("studentNotificationSummary").textContent=`${visible.length}/${studentNotices.length} thông báo · ${unread} chưa đọc`;
   document.querySelectorAll("[data-student-notification-filter]").forEach(button=>button.classList.toggle("active",button.dataset.studentNotificationFilter===studentNotificationFilter));
   $("studentNotificationList").innerHTML=visible.length?visible.map(notice=>`

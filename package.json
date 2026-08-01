@@ -16,7 +16,9 @@
     "check:warnings": "node scripts/validate-early-warnings.mjs",
     "check:notifications": "node scripts/validate-notification-center.mjs",
     "check:pwa": "node scripts/validate-pwa.mjs",
-    "check": "npm run check:questions && npm run check:site && npm run check:excel && npm run check:duplicates && npm run check:payments && npm run check:attendance && npm run check:warnings && npm run check:notifications && npm run check:pwa"
+    "check:push": "node scripts/validate-push-notifications.mjs",
+    "push:keys": "node scripts/generate-vapid-keys.mjs",
+    "check": "npm run check:questions && npm run check:site && npm run check:excel && npm run check:duplicates && npm run check:payments && npm run check:attendance && npm run check:warnings && npm run check:notifications && npm run check:pwa && npm run check:push"
   },
   "devDependencies": {
     "vite": "^7.0.0"

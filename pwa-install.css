@@ -1,1 +1,37 @@
-.pwa-install-banner{position:fixed;right:max(14px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));z-index:9999;display:grid;grid-template-columns:50px minmax(0,1fr) auto 30px;align-items:center;gap:11px;width:min(560px,calc(100vw - 28px));padding:12px;border:1px solid #ffffff2d;border-radius:18px;background:#071d36f2;color:#fff;box-shadow:0 20px 55px #00122673;backdrop-filter:blur(16px)}.pwa-install-banner>img{width:50px;height:50px;border-radius:13px;background:#fff}.pwa-install-banner>div{display:grid;min-width:0;gap:2px}.pwa-install-banner strong{font-size:13px}.pwa-install-banner p{margin:0;color:#c7d9e9;font-size:10px;line-height:1.4}.pwa-install-banner small{margin-top:5px;color:#f3d88f;font-size:10px;line-height:1.45}.pwa-install-banner button{border:0;font-family:inherit;font-weight:850}.pwa-install-action{min-height:38px;padding:0 13px;border-radius:10px!important;background:linear-gradient(135deg,#f3d17f,#dcae49);color:#09233e}.pwa-install-close{align-self:start;width:30px;height:30px;padding:0;border-radius:9px!important;background:#ffffff12;color:#d8e5f0;font-size:18px}.pwa-install-banner.show-instructions{align-items:start}.pwa-install-banner.show-instructions .pwa-install-action{display:none}.pwa-launch-screen{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;align-content:center;gap:9px;padding:24px;background:linear-gradient(145deg,#06172d,#0c3763);color:#fff;text-align:center;opacity:0;transition:opacity .22s}.pwa-launch-screen.visible{opacity:1}.pwa-launch-screen.leaving{opacity:0}.pwa-launch-screen img{width:104px;height:104px;border-radius:26px;box-shadow:0 18px 45px #00112680}.pwa-launch-screen strong{margin-top:10px;color:#f3d17f;font-size:24px;letter-spacing:.08em}.pwa-launch-screen span{color:#c7d9e9;font-size:12px}@media(display-mode:standalone){body{padding-top:env(safe-area-inset-top);padding-right:env(safe-area-inset-right);padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left)}}@media(max-width:620px){.pwa-install-banner{grid-template-columns:44px minmax(0,1fr) 30px}.pwa-install-banner>img{width:44px;height:44px}.pwa-install-action{grid-column:2;width:100%;margin-top:4px}.pwa-install-close{grid-column:3;grid-row:1}}
+.pwa-install-banner{
+  position:fixed;right:max(14px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));z-index:9999;
+  display:grid;grid-template-columns:50px minmax(0,1fr) auto 30px;align-items:center;gap:11px;
+  width:min(560px,calc(100vw - 28px));padding:12px;border:1px solid #ffffff2d;border-radius:18px;
+  background:#071d36f2;color:#fff;box-shadow:0 20px 55px #00122673;backdrop-filter:blur(16px)
+}
+.pwa-install-banner>img{width:50px;height:50px;border-radius:13px;background:#fff}
+.pwa-install-banner>div{display:grid;min-width:0;gap:2px}
+.pwa-install-banner strong{font-size:13px}
+.pwa-install-banner p{margin:0;color:#c7d9e9;font-size:10px;line-height:1.4}
+.pwa-install-banner small{margin-top:5px;color:#f3d88f;font-size:10px;line-height:1.45}
+.pwa-install-banner button{border:0;font-family:inherit;font-weight:850}
+.pwa-install-action{min-height:38px;padding:0 13px;border-radius:10px!important;background:linear-gradient(135deg,#f3d17f,#dcae49);color:#09233e}
+.pwa-install-close{align-self:start;width:30px;height:30px;padding:0;border-radius:9px!important;background:#ffffff12;color:#d8e5f0;font-size:18px}
+.pwa-install-banner.show-instructions{align-items:start}
+.pwa-install-banner.show-instructions .pwa-install-action{display:none}
+
+.pwa-launch-screen{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;align-content:center;gap:9px;padding:24px;background:linear-gradient(145deg,#06172d,#0c3763);color:#fff;text-align:center;opacity:0;transition:opacity .22s}
+.pwa-launch-screen.visible{opacity:1}.pwa-launch-screen.leaving{opacity:0}
+.pwa-launch-screen img{width:104px;height:104px;border-radius:26px;box-shadow:0 18px 45px #00112680}
+.pwa-launch-screen strong{margin-top:10px;color:#f3d17f;font-size:24px;letter-spacing:.08em}
+.pwa-launch-screen span{color:#c7d9e9;font-size:12px}
+
+.push-notification-panel{display:grid;grid-template-columns:40px minmax(0,1fr) auto auto;align-items:center;gap:9px;margin:14px 0 10px;padding:11px;border:1px solid #bedcf2;border-radius:14px;background:linear-gradient(135deg,#edf7ff,#f7fcff)}
+.push-notification-panel>span{display:grid;width:40px;height:40px;place-items:center;border-radius:12px;background:#176ec9;color:#fff;font-size:17px}
+.push-notification-panel>div{display:grid;gap:2px}.push-notification-panel strong{color:#174b78;font-size:10px}
+.push-notification-panel small{color:#66829a;font-size:8px;line-height:1.35}
+.push-notification-panel small[data-tone=success]{color:#087854}.push-notification-panel small[data-tone=warning]{color:#b65d19}
+.push-notification-panel button{min-height:35px;padding:0 10px;border:1px solid #b9d7ee;border-radius:9px;background:#fff;color:#1767b6;font-size:8px;font-weight:850}
+.push-notification-panel button[data-enabled=true]{border-color:#efc5bc;color:#ac442f}.push-notification-panel button:disabled{opacity:.55}
+
+@media(display-mode:standalone){body{padding-top:env(safe-area-inset-top);padding-right:env(safe-area-inset-right);padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left)}}
+@media(max-width:620px){
+  .pwa-install-banner{grid-template-columns:44px minmax(0,1fr) 30px}.pwa-install-banner>img{width:44px;height:44px}
+  .pwa-install-action{grid-column:2;width:100%;margin-top:4px}.pwa-install-close{grid-column:3;grid-row:1}
+  .push-notification-panel{grid-template-columns:38px minmax(0,1fr)}.push-notification-panel>span{width:38px;height:38px}.push-notification-panel>button{grid-column:2;width:100%}
+}

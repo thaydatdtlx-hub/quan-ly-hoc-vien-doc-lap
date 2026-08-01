@@ -208,6 +208,7 @@
 
   <dialog id="studentNotificationDialog" class="notification-dialog">
     <div class="dialog-head notification-head"><div><p>TRUNG TÂM THÔNG BÁO</p><h2>Thông báo học viên</h2></div><button class="dialog-close" type="button" aria-label="Đóng">×</button></div>
+    <section class="push-notification-panel" aria-label="Thông báo trên điện thoại"><span aria-hidden="true">▣</span><div><strong>Thông báo ngoài màn hình</strong><small id="studentPushNotificationStatus" role="status">Đang kiểm tra thiết bị…</small></div><button id="studentPushNotificationToggle" type="button">Bật thông báo điện thoại</button><button id="studentPushNotificationTest" type="button" hidden>Gửi thử</button></section>
     <div class="notification-toolbar"><span id="studentNotificationSummary">0 thông báo</span><button id="studentMarkNotificationsRead" type="button">Đánh dấu đã đọc</button></div>
     <label class="notification-search"><span>⌕</span><input id="studentNotificationSearch" type="search" placeholder="Tìm theo nội dung thông báo" autocomplete="off"></label>
     <div class="notification-filters" aria-label="Lọc thông báo">
@@ -232,5 +233,6 @@
   <script type="module" src="/student.js"></script>
   <script type="module" src="/site-enhancements.js?v=15"></script>
   <script type="module" src="/pwa-install.js?v=1"></script>
+  <script type="module" src="/push-notifications.js?v=1"></script>
 </body>
 </html>

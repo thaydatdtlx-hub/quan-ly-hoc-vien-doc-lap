@@ -473,6 +473,7 @@
 
   <dialog id="notificationDialog" class="notification-dialog">
     <div class="dialog-head notification-head"><div><p class="dialog-kicker">TRUNG TÂM THÔNG BÁO</p><h2 id="notificationTitle">Thông báo tài khoản</h2></div><button type="button" class="close" aria-label="Đóng">×</button></div>
+    <section class="push-notification-panel" aria-label="Thông báo trên điện thoại"><span aria-hidden="true">▣</span><div><strong>Thông báo ngoài màn hình</strong><small id="pushNotificationStatus" role="status">Đang kiểm tra thiết bị…</small></div><button id="pushNotificationToggle" type="button">Bật thông báo điện thoại</button><button id="pushNotificationTest" type="button" hidden>Gửi thử</button></section>
     <div class="notification-toolbar"><span id="notificationSummary">0 thông báo</span><div><button id="notificationSettingsBtn" class="admin-only" type="button">Cài đặt giờ học</button><button id="markNotificationsRead" type="button">Đánh dấu đã đọc</button></div></div>
     <label class="notification-search"><span>⌕</span><input id="notificationSearch" type="search" placeholder="Tìm theo nội dung thông báo" autocomplete="off"></label>
     <div class="notification-filters" aria-label="Lọc thông báo">
@@ -544,5 +545,6 @@
   <script type="module" src="/app.js?v=2"></script>
   <script type="module" src="/site-enhancements.js?v=15"></script>
   <script type="module" src="/pwa-install.js?v=1"></script>
+  <script type="module" src="/push-notifications.js?v=1"></script>
 </body>
 </html>

@@ -372,6 +372,7 @@ function renderAccountNotifications(){
   const read=readNoticeIds(me),unread=accountNotices.filter(notice=>!isNoticeRead(notice,read)).length;
   const query=normalize($("notificationSearch").value),visible=accountNotices.filter(notice=>(notificationFilter==="all"||notificationCategory(notice)===notificationFilter)&&(!query||normalize(`${notice.title} ${notice.body}`).includes(query)));
   $("notificationBadge").textContent=unread;$("notificationBadge").classList.toggle("hidden",unread===0);
+  if(unread&&"setAppBadge" in navigator)navigator.setAppBadge(unread).catch(()=>{});else if(!unread&&"clearAppBadge" in navigator)navigator.clearAppBadge().catch(()=>{});
   $("notificationTitle").textContent=me?.role==="admin"?"Thông báo Admin":"Thông báo tài khoản quản lý";
   $("notificationSummary").textContent=`${visible.length}/${accountNotices.length} thông báo · ${unread} chưa đọc`;
   document.querySelectorAll("[data-notification-filter]").forEach(button=>button.classList.toggle("active",button.dataset.notificationFilter===notificationFilter));
