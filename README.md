@@ -30,6 +30,16 @@ Chạy file `CAP-NHAT-THUNG-RAC-NHAT-KY.sql` trong Supabase SQL Editor để b�
 
 Trước khi nhập dữ liệu, hệ thống tự đối chiếu mã học viên, CCCD và số điện thoại với toàn bộ hồ sơ đang hoạt động và Thùng rác. Admin được xem trước từng dòng rồi chọn cập nhật hồ sơ trùng, bỏ qua hồ sơ trùng hoặc dừng toàn bộ lần nhập. Các dòng lặp trong cùng file, hồ sơ đang ở Thùng rác và trường hợp cần đối chiếu thủ công luôn được bỏ qua để tránh mất dữ liệu.
 
+## Lịch sử học phí và phiếu thu
+
+Chạy file `CAP-NHAT-LICH-SU-HOC-PHI-PHIEU-THU.sql` trong Supabase SQL Editor để bật:
+
+- Sổ giao dịch học phí theo từng học viên, ngày thu và phương thức thanh toán.
+- Phiếu thu điện tử có mã riêng, xem lại, in hoặc lưu PDF.
+- Hủy phiếu có lý do và tự tính lại công nợ; giao dịch không bị xóa khỏi lịch sử.
+- Học viên tự xem các lần đã đóng và phiếu thu trong tài khoản của mình.
+- Số tiền “Đã thu” hiện có được bảo toàn dưới dạng số dư ban đầu.
+
 ## Chạy thử
 
 ```bash

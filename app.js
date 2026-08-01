@@ -1,11 +1,12 @@
 import {embedScheduleInNotes,parseScheduleFromNotes,stripScheduleFromNotes} from "./schedule-data.js";
 import {managerNotifications,markNoticesRead,readNoticeIds} from "./account-notifications.js";
 import {analyzeStudentImport,importSummary} from "./import-dedup.js";
+import {openPaymentReceipt,paymentMethodLabel} from "./payment-receipt.js";
 
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
-let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"",me=null,students=[],users=[],studentAccounts=[],publicTheoryAccounts=[],trainingRequests=[],theoryProgress=[],deletedStudents=[],auditLogs=[],accountNotices=[],serverNotices=[],studentAccountsReady=false,publicTheoryAccountsReady=false,theoryProgressReady=false,operationsReady=false,selectedStudentAccount=null,forcePasswordChange=false,currentPhoto="",statFilter="all",theorySummaryFilter="active",notificationTimer=null,excelPreviewFile=null,excelPreviewUrl="",excelImportResolve=null;
+let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"",me=null,students=[],users=[],studentAccounts=[],publicTheoryAccounts=[],trainingRequests=[],theoryProgress=[],deletedStudents=[],auditLogs=[],paymentHistory=[],accountNotices=[],serverNotices=[],studentAccountsReady=false,publicTheoryAccountsReady=false,theoryProgressReady=false,operationsReady=false,paymentsReady=false,selectedStudentAccount=null,forcePasswordChange=false,currentPhoto="",statFilter="all",theorySummaryFilter="active",notificationTimer=null,excelPreviewFile=null,excelPreviewUrl="",excelImportResolve=null;
 
 async function rpc(fn,body={}){
   const r=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
@@ -67,7 +68,7 @@ async function boot(){
     if(!me?.id)throw new Error("Phiên đăng nhập hết hạn");
     authKind="manager";
     showApp();
-    if(me.role==="admin"){await loadUsers();await loadStudentAccounts();await loadPublicTheoryAccounts();await loadOperations()}
+    if(me.role==="admin"){await loadUsers();await loadStudentAccounts();await loadPublicTheoryAccounts();await loadOperations();await loadPaymentFeature()}
     await loadStudents();
     notificationTimer=setInterval(async()=>{
       if(document.visibilityState!=="visible")return;
@@ -300,7 +301,7 @@ function renderStudents(){
   $("studentRows").innerHTML=rows.map(s=>{
     const account=studentAccounts.find(item=>item.student_id===String(s.id));
     const accountButton=me.role==="admin"&&studentAccountsReady?`<button class="student-account-btn ${account?.active?"is-active":""}" data-student-account="${s.id}">${account?`Tài khoản: ${esc(account.username)}`:"＋ Tạo tài khoản"}</button>`:"";
-    return `<tr><td><div class="student-cell">${s.photo_data?`<img class="student-photo" src="${s.photo_data}" alt="Ảnh ${esc(s.name)}">`:`<span class="student-photo empty-photo">Ảnh<br>3×4</span>`}<div><span class="student-name">${esc(s.name)}</span><span class="sub">${esc(s.student_code)}${s.owner_username?` · ${esc(s.owner_username)}`:""}</span>${account?`<span class="student-login-state ${account.active?"active":"locked"}">${account.active?"Có tài khoản học viên":"Tài khoản đang khóa"}</span>`:""}</div></div></td><td>${esc(s.license_class||"—")}<span class="sub">${esc(s.course||"Chưa có khóa")}</span></td><td>${esc(s.phone||"—")}</td><td>${progressHtml(s)}</td>${me.role==="admin"?`<td>${theoryProgressHtml(s)}</td>`:""}<td>${money(s.tuition_total)}<span class="sub">Đã thu ${money(s.paid)} · Còn ${money(Math.max(0,(s.tuition_total||0)-(s.paid||0)))}</span></td><td><div class="row-actions">${accountButton}<button data-edit="${s.id}">Sửa</button>${me.role==="admin"&&s.photo_data?`<button data-download-photo="${s.id}">Tải ảnh</button>`:""}${me.role==="admin"?`<button class="danger" data-delete="${s.id}">Xóa</button>`:""}</div></td></tr>`;
+    return `<tr><td><div class="student-cell">${s.photo_data?`<img class="student-photo" src="${s.photo_data}" alt="Ảnh ${esc(s.name)}">`:`<span class="student-photo empty-photo">Ảnh<br>3×4</span>`}<div><span class="student-name">${esc(s.name)}</span><span class="sub">${esc(s.student_code)}${s.owner_username?` · ${esc(s.owner_username)}`:""}</span>${account?`<span class="student-login-state ${account.active?"active":"locked"}">${account.active?"Có tài khoản học viên":"Tài khoản đang khóa"}</span>`:""}</div></div></td><td>${esc(s.license_class||"—")}<span class="sub">${esc(s.course||"Chưa có khóa")}</span></td><td>${esc(s.phone||"—")}</td><td>${progressHtml(s)}</td>${me.role==="admin"?`<td>${theoryProgressHtml(s)}</td>`:""}<td>${money(s.tuition_total)}<span class="sub">Đã thu ${money(s.paid)} · Còn ${money(Math.max(0,(s.tuition_total||0)-(s.paid||0)))}</span></td><td><div class="row-actions">${accountButton}${me.role==="admin"?`<button class="payment-row-btn" data-payment-student="${s.id}">Học phí / Phiếu thu</button>`:""}<button data-edit="${s.id}">Sửa</button>${me.role==="admin"&&s.photo_data?`<button data-download-photo="${s.id}">Tải ảnh</button>`:""}${me.role==="admin"?`<button class="danger" data-delete="${s.id}">Xóa</button>`:""}</div></td></tr>`;
   }).join("");
   $("empty").classList.toggle("hidden",rows.length>0);$("resultCount").textContent=`${rows.length} học viên`;
   $("totalStudents").textContent=students.length;
@@ -353,6 +354,79 @@ function renderFinanceDashboard(){
   $("financeDebtCount").textContent=`${debtCount} học viên còn nợ`;
   $("financeScope").textContent=$("ownerFilter").value?`Tài khoản: ${selected?.textContent||"đang chọn"}`:"Toàn bộ học viên";
 }
+async function loadPaymentFeature(){
+  try{
+    paymentHistory=await rpc("app_list_student_payments",{p_token:token,p_student_id:null})||[];
+    paymentsReady=true;
+  }catch(error){
+    paymentHistory=[];paymentsReady=false;
+    if(!/app_list_student_payments|schema cache|PGRST202/i.test(errText(error)))toast(errText(error));
+  }
+}
+function paymentStudent(){return students.find(student=>String(student.id)===String($("paymentStudentSelect").value))}
+function setPaymentFormState(student){
+  const enabled=paymentsReady&&Boolean(student),debt=student?Math.max(0,Number(student.tuition_total||0)-Number(student.paid||0)):0;
+  for(const id of ["paymentAmount","paymentDate","paymentMethod","paymentNote","savePaymentBtn"])$(id).disabled=!enabled||debt===0;
+  $("paymentAmount").max=String(debt);
+  if(enabled&&debt>0&&!Number($("paymentAmount").value))$("paymentAmount").value=debt;
+  $("paymentEntryNote").textContent=!paymentsReady?"Cần kích hoạt CSDL lịch sử học phí.":!student?"Chọn một học viên để nhập giao dịch.":debt?`Có thể thu tối đa ${money(debt)}.`:"Học viên đã hoàn tất học phí.";
+}
+function renderPaymentLedger(){
+  const selected=paymentStudent(),scope=selected?[selected]:students;
+  const total=scope.reduce((sum,item)=>sum+Math.max(0,Number(item.tuition_total)||0),0);
+  const paid=scope.reduce((sum,item)=>sum+Math.max(0,Number(item.paid)||0),0),debt=Math.max(0,total-paid);
+  $("paymentTotalMetric").textContent=money(total);$("paymentPaidMetric").textContent=money(paid);$("paymentDebtMetric").textContent=money(debt);
+  $("paymentFeatureState").textContent=paymentsReady?(selected?`${selected.student_code} · ${selected.name}`:"Toàn bộ giao dịch"):`Cần chạy file CAP-NHAT-LICH-SU-HOC-PHI-PHIEU-THU.sql`;
+  $("paymentFeatureState").className=paymentsReady?"is-ready":"is-warning";
+  $("paymentHistoryMeta").textContent=`${paymentHistory.length} giao dịch`;
+  $("paymentRows").innerHTML=paymentHistory.map(item=>{
+    const voided=Boolean(item.voided_at);
+    return `<tr class="${voided?"is-voided":""}"><td><strong>${esc(item.receipt_no)}</strong><small>${esc(item.note||"Thu học phí")}</small></td><td><strong>${esc(item.student_name)}</strong><small>${esc(item.student_code||"—")}</small></td><td><b>${money(item.amount)}</b></td><td>${esc(dateOnly(item.payment_date))}<small>${esc(paymentMethodLabel(item.payment_method))}</small></td><td><span class="payment-status ${voided?"voided":"active"}">${voided?"Đã hủy":"Đã ghi nhận"}</span>${voided?`<small>${esc(item.void_reason||"")}</small>`:""}</td><td><div class="payment-actions">${voided?"":`<button type="button" data-print-payment="${item.id}">Xem / In phiếu</button><button class="danger" type="button" data-void-payment="${item.id}">Hủy phiếu</button>`}</div></td></tr>`;
+  }).join("");
+  $("paymentEmpty").classList.toggle("hidden",paymentHistory.length>0);
+  setPaymentFormState(selected);
+}
+async function loadPaymentHistory(studentId=null){
+  if(!paymentsReady)return renderPaymentLedger();
+  paymentHistory=await rpc("app_list_student_payments",{p_token:token,p_student_id:studentId||null})||[];
+  renderPaymentLedger();
+}
+async function openPaymentLedger(student=null){
+  if(!paymentsReady){
+    await loadPaymentFeature();
+    if(!paymentsReady)return alert("Để kích hoạt Sổ thu và Phiếu thu, hãy chạy file CAP-NHAT-LICH-SU-HOC-PHI-PHIEU-THU.sql trong Supabase SQL Editor.");
+  }
+  $("paymentStudentSelect").innerHTML='<option value="">Tất cả học viên</option>'+students.map(item=>`<option value="${item.id}">${esc(item.student_code)} · ${esc(item.name)}</option>`).join("");
+  $("paymentStudentSelect").value=student?.id||"";$("paymentForm").reset();$("paymentDate").value=new Date().toISOString().slice(0,10);$("paymentError").textContent="";
+  $("paymentDialog").showModal();
+  busy(true);try{await loadPaymentHistory(student?.id||null)}catch(error){$("paymentError").textContent=errText(error)}finally{busy(false)}
+}
+$("paymentLedgerBtn").onclick=()=>openPaymentLedger();
+$("paymentStudentSelect").onchange=async()=>{
+  $("paymentAmount").value="";$("paymentError").textContent="";busy(true);
+  try{await loadPaymentHistory($("paymentStudentSelect").value||null)}catch(error){$("paymentError").textContent=errText(error)}finally{busy(false)}
+};
+$("paymentForm").onsubmit=async event=>{
+  event.preventDefault();$("paymentError").textContent="";const selected=paymentStudent(),amount=Number($("paymentAmount").value||0);
+  if(!selected)return $("paymentError").textContent="Vui lòng chọn học viên.";
+  if(amount<=0)return $("paymentError").textContent="Số tiền thu phải lớn hơn 0.";
+  $("savePaymentBtn").disabled=true;busy(true);
+  try{
+    const result=await rpc("app_save_student_payment",{p_token:token,p_student_id:selected.id,p_amount:amount,p_payment_date:$("paymentDate").value,p_payment_method:$("paymentMethod").value,p_note:$("paymentNote").value.trim()});
+    await loadStudents();await loadPaymentHistory(selected.id);$("paymentAmount").value="";$("paymentNote").value="";
+    toast(`Đã tạo phiếu thu ${result.receipt_no}`);
+  }catch(error){$("paymentError").textContent=errText(error)}finally{busy(false);setPaymentFormState(paymentStudent())}
+};
+$("paymentRows").onclick=async event=>{
+  const printId=event.target.dataset.printPayment,voidId=event.target.dataset.voidPayment;
+  if(printId){const item=paymentHistory.find(payment=>String(payment.id)===String(printId));if(item&&!openPaymentReceipt(item))toast("Trình duyệt đang chặn cửa sổ phiếu thu.");return}
+  if(!voidId)return;
+  const item=paymentHistory.find(payment=>String(payment.id)===String(voidId)),reason=prompt(`Nhập lý do hủy phiếu ${item?.receipt_no||""}:`);
+  if(reason===null)return;if(reason.trim().length<3)return toast("Lý do hủy cần ít nhất 3 ký tự.");
+  event.target.disabled=true;busy(true);
+  try{await rpc("app_void_student_payment",{p_token:token,p_payment_id:voidId,p_reason:reason.trim()});await loadStudents();await loadPaymentHistory($("paymentStudentSelect").value||null);toast("Đã hủy phiếu và cập nhật lại công nợ")}
+  catch(error){$("paymentError").textContent=errText(error)}finally{busy(false)}
+};
 $("search").oninput=renderStudents;
 $("ownerFilter").onchange=loadStudents;
 function selectStat(card){statFilter=card.dataset.statFilter;$("search").value="";renderStudents();document.querySelector(".panel").scrollIntoView({behavior:"smooth",block:"start"})}
@@ -365,6 +439,7 @@ function openStudent(s=null){
   const schedule=parseScheduleFromNotes(s?.notes||"")||{dates:{}};
   $("studentForm").reset();$("studentError").textContent="";$("studentId").value=s?.id||"";$("studentTitle").textContent=s?"Sửa thông tin học viên":"Thêm học viên";
   $("name").value=s?.name||"";$("dob").value=s?.date_of_birth||"";$("cccd").value=s?.cccd||"";$("phone").value=s?.phone||"";$("course").value=s?.course||"";$("tuitionTotal").value=s?.tuition_total||"";$("paid").value=s?.paid||"";$("address").value=s?.address||"";$("notes").value=stripScheduleFromNotes(s?.notes||"");$("onlineStart").value=String(schedule.dates?.online_start||"").slice(0,10);$("onlineEnd").value=String(schedule.dates?.online_end||"").slice(0,10);$("photoFile").value="";showPhoto(s?.photo_data||"");
+  $("paid").readOnly=paymentsReady;$("paidFieldHint").textContent=paymentsReady?"Được tính tự động từ Sổ thu & Phiếu thu.":"Nhập tổng số tiền đã thu.";
   setSelect("licenseClass",s?.license_class||"B số tự động");setSelect("profileStatus",s?.profile_status||"Đã ghi nhận");setSelect("onlineStatus",s?.online_status||"Chưa hoàn thành");setSelect("cabinStatus",s?.cabin_status||"Chưa hoàn thành");setSelect("datStatus",s?.dat_status||"Chưa thực hiện");setSelect("graduationStatus",s?.graduation_status||"Chưa hoàn thành");setSelect("examStatus",s?.exam_status||"Chưa thi sát hạch");
   if(me.role==="admin"){$("studentOwner").value=s?.owner_id||$("ownerFilter").value||me.id;$("studentOwner").disabled=Boolean(s)}
   $("studentDialog").showModal();setTimeout(()=>$("name").focus(),50);
@@ -373,9 +448,10 @@ $("addStudentBtn").onclick=()=>openStudent();
 $("photoFile").onchange=async e=>{const file=e.target.files[0];if(!file)return;const ext=file.name.toLowerCase().split(".").pop(),validType=["image/jpeg","image/png"].includes(file.type)&&["jpg","jpeg","png"].includes(ext);if(!validType){e.target.value="";return $("studentError").textContent="Chỉ chấp nhận file ảnh JPG, JPEG hoặc PNG."}if(file.size>10*1024*1024){e.target.value="";return $("studentError").textContent="Ảnh gốc không được lớn hơn 10 MB."}try{$("studentError").textContent="Đang kiểm tra ảnh 3×4 nền trắng…";showPhoto(await compressPhoto(file));$("studentError").textContent=""}catch(err){e.target.value="";$("studentError").textContent=errText(err)}};
 $("removePhotoBtn").onclick=()=>{$("photoFile").value="";showPhoto("")};
 $("studentRows").onclick=async e=>{
-  const edit=e.target.dataset.edit,del=e.target.dataset.delete,download=e.target.dataset.downloadPhoto,account=e.target.dataset.studentAccount,theory=e.target.dataset.theoryProgress;
+  const edit=e.target.dataset.edit,del=e.target.dataset.delete,download=e.target.dataset.downloadPhoto,account=e.target.dataset.studentAccount,theory=e.target.dataset.theoryProgress,payment=e.target.dataset.paymentStudent;
   if(theory)return openTheoryDetail(students.find(s=>String(s.id)===String(theory)));
   if(account)return openStudentAccount(students.find(s=>String(s.id)===account));
+  if(payment)return openPaymentLedger(students.find(s=>String(s.id)===String(payment)));
   if(download&&me.role==="admin"){const s=students.find(x=>x.id===download);if(!s?.photo_data)return toast("Học viên chưa có ảnh thẻ");const a=document.createElement("a"),safe=normalize(s.name).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"hoc-vien";a.href=s.photo_data;a.download=`anh-the-3x4-${safe}.jpg`;document.body.appendChild(a);a.click();a.remove();return}
   if(edit)return openStudent(students.find(s=>s.id===edit));
   if(del&&!operationsReady){await loadOperations();if(!operationsReady)return toast("Cần chạy file SQL Thùng rác trước khi xóa học viên.")}
@@ -713,7 +789,7 @@ function confirmExcelImport(file,analysis,summary){
     file,
     headers:["Dòng","Trạng thái","Họ và tên","Mã học viên","CCCD","Điện thoại","Lý do đối chiếu"],
     rows:analysis.slice(0,40).map(item=>[item._import.rowNumber,importStatusLabel(item),item.name,item.student_code||"—",item.cccd||"—",item.phone||"—",item._import.reason]),
-    note:`Đã kiểm tra ${analysis.length} dòng theo mã học viên, CCCD và số điện thoại. Bảng hiển thị tối đa 40 dòng; hồ sơ cần kiểm tra sẽ được bỏ qua để Admin đối chiếu thủ công.`,
+    note:`Đã kiểm tra ${analysis.length} dòng theo mã học viên, CCCD và số điện thoại. Bảng hiển thị tối đa 40 dòng; hồ sơ cần kiểm tra sẽ được bỏ qua để Admin đối chiếu thủ công.${paymentsReady?" Số tiền đã thu của hồ sơ hiện có chỉ được cập nhật qua Sổ thu & Phiếu thu.":""}`,
     mode:"import",duplicateSummary:summary
   });
   return new Promise(resolve=>{excelImportResolve=resolve});
@@ -726,7 +802,7 @@ function importDataForSave(item){
   const existing=item._import?.status==="existing"?item._import.match:null;
   if(!existing){const data=studentDataForSave(item);data.notes=item.notes||"";data.photo_data="";return data}
   const data=studentDataForSave(existing);
-  for(const field of importFields)if(item._present?.[field])data[field]=item[field];
+  for(const field of importFields)if(item._present?.[field]&&!(paymentsReady&&existing&&field==="paid"))data[field]=item[field];
   const touched=item._scheduleTouched||[],notesTouched=Boolean(item._present?.notes);
   if(touched.length||notesTouched){
     const schedule=parseScheduleFromNotes(existing.notes)||{version:1,dates:{},locations:{},note:""};
@@ -845,7 +921,8 @@ $("dataFile").onchange=async e=>{
       const status=item._import.status;
       if(status==="deleted"||status==="duplicate_file"||status==="review"||(status==="existing"&&duplicateMode==="skip")){skipped++;continue}
       const existing=status==="existing"?item._import.match:null,data=importDataForSave(item);
-      await rpc("app_save_student",{p_token:token,p_student_id:existing?.id||null,p_data:data,p_owner_id:$("ownerFilter").value||me.id});
+      const savedId=await rpc("app_save_student",{p_token:token,p_student_id:existing?.id||null,p_data:data,p_owner_id:$("ownerFilter").value||me.id});
+      if(paymentsReady)await rpc("app_sync_student_payment_balance",{p_token:token,p_student_id:savedId,p_source:`Số dư từ file Excel ${file.name}`});
       if(existing)updated++;else created++;
     }
     await recordAudit("excel_import","student_data","",file.name,{created,updated,skipped,duplicate_mode:duplicateMode});

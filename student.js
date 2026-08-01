@@ -1,11 +1,12 @@
 import {SCHEDULE_FIELDS,parseScheduleFromNotes} from "./schedule-data.js";
 import {markNoticesRead,readNoticeIds,studentNotifications} from "./account-notifications.js";
+import {openPaymentReceipt,paymentMethodLabel} from "./payment-receipt.js";
 import QRCode from "qrcode";
 
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
-let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",me=null,student=null,trainingSessions=[],trainingRequests=[],trainingSlots=[],studentNotices=[],serverNotices=[],theoryProgress=null,forcePasswordChange=false,bookingFeatureAvailable=true,slotFeatureAvailable=true,theoryFeatureAvailable=true,notificationTimer=null;
+let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",me=null,student=null,trainingSessions=[],trainingRequests=[],trainingSlots=[],studentPayments=[],studentNotices=[],serverNotices=[],theoryProgress=null,forcePasswordChange=false,bookingFeatureAvailable=true,slotFeatureAvailable=true,theoryFeatureAvailable=true,paymentHistoryAvailable=true,notificationTimer=null;
 
 async function rpc(fn,body={}){
   const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
@@ -99,6 +100,26 @@ async function loadTheoryProgress(){
     theoryFeatureAvailable=false;
     if(!/app_student_get_theory_progress|schema cache|PGRST202/i.test(error?.message||""))throw error;
   }
+}
+async function loadStudentPayments(){
+  try{
+    studentPayments=await rpc("app_student_list_payments",{p_token:token})||[];
+    paymentHistoryAvailable=true;
+  }catch(error){
+    studentPayments=[];paymentHistoryAvailable=false;
+    if(!/app_student_list_payments|schema cache|PGRST202/i.test(error?.message||""))throw error;
+  }
+}
+function renderStudentPaymentHistory(){
+  $("studentPaymentHistoryCount").textContent=`${studentPayments.length} phiếu thu`;
+  $("studentPaymentHistoryNotice").classList.toggle("hidden",paymentHistoryAvailable);
+  $("studentPaymentHistoryList").innerHTML=studentPayments.length?studentPayments.map(payment=>`
+    <article class="student-payment-item">
+      <span class="student-payment-icon">✓</span>
+      <div><strong>${esc(payment.receipt_no)}</strong><small>${esc(date(payment.payment_date))} · ${esc(paymentMethodLabel(payment.payment_method))}</small><em>${esc(payment.note||"Thu học phí")}</em></div>
+      <b>${money(payment.amount)}</b>
+      <button type="button" data-student-receipt="${payment.id}">Xem / In phiếu</button>
+    </article>`).join(""):`<div class="student-payment-empty"><span>₫</span><strong>Chưa có phiếu thu</strong><small>Các lần đóng học phí được xác nhận sẽ hiển thị tại đây.</small></div>`;
 }
 function renderTheoryProgress(){
   const summary=theoryProgress||{};
@@ -198,6 +219,7 @@ function renderPortal(){
   $("tuitionStatus").className=debt?"has-debt":"complete";
   $("tuitionDebtNote").textContent=debt?"Vui lòng hoàn tất theo lịch hẹn":"Không còn công nợ";
   $("tuitionPaymentLink").classList.toggle("hidden",debt===0);
+  renderStudentPaymentHistory();
 
   const paymentContent=paymentReference();
   $("paymentDebt").textContent=money(debt);
@@ -249,6 +271,11 @@ function renderPortal(){
   renderStudentNotifications();
   $("studentLoading").classList.add("hidden");$("studentPortal").classList.remove("hidden");
 }
+$("studentPaymentHistoryList").onclick=event=>{
+  const id=event.target.dataset.studentReceipt;if(!id)return;
+  const payment=studentPayments.find(item=>String(item.id)===String(id));
+  if(payment&&!openPaymentReceipt(payment))toast("Trình duyệt đang chặn cửa sổ phiếu thu.");
+};
 $("copyPaymentContent").onclick=()=>copyPaymentValue($("paymentContent").textContent,"Đã sao chép nội dung chuyển khoản");
 document.querySelectorAll(".copy-payment[data-copy]").forEach(button=>button.onclick=()=>copyPaymentValue(button.dataset.copy,"Đã sao chép số tài khoản"));
 async function copyPaymentValue(value,successMessage){
@@ -363,7 +390,7 @@ async function boot(){
       if(!/app_list_training_sessions|schema cache|PGRST202/i.test(error?.message||""))throw error;
       trainingSessions=[];
     }
-    await Promise.all([loadTrainingRequests(),loadTrainingSlots(),loadServerNotifications(),loadTheoryProgress()]);
+    await Promise.all([loadTrainingRequests(),loadTrainingSlots(),loadServerNotifications(),loadTheoryProgress(),loadStudentPayments()]);
     student.training_sessions=trainingSessions;
     renderPortal();
     notificationTimer=setInterval(async()=>{

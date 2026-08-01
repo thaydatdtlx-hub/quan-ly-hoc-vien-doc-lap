@@ -166,6 +166,7 @@
             <h2 id="financeTitle">Tổng quan tài chính</h2>
           </div>
           <div class="finance-head-actions">
+            <button id="paymentLedgerBtn" class="payment-ledger-btn" type="button">Sổ thu &amp; Phiếu thu</button>
             <a href="/lich-dao-tao.html">Mở lịch đào tạo <span aria-hidden="true">→</span></a>
             <span id="financeScope">Toàn bộ học viên</span>
           </div>
@@ -282,7 +283,7 @@
         <label>Thi tốt nghiệp<select id="graduationStatus"><option>Chưa hoàn thành</option><option>Đã hoàn thành</option></select></label>
         <label class="wide">Thi sát hạch<select id="examStatus"><option>Chưa thi sát hạch</option><option>Đã đậu</option><option>Thi rớt: Lý thuyết</option><option>Thi rớt: Sa hình</option><option>Thi rớt: Đường trường</option></select></label>
         <label>Tổng học phí<input id="tuitionTotal" type="number" min="0" step="1000"></label>
-        <label>Đã thu<input id="paid" type="number" min="0" step="1000"></label>
+        <label>Đã thu<input id="paid" type="number" min="0" step="1000"><small id="paidFieldHint">Nhập tổng số tiền đã thu.</small></label>
         <label class="wide">Địa chỉ<input id="address"></label>
         <label class="wide">Ghi chú<textarea id="notes" rows="3"></textarea></label>
       </div>
@@ -363,6 +364,41 @@
       </table>
     </div>
     <p id="theoryDetailError" class="error" role="alert"></p>
+    <div class="actions"><button type="button" class="close">Đóng</button></div>
+  </dialog>
+
+  <dialog id="paymentDialog" class="payment-dialog">
+    <div class="dialog-head payment-dialog-head">
+      <div><p class="dialog-kicker">QUẢN LÝ HỌC PHÍ</p><h2>Sổ thu &amp; Phiếu thu</h2><span class="sub">Mỗi lần thu được lưu riêng, có mã phiếu và lịch sử hủy rõ ràng.</span></div>
+      <button type="button" class="close" aria-label="Đóng">×</button>
+    </div>
+    <div class="payment-toolbar">
+      <label>Học viên
+        <select id="paymentStudentSelect"><option value="">Tất cả học viên</option></select>
+      </label>
+      <span id="paymentFeatureState">Đang kiểm tra dữ liệu học phí…</span>
+    </div>
+    <div class="payment-metrics">
+      <article><small>Tổng học phí</small><strong id="paymentTotalMetric">0 ₫</strong></article>
+      <article><small>Đã thu</small><strong id="paymentPaidMetric">0 ₫</strong></article>
+      <article><small>Còn nợ</small><strong id="paymentDebtMetric">0 ₫</strong></article>
+    </div>
+    <form id="paymentForm" class="payment-entry-form">
+      <div class="payment-entry-heading"><div><strong>Ghi nhận lần thu mới</strong><small id="paymentEntryNote">Chọn một học viên để nhập giao dịch.</small></div></div>
+      <div class="payment-entry-grid">
+        <label>Số tiền thu<input id="paymentAmount" type="number" min="1000" step="1000" inputmode="numeric" required></label>
+        <label>Ngày thu<input id="paymentDate" type="date" required></label>
+        <label>Phương thức<select id="paymentMethod"><option value="bank_transfer">Chuyển khoản</option><option value="cash">Tiền mặt</option><option value="card">Thẻ</option><option value="other">Khác</option></select></label>
+        <label class="wide">Ghi chú<input id="paymentNote" maxlength="500" placeholder="Ví dụ: Thu học phí lần 2"></label>
+      </div>
+      <p id="paymentError" class="error" role="alert"></p>
+      <button id="savePaymentBtn" class="primary" type="submit">Lưu &amp; tạo phiếu thu</button>
+    </form>
+    <div class="payment-history-head"><div><strong>Lịch sử giao dịch</strong><small id="paymentHistoryMeta">0 giao dịch</small></div></div>
+    <div class="payment-history-wrap">
+      <table class="payment-history-table"><thead><tr><th>Phiếu thu</th><th>Học viên</th><th>Số tiền</th><th>Ngày / Phương thức</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody id="paymentRows"></tbody></table>
+    </div>
+    <div id="paymentEmpty" class="payment-empty">Chưa có giao dịch học phí.</div>
     <div class="actions"><button type="button" class="close">Đóng</button></div>
   </dialog>
 
