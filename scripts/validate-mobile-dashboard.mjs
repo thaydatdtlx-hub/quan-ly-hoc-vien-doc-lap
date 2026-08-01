@@ -28,7 +28,7 @@ for(const token of ["studentDrivingRefreshShortcut","studentDrivingRefreshCta","
 for(const token of ["hasReceivedLicense","renderDrivingRefreshAccess","driving_refresh_student_prefill"]){
   if(!studentClient.includes(token)&&!refreshClient.includes(token))throw new Error(`Luồng bổ túc tay lái của học viên thiếu: ${token}`);
 }
-for(const token of ["thay-dat-pwa-v13","cache.put(request,copy)"]){
+for(const token of ["thay-dat-pwa-v14","cache.put(request,copy)"]){
   if(!worker.includes(token))throw new Error(`PWA chưa lưu tài nguyên mobile: ${token}`);
 }
 console.log("Mobile dashboard hợp lệ: Admin và học viên có app bar, tab, thẻ kéo ngang, cảnh báo động và thanh điều hướng cố định.");
