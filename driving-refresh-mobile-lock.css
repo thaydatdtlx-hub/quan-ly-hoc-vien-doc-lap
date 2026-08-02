@@ -1,0 +1,93 @@
+/* Khóa trượt ngang toàn trang trên điện thoại, vẫn giữ cuộn ngang bên trong các thẻ cần thiết. */
+html{
+  max-width:100%;
+  overflow-x:clip;
+}
+body.refresh-page{
+  width:100%;
+  max-width:100%;
+  overflow-x:clip;
+}
+body.refresh-page>* ,
+.refresh-page main,
+.refresh-page .refresh-view,
+.refresh-page section,
+.refresh-page header,
+.refresh-page footer{
+  min-width:0;
+  max-width:100%;
+}
+.refresh-page img,
+.refresh-page svg,
+.refresh-page video,
+.refresh-page canvas{
+  max-width:100%;
+}
+.refresh-page .refresh-hero-copy,
+.refresh-page .refresh-hero-visual,
+.refresh-page .refresh-stage-copy,
+.refresh-page .refresh-form,
+.refresh-page .refresh-pricing-stage>*,
+.refresh-page .refresh-registration>*{
+  min-width:0;
+  max-width:100%;
+}
+
+@media(max-width:780px){
+  .refresh-flow{
+    width:100%;
+    max-width:100vw;
+    overflow:hidden;
+  }
+  .refresh-flow button{
+    min-width:0;
+    max-width:none;
+    flex:1 1 0;
+  }
+  .refresh-flow button>span{
+    min-width:0;
+  }
+  .refresh-flow button strong{
+    white-space:normal;
+    overflow-wrap:anywhere;
+    line-height:1.15;
+    text-align:center;
+  }
+  .refresh-price-notes,
+  .refresh-page .refresh-skill-grid,
+  .refresh-proof{
+    max-width:100%;
+    overscroll-behavior-inline:contain;
+  }
+  .refresh-price-notes{
+    margin-right:0;
+    padding-right:0;
+  }
+  .refresh-page .refresh-skill-grid{
+    margin-right:0;
+    margin-left:0;
+    padding-right:0;
+    padding-left:0;
+  }
+  .refresh-proof{
+    width:calc(100% - 28px);
+  }
+  .refresh-pricing-total,
+  .refresh-estimator-total,
+  .refresh-panel-head,
+  .refresh-pricing-head,
+  .refresh-panel-head>div,
+  .refresh-pricing-head>div,
+  .refresh-pricing-total>strong,
+  .refresh-estimator-total strong{
+    min-width:0;
+    max-width:100%;
+  }
+}
+
+@supports not (overflow:clip){
+  html,
+  body.refresh-page{
+    overflow-x:hidden;
+  }
+}
