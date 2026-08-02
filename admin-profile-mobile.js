@@ -1,5 +1,14 @@
 const PROFILE_KEY="thaydat_admin_profile_v1";
 
+function ensureMobileAdminProfileStyle(){
+  if(document.querySelector('link[data-admin-profile-mobile]'))return;
+  const link=document.createElement("link");
+  link.rel="stylesheet";
+  link.href="/admin-profile-mobile.css?v=1";
+  link.dataset.adminProfileMobile="true";
+  document.head.append(link);
+}
+
 function initials(name){
   return String(name||"Admin").trim().split(/\s+/).slice(-2).map(part=>part[0]||"").join("").toUpperCase()||"AD";
 }
@@ -54,6 +63,7 @@ function mountMobileAdminSettings(){
 }
 
 function bootMobileAdminProfile(){
+  ensureMobileAdminProfileStyle();
   let attempts=0;
   const timer=setInterval(()=>{
     attempts++;
