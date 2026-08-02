@@ -17,44 +17,66 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Patch notification text normalization
+      - name: Patch all notification entry points
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
 
-          path = Path('app.js')
-          text = path.read_text(encoding='utf-8')
-
-          money_anchor = 'function money(n){return new Intl.NumberFormat("vi-VN").format(Number(n||0))+" ₫"}'
           helper = 'function fixNoticeText(value){return String(value??"").replace(/\\bng(?:à6|á6)(?=\\s+\\d{2}\\/\\d{2}\\/\\d{4})/giu,"ngày")}\n'
-          if 'function fixNoticeText(value)' not in text:
-              if money_anchor not in text:
-                  raise SystemExit('Could not find money helper anchor in app.js')
-              text = text.replace(money_anchor, helper + money_anchor, 1)
-
           old_map = 'serverNotices=rows.map(notice=>({...notice,id:`server-${notice.id}`,server_id:String(notice.id)}));'
           new_map = 'serverNotices=rows.map(notice=>({...notice,title:fixNoticeText(notice.title),body:fixNoticeText(notice.body),id:`server-${notice.id}`,server_id:String(notice.id)}));'
-          if old_map in text:
-              text = text.replace(old_map, new_map, 1)
-          elif new_map not in text:
-              raise SystemExit('Could not find server notification mapping in app.js')
 
-          path.write_text(text, encoding='utf-8')
+          def patch_page(path_name, anchor):
+              path = Path(path_name)
+              text = path.read_text(encoding='utf-8')
+              if 'function fixNoticeText(value)' not in text:
+                  if anchor not in text:
+                      raise SystemExit(f'Could not find helper anchor in {path_name}')
+                  text = text.replace(anchor, helper + anchor, 1)
+              if old_map in text:
+                  text = text.replace(old_map, new_map, 1)
+              elif new_map not in text:
+                  raise SystemExit(f'Could not find notification mapping in {path_name}')
+              path.write_text(text, encoding='utf-8')
+
+          patch_page('app.js', 'function money(n){return new Intl.NumberFormat("vi-VN").format(Number(n||0))+" ₫"}')
+          patch_page('student.js', 'function money(value){return new Intl.NumberFormat("vi-VN").format(Number(value||0))+" ₫"}')
+
+          sw_path = Path('public/sw.js')
+          sw = sw_path.read_text(encoding='utf-8')
+          if 'function fixNoticeText(value)' not in sw:
+              sw = helper + sw
+          sw = sw.replace(
+              'const title=data.title||"Thông báo từ Thầy Đạt";',
+              'const title=fixNoticeText(data.title)||"Thông báo từ Thầy Đạt";',
+              1
+          )
+          sw = sw.replace(
+              'body:data.body||"Bạn có một cập nhật mới.",',
+              'body:fixNoticeText(data.body)||"Bạn có một cập nhật mới.",',
+              1
+          )
+          if 'const title=fixNoticeText(data.title)' not in sw or 'body:fixNoticeText(data.body)' not in sw:
+              raise SystemExit('Could not patch push notification text')
+          sw_path.write_text(sw, encoding='utf-8')
           PY
 
       - name: Validate JavaScript
-        run: node --check app.js
+        run: |
+          node --check app.js
+          node --check student.js
+          node --check public/sw.js
 
       - name: Commit fix
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add app.js
+          git add app.js student.js public/sw.js
           if git diff --cached --quiet; then
             echo "No changes required"
             exit 0
           fi
-          git commit -m "Sửa chính tả ngày trong thông báo lịch học"
+          git commit -m "Sửa ngày trong thông báo toàn bộ website"
           git push
