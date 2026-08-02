@@ -1,5 +1,7 @@
 import "./admin-profile.js";
 import "./admin-profile-mobile.js";
+import "./student-profile-self-service.js";
+import "./admin-student-profile-change.js";
 
 function ensureMobileViewportStyles(){
   if(document.querySelector('link[data-mobile-viewport-lock]'))return;
