@@ -1,0 +1,33 @@
+name: Bump toolbar CSS version
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/toolbar-css-trigger.txt
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update CSS query version
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('/admin-toolbar-unified.css?v=1','/admin-toolbar-unified.css?v=2')
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Làm mới đường dẫn CSS bộ icon"
+          git push
