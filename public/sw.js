@@ -1,5 +1,5 @@
 function fixNoticeText(value){return String(value??"").replace(/\bng(?:à6|á6)(?=\s+\d{2}\/\d{2}\/\d{4})/giu,"ngày")}
-const CACHE_NAME="thay-dat-pwa-v28";
+const CACHE_NAME="thay-dat-pwa-v29";
 const CORE_ASSETS=[
   "/",
   "/index.html",
@@ -10,14 +10,16 @@ const CORE_ASSETS=[
   "/offline.html",
   "/site.webmanifest",
   "/admin-toolbar-unified.css?v=2",
-  "/admin-profile.js",
-  "/admin-profile.css?v=2",
-  "/admin-desktop-layout.css?v=2",
+  "/admin-profile.js?v=3",
+  "/admin-profile.css?v=3",
+  "/admin-desktop-layout.css?v=3",
+  "/admin-profile-mobile.js?v=2",
   "/admin-profile-mobile.css?v=1",
   "/mobile-viewport-lock.css?v=2",
   "/student-profile-self-service.js",
   "/student-profile-self-service.css?v=1",
   "/admin-student-profile-change.js",
+  "/site-enhancements.js?v=16",
   "/app-icon-192.png",
   "/app-icon-512.png",
   "/app-icon-maskable-512.png",
@@ -51,6 +53,18 @@ self.addEventListener("fetch",event=>{
           return response;
         })
         .catch(async()=>await caches.match(request,{ignoreSearch:true})||await caches.match(url.pathname)||await caches.match("/offline.html"))
+    );
+    return;
+  }
+
+  if(request.destination==="script"||request.destination==="style"){
+    event.respondWith(
+      fetch(request)
+        .then(response=>{
+          if(response.ok&&response.type==="basic"){const copy=response.clone();caches.open(CACHE_NAME).then(cache=>cache.put(request,copy));}
+          return response;
+        })
+        .catch(()=>caches.match(request))
     );
     return;
   }
