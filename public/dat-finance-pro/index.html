@@ -1,1 +1,32 @@
-<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Đạt Finance Pro</title><style>html,body{margin:0;min-height:100%;background:#071425;color:#fff;font-family:system-ui}main{min-height:100vh;display:grid;place-items:center;padding:24px;text-align:center}.spin{width:42px;height:42px;border:4px solid #ffffff2b;border-top-color:#42dcc2;border-radius:50%;animation:s 1s linear infinite;margin:auto}@keyframes s{to{transform:rotate(360deg)}}p{color:#91a4bb}</style></head><body><main id="loading"><div><div class="spin"></div><h2>Đang mở Đạt Finance Pro</h2><p>Đang tải ứng dụng quản lý tài chính...</p></div></main><script>fetch('https://raw.githubusercontent.com/thaydatdtlx-hub/quan-ly-hoc-vien-doc-lap/main/public-demos/dat-finance-pro/index.html?rev=8a67a035').then(r=>{if(!r.ok)throw new Error('Không tải được ứng dụng');return r.text()}).then(html=>{document.open();document.write(html);document.close()}).catch(e=>{document.getElementById('loading').innerHTML='<div><h2>Không thể tải ứng dụng</h2><p>'+e.message+'</p><button onclick="location.reload()" style="padding:12px 18px;border:0;border-radius:12px;background:#42dcc2;font-weight:800">Thử lại</button></div>'})</script></body></html>
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#071426">
+<title>Đạt Finance Pro</title>
+<style>
+html,body{margin:0;min-height:100%;background:#071425;color:#fff;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}main{min-height:100vh;display:grid;place-items:center;padding:24px;text-align:center}.spin{width:44px;height:44px;border:4px solid #ffffff2b;border-top-color:#42dcc2;border-radius:50%;animation:s .9s linear infinite;margin:auto}@keyframes s{to{transform:rotate(360deg)}}p{color:#a8b5c8;line-height:1.6}.error{max-width:520px}.error button{padding:12px 18px;border:0;border-radius:12px;background:#42dcc2;color:#05211e;font-weight:800}
+</style>
+</head>
+<body>
+<main id="loading"><div><div class="spin"></div><h2>Đang khởi tạo dữ liệu mới</h2><p>Ứng dụng đang chuẩn bị bộ dữ liệu tài chính sạch để anh bắt đầu sử dụng.</p></div></main>
+<script>
+(async()=>{
+  try{
+    const source='https://raw.githubusercontent.com/thaydatdtlx-hub/quan-ly-hoc-vien-doc-lap/main/public-demos/dat-finance-pro/index.html?data_version=4';
+    let html=await fetch(source,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Không tải được ứng dụng');return r.text()});
+    const cleanSeed='const seed=()=>({version:4,profile:{name:"Trần Quốc Đạt",currency:"VND",locale:"vi-VN"},settings:{dark:false,hide:false,budgetAlert:true},categories:{expense:["Ăn uống","Đi lại","Mua sắm","Gia đình","Giải trí","Học tập","Sức khỏe","Hóa đơn","Đầu tư","Khác"],income:["Lương","Dạy bổ túc","Thưởng","Thu khác"]},accounts:[{id:"cash",name:"Ví tiền mặt",type:"Tiền mặt",open:0,color:"navy"}],budgets:[],goals:[],bills:[],debts:[],recurring:[],tx:[]})';
+    html=html.replace('const KEY="dat-finance-premium-v3";','const KEY="dat-finance-premium-v4";');
+    html=html.replace(/const seed=\(\)=>\(\{[\s\S]*?\}\);let state=/,cleanSeed+';let state=');
+    html=html.replace('Khôi phục dữ liệu mẫu</button>','Xóa dữ liệu và làm mới</button>');
+    html=html.replace('if(!confirm("Khôi phục toàn bộ dữ liệu mẫu?"))return;state=seed();month=cur();render();toast("Đã khôi phục dữ liệu mẫu.")','if(!confirm("Xóa toàn bộ dữ liệu hiện tại và tạo bộ dữ liệu trống mới?"))return;localStorage.removeItem(KEY);state=seed();month=cur();render();toast("Đã tạo bộ dữ liệu mới.")');
+    html=html.replace('Đạt Finance Pro Premium - quản lý thu chi, tài khoản, ngân sách và mục tiêu tài chính.','Đạt Finance Pro Premium - dữ liệu sạch, sẵn sàng nhập và sử dụng.');
+    document.open();document.write(html);document.close();
+  }catch(e){
+    document.getElementById('loading').innerHTML='<div class="error"><h2>Không thể mở Đạt Finance Pro</h2><p>'+String(e.message||e)+'</p><button onclick="location.reload()">Thử lại</button></div>';
+  }
+})();
+</script>
+</body>
+</html>
