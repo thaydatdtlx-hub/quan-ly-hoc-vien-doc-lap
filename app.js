@@ -24,6 +24,7 @@ function toast(s){$("toast").textContent=s;$("toast").classList.add("show");clea
 function errText(err){return err?.message||"Có lỗi xảy ra. Vui lòng thử lại."}
 function normalize(s){return String(s??"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d")}
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]))}
+function fixNoticeText(value){return String(value??"").replace(/\bng(?:à6|á6)(?=\s+\d{2}\/\d{2}\/\d{4})/giu,"ngày")}
 function money(n){return new Intl.NumberFormat("vi-VN").format(Number(n||0))+" ₫"}
 function toNumber(v){return Number(String(v??0).replace(/[^0-9-]/g,""))||0}
 function dateTime(value){
@@ -327,7 +328,7 @@ $("deletedStudentList").onclick=async event=>{
 async function loadServerNotifications(){
   try{
     const rows=await rpc("app_list_notifications",{p_token:token})||[];
-    serverNotices=rows.map(notice=>({...notice,id:`server-${notice.id}`,server_id:String(notice.id)}));
+    serverNotices=rows.map(notice=>({...notice,title:fixNoticeText(notice.title),body:fixNoticeText(notice.body),id:`server-${notice.id}`,server_id:String(notice.id)}));
   }catch(error){
     serverNotices=[];
   }
