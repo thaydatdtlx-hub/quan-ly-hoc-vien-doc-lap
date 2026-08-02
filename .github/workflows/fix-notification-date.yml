@@ -1,0 +1,60 @@
+name: Fix notification date typo
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/fix-notification-date.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Patch notification text normalization
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('app.js')
+          text = path.read_text(encoding='utf-8')
+
+          money_anchor = 'function money(n){return new Intl.NumberFormat("vi-VN").format(Number(n||0))+" ₫"}'
+          helper = 'function fixNoticeText(value){return String(value??"").replace(/\\bng(?:à6|á6)(?=\\s+\\d{2}\\/\\d{2}\\/\\d{4})/giu,"ngày")}\n'
+          if 'function fixNoticeText(value)' not in text:
+              if money_anchor not in text:
+                  raise SystemExit('Could not find money helper anchor in app.js')
+              text = text.replace(money_anchor, helper + money_anchor, 1)
+
+          old_map = 'serverNotices=rows.map(notice=>({...notice,id:`server-${notice.id}`,server_id:String(notice.id)}));'
+          new_map = 'serverNotices=rows.map(notice=>({...notice,title:fixNoticeText(notice.title),body:fixNoticeText(notice.body),id:`server-${notice.id}`,server_id:String(notice.id)}));'
+          if old_map in text:
+              text = text.replace(old_map, new_map, 1)
+          elif new_map not in text:
+              raise SystemExit('Could not find server notification mapping in app.js')
+
+          path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Validate JavaScript
+        run: node --check app.js
+
+      - name: Commit fix
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app.js
+          if git diff --cached --quiet; then
+            echo "No changes required"
+            exit 0
+          fi
+          git commit -m "Sửa chính tả ngày trong thông báo lịch học"
+          git push
