@@ -1,0 +1,51 @@
+@media(max-width:720px){
+  #mobileAdminAccountBtn{overflow:hidden;padding:0!important}
+  #mobileAdminAccountBtn img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
+
+  #mobileAdminAccountMenu .mobile-admin-profile-btn{
+    display:grid!important;
+    grid-template-columns:40px minmax(0,1fr)!important;
+    min-height:62px!important;
+    align-items:center!important;
+    gap:10px!important;
+    padding:9px 10px!important;
+    border-color:#bfd8ef!important;
+    background:linear-gradient(135deg,#eef7ff,#f6fbff)!important;
+    color:#164f86!important;
+  }
+  #mobileAdminAccountMenu .mobile-admin-profile-btn>span:first-child{
+    display:grid;
+    width:40px;
+    height:40px;
+    place-items:center;
+    border-radius:12px;
+    background:linear-gradient(145deg,#d7ebff,#e9f6ff);
+    color:#1763aa;
+  }
+  #mobileAdminAccountMenu .mobile-admin-profile-btn svg{
+    width:21px;
+    height:21px;
+    fill:none;
+    stroke:currentColor;
+    stroke-width:1.8;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+  #mobileAdminAccountMenu .mobile-admin-profile-btn>span:last-child{
+    display:grid;
+    min-width:0;
+    gap:2px;
+  }
+  #mobileAdminAccountMenu .mobile-admin-profile-btn strong{
+    color:#123f6a;
+    font-size:12px;
+    line-height:1.25;
+  }
+  #mobileAdminAccountMenu .mobile-admin-profile-btn small{
+    margin:0;
+    color:#67839c;
+    font-size:9px;
+    font-weight:700;
+    line-height:1.3;
+  }
+}
