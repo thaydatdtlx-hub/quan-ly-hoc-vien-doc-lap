@@ -25,12 +25,13 @@ function syncMobileAdminIdentity(){
 
   const profile=readProfile();
   const displayName=profile.display_name||"Trần Quốc Đạt";
-  if(name)name.textContent=displayName;
+  if(name&&name.textContent!==displayName)name.textContent=displayName;
   if(avatar){
     avatar.setAttribute("aria-label","Mở tài khoản và cài đặt Admin");
-    avatar.innerHTML=profile.avatar
+    const next=profile.avatar
       ?`<img src="${String(profile.avatar).replace(/"/g,"&quot;")}" alt="Ảnh Admin">`
       :initials(displayName);
+    if(avatar.innerHTML!==next)avatar.innerHTML=next;
   }
 }
 
@@ -47,7 +48,8 @@ function openAdminProfile(){
 
 function mountMobileAdminSettings(){
   const menu=document.getElementById("mobileAdminAccountMenu");
-  if(!menu||document.getElementById("mobileAdminProfileBtn"))return false;
+  if(!menu)return false;
+  if(document.getElementById("mobileAdminProfileBtn")){syncMobileAdminIdentity();return true}
 
   const button=document.createElement("button");
   button.id="mobileAdminProfileBtn";
@@ -67,22 +69,15 @@ function bootMobileAdminProfile(){
   let attempts=0;
   const timer=setInterval(()=>{
     attempts++;
-    const mounted=mountMobileAdminSettings();
-    if(mounted||attempts>120)clearInterval(timer);
+    if(mountMobileAdminSettings()||attempts>120)clearInterval(timer);
   },150);
-
-  const observer=new MutationObserver(()=>{
-    mountMobileAdminSettings();
-    syncMobileAdminIdentity();
-  });
-  observer.observe(document.body,{childList:true,subtree:true});
 
   window.addEventListener("storage",event=>{
     if(event.key===PROFILE_KEY)syncMobileAdminIdentity();
   });
 
   document.addEventListener("click",event=>{
-    if(event.target.closest("#saveAdminProfile"))setTimeout(syncMobileAdminIdentity,250);
+    if(event.target.closest("#saveAdminProfile"))setTimeout(syncMobileAdminIdentity,300);
   });
 }
 
