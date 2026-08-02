@@ -18,6 +18,7 @@ async function rpc(fn,body={}){
 function clearAuth(){for(const store of [localStorage,sessionStorage]){store.removeItem("hv_token");store.removeItem("hv_auth_kind")}}
 function esc(value){return String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[char]))}
 function normalize(value){return String(value??"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d")}
+function fixNoticeText(value){return String(value??"").replace(/\bng(?:à6|á6)(?=\s+\d{2}\/\d{2}\/\d{4})/giu,"ngày")}
 function money(value){return new Intl.NumberFormat("vi-VN").format(Number(value||0))+" ₫"}
 function paymentReference(){
   const studentName=String(student?.name||"HOC VIEN")
@@ -340,7 +341,7 @@ async function copyPaymentValue(value,successMessage){
 async function loadServerNotifications(){
   try{
     const rows=await rpc("app_list_notifications",{p_token:token})||[];
-    serverNotices=rows.map(notice=>({...notice,id:`server-${notice.id}`,server_id:String(notice.id)}));
+    serverNotices=rows.map(notice=>({...notice,title:fixNoticeText(notice.title),body:fixNoticeText(notice.body),id:`server-${notice.id}`,server_id:String(notice.id)}));
   }catch(error){
     serverNotices=[];
   }

@@ -1,3 +1,4 @@
+function fixNoticeText(value){return String(value??"").replace(/\bng(?:à6|á6)(?=\s+\d{2}\/\d{2}\/\d{4})/giu,"ngày")}
 const CACHE_NAME="thay-dat-pwa-v19";
 const CORE_ASSETS=[
   "/",
@@ -59,9 +60,9 @@ self.addEventListener("fetch",event=>{
 self.addEventListener("push",event=>{
   let data={};
   try{data=event.data?.json()??{}}catch{data={body:event.data?.text()??"Bạn có một cập nhật mới."}}
-  const title=data.title||"Thông báo từ Thầy Đạt";
+  const title=fixNoticeText(data.title)||"Thông báo từ Thầy Đạt";
   const options={
-    body:data.body||"Bạn có một cập nhật mới.",
+    body:fixNoticeText(data.body)||"Bạn có một cập nhật mới.",
     icon:"/app-icon-192.png",
     badge:"/app-icon-192.png",
     tag:data.tag||data.id||"thay-dat-notification",
