@@ -1,7 +1,52 @@
-import "./admin-profile.js";
-import "./admin-profile-mobile.js";
 import "./student-profile-self-service.js";
 import "./admin-student-profile-change.js";
+
+let adminProfileModulesPromise=null;
+let adminProfileObserver=null;
+
+function adminSessionReady(){
+  const app=document.getElementById("app");
+  const account=document.querySelector(".topbar .account");
+  const name=document.getElementById("accountName");
+  const signedIn=app&&!app.classList.contains("hidden");
+  const isAdmin=/\badmin\b/i.test(name?.textContent||"");
+  return Boolean(signedIn&&account&&name&&isAdmin);
+}
+
+function ensureAdminProfileModules(){
+  if(document.getElementById("adminProfileSummary")){
+    adminProfileObserver?.disconnect();
+    adminProfileObserver=null;
+    return;
+  }
+  if(!adminSessionReady()||adminProfileModulesPromise)return;
+
+  adminProfileModulesPromise=Promise.all([
+    import("./admin-profile.js?v=3"),
+    import("./admin-profile-mobile.js?v=2")
+  ]).catch(error=>{
+    console.error("Không thể nạp giao diện tài khoản Admin",error);
+    adminProfileModulesPromise=null;
+  });
+}
+
+function watchAdminProfile(){
+  ensureAdminProfileModules();
+  if(adminProfileObserver)return;
+  const root=document.getElementById("app")||document.body;
+  adminProfileObserver=new MutationObserver(()=>ensureAdminProfileModules());
+  adminProfileObserver.observe(root,{
+    subtree:true,
+    childList:true,
+    characterData:true,
+    attributes:true,
+    attributeFilter:["class"]
+  });
+  window.addEventListener("pageshow",ensureAdminProfileModules);
+  document.addEventListener("visibilitychange",()=>{
+    if(document.visibilityState==="visible")ensureAdminProfileModules();
+  });
+}
 
 function ensureStyleLink(href,dataAttribute){
   if(document.querySelector(`link[${dataAttribute}]`)||document.querySelector(`link[href="${href}"]`))return;
@@ -13,8 +58,8 @@ function ensureStyleLink(href,dataAttribute){
 }
 
 function ensureAdminLayoutStyles(){
-  ensureStyleLink("/admin-profile.css?v=2","data-admin-profile-base");
-  ensureStyleLink("/admin-desktop-layout.css?v=2","data-admin-desktop-layout");
+  ensureStyleLink("/admin-profile.css?v=3","data-admin-profile-base");
+  ensureStyleLink("/admin-desktop-layout.css?v=3","data-admin-desktop-layout");
 }
 
 function ensureMobileViewportStyles(){
@@ -23,6 +68,7 @@ function ensureMobileViewportStyles(){
 
 ensureAdminLayoutStyles();
 ensureMobileViewportStyles();
+watchAdminProfile();
 
 const statusHosts=[
   ".login-card",
@@ -92,6 +138,7 @@ function labelDialogCloseButtons(){
 function bootEnhancements(){
   ensureAdminLayoutStyles();
   ensureMobileViewportStyles();
+  watchAdminProfile();
   ensureLiveRegions();
   addConnectionStatus();
   polishExternalLinks();
