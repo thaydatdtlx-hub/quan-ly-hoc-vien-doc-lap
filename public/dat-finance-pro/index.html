@@ -3,29 +3,36 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#071426">
+<meta name="theme-color" content="#071425">
 <title>Đạt Finance Pro</title>
-<style>
-html,body{margin:0;min-height:100%;background:#071425;color:#fff;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}main{min-height:100vh;display:grid;place-items:center;padding:24px;text-align:center}.spin{width:44px;height:44px;border:4px solid #ffffff2b;border-top-color:#42dcc2;border-radius:50%;animation:s .9s linear infinite;margin:auto}@keyframes s{to{transform:rotate(360deg)}}p{color:#a8b5c8;line-height:1.6}.error{max-width:520px}.error button{padding:12px 18px;border:0;border-radius:12px;background:#42dcc2;color:#05211e;font-weight:800}
-</style>
+<style>html,body{margin:0;min-height:100%;background:#071425;color:#fff;font-family:system-ui}main{min-height:100vh;display:grid;place-items:center;padding:24px;text-align:center}.spin{width:44px;height:44px;border:4px solid #ffffff2b;border-top-color:#42dcc2;border-radius:50%;animation:s .9s linear infinite;margin:auto}@keyframes s{to{transform:rotate(360deg)}}p{color:#a8b5c8;line-height:1.6}.error{max-width:520px}.error button{padding:12px 18px;border:0;border-radius:12px;background:#42dcc2;color:#05211e;font-weight:800}</style>
 </head>
 <body>
-<main id="loading"><div><div class="spin"></div><h2>Đang khởi tạo dữ liệu mới</h2><p>Ứng dụng đang chuẩn bị bộ dữ liệu tài chính sạch để anh bắt đầu sử dụng.</p></div></main>
+<main id="loading"><div><div class="spin"></div><h2>Đang tạo bộ dữ liệu sạch</h2><p>Đang xóa số liệu mẫu và chuẩn bị tài khoản với số dư 0 đồng.</p></div></main>
 <script>
 (async()=>{
-  try{
-    const source='https://raw.githubusercontent.com/thaydatdtlx-hub/quan-ly-hoc-vien-doc-lap/main/public-demos/dat-finance-pro/index.html?data_version=4';
-    let html=await fetch(source,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Không tải được ứng dụng');return r.text()});
-    const cleanSeed='const seed=()=>({version:4,profile:{name:"Trần Quốc Đạt",currency:"VND",locale:"vi-VN"},settings:{dark:false,hide:false,budgetAlert:true},categories:{expense:["Ăn uống","Đi lại","Mua sắm","Gia đình","Giải trí","Học tập","Sức khỏe","Hóa đơn","Đầu tư","Khác"],income:["Lương","Dạy bổ túc","Thưởng","Thu khác"]},accounts:[{id:"cash",name:"Ví tiền mặt",type:"Tiền mặt",open:0,color:"navy"}],budgets:[],goals:[],bills:[],debts:[],recurring:[],tx:[]})';
-    html=html.replace('const KEY="dat-finance-premium-v3";','const KEY="dat-finance-premium-v4";');
-    html=html.replace(/const seed=\(\)=>\(\{[\s\S]*?\}\);let state=/,cleanSeed+';let state=');
-    html=html.replace('Khôi phục dữ liệu mẫu</button>','Xóa dữ liệu và làm mới</button>');
-    html=html.replace('if(!confirm("Khôi phục toàn bộ dữ liệu mẫu?"))return;state=seed();month=cur();render();toast("Đã khôi phục dữ liệu mẫu.")','if(!confirm("Xóa toàn bộ dữ liệu hiện tại và tạo bộ dữ liệu trống mới?"))return;localStorage.removeItem(KEY);state=seed();month=cur();render();toast("Đã tạo bộ dữ liệu mới.")');
-    html=html.replace('Đạt Finance Pro Premium - quản lý thu chi, tài khoản, ngân sách và mục tiêu tài chính.','Đạt Finance Pro Premium - dữ liệu sạch, sẵn sàng nhập và sử dụng.');
-    document.open();document.write(html);document.close();
-  }catch(e){
-    document.getElementById('loading').innerHTML='<div class="error"><h2>Không thể mở Đạt Finance Pro</h2><p>'+String(e.message||e)+'</p><button onclick="location.reload()">Thử lại</button></div>';
-  }
+try{
+const source='https://raw.githubusercontent.com/thaydatdtlx-hub/quan-ly-hoc-vien-doc-lap/main/public-demos/dat-finance-pro/index.html?data_version=6';
+let html=await fetch(source,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Không tải được ứng dụng');return r.text()});
+const clean=`const samples=[];
+const walletBase=JSON.parse(localStorage.getItem('dat-finance-wallets-v2')||'null')||{'Tiền mặt':0,'MB Bank':0,'Vietcombank':0,'Ví điện tử':0};
+let tx=JSON.parse(localStorage.getItem('dat-finance-live-v2')||'null')||samples;`;
+html=html.replace(/const samples=\[[\s\S]*?\];\s*const walletBase=\{[\s\S]*?\};\s*let tx=JSON\.parse\(localStorage\.getItem\('dat-finance-tx'\)\|\|'null'\)\|\|samples;/,clean);
+html=html.replace("function save(){localStorage.setItem('dat-finance-tx',JSON.stringify(tx))}","function save(){localStorage.setItem('dat-finance-live-v2',JSON.stringify(tx))}function saveWallets(){localStorage.setItem('dat-finance-wallets-v2',JSON.stringify(walletBase))}");
+html=html.replace(/function renderWallets\(t\)\{[\s\S]*?\}\nfunction renderBars/,`function renderWallets(t){const adj={...walletBase};tx.forEach(x=>adj[x.wallet]=(adj[x.wallet]||0)+(x.type==='income'?x.amount:-x.amount));const emo={'Tiền mặt':'💵','MB Bank':'🏦','Vietcombank':'🏛️','Ví điện tử':'📱'};wallets.innerHTML=Object.entries(adj).map(([n,v])=>\`<div class="card wallet"><div class="wallet-icon">\${emo[n]||'💳'}</div><strong>\${hidden?'••••••':money(v)}</strong><small>\${n}</small><button class="link" data-wallet-edit="\${encodeURIComponent(n)}" style="margin-top:14px;padding:0;text-align:left">Nhập số dư đầu kỳ</button></div>\`).join('');document.querySelectorAll('[data-wallet-edit]').forEach(b=>b.onclick=()=>{const n=decodeURIComponent(b.dataset.walletEdit);const value=prompt('Nhập số dư đầu kỳ cho '+n, walletBase[n]||0);if(value===null)return;const amount=Number(value);if(!Number.isFinite(amount)){alert('Số dư không hợp lệ.');return}walletBase[n]=amount;saveWallets();render();toast.textContent='Đã cập nhật số dư '+n;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1800)})}
+function renderBars`);
+html=html.replace(/function renderBars\(\)\{[\s\S]*?\}\nfunction renderBudgets/,`function renderBars(){const days=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(d.toISOString().slice(0,10))}const vals=days.map(d=>tx.filter(t=>t.date===d).reduce((s,t)=>s+(t.type==='income'?Number(t.amount):-Number(t.amount)),0));const max=Math.max(1,...vals.map(Math.abs));bars.innerHTML=days.map((d,i)=>\`<div class="bar-wrap"><div class="bar" style="height:\${Math.max(4,Math.abs(vals[i])/max*100)}%;opacity:\${vals[i]===0?.18:1}"></div><span>\${['T2','T3','T4','T5','T6','T7','CN'][i]}</span></div>\`).join('')}
+function renderBudgets`);
+html=html.replace(/function renderBudgets\(\)\{[\s\S]*?\}\nfunction go/,`function renderBudgets(){budgets.innerHTML='<div style="padding:24px 8px;text-align:center;color:var(--muted)"><b style="display:block;color:var(--text);margin-bottom:5px">Chưa có ngân sách</b>Dữ liệu ngân sách mẫu đã được xóa.</div>'}
+function go`);
+html=html.replace('Khôi phục dữ liệu mẫu</button>','Xóa dữ liệu và làm mới</button>');
+html=html.replace("resetBtn.onclick=()=>{if(confirm('Khôi phục dữ liệu mẫu?')){tx=structuredClone(samples);save();render();go('home')}}","resetBtn.onclick=()=>{if(confirm('Xóa toàn bộ giao dịch và đưa số dư đầu kỳ về 0 đồng?')){tx=[];Object.keys(walletBase).forEach(k=>walletBase[k]=0);save();saveWallets();render();go('home')}}");
+html=html.replace('↗ 8,4% so với tháng trước','Dữ liệu được tính từ giao dịch của anh');
+html=html.replace('18,4 triệu','0 đồng');
+html=html.replace('<b>Tốt</b>','<b>Chưa có dữ liệu</b>');
+html=html.replace('Bạn đang duy trì dòng tiền dương. Hãy ưu tiên hoàn thành quỹ dự phòng trước khi tăng tỷ trọng đầu tư.','Nhập giao dịch để bắt đầu phân tích tình hình tài chính.');
+document.open();document.write(html);document.close();
+}catch(e){document.getElementById('loading').innerHTML='<div class="error"><h2>Không thể mở Đạt Finance Pro</h2><p>'+String(e.message||e)+'</p><button onclick="location.reload()">Thử lại</button></div>'}
 })();
 </script>
 </body>
