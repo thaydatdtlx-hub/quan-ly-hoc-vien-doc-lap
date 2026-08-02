@@ -14,7 +14,7 @@ function ensureStyleLink(href,dataAttribute){
 
 function ensureAdminLayoutStyles(){
   ensureStyleLink("/admin-profile.css?v=2","data-admin-profile-base");
-  ensureStyleLink("/admin-desktop-layout.css?v=1","data-admin-desktop-layout");
+  ensureStyleLink("/admin-desktop-layout.css?v=2","data-admin-desktop-layout");
 }
 
 function ensureMobileViewportStyles(){
