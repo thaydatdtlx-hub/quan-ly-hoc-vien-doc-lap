@@ -1,0 +1,34 @@
+name: Bump admin profile assets
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/admin-profile-trigger.txt
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update asset versions
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path=Path('index.html')
+          text=path.read_text(encoding='utf-8')
+          text=text.replace('/site-enhancements.js?v=15','/site-enhancements.js?v=16')
+          path.write_text(text,encoding='utf-8')
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Làm mới tài nguyên hồ sơ Admin"
+          git push
