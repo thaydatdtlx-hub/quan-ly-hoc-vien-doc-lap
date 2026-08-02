@@ -5,7 +5,7 @@ const [admin,student,css,mobileLock,enhancements,client,studentClient,refreshCli
   readFile(new URL("index.html",root),"utf8"),
   readFile(new URL("hoc-vien.html",root),"utf8"),
   readFile(new URL("mobile-app.css",root),"utf8"),
-  readFile(new URL("mobile-viewport-lock.css",root),"utf8"),
+  readFile(new URL("public/mobile-viewport-lock.css",root),"utf8"),
   readFile(new URL("site-enhancements.js",root),"utf8"),
   readFile(new URL("mobile-dashboard.js",root),"utf8"),
   readFile(new URL("student.js",root),"utf8"),
@@ -36,7 +36,7 @@ for(const token of ["studentDrivingRefreshShortcut","studentDrivingRefreshCta","
 for(const token of ["hasReceivedLicense","renderDrivingRefreshAccess","driving_refresh_student_prefill"]){
   if(!studentClient.includes(token)&&!refreshClient.includes(token))throw new Error(`Luồng bổ túc tay lái của học viên thiếu: ${token}`);
 }
-for(const token of ["thay-dat-pwa-v22","/mobile-viewport-lock.css?v=1","cache.put(request,copy)"]){
+for(const token of ["thay-dat-pwa-v23","/mobile-viewport-lock.css?v=1","cache.put(request,copy)"]){
   if(!worker.includes(token))throw new Error(`PWA chưa lưu tài nguyên mobile: ${token}`);
 }
 console.log("Mobile dashboard hợp lệ: tỷ lệ cố định, không tự zoom khi nhập liệu, không tràn ngang và ổn định trên Admin/Học viên.");
