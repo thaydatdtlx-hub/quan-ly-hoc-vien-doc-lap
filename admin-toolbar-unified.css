@@ -1,15 +1,245 @@
-#app .toolbar{display:grid;grid-template-columns:minmax(270px,1.4fr) minmax(180px,.8fr) repeat(4,minmax(165px,1fr));gap:12px;align-items:stretch;padding:16px;border:1px solid #d7e4ef;border-radius:22px;background:rgba(255,255,255,.92);box-shadow:0 16px 42px rgba(27,66,102,.12);backdrop-filter:blur(12px)}
-#app .toolbar>*{min-width:0;font-family:Inter,"Segoe UI",Arial,sans-serif!important}
-#app .toolbar>input:not(.hidden),#app .toolbar>select:not(.hidden){min-height:72px;height:72px;padding:0 16px;border:1px solid #d8e4ef;border-radius:15px;background:#f6f9fc;color:#183858;font-size:14px;font-weight:600;box-shadow:none}
-#app .toolbar>button,#app .toolbar>a{--tc:#315d87;--tb:#f8fbfe;--ti:#e8f0f8;display:flex!important;min-height:72px!important;align-items:center!important;justify-content:flex-start!important;gap:11px!important;padding:12px 14px!important;border:1px solid #d8e4ef!important;border-radius:15px!important;background:var(--tb)!important;color:var(--tc)!important;text-align:left!important;text-decoration:none!important;box-shadow:0 3px 10px rgba(25,61,93,.05)!important;transition:.18s!important}
-#app .toolbar>button:hover,#app .toolbar>a:hover{transform:translateY(-2px)!important;border-color:var(--tc)!important;box-shadow:0 12px 24px rgba(25,61,93,.13)!important}
-#app .toolbar>button>span:first-child,#app .toolbar>a>span:first-child,#app .toolbar>button::before{display:grid!important;width:38px!important;height:38px!important;min-width:38px!important;place-items:center!important;border-radius:11px!important;background:var(--ti)!important;color:var(--tc)!important;font-size:0!important;line-height:1!important;content:"";background-repeat:no-repeat!important;background-position:center!important;background-size:21px!important}
-#app .toolbar strong{display:block!important;margin:0!important;color:inherit!important;font-size:11px!important;font-weight:850!important;line-height:1.25!important;letter-spacing:.015em!important;text-transform:uppercase!important}
-#app .toolbar small{display:block!important;margin-top:3px!important;color:#72849a!important;font-size:9px!important;font-weight:650!important;line-height:1.25!important}
-#addStudentBtn{--tc:#fff!important;--tb:linear-gradient(135deg,#1762d6,#1e55c2)!important;--ti:rgba(255,255,255,.16)!important;box-shadow:0 9px 20px rgba(23,92,211,.24)!important}#addStudentBtn small{color:rgba(255,255,255,.78)!important}
-.schedule-link{--tc:#6848ba!important;--tb:#f6f1ff!important;--ti:#e8ddff!important}.question-bank-link{--tc:#087a5d!important;--tb:#effbf7!important;--ti:#d9f3e9!important}.refresh-public-link{--tc:#8a5a16!important;--tb:#fff9ee!important;--ti:#f9e8c8!important}.data-import{--tc:#087c5c!important;--tb:#f0fbf7!important;--ti:#d8f3e8!important}.data-export{--tc:#1766bd!important;--tb:#f0f7ff!important;--ti:#dcecff!important}#usersBtn{--tc:#35516d!important;--tb:#f5f8fb!important;--ti:#e3ebf2!important}#publicTheoryAccountsBtn{--tc:#08748a!important;--tb:#effbfe!important;--ti:#d8f1f6!important}.attendance-toolbar-btn{--tc:#176d75!important;--tb:#f0faf9!important;--ti:#dcefed!important}.report-toolbar-btn{--tc:#334f91!important;--tb:#f2f5fc!important;--ti:#dfe6f7!important}.refresh-admin-btn{--tc:#9b3f55!important;--tb:#fff4f6!important;--ti:#f8dfe5!important}.operations-btn{--tc:#087a58!important;--tb:#f0faf5!important;--ti:#dcf3e7!important}
-#app .toolbar>button>span:first-child,#app .toolbar>a>span:first-child{color:transparent!important;text-shadow:none!important}
-#addStudentBtn::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M8.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM19 8v6M16 11h6'/%3E%3C/svg%3E")}
-.schedule-link>span:first-child{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236848ba' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='18' height='16' rx='2'/%3E%3Cpath d='M8 3v4M16 3v4M3 10h18'/%3E%3C/svg%3E")}.question-bank-link>span:first-child{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23087a5d' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 5.5A2.5 2.5 0 0 1 6.5 3H11v16H6.5A2.5 2.5 0 0 0 4 21.5ZM20 5.5A2.5 2.5 0 0 0 17.5 3H13v16h4.5a2.5 2.5 0 0 1 2.5 2.5Z'/%3E%3C/svg%3E")}.refresh-public-link>span:first-child,.refresh-admin-btn>span:first-child{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a5a16' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 17 3 15v-4l2-5h14l2 5v4l-2 2ZM5 11h14M7 17v2M17 17v2'/%3E%3C/svg%3E")}.data-import>span:first-child{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23087c5c' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 16V4M7 9l5-5 5 5M5 20h14'/%3E%3C/svg%3E")}.data-export>span:first-child{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231766bd' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 4v12M7 11l5 5 5-5M5 20h14'/%3E%3C/svg%3E")}
-#usersBtn::before,#publicTheoryAccountsBtn::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2335516d' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M8.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM17 11a4 4 0 0 0 0-8'/%3E%3C/svg%3E")}.attendance-toolbar-btn>span:first-child{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23176d75' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='m8 12 2.5 2.5L16 9'/%3E%3C/svg%3E")}.report-toolbar-btn>span:first-child{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23334f91' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 20V10M10 20V4M16 20v-7M22 20H2'/%3E%3C/svg%3E")}.operations-btn>span:first-child{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23087a58' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2'/%3E%3C/svg%3E")}
-@media(max-width:1500px){#app .toolbar{grid-template-columns:minmax(250px,1.35fr) minmax(180px,.8fr) repeat(3,minmax(165px,1fr))}}@media(max-width:1180px){#app .toolbar{grid-template-columns:repeat(3,minmax(0,1fr))}#app .toolbar>#search{grid-column:span 2}}@media(max-width:760px){#app .toolbar{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:11px;border-radius:17px}#app .toolbar>#search,#app .toolbar>#ownerFilter{grid-column:1/-1}#app .toolbar>input:not(.hidden),#app .toolbar>select:not(.hidden){min-height:52px;height:52px}#app .toolbar>button,#app .toolbar>a{min-height:64px!important;padding:10px 11px!important}#app .toolbar strong{font-size:10px!important}#app .toolbar small{font-size:8px!important}}@media(max-width:460px){#app .toolbar{grid-template-columns:1fr}#app .toolbar>#search,#app .toolbar>#ownerFilter{grid-column:auto}}
+#app .toolbar{
+  display:grid;
+  grid-template-columns:minmax(270px,1.4fr) minmax(180px,.8fr) repeat(4,minmax(170px,1fr));
+  gap:12px;
+  align-items:stretch;
+  padding:16px;
+  border:1px solid #d7e4ef;
+  border-radius:22px;
+  background:rgba(255,255,255,.94);
+  box-shadow:0 16px 42px rgba(27,66,102,.12);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+}
+
+#app .toolbar>*{
+  min-width:0;
+  font-family:Inter,"Segoe UI",Arial,sans-serif!important;
+}
+
+#app .toolbar>input:not(.hidden),
+#app .toolbar>select:not(.hidden){
+  min-height:76px;
+  height:76px;
+  padding:0 16px;
+  border:1px solid #d8e4ef;
+  border-radius:16px;
+  background:#f6f9fc;
+  color:#183858;
+  font-size:14px;
+  font-weight:600;
+  box-shadow:none;
+}
+
+#app .toolbar>input::placeholder{color:#8391a1;opacity:1}
+
+#app .toolbar>input:focus,
+#app .toolbar>select:focus{
+  border-color:#79a9e4;
+  background:#fff;
+  box-shadow:0 0 0 4px rgba(38,111,201,.1);
+}
+
+#app .toolbar>button,
+#app .toolbar>a{
+  --tc:#315d87;
+  --tb:#f8fbfe;
+  --ti:#e8f0f8;
+  --bd:#d8e4ef;
+  display:flex!important;
+  min-width:0!important;
+  min-height:76px!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:12px!important;
+  padding:12px 14px!important;
+  border:1px solid var(--bd)!important;
+  border-radius:16px!important;
+  background:var(--tb)!important;
+  color:var(--tc)!important;
+  text-align:left!important;
+  text-decoration:none!important;
+  box-shadow:0 4px 12px rgba(25,61,93,.055)!important;
+  transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease!important;
+}
+
+#app .toolbar>button:hover,
+#app .toolbar>a:hover{
+  transform:translateY(-2px)!important;
+  border-color:var(--tc)!important;
+  box-shadow:0 13px 26px rgba(25,61,93,.14)!important;
+}
+
+#app .toolbar>button:active,
+#app .toolbar>a:active{transform:translateY(0)!important}
+
+#addStudentBtn::before,
+#usersBtn::before,
+#publicTheoryAccountsBtn::before,
+#app .toolbar>a>span:first-child,
+#app .toolbar .data-action>span:first-child,
+#app .toolbar .attendance-toolbar-btn>span:first-child,
+#app .toolbar .report-toolbar-btn>span:first-child,
+#app .toolbar .refresh-admin-btn>span:first-child,
+#app .toolbar .operations-btn>span:first-child{
+  display:grid!important;
+  width:42px!important;
+  height:42px!important;
+  min-width:42px!important;
+  flex:0 0 42px!important;
+  place-items:center!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:12px!important;
+  background-color:var(--ti)!important;
+  background-repeat:no-repeat!important;
+  background-position:center!important;
+  background-size:22px 22px!important;
+  color:transparent!important;
+  font-size:0!important;
+  line-height:1!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.42)!important;
+  content:"";
+}
+
+#app .toolbar strong{
+  display:block!important;
+  margin:0!important;
+  color:inherit!important;
+  font-size:11px!important;
+  font-weight:850!important;
+  line-height:1.25!important;
+  letter-spacing:.015em!important;
+  text-transform:uppercase!important;
+  overflow-wrap:anywhere;
+}
+
+#app .toolbar small{
+  display:block!important;
+  margin-top:3px!important;
+  color:#71849a!important;
+  font-size:9px!important;
+  font-weight:650!important;
+  line-height:1.25!important;
+  overflow-wrap:anywhere;
+}
+
+#addStudentBtn,
+#usersBtn,
+#publicTheoryAccountsBtn{font-size:0!important}
+
+#addStudentBtn::after,
+#usersBtn::after,
+#publicTheoryAccountsBtn::after{
+  display:block;
+  min-width:0;
+  color:inherit;
+  font-size:11px;
+  font-weight:850;
+  line-height:1.25;
+  letter-spacing:.015em;
+  text-transform:uppercase;
+  overflow-wrap:anywhere;
+}
+
+#addStudentBtn::after{content:"THÊM HỌC VIÊN"}
+#usersBtn::after{content:"TÀI KHOẢN QUẢN LÝ"}
+#publicTheoryAccountsBtn::after{content:"NGƯỜI HỌC BÊN NGOÀI"}
+
+#addStudentBtn{
+  --tc:#fff;
+  --tb:linear-gradient(135deg,#1762d6,#1f55c2);
+  --ti:rgba(255,255,255,.16);
+  --bd:#2d69d5;
+  box-shadow:0 10px 22px rgba(23,92,211,.24)!important;
+}
+
+.schedule-link{--tc:#6848ba;--tb:#f6f1ff;--ti:#e8ddff;--bd:#d8c8fa}
+.question-bank-link{--tc:#087a5d;--tb:#effbf7;--ti:#d9f3e9;--bd:#c8eadc}
+.refresh-public-link{--tc:#8a5a16;--tb:#fff9ee;--ti:#f9e8c8;--bd:#edd6a8}
+.data-import{--tc:#087c5c;--tb:#f0fbf7;--ti:#d8f3e8;--bd:#c7e9dc}
+.data-export{--tc:#1766bd;--tb:#f0f7ff;--ti:#dcecff;--bd:#c6dcf7}
+#usersBtn{--tc:#35516d;--tb:#f5f8fb;--ti:#e3ebf2;--bd:#d6e0e9}
+#publicTheoryAccountsBtn{--tc:#08748a;--tb:#effbfe;--ti:#d8f1f6;--bd:#c4e7ee}
+.attendance-toolbar-btn{--tc:#176d75;--tb:#f0faf9;--ti:#dcefed;--bd:#c9e4e1}
+.report-toolbar-btn{--tc:#334f91;--tb:#f2f5fc;--ti:#dfe6f7;--bd:#cfd9ef}
+.refresh-admin-btn{--tc:#9b3f55;--tb:#fff4f6;--ti:#f8dfe5;--bd:#efcbd4}
+.operations-btn{--tc:#087a58;--tb:#f0faf5;--ti:#dcf3e7;--bd:#c9e8da}
+
+#addStudentBtn::before{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.85' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='8.5' cy='7' r='4'/%3E%3Cpath d='M19 8v6M16 11h6'/%3E%3C/svg%3E")!important;
+}
+
+.schedule-link>span:first-child{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236848ba' stroke-width='1.85' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='18' height='16' rx='2'/%3E%3Cpath d='M8 3v4M16 3v4M3 10h18M8 14h3M13 14h3M8 18h3'/%3E%3C/svg%3E")!important;
+}
+
+.question-bank-link>span:first-child{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23087a5d' stroke-width='1.85' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 5.5A2.5 2.5 0 0 1 6.5 3H11v16H6.5A2.5 2.5 0 0 0 4 21.5ZM20 5.5A2.5 2.5 0 0 0 17.5 3H13v16h4.5a2.5 2.5 0 0 1 2.5 2.5Z'/%3E%3Cpath d='M7 7h2M7 10h2M15 7h2M15 10h2'/%3E%3C/svg%3E")!important;
+}
+
+.refresh-public-link>span:first-child{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a5a16' stroke-width='1.85' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 17 3 15v-4l2-5h14l2 5v4l-2 2Z'/%3E%3Cpath d='M5 11h14M7 17v2M17 17v2'/%3E%3Ccircle cx='7' cy='14' r='1'/%3E%3Ccircle cx='17' cy='14' r='1'/%3E%3C/svg%3E")!important;
+}
+
+.data-import>span:first-child{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23087c5c' stroke-width='1.85' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z'/%3E%3Cpath d='M14 2v6h6M12 18v-7M8.5 14.5 12 11l3.5 3.5'/%3E%3C/svg%3E")!important;
+}
+
+.data-export>span:first-child{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231766bd' stroke-width='1.85' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z'/%3E%3Cpath d='M14 2v6h6M12 11v7M8.5 14.5 12 18l3.5-3.5'/%3E%3C/svg%3E")!important;
+}
+
+#usersBtn::before{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2335516d' stroke-width='1.85' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='9' cy='8' r='4'/%3E%3Cpath d='M2 21v-2a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v2M17 11a4 4 0 0 0 0-7M22 21v-2a5 5 0 0 0-3-4.58'/%3E%3C/svg%3E")!important;
+}
+
+#publicTheoryAccountsBtn::before{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2308748a' stroke-width='1.85' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18M16.5 7.5h2M17.5 6.5v2'/%3E%3C/svg%3E")!important;
+}
+
+.attendance-toolbar-btn>span:first-child{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23176d75' stroke-width='1.85' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='3' width='14' height='18' rx='2'/%3E%3Cpath d='M9 3.5h6v3H9zM8 12l2.5 2.5L16 9'/%3E%3C/svg%3E")!important;
+}
+
+.report-toolbar-btn>span:first-child{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23334f91' stroke-width='1.85' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 20V10M10 20V4M16 20v-7M22 20H2M5 8l4-3 5 5 6-6'/%3E%3C/svg%3E")!important;
+}
+
+.refresh-admin-btn>span:first-child{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239b3f55' stroke-width='1.85' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 17 3 15v-4l2-5h14l2 5v4l-2 2Z'/%3E%3Cpath d='M5 11h14M7 17v2M17 17v2M18 3v4M16 5h4'/%3E%3Ccircle cx='7' cy='14' r='1'/%3E%3Ccircle cx='17' cy='14' r='1'/%3E%3C/svg%3E")!important;
+}
+
+.operations-btn>span:first-child{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23087a58' stroke-width='1.85' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2'/%3E%3C/svg%3E")!important;
+}
+
+@media(max-width:1500px){
+  #app .toolbar{grid-template-columns:minmax(250px,1.35fr) minmax(180px,.8fr) repeat(3,minmax(165px,1fr))}
+}
+
+@media(max-width:1180px){
+  #app .toolbar{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #app .toolbar>#search{grid-column:span 2}
+}
+
+@media(max-width:760px){
+  #app .toolbar{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:11px;border-radius:18px}
+  #app .toolbar>#search,#app .toolbar>#ownerFilter{grid-column:1/-1}
+  #app .toolbar>input:not(.hidden),#app .toolbar>select:not(.hidden){min-height:54px;height:54px}
+  #app .toolbar>button,#app .toolbar>a{min-height:68px!important;padding:10px 11px!important;gap:9px!important}
+  #addStudentBtn::before,#usersBtn::before,#publicTheoryAccountsBtn::before,
+  #app .toolbar>a>span:first-child,#app .toolbar .data-action>span:first-child,
+  #app .toolbar .attendance-toolbar-btn>span:first-child,#app .toolbar .report-toolbar-btn>span:first-child,
+  #app .toolbar .refresh-admin-btn>span:first-child,#app .toolbar .operations-btn>span:first-child{
+    width:36px!important;height:36px!important;min-width:36px!important;flex-basis:36px!important;border-radius:10px!important;background-size:19px 19px!important
+  }
+  #app .toolbar strong,#addStudentBtn::after,#usersBtn::after,#publicTheoryAccountsBtn::after{font-size:10px!important}
+  #app .toolbar small{font-size:8px!important}
+}
+
+@media(max-width:460px){
+  #app .toolbar{grid-template-columns:1fr}
+  #app .toolbar>#search,#app .toolbar>#ownerFilter{grid-column:auto}
+}
