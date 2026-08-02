@@ -1,0 +1,1 @@
+apply toolbar icons v2
