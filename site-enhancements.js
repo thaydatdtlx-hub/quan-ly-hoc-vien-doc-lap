@@ -1,5 +1,16 @@
 import "./admin-profile.js";
 
+function ensureMobileViewportStyles(){
+  if(document.querySelector('link[data-mobile-viewport-lock]'))return;
+  const link=document.createElement("link");
+  link.rel="stylesheet";
+  link.href="/mobile-viewport-lock.css?v=1";
+  link.dataset.mobileViewportLock="true";
+  document.head.append(link);
+}
+
+ensureMobileViewportStyles();
+
 const statusHosts=[
   ".login-card",
   ".topbar .account",
@@ -66,6 +77,7 @@ function labelDialogCloseButtons(){
 }
 
 function bootEnhancements(){
+  ensureMobileViewportStyles();
   ensureLiveRegions();
   addConnectionStatus();
   polishExternalLinks();
