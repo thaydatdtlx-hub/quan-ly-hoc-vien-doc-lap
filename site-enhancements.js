@@ -3,15 +3,25 @@ import "./admin-profile-mobile.js";
 import "./student-profile-self-service.js";
 import "./admin-student-profile-change.js";
 
-function ensureMobileViewportStyles(){
-  if(document.querySelector('link[data-mobile-viewport-lock]'))return;
+function ensureStyleLink(href,dataAttribute){
+  if(document.querySelector(`link[${dataAttribute}]`)||document.querySelector(`link[href="${href}"]`))return;
   const link=document.createElement("link");
   link.rel="stylesheet";
-  link.href="/mobile-viewport-lock.css?v=2";
-  link.dataset.mobileViewportLock="true";
+  link.href=href;
+  link.setAttribute(dataAttribute,"true");
   document.head.append(link);
 }
 
+function ensureAdminLayoutStyles(){
+  ensureStyleLink("/admin-profile.css?v=2","data-admin-profile-base");
+  ensureStyleLink("/admin-desktop-layout.css?v=1","data-admin-desktop-layout");
+}
+
+function ensureMobileViewportStyles(){
+  ensureStyleLink("/mobile-viewport-lock.css?v=2","data-mobile-viewport-lock");
+}
+
+ensureAdminLayoutStyles();
 ensureMobileViewportStyles();
 
 const statusHosts=[
@@ -80,6 +90,7 @@ function labelDialogCloseButtons(){
 }
 
 function bootEnhancements(){
+  ensureAdminLayoutStyles();
   ensureMobileViewportStyles();
   ensureLiveRegions();
   addConnectionStatus();
