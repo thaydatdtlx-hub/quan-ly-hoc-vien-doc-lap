@@ -1,10 +1,11 @@
 import "./admin-profile.js";
+import "./admin-profile-mobile.js";
 
 function ensureMobileViewportStyles(){
   if(document.querySelector('link[data-mobile-viewport-lock]'))return;
   const link=document.createElement("link");
   link.rel="stylesheet";
-  link.href="/mobile-viewport-lock.css?v=1";
+  link.href="/mobile-viewport-lock.css?v=2";
   link.dataset.mobileViewportLock="true";
   document.head.append(link);
 }
