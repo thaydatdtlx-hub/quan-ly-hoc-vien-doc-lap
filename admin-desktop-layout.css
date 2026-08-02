@@ -9,11 +9,11 @@
   #app .topbar{
     position:relative;
     display:grid;
-    grid-template-columns:minmax(330px,1fr) minmax(560px,auto);
-    min-height:104px;
+    grid-template-columns:minmax(330px,1fr) minmax(520px,auto);
+    min-height:92px;
     align-items:center;
-    gap:28px;
-    padding:17px clamp(24px,3vw,56px);
+    gap:24px;
+    padding:14px clamp(24px,3vw,56px);
     overflow:hidden;
   }
 
@@ -24,14 +24,14 @@
 
   #app .brand-area{
     min-width:0;
-    gap:13px;
+    gap:12px;
   }
 
   #app .brand-mark{
-    width:54px;
-    height:54px;
-    min-width:54px;
-    border-radius:16px;
+    width:50px;
+    height:50px;
+    min-width:50px;
+    border-radius:15px;
   }
 
   #app .brand-copy{
@@ -40,7 +40,7 @@
 
   #app .brand-copy h1{
     margin:2px 0 0;
-    font-size:clamp(24px,1.7vw,30px);
+    font-size:clamp(23px,1.6vw,28px);
     line-height:1.08;
   }
 
@@ -59,49 +59,53 @@
     z-index:3;
     display:flex;
     width:auto;
-    max-width:min(820px,100%);
+    max-width:min(760px,100%);
     min-width:0;
     align-items:center;
     justify-content:flex-end;
     flex-wrap:wrap;
-    gap:8px;
-    padding:7px;
+    gap:7px;
+    padding:6px;
   }
 
-  /* Quy tắc quan trọng để giao diện không bung khi stylesheet hồ sơ tải chậm. */
+  /* Dạng thẻ tài khoản nhỏ: avatar tròn, tên và chức danh. */
   #app .admin-profile-summary{
     display:flex!important;
     width:auto!important;
-    min-width:238px!important;
-    max-width:330px!important;
-    min-height:58px!important;
-    max-height:66px!important;
+    min-width:196px!important;
+    max-width:260px!important;
+    min-height:46px!important;
+    max-height:50px!important;
     align-items:center!important;
-    gap:10px!important;
-    padding:7px 11px 7px 8px!important;
+    gap:8px!important;
+    padding:5px 9px 5px 6px!important;
     overflow:hidden!important;
     border:1px solid rgba(255,255,255,.28)!important;
-    border-radius:15px!important;
+    border-radius:999px!important;
     background:rgba(255,255,255,.1)!important;
     color:#fff!important;
     text-align:left!important;
     box-shadow:none!important;
   }
 
+  #app .admin-profile-summary:hover{
+    background:rgba(255,255,255,.18)!important;
+  }
+
   #app .admin-profile-avatar{
     display:grid!important;
-    width:44px!important;
-    height:44px!important;
-    min-width:44px!important;
-    max-width:44px!important;
-    flex:0 0 44px!important;
+    width:34px!important;
+    height:34px!important;
+    min-width:34px!important;
+    max-width:34px!important;
+    flex:0 0 34px!important;
     place-items:center!important;
     overflow:hidden!important;
-    border:2px solid rgba(255,255,255,.55)!important;
-    border-radius:13px!important;
+    border:2px solid rgba(255,255,255,.65)!important;
+    border-radius:50%!important;
     background:#edf6ff!important;
     color:#155ebc!important;
-    font-size:14px!important;
+    font-size:11px!important;
     line-height:1!important;
   }
 
@@ -111,13 +115,14 @@
     height:100%!important;
     max-width:none!important;
     object-fit:cover!important;
+    object-position:center!important;
   }
 
   #app .admin-profile-summary-copy{
     display:grid!important;
     min-width:0!important;
     flex:1 1 auto!important;
-    gap:2px!important;
+    gap:1px!important;
   }
 
   #app .admin-profile-summary-copy strong,
@@ -131,23 +136,23 @@
 
   #app .admin-profile-summary-copy strong{
     color:#fff!important;
-    font-size:13px!important;
-    line-height:1.2!important;
+    font-size:12px!important;
+    line-height:1.15!important;
   }
 
   #app .admin-profile-summary-copy small{
     color:#d6ebff!important;
-    font-size:9px!important;
-    line-height:1.2!important;
+    font-size:8px!important;
+    line-height:1.15!important;
   }
 
   #app .admin-profile-summary>svg{
     display:block!important;
-    width:17px!important;
-    height:17px!important;
-    min-width:17px!important;
-    max-width:17px!important;
-    flex:0 0 17px!important;
+    width:14px!important;
+    height:14px!important;
+    min-width:14px!important;
+    max-width:14px!important;
+    flex:0 0 14px!important;
     fill:none!important;
     stroke:currentColor!important;
     stroke-width:1.8!important;
@@ -157,10 +162,11 @@
 
   #app .topbar .account>.system-status,
   #app .topbar .account>button:not(.admin-profile-summary){
-    min-height:42px;
-    max-height:48px;
-    padding:9px 12px;
+    min-height:38px;
+    max-height:42px;
+    padding:8px 10px;
     white-space:nowrap;
+    font-size:11px;
   }
 
   #dashboardMain{
@@ -198,7 +204,7 @@
 @media (min-width:721px) and (max-width:1220px){
   #app .topbar{
     grid-template-columns:1fr;
-    gap:12px;
+    gap:10px;
   }
 
   #app .topbar .account{
@@ -208,7 +214,7 @@
   }
 
   #app .admin-profile-summary{
-    min-width:220px!important;
+    min-width:190px!important;
   }
 }
 
