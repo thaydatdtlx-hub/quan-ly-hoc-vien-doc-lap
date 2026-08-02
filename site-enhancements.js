@@ -1,3 +1,5 @@
+import "./admin-profile.js";
+
 const statusHosts=[
   ".login-card",
   ".topbar .account",
