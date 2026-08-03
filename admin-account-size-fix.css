@@ -1,0 +1,101 @@
+/* Giữ thẻ tài khoản Admin gọn và đồng bộ chiều cao với nút Thông báo. */
+@media (min-width:721px){
+  #app .topbar .account{
+    align-items:center!important;
+  }
+
+  #app .topbar .account #adminProfileSummary{
+    display:flex!important;
+    width:200px!important;
+    min-width:200px!important;
+    max-width:200px!important;
+    height:42px!important;
+    min-height:42px!important;
+    max-height:42px!important;
+    flex:0 0 200px!important;
+    align-items:center!important;
+    gap:7px!important;
+    padding:4px 8px 4px 5px!important;
+    overflow:hidden!important;
+    border-radius:12px!important;
+    line-height:1!important;
+  }
+
+  #app .topbar .account #adminProfileSummary .admin-profile-avatar{
+    display:grid!important;
+    width:32px!important;
+    height:32px!important;
+    min-width:32px!important;
+    max-width:32px!important;
+    flex:0 0 32px!important;
+    place-items:center!important;
+    overflow:hidden!important;
+    border-radius:10px!important;
+    font-size:10px!important;
+    line-height:1!important;
+  }
+
+  #app .topbar .account #adminProfileSummary .admin-profile-avatar img{
+    display:block!important;
+    width:100%!important;
+    height:100%!important;
+    max-width:none!important;
+    object-fit:cover!important;
+  }
+
+  #app .topbar .account #adminProfileSummary .admin-profile-summary-copy{
+    display:grid!important;
+    min-width:0!important;
+    flex:1 1 auto!important;
+    gap:1px!important;
+    line-height:1!important;
+  }
+
+  #app .topbar .account #adminProfileSummary .admin-profile-summary-copy strong,
+  #app .topbar .account #adminProfileSummary .admin-profile-summary-copy small{
+    display:block!important;
+    min-width:0!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+  }
+
+  #app .topbar .account #adminProfileSummary .admin-profile-summary-copy strong{
+    font-size:11px!important;
+    line-height:1.15!important;
+  }
+
+  #app .topbar .account #adminProfileSummary .admin-profile-summary-copy small{
+    font-size:8px!important;
+    line-height:1.15!important;
+  }
+
+  #app .topbar .account #adminProfileSummary>svg{
+    display:block!important;
+    width:13px!important;
+    height:13px!important;
+    min-width:13px!important;
+    max-width:13px!important;
+    flex:0 0 13px!important;
+  }
+
+  #app .topbar .account>.system-status,
+  #app .topbar .account>#notificationBtn,
+  #app .topbar .account>#changePasswordBtn,
+  #app .topbar .account>#logoutBtn{
+    display:inline-flex!important;
+    height:42px!important;
+    min-height:42px!important;
+    max-height:42px!important;
+    align-items:center!important;
+  }
+}
+
+@media (min-width:721px) and (max-width:920px){
+  #app .topbar .account #adminProfileSummary{
+    width:180px!important;
+    min-width:180px!important;
+    max-width:180px!important;
+    flex-basis:180px!important;
+  }
+}
