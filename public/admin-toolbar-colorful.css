@@ -28,7 +28,6 @@
   --tc:#234d7b;
   --ts:#6f8194;
   --tb:linear-gradient(135deg,#fff,#f6f9fd);
-  --ti1:#9ec7f5;
   --ti2:#4d91dd;
   --bd:#c7d9eb;
   --glow:rgba(64,124,194,.22);
@@ -59,7 +58,6 @@
 #app .toolbar .refresh-admin-btn>span:first-child,
 #app .toolbar .operations-btn>span:first-child{
   background-color:var(--ti2)!important;
-  background-image:var(--icon-image)!important;
   box-shadow:0 10px 22px var(--glow),inset 0 1px 0 rgba(255,255,255,.45)!important;
   border:1px solid rgba(255,255,255,.55)!important;
   transition:transform .18s ease,box-shadow .18s ease!important;
@@ -71,8 +69,7 @@
   box-shadow:0 14px 28px var(--glow),inset 0 1px 0 rgba(255,255,255,.55)!important;
 }
 
-/* Từng nút một màu riêng như mẫu. */
-#addStudentBtn{--tc:#0759c7;--ts:#597390;--tb:linear-gradient(135deg,#ffffff,#eef5ff);--bd:#b7d3f4;--ti2:#2579ef;--glow:rgba(37,121,239,.28)}
+#addStudentBtn{--tc:#0759c7;--ts:#597390;--tb:linear-gradient(135deg,#fff,#eef5ff);--bd:#b7d3f4;--ti2:#2579ef;--glow:rgba(37,121,239,.28)}
 .schedule-link{--tc:#5521bd;--ts:#75658e;--tb:linear-gradient(135deg,#fff,#f5edff);--bd:#d9c5f3;--ti2:#7026dc;--glow:rgba(112,38,220,.28)}
 .question-bank-link{--tc:#087747;--ts:#5b7869;--tb:linear-gradient(135deg,#fff,#edf9f3);--bd:#b8ddca;--ti2:#07945c;--glow:rgba(7,148,92,.27)}
 .refresh-public-link{--tc:#a44f00;--ts:#8d7358;--tb:linear-gradient(135deg,#fff,#fff6e9);--bd:#efd0a5;--ti2:#c77800;--glow:rgba(199,120,0,.27)}
@@ -85,10 +82,5 @@
 .refresh-admin-btn{--tc:#df1850;--ts:#846477;--tb:linear-gradient(135deg,#fff,#fff0f4);--bd:#f1bed0;--ti2:#e91e63;--glow:rgba(233,30,99,.28)}
 .operations-btn{--tc:#4f1eb7;--ts:#6f6683;--tb:linear-gradient(135deg,#fff,#f5efff);--bd:#d7c4f2;--ti2:#7233e3;--glow:rgba(114,51,227,.28)}
 
-@media(max-width:760px){
-  #app .toolbar{box-shadow:0 14px 32px rgba(31,72,111,.13)!important}
-}
-
-@media(prefers-reduced-motion:reduce){
-  #app .toolbar>button,#app .toolbar>a,#app .toolbar>input,#app .toolbar>select,#app .toolbar span{transition:none!important}
-}
+@media(max-width:760px){#app .toolbar{box-shadow:0 14px 32px rgba(31,72,111,.13)!important}}
+@media(prefers-reduced-motion:reduce){#app .toolbar>button,#app .toolbar>a,#app .toolbar>input,#app .toolbar>select,#app .toolbar span{transition:none!important}}
