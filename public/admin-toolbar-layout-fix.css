@@ -1,6 +1,4 @@
-/* Cân lại bố cục thanh công cụ Admin trên desktop và tablet.
-   Mục tiêu: các thẻ đồng đều, không còn khoảng trống lớn và nội dung phụ không bị ép dọc. */
-
+/* Giữ bố cục gốc theo mẫu tham chiếu và chỉ sửa phần chữ bị ép dọc. */
 #app .toolbar{
   grid-auto-flow:row!important;
   grid-auto-rows:minmax(76px,auto)!important;
@@ -16,7 +14,7 @@
   hyphens:none!important;
 }
 
-/* Hai nút có tiêu đề + mô tả được xếp thành 2 dòng cạnh biểu tượng. */
+/* Hai thẻ có tiêu đề và dòng trạng thái được chia rõ thành hai dòng. */
 #app .toolbar>.refresh-admin-btn,
 #app .toolbar>.operations-btn{
   display:grid!important;
@@ -49,73 +47,8 @@
   margin-top:0!important;
 }
 
-/* Màn hình desktop rộng: 3 hàng cân đối.
-   Hàng 1: tìm kiếm + bộ lọc + 3 chức năng.
-   Hàng 2: 6 chức năng.
-   Hàng 3: báo cáo + bổ túc + thùng rác, mỗi nút chiếm 2 cột. */
-@media (min-width:1501px){
-  #app .toolbar{
-    grid-template-columns:repeat(6,minmax(0,1fr))!important;
-  }
-
-  #app .toolbar>#search{
-    grid-column:span 2!important;
-  }
-
-  #app .toolbar>#ownerFilter{
-    grid-column:span 1!important;
-  }
-
-  #app .toolbar>#adminReportBtn,
-  #app .toolbar>#drivingRefreshAdminBtn,
-  #app .toolbar>#operationsBtn{
-    grid-column:span 2!important;
-  }
-}
-
-/* Laptop: bộ tìm kiếm và bộ lọc cùng một hàng, các nút chia đều 4 cột. */
-@media (min-width:1181px) and (max-width:1500px){
-  #app .toolbar{
-    grid-template-columns:repeat(4,minmax(0,1fr))!important;
-  }
-
-  #app .toolbar>#search,
-  #app .toolbar>#ownerFilter{
-    grid-column:span 2!important;
-  }
-
-  #app .toolbar>#adminReportBtn,
-  #app .toolbar>#drivingRefreshAdminBtn,
-  #app .toolbar>#operationsBtn{
-    grid-column:span 1!important;
-  }
-}
-
-/* Tablet ngang và màn hình nhỏ: 3 cột, tìm kiếm rộng gấp đôi bộ lọc. */
-@media (min-width:761px) and (max-width:1180px){
-  #app .toolbar{
-    grid-template-columns:repeat(3,minmax(0,1fr))!important;
-  }
-
-  #app .toolbar>#search{
-    grid-column:span 2!important;
-  }
-
-  #app .toolbar>#ownerFilter{
-    grid-column:span 1!important;
-  }
-
-  #app .toolbar>#adminReportBtn,
-  #app .toolbar>#drivingRefreshAdminBtn,
-  #app .toolbar>#operationsBtn{
-    grid-column:span 1!important;
-  }
-}
-
-@media (max-width:760px){
-  #app .toolbar{
-    grid-auto-rows:minmax(68px,auto)!important;
-  }
+@media(max-width:760px){
+  #app .toolbar{grid-auto-rows:minmax(68px,auto)!important}
 
   #app .toolbar>.refresh-admin-btn,
   #app .toolbar>.operations-btn{
