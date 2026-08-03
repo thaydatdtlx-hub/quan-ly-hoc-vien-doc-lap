@@ -54,10 +54,14 @@ export function embedScheduleInNotes(notes="",schedule=null){
   return clean?`${clean}\n\n${token}`:token;
 }
 
-/* Bổ sung hai mốc DAT số tự động cho học viên B số tự động mà không làm
-   xuất hiện mốc DAT cơ khí ở các hạng khác. Module hỗ trợ sẽ đồng bộ theo
-   học viên được chọn trong cửa sổ Mốc đào tạo. */
 if(typeof document!=="undefined"){
+  if(!document.querySelector('link[data-schedule-responsive-sync]')){
+    const link=document.createElement("link");
+    link.rel="stylesheet";
+    link.href="/schedule-responsive-sync.css?v=1";
+    link.dataset.scheduleResponsiveSync="1";
+    document.head.append(link);
+  }
   import("./schedule-b-auto-dat.js")
     .then(module=>module.installBAutomaticDatSupport(SCHEDULE_FIELDS))
     .catch(()=>{});
