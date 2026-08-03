@@ -1,4 +1,5 @@
 @import url("/admin-toolbar-colorful.css?v=2");
+@import url("/admin-toolbar-layout-fix.css?v=1");
 
 /* Giữ thẻ tài khoản Admin gọn và đồng bộ chiều cao với nút Thông báo. */
 @media (min-width:721px){
