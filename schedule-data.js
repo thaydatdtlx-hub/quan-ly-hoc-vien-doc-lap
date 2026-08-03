@@ -53,3 +53,12 @@ export function embedScheduleInNotes(notes="",schedule=null){
   const token=`[[HV_SCHEDULE_V1:${encode(schedule)}]]`;
   return clean?`${clean}\n\n${token}`:token;
 }
+
+/* Bổ sung hai mốc DAT số tự động cho học viên B số tự động mà không làm
+   xuất hiện mốc DAT cơ khí ở các hạng khác. Module hỗ trợ sẽ đồng bộ theo
+   học viên được chọn trong cửa sổ Mốc đào tạo. */
+if(typeof document!=="undefined"){
+  import("./schedule-b-auto-dat.js")
+    .then(module=>module.installBAutomaticDatSupport(SCHEDULE_FIELDS))
+    .catch(()=>{});
+}
