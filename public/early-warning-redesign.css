@@ -1,0 +1,496 @@
+/* Thiết kế lại khu vực cảnh báo thành bảng công việc ưu tiên.
+   Chỉ thay đổi giao diện, giữ nguyên dữ liệu và hành động hiện có. */
+
+#earlyWarningDashboard{
+  position:relative!important;
+  overflow:hidden!important;
+  margin:22px 0!important;
+  padding:24px!important;
+  border:1px solid #cfe0f1!important;
+  border-radius:24px!important;
+  background:
+    radial-gradient(circle at 96% 5%,rgba(74,144,226,.14),transparent 30%),
+    radial-gradient(circle at 4% 100%,rgba(16,185,129,.10),transparent 27%),
+    linear-gradient(135deg,#f8fbff 0%,#ffffff 52%,#f7fbff 100%)!important;
+  box-shadow:0 18px 45px rgba(31,76,120,.13)!important;
+}
+
+#earlyWarningDashboard::before{
+  content:"";
+  position:absolute;
+  inset:0 auto 0 0;
+  width:5px;
+  background:linear-gradient(180deg,#2878d7,#16a085 55%,#f59e0b);
+}
+
+#earlyWarningDashboard .early-warning-head{
+  position:relative;
+  z-index:1;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:18px!important;
+  margin:0 0 18px!important;
+  padding:0 0 17px!important;
+  border-bottom:1px solid #e2ebf4;
+}
+
+#earlyWarningDashboard .early-warning-head>div{
+  display:grid;
+  gap:4px;
+}
+
+#earlyWarningDashboard .early-warning-head p{
+  margin:0!important;
+  color:#2770b7!important;
+  font-size:0!important;
+  font-weight:950!important;
+  letter-spacing:.14em!important;
+}
+
+#earlyWarningDashboard .early-warning-head p::after{
+  content:"TRUNG TÂM ĐIỀU HÀNH · HÔM NAY";
+  font-size:9px;
+}
+
+#earlyWarningDashboard .early-warning-head h2{
+  margin:0!important;
+  color:#123e66!important;
+  font-size:0!important;
+  line-height:1.1!important;
+}
+
+#earlyWarningDashboard .early-warning-head h2::after{
+  content:"Công việc cần xử lý";
+  font-size:25px;
+  font-weight:900;
+}
+
+#earlyWarningDashboard .early-warning-head>div>span{
+  color:#6c8195!important;
+  font-size:0!important;
+  line-height:1.5!important;
+}
+
+#earlyWarningDashboard .early-warning-head>div>span::after{
+  content:"Hệ thống đã sắp xếp theo mức độ ưu tiên. Chọn một học viên để xử lý ngay.";
+  font-size:10px;
+}
+
+#warningViewAll{
+  min-height:44px!important;
+  padding:0 16px!important;
+  border:0!important;
+  border-radius:12px!important;
+  background:linear-gradient(135deg,#176fc5,#2458b9)!important;
+  color:#fff!important;
+  font-size:0!important;
+  font-weight:900!important;
+  box-shadow:0 10px 22px rgba(29,99,184,.24)!important;
+  white-space:nowrap!important;
+  transition:transform .18s ease,box-shadow .18s ease!important;
+}
+
+#warningViewAll::after{
+  content:"Xem toàn bộ công việc  →";
+  font-size:9px;
+}
+
+#warningViewAll:hover{
+  transform:translateY(-2px);
+  box-shadow:0 15px 28px rgba(29,99,184,.3)!important;
+}
+
+#earlyWarningDashboard .early-warning-metrics{
+  position:relative;
+  z-index:1;
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:12px!important;
+  margin:0 0 17px!important;
+}
+
+#earlyWarningDashboard .early-warning-metrics article{
+  position:relative;
+  display:flex!important;
+  min-height:84px;
+  align-items:center!important;
+  gap:12px!important;
+  padding:14px 15px!important;
+  overflow:hidden;
+  border:1px solid #dce7f1!important;
+  border-radius:16px!important;
+  background:#fff!important;
+  box-shadow:0 8px 20px rgba(34,75,111,.07)!important;
+}
+
+#earlyWarningDashboard .early-warning-metrics article::after{
+  content:"";
+  position:absolute;
+  inset:0 0 auto;
+  height:4px;
+  background:#2f80ed;
+}
+
+#earlyWarningDashboard .early-warning-metrics article:nth-child(2)::after{background:#e5484d}
+#earlyWarningDashboard .early-warning-metrics article:nth-child(3)::after{background:#f59e0b}
+#earlyWarningDashboard .early-warning-metrics article:nth-child(4)::after{background:#7c5ce7}
+
+#earlyWarningDashboard .early-warning-metrics article>span{
+  display:grid!important;
+  width:46px!important;
+  height:46px!important;
+  min-width:46px!important;
+  place-items:center!important;
+  border-radius:14px!important;
+  background:linear-gradient(135deg,#eaf4ff,#d8eaff)!important;
+  color:#176dc5!important;
+  font-size:16px!important;
+  font-weight:950!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.75),0 8px 16px rgba(23,109,197,.12)!important;
+}
+
+#earlyWarningDashboard .early-warning-metrics article:nth-child(2)>span{
+  background:linear-gradient(135deg,#fff0f0,#ffdcdc)!important;
+  color:#d63c42!important;
+}
+
+#earlyWarningDashboard .early-warning-metrics article:nth-child(3)>span{
+  background:linear-gradient(135deg,#fff7e4,#ffe9bb)!important;
+  color:#c77700!important;
+}
+
+#earlyWarningDashboard .early-warning-metrics article:nth-child(4)>span{
+  background:linear-gradient(135deg,#f2efff,#e3dcff)!important;
+  color:#6749c9!important;
+}
+
+#earlyWarningDashboard .early-warning-metrics article>div{
+  display:grid!important;
+  gap:3px!important;
+}
+
+#earlyWarningDashboard .early-warning-metrics small{
+  color:#6c8195!important;
+  font-size:0!important;
+  font-weight:850!important;
+}
+
+#earlyWarningDashboard .early-warning-metrics article:nth-child(1) small::after{content:"Việc cần xử lý";font-size:9px}
+#earlyWarningDashboard .early-warning-metrics article:nth-child(2) small::after{content:"Khẩn cấp";font-size:9px}
+#earlyWarningDashboard .early-warning-metrics article:nth-child(3) small::after{content:"Ưu tiên cao";font-size:9px}
+#earlyWarningDashboard .early-warning-metrics article:nth-child(4) small::after{content:"Học viên liên quan";font-size:9px}
+
+#earlyWarningDashboard .early-warning-metrics strong{
+  color:#123e66!important;
+  font-size:23px!important;
+  line-height:1!important;
+}
+
+#earlyWarningPreview{
+  position:relative;
+  z-index:1;
+  display:grid!important;
+  gap:10px!important;
+  counter-reset:priority-task;
+}
+
+#earlyWarningPreview::before{
+  content:"5 CÔNG VIỆC ƯU TIÊN NHẤT";
+  display:block;
+  margin:1px 0 0;
+  color:#4e708e;
+  font-size:9px;
+  font-weight:950;
+  letter-spacing:.1em;
+}
+
+#earlyWarningPreview .early-warning-item{
+  position:relative;
+  display:grid!important;
+  grid-template-columns:48px minmax(185px,.8fr) minmax(340px,1.65fr) auto!important;
+  min-height:78px;
+  align-items:center!important;
+  gap:13px!important;
+  padding:12px 13px!important;
+  overflow:hidden;
+  border:1px solid #dce7f1!important;
+  border-left:5px solid #e9a12c!important;
+  border-radius:15px!important;
+  background:#fff!important;
+  box-shadow:0 7px 18px rgba(30,70,105,.06)!important;
+  counter-increment:priority-task;
+  transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease!important;
+}
+
+#earlyWarningPreview .early-warning-item:hover{
+  transform:translateY(-2px);
+  border-color:#bcd6eb!important;
+  box-shadow:0 13px 27px rgba(30,70,105,.12)!important;
+}
+
+#earlyWarningPreview .early-warning-item.severity-critical{
+  border-left-color:#e5484d!important;
+  background:linear-gradient(90deg,#fff8f8,#fff 22%)!important;
+}
+
+#earlyWarningPreview .early-warning-item.severity-high{
+  border-left-color:#f08b2f!important;
+  background:linear-gradient(90deg,#fffbf5,#fff 22%)!important;
+}
+
+/* Dashboard chỉ hiện 5 việc; danh sách đầy đủ vẫn mở bằng nút bên trên. */
+#earlyWarningPreview .early-warning-item:nth-of-type(n+6){display:none!important}
+
+#earlyWarningPreview .warning-type-icon{
+  position:relative;
+  display:grid!important;
+  width:46px!important;
+  height:46px!important;
+  place-items:center!important;
+  border-radius:14px!important;
+  background:linear-gradient(135deg,#fff3df,#ffe6bd)!important;
+  color:#b76600!important;
+  font-size:12px!important;
+  font-weight:950!important;
+  box-shadow:0 7px 15px rgba(185,102,0,.12)!important;
+}
+
+#earlyWarningPreview .warning-type-icon::after{
+  content:counter(priority-task);
+  position:absolute;
+  top:-7px;
+  right:-7px;
+  display:grid;
+  width:20px;
+  height:20px;
+  place-items:center;
+  border:2px solid #fff;
+  border-radius:50%;
+  background:#173f65;
+  color:#fff;
+  font-size:8px;
+  box-shadow:0 4px 9px rgba(23,63,101,.22);
+}
+
+#earlyWarningPreview .severity-critical .warning-type-icon{
+  background:linear-gradient(135deg,#ffeded,#ffd7d9)!important;
+  color:#c9363c!important;
+}
+
+#earlyWarningPreview .warning-person{
+  display:grid!important;
+  min-width:0!important;
+  gap:4px!important;
+  padding-right:10px;
+  border-right:1px solid #e6edf4;
+}
+
+#earlyWarningPreview .warning-person strong{
+  overflow:hidden!important;
+  color:#123f67!important;
+  font-size:11px!important;
+  font-weight:900!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+
+#earlyWarningPreview .warning-person small{
+  color:#73889c!important;
+  font-size:8px!important;
+  line-height:1.4!important;
+}
+
+#earlyWarningPreview .warning-content{
+  display:grid!important;
+  min-width:0!important;
+  gap:4px!important;
+}
+
+#earlyWarningPreview .warning-content>span{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:5px!important;
+}
+
+#earlyWarningPreview .warning-content>span b,
+#earlyWarningPreview .warning-content>span em{
+  padding:4px 7px!important;
+  border-radius:999px!important;
+  background:#fff0d8!important;
+  color:#9a5b00!important;
+  font-size:7px!important;
+  font-style:normal!important;
+  font-weight:950!important;
+}
+
+#earlyWarningPreview .warning-content>span em{
+  background:#eaf3fb!important;
+  color:#47708f!important;
+}
+
+#earlyWarningPreview .severity-critical .warning-content>span b{
+  background:#ffe1e2!important;
+  color:#bd3036!important;
+}
+
+#earlyWarningPreview .warning-content>strong{
+  color:#254f72!important;
+  font-size:11px!important;
+  font-weight:900!important;
+}
+
+#earlyWarningPreview .warning-content>small{
+  color:#74899b!important;
+  font-size:8px!important;
+  line-height:1.45!important;
+}
+
+#earlyWarningPreview .early-warning-item>button{
+  min-height:38px!important;
+  padding:0 12px!important;
+  border:1px solid #b9d5eb!important;
+  border-radius:10px!important;
+  background:linear-gradient(135deg,#f4f9ff,#e8f3ff)!important;
+  color:#1268b9!important;
+  font-size:8px!important;
+  font-weight:950!important;
+  white-space:nowrap!important;
+  box-shadow:0 5px 12px rgba(18,104,185,.09)!important;
+}
+
+#earlyWarningPreview .early-warning-item>button:hover{
+  border-color:#4b95d3!important;
+  background:linear-gradient(135deg,#2077c8,#195eae)!important;
+  color:#fff!important;
+}
+
+#earlyWarningDashboard .early-warning-empty{
+  position:relative;
+  z-index:1;
+  min-height:150px!important;
+  border:1px dashed #bcd5e7!important;
+  border-radius:16px!important;
+  background:rgba(255,255,255,.72)!important;
+}
+
+#earlyWarningDashboard .warning-data-notice{
+  position:relative;
+  z-index:1;
+  margin:13px 0 0!important;
+  padding:10px 12px!important;
+  border:1px solid #f0d6a7;
+  border-radius:10px!important;
+  background:#fff8e8!important;
+  color:#815719!important;
+  font-size:8px!important;
+}
+
+/* Đồng bộ cửa sổ “Xem toàn bộ”. */
+.warning-dialog{
+  border:0!important;
+  border-radius:22px!important;
+  box-shadow:0 24px 70px rgba(15,43,70,.25)!important;
+}
+
+.warning-dialog .warning-filter-tabs button{
+  min-height:34px;
+  padding:0 11px!important;
+  border-color:#d1e0ec!important;
+  background:#f7fafc!important;
+  color:#52718b!important;
+}
+
+.warning-dialog .warning-filter-tabs button.active{
+  border-color:#2d7dc4!important;
+  background:#eaf4ff!important;
+  color:#176bb7!important;
+  box-shadow:0 5px 13px rgba(23,107,183,.11);
+}
+
+.warning-dialog .early-warning-item{
+  border-radius:14px!important;
+  box-shadow:0 5px 14px rgba(30,70,105,.06)!important;
+}
+
+@media(max-width:1100px){
+  #earlyWarningPreview .early-warning-item{
+    grid-template-columns:46px minmax(170px,.8fr) minmax(260px,1.5fr) auto!important;
+  }
+}
+
+@media(max-width:900px){
+  #earlyWarningDashboard{padding:20px!important}
+  #earlyWarningDashboard .early-warning-metrics{grid-template-columns:1fr 1fr!important}
+  #earlyWarningPreview .early-warning-item{
+    grid-template-columns:46px minmax(0,1fr) auto!important;
+  }
+  #earlyWarningPreview .warning-content{
+    grid-column:2!important;
+  }
+  #earlyWarningPreview .warning-person{
+    border-right:0;
+  }
+  #earlyWarningPreview .early-warning-item>button{
+    grid-column:3!important;
+    grid-row:1/3!important;
+  }
+}
+
+@media(max-width:620px){
+  #earlyWarningDashboard{
+    margin:15px 0!important;
+    padding:16px!important;
+    border-radius:18px!important;
+  }
+
+  #earlyWarningDashboard .early-warning-head{
+    align-items:stretch!important;
+    flex-direction:column!important;
+  }
+
+  #earlyWarningDashboard .early-warning-head h2::after{font-size:21px}
+  #warningViewAll{width:100%!important}
+  #earlyWarningDashboard .early-warning-metrics{gap:8px!important}
+  #earlyWarningDashboard .early-warning-metrics article{
+    min-height:74px;
+    gap:8px!important;
+    padding:11px!important;
+  }
+  #earlyWarningDashboard .early-warning-metrics article>span{
+    width:38px!important;
+    height:38px!important;
+    min-width:38px!important;
+    border-radius:11px!important;
+  }
+  #earlyWarningDashboard .early-warning-metrics strong{font-size:19px!important}
+
+  #earlyWarningPreview .early-warning-item{
+    grid-template-columns:42px minmax(0,1fr)!important;
+    gap:10px!important;
+    padding:11px!important;
+  }
+  #earlyWarningPreview .warning-type-icon{
+    width:40px!important;
+    height:40px!important;
+    border-radius:12px!important;
+  }
+  #earlyWarningPreview .warning-person{
+    padding-right:0;
+  }
+  #earlyWarningPreview .warning-content{
+    grid-column:1/-1!important;
+    padding-top:9px;
+    border-top:1px solid #e8eef4;
+  }
+  #earlyWarningPreview .early-warning-item>button{
+    grid-column:1/-1!important;
+    grid-row:auto!important;
+    width:100%!important;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  #warningViewAll,
+  #earlyWarningPreview .early-warning-item{transition:none!important}
+}
