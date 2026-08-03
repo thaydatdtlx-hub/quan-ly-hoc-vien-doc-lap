@@ -1,5 +1,5 @@
 function fixNoticeText(value){return String(value??"").replace(/\bng(?:à6|á6)(?=\s+\d{2}\/\d{2}\/\d{4})/giu,"ngày")}
-const CACHE_NAME="thay-dat-pwa-v29";
+const CACHE_NAME="thay-dat-pwa-v30";
 const CORE_ASSETS=[
   "/",
   "/index.html",
@@ -10,6 +10,7 @@ const CORE_ASSETS=[
   "/offline.html",
   "/site.webmanifest",
   "/admin-toolbar-unified.css?v=2",
+  "/admin-toolbar-colorful.css?v=1",
   "/admin-profile.js?v=3",
   "/admin-profile.css?v=3",
   "/admin-desktop-layout.css?v=3",
