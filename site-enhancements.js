@@ -61,6 +61,7 @@ function ensureAdminLayoutStyles(){
   ensureStyleLink("/admin-profile.css?v=3","data-admin-profile-base");
   ensureStyleLink("/admin-desktop-layout.css?v=3","data-admin-desktop-layout");
   ensureStyleLink("/admin-account-size-fix.css?v=1","data-admin-account-size-fix");
+  ensureStyleLink("/admin-toolbar-colorful.css?v=1","data-admin-toolbar-colorful");
 }
 
 function ensureMobileViewportStyles(){
