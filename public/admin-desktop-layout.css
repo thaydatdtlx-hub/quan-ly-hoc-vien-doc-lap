@@ -1,0 +1,28 @@
+/* Bố cục Admin desktop: giữ đầu trang gọn, dashboard sử dụng hết chiều rộng. */
+@media (min-width:721px){
+  #app{width:100%;min-width:0;overflow-x:hidden}
+  #app .topbar{position:relative;display:grid;grid-template-columns:minmax(330px,1fr) minmax(520px,auto);min-height:92px;align-items:center;gap:24px;padding:14px clamp(24px,3vw,56px);overflow:hidden}
+  #app .topbar .driving-scene{pointer-events:none;opacity:.16}
+  #app .brand-area{min-width:0;gap:12px}
+  #app .brand-mark{width:50px;height:50px;min-width:50px;border-radius:15px}
+  #app .brand-copy{min-width:0}
+  #app .brand-copy h1{margin:2px 0 0;font-size:clamp(23px,1.6vw,28px);line-height:1.08}
+  #app .brand-copy .eyebrow,#app .brand-copy .system-badge,#app .brand-copy .brand-slogan,#app .brand-copy .brand-link{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #app .topbar .account{position:relative;z-index:3;display:flex;width:auto;max-width:min(760px,100%);min-width:0;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:7px;padding:6px}
+  #app .admin-profile-summary{display:flex!important;width:auto!important;min-width:196px!important;max-width:260px!important;min-height:46px!important;max-height:50px!important;align-items:center!important;gap:8px!important;padding:5px 9px 5px 6px!important;overflow:hidden!important;border:1px solid rgba(255,255,255,.28)!important;border-radius:999px!important;background:rgba(255,255,255,.1)!important;color:#fff!important;text-align:left!important;box-shadow:none!important}
+  #app .admin-profile-summary:hover{background:rgba(255,255,255,.18)!important}
+  #app .admin-profile-avatar{display:grid!important;width:34px!important;height:34px!important;min-width:34px!important;max-width:34px!important;flex:0 0 34px!important;place-items:center!important;overflow:hidden!important;border:2px solid rgba(255,255,255,.65)!important;border-radius:50%!important;background:#edf6ff!important;color:#155ebc!important;font-size:11px!important;line-height:1!important}
+  #app .admin-profile-avatar img{display:block!important;width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;object-position:center!important}
+  #app .admin-profile-summary-copy{display:grid!important;min-width:0!important;flex:1 1 auto!important;gap:1px!important}
+  #app .admin-profile-summary-copy strong,#app .admin-profile-summary-copy small{display:block!important;min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+  #app .admin-profile-summary-copy strong{color:#fff!important;font-size:12px!important;line-height:1.15!important}
+  #app .admin-profile-summary-copy small{color:#d6ebff!important;font-size:8px!important;line-height:1.15!important}
+  #app .admin-profile-summary>svg{display:block!important;width:14px!important;height:14px!important;min-width:14px!important;max-width:14px!important;flex:0 0 14px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.8!important;stroke-linecap:round!important;stroke-linejoin:round!important}
+  #app .topbar .account>.system-status,#app .topbar .account>button:not(.admin-profile-summary){min-height:38px;max-height:42px;padding:8px 10px;white-space:nowrap;font-size:11px}
+  #dashboardMain{width:calc(100% - clamp(32px,4vw,76px))!important;max-width:none!important;min-width:0!important;margin:24px auto 34px!important}
+  #dashboardMain>*{min-width:0;max-width:100%}
+  #dashboardMain .toolbar,#dashboardMain .finance-dashboard,#dashboardMain .theory-dashboard,#dashboardMain .attendance-dashboard,#dashboardMain .early-warning-dashboard,#dashboardMain .stats,#dashboardMain .panel{width:100%;max-width:none}
+  #dashboardMain .finance-grid,#dashboardMain .theory-dashboard-grid,#dashboardMain .attendance-dashboard-grid,#dashboardMain .early-warning-metrics,#dashboardMain .stats{min-width:0}
+}
+@media (min-width:721px) and (max-width:1220px){#app .topbar{grid-template-columns:1fr;gap:10px}#app .topbar .account{width:100%;max-width:none;justify-content:flex-start}#app .admin-profile-summary{min-width:190px!important}}
+@media (min-width:1900px){#dashboardMain{width:calc(100% - 64px)!important}#app .topbar{padding-right:32px;padding-left:32px}}
