@@ -1,67 +1,53 @@
-/* Bảng màu sinh động V2 cho cụm công cụ Admin. Giữ nguyên bố cục và chức năng. */
+@import url("/admin-toolbar-layout-fix.css?v=2");
+
+/* Màu sắc thanh công cụ Admin theo mẫu tham chiếu:
+   nền trắng, thẻ pastel, icon gradient nổi và viền cùng tông. */
 #app .toolbar{
-  border-color:#bfd5eb!important;
-  background:
-    radial-gradient(circle at 3% 6%,rgba(46,132,255,.17),transparent 31%),
-    radial-gradient(circle at 97% 15%,rgba(0,177,153,.14),transparent 33%),
-    linear-gradient(135deg,rgba(255,255,255,.99),rgba(247,251,255,.98))!important;
-  box-shadow:0 20px 48px rgba(26,69,108,.17)!important;
+  border-color:#dbe7f4!important;
+  background:linear-gradient(135deg,rgba(255,255,255,.99),rgba(250,252,255,.98))!important;
+  box-shadow:0 18px 48px rgba(29,73,117,.14)!important;
 }
 
 #app .toolbar>input:not(.hidden),
 #app .toolbar>select:not(.hidden){
-  border-color:#b9d1e9!important;
-  background:linear-gradient(135deg,#f8fbff 0%,#eaf4ff 100%)!important;
+  border-color:#a9d0ff!important;
+  background:linear-gradient(135deg,#fbfdff,#f2f7ff)!important;
   color:#173b62!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.96),0 8px 20px rgba(38,93,147,.08)!important;
-  transition:border-color .18s ease,box-shadow .18s ease,background .18s ease!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.96),0 7px 18px rgba(38,93,147,.07)!important;
 }
-
-#app .toolbar>input::placeholder{color:#71869d!important}
-
+#app .toolbar>input::placeholder{color:#7890ad!important}
 #app .toolbar>input:focus,
 #app .toolbar>select:focus{
-  border-color:#337fd8!important;
+  border-color:#418ce7!important;
   background:#fff!important;
-  box-shadow:0 0 0 4px rgba(37,119,219,.15),0 12px 26px rgba(35,91,148,.11)!important;
+  box-shadow:0 0 0 4px rgba(54,132,231,.13),0 12px 24px rgba(35,91,148,.1)!important;
 }
 
 #app .toolbar>button,
 #app .toolbar>a{
-  --tc:#315d87;
-  --ts:#5f748a;
-  --ti:#e8f0f8;
-  --bd:#d8e4ef;
-  --accent:#6792bb;
-  --shadow:rgba(36,76,112,.11);
-  --icon-shadow:rgba(36,76,112,.16);
+  --tc:#234d7b;
+  --ts:#6f8194;
+  --tb:linear-gradient(135deg,#fff,#f6f9fd);
+  --ti1:#9ec7f5;
+  --ti2:#4d91dd;
+  --bd:#c7d9eb;
+  --glow:rgba(64,124,194,.22);
   position:relative!important;
   overflow:hidden!important;
   border-color:var(--bd)!important;
   background:var(--tb)!important;
   color:var(--tc)!important;
-  box-shadow:
-    inset 0 4px 0 var(--accent),
-    0 10px 23px var(--shadow),
-    inset 0 1px 0 rgba(255,255,255,.9)!important;
+  box-shadow:0 8px 20px rgba(28,69,111,.08),inset 0 1px 0 rgba(255,255,255,.95)!important;
   isolation:isolate;
 }
-
 #app .toolbar>button:hover,
 #app .toolbar>a:hover{
   transform:translateY(-3px)!important;
-  border-color:var(--accent)!important;
-  box-shadow:
-    inset 0 4px 0 var(--accent),
-    0 18px 32px var(--shadow),
-    inset 0 1px 0 rgba(255,255,255,.94)!important;
+  border-color:var(--ti2)!important;
+  box-shadow:0 16px 30px var(--glow),inset 0 1px 0 rgba(255,255,255,.97)!important;
 }
-
-#app .toolbar>button:focus-visible,
-#app .toolbar>a:focus-visible{
-  outline:3px solid rgba(40,112,204,.2)!important;
-  outline-offset:2px!important;
-}
+#app .toolbar strong{color:var(--tc)!important;text-shadow:0 1px 0 rgba(255,255,255,.8)}
+#app .toolbar small{color:var(--ts)!important}
 
 #addStudentBtn::before,
 #usersBtn::before,
@@ -72,163 +58,37 @@
 #app .toolbar .report-toolbar-btn>span:first-child,
 #app .toolbar .refresh-admin-btn>span:first-child,
 #app .toolbar .operations-btn>span:first-child{
-  background-color:var(--ti)!important;
-  box-shadow:
-    0 9px 20px var(--icon-shadow),
-    inset 0 1px 0 rgba(255,255,255,.88),
-    inset 0 0 0 1px rgba(255,255,255,.58)!important;
+  background-color:var(--ti2)!important;
+  background-image:var(--icon-image)!important;
+  box-shadow:0 10px 22px var(--glow),inset 0 1px 0 rgba(255,255,255,.45)!important;
+  border:1px solid rgba(255,255,255,.55)!important;
   transition:transform .18s ease,box-shadow .18s ease!important;
 }
-
 #app .toolbar>button:hover::before,
 #app .toolbar>button:hover>span:first-child,
 #app .toolbar>a:hover>span:first-child{
   transform:translateY(-1px) scale(1.055)!important;
-  box-shadow:
-    0 13px 25px var(--icon-shadow),
-    inset 0 1px 0 rgba(255,255,255,.94),
-    inset 0 0 0 1px rgba(255,255,255,.68)!important;
+  box-shadow:0 14px 28px var(--glow),inset 0 1px 0 rgba(255,255,255,.55)!important;
 }
 
-#app .toolbar strong{color:var(--tc)!important;text-shadow:0 1px 0 rgba(255,255,255,.78)}
-#app .toolbar small{color:var(--ts)!important}
-
-#addStudentBtn{
-  --tc:#0b58be;
-  --ts:#4f6b89;
-  --tb:linear-gradient(135deg,#eef6ff 0%,#dbeaff 100%);
-  --ti:#287af0;
-  --bd:#9dc5f6;
-  --accent:#287af0;
-  --shadow:rgba(32,106,217,.19);
-  --icon-shadow:rgba(37,112,224,.35);
-}
-
-.schedule-link{
-  --tc:#5f27b9;
-  --tb:linear-gradient(135deg,#faf6ff 0%,#eadcff 100%);
-  --ti:#d6c0ff;
-  --bd:#c9adf5;
-  --accent:#7b3de0;
-  --shadow:rgba(112,53,199,.16);
-  --icon-shadow:rgba(111,52,196,.24);
-}
-
-.question-bank-link{
-  --tc:#087452;
-  --tb:linear-gradient(135deg,#f3fff9 0%,#dff6ea 100%);
-  --ti:#afe7cb;
-  --bd:#9ed6be;
-  --accent:#0b936a;
-  --shadow:rgba(7,125,88,.15);
-  --icon-shadow:rgba(7,125,88,.23);
-}
-
-.refresh-public-link{
-  --tc:#9c5100;
-  --tb:linear-gradient(135deg,#fffaf0 0%,#ffe8c5 100%);
-  --ti:#ffd08a;
-  --bd:#e7bb79;
-  --accent:#d67a00;
-  --shadow:rgba(183,98,0,.16);
-  --icon-shadow:rgba(181,96,0,.24);
-}
-
-.data-import{
-  --tc:#08714f;
-  --tb:linear-gradient(135deg,#f3fff9 0%,#daf6e9 100%);
-  --ti:#a8e8cb;
-  --bd:#95d7bb;
-  --accent:#08a56c;
-  --shadow:rgba(4,132,91,.15);
-  --icon-shadow:rgba(4,132,91,.24);
-}
-
-.data-export{
-  --tc:#145cae;
-  --tb:linear-gradient(135deg,#f2f8ff 0%,#dcecff 100%);
-  --ti:#aecdff;
-  --bd:#9fc3ee;
-  --accent:#2877d4;
-  --shadow:rgba(28,103,196,.16);
-  --icon-shadow:rgba(28,103,196,.25);
-}
-
-#usersBtn{
-  --tc:#304f70;
-  --tb:linear-gradient(135deg,#f7fafc 0%,#e1ebf4 100%);
-  --ti:#c8dae9;
-  --bd:#b8ccdd;
-  --accent:#587da0;
-  --shadow:rgba(54,91,127,.14);
-  --icon-shadow:rgba(54,91,127,.21);
-}
-
-#publicTheoryAccountsBtn{
-  --tc:#006f83;
-  --tb:linear-gradient(135deg,#f2fdff 0%,#d9f3f8 100%);
-  --ti:#a9e1eb;
-  --bd:#98d4de;
-  --accent:#0795aa;
-  --shadow:rgba(0,126,148,.15);
-  --icon-shadow:rgba(0,126,148,.23);
-}
-
-.attendance-toolbar-btn{
-  --tc:#08737b;
-  --tb:linear-gradient(135deg,#f2fffd 0%,#d8f3ee 100%);
-  --ti:#a7dfd7;
-  --bd:#94d2c9;
-  --accent:#0b969e;
-  --shadow:rgba(3,126,133,.15);
-  --icon-shadow:rgba(3,126,133,.23);
-}
-
-.report-toolbar-btn{
-  --tc:#334fa1;
-  --tb:linear-gradient(135deg,#f5f7ff 0%,#e0e6ff 100%);
-  --ti:#b9c7ff;
-  --bd:#aab9ef;
-  --accent:#536ad4;
-  --shadow:rgba(51,79,166,.16);
-  --icon-shadow:rgba(51,79,166,.24);
-}
-
-.refresh-admin-btn{
-  --tc:#b82a55;
-  --tb:linear-gradient(135deg,#fff6f8 0%,#ffdce5 100%);
-  --ti:#ffb9cb;
-  --bd:#eea8bb;
-  --accent:#dc3567;
-  --shadow:rgba(196,43,94,.17);
-  --icon-shadow:rgba(196,43,94,.25);
-}
-
-.operations-btn{
-  --tc:#087451;
-  --tb:linear-gradient(135deg,#f3fff9 0%,#dcf6e9 100%);
-  --ti:#afe7cc;
-  --bd:#9ed8bf;
-  --accent:#0b9369;
-  --shadow:rgba(7,125,88,.15);
-  --icon-shadow:rgba(7,125,88,.23);
-}
+/* Từng nút một màu riêng như mẫu. */
+#addStudentBtn{--tc:#0759c7;--ts:#597390;--tb:linear-gradient(135deg,#ffffff,#eef5ff);--bd:#b7d3f4;--ti2:#2579ef;--glow:rgba(37,121,239,.28)}
+.schedule-link{--tc:#5521bd;--ts:#75658e;--tb:linear-gradient(135deg,#fff,#f5edff);--bd:#d9c5f3;--ti2:#7026dc;--glow:rgba(112,38,220,.28)}
+.question-bank-link{--tc:#087747;--ts:#5b7869;--tb:linear-gradient(135deg,#fff,#edf9f3);--bd:#b8ddca;--ti2:#07945c;--glow:rgba(7,148,92,.27)}
+.refresh-public-link{--tc:#a44f00;--ts:#8d7358;--tb:linear-gradient(135deg,#fff,#fff6e9);--bd:#efd0a5;--ti2:#c77800;--glow:rgba(199,120,0,.27)}
+.data-import{--tc:#05783f;--ts:#5b7b69;--tb:linear-gradient(135deg,#fff,#effaf5);--bd:#b7dfcd;--ti2:#08af63;--glow:rgba(8,175,99,.27)}
+.data-export{--tc:#0758c4;--ts:#5b7595;--tb:linear-gradient(135deg,#fff,#eef5ff);--bd:#b6d0f3;--ti2:#176be8;--glow:rgba(23,107,232,.28)}
+#usersBtn{--tc:#174d9c;--ts:#64758c;--tb:linear-gradient(135deg,#fff,#f1f6fc);--bd:#c1d4e7;--ti2:#78b4e9;--glow:rgba(60,126,190,.22)}
+#publicTheoryAccountsBtn{--tc:#007e94;--ts:#587784;--tb:linear-gradient(135deg,#fff,#edfafd);--bd:#b8e0e8;--ti2:#08a7b9;--glow:rgba(8,167,185,.27)}
+.attendance-toolbar-btn{--tc:#007b89;--ts:#58797d;--tb:linear-gradient(135deg,#fff,#eefafa);--bd:#b7dfe2;--ti2:#09a1aa;--glow:rgba(9,161,170,.27)}
+.report-toolbar-btn{--tc:#0756c4;--ts:#637496;--tb:linear-gradient(135deg,#fff,#f0f4ff);--bd:#c1cff1;--ti2:#3c66de;--glow:rgba(60,102,222,.27)}
+.refresh-admin-btn{--tc:#df1850;--ts:#846477;--tb:linear-gradient(135deg,#fff,#fff0f4);--bd:#f1bed0;--ti2:#e91e63;--glow:rgba(233,30,99,.28)}
+.operations-btn{--tc:#4f1eb7;--ts:#6f6683;--tb:linear-gradient(135deg,#fff,#f5efff);--bd:#d7c4f2;--ti2:#7233e3;--glow:rgba(114,51,227,.28)}
 
 @media(max-width:760px){
-  #app .toolbar{box-shadow:0 14px 32px rgba(31,72,111,.14)!important}
-  #app .toolbar>button,
-  #app .toolbar>a{
-    box-shadow:inset 0 3px 0 var(--accent),0 8px 18px var(--shadow),inset 0 1px 0 rgba(255,255,255,.88)!important;
-  }
+  #app .toolbar{box-shadow:0 14px 32px rgba(31,72,111,.13)!important}
 }
 
 @media(prefers-reduced-motion:reduce){
-  #app .toolbar>button,
-  #app .toolbar>a,
-  #app .toolbar>input,
-  #app .toolbar>select,
-  #addStudentBtn::before,
-  #usersBtn::before,
-  #publicTheoryAccountsBtn::before,
-  #app .toolbar span{transition:none!important}
+  #app .toolbar>button,#app .toolbar>a,#app .toolbar>input,#app .toolbar>select,#app .toolbar span{transition:none!important}
 }
