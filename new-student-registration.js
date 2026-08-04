@@ -3,6 +3,7 @@ import "./license-eligibility-section.js";
 import "./training-video-section.js";
 import "./registration-procedure-section.js";
 import "./public-site-enhancements.js";
+import "./official-faq-section.js";
 
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
