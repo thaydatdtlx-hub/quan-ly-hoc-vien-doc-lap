@@ -11,6 +11,7 @@ export default defineConfig({
         theory:resolve(__dirname,"600-cau-hoi.html"),
         drivingRefresh:resolve(__dirname,"bo-tuc-tay-lai.html"),
         newStudentRegistration:resolve(__dirname,"dang-ky-hoc-lai-xe.html"),
+        privacyPolicy:resolve(__dirname,"chinh-sach-bao-mat.html"),
         notFound:resolve(__dirname,"404.html")
       }
     }
