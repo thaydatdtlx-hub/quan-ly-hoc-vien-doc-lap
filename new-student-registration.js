@@ -1,6 +1,7 @@
 import "./license-training-details.js";
 import "./training-video-section.js";
 import "./registration-procedure-section.js";
+import "./public-site-enhancements.js";
 
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
@@ -57,6 +58,9 @@ form.addEventListener("submit",async event=>{
   submit.disabled=true;
   submit.querySelector("span").textContent="Đang gửi đăng ký…";
   try{
+    const source=sessionStorage.getItem("new_student_source")||"Truy cập trực tiếp";
+    const originalNote=$("note").value.trim();
+    const trackedNote=[originalNote,`Nguồn đăng ký: ${source}`].filter(Boolean).join("\n").slice(0,800);
     const result=await rpc("app_create_new_student_registration",{p_data:{
       full_name:$("fullName").value.trim(),
       phone:$("phone").value.trim(),
@@ -67,7 +71,7 @@ form.addEventListener("submit",async event=>{
       preferred_contact_time:$("preferredContactTime").value,
       consultation_channel:$("consultationChannel").value,
       learning_history:$("learningHistory").value,
-      note:$("note").value.trim(),
+      note:trackedNote,
       consent:true,
       website:$("website").value
     }});
