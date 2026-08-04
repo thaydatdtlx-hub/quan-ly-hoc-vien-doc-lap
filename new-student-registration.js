@@ -1,4 +1,5 @@
 import "./license-training-details.js";
+import "./license-eligibility-section.js";
 import "./training-video-section.js";
 import "./registration-procedure-section.js";
 import "./public-site-enhancements.js";
