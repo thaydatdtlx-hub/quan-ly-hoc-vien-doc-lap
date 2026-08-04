@@ -3,68 +3,23 @@ import "./official-faq-section.css";
 const faqSection=document.getElementById("faq");
 
 if(faqSection){
+  const items=[
+    ["PHÁP LÝ","Làm sao biết cơ sở đào tạo lái xe hoạt động hợp pháp?","Cơ sở đào tạo phải có giấy phép phù hợp với hạng xe tuyển sinh và đáp ứng điều kiện về giáo viên, xe tập lái, sân tập cùng hệ thống quản lý đào tạo. Học viên nên yêu cầu tên pháp nhân, đơn vị đào tạo và thông tin khóa học trước khi nộp hồ sơ."],
+    ["HỌC PHÍ","Học phí có phải là mức do Bộ Công an quy định không?","Không. Bộ Công an quy định về sát hạch và cấp giấy phép lái xe, không ban hành một mức học phí đào tạo chung cho mọi cơ sở. Học phí cụ thể phải được đơn vị đào tạo báo giá rõ theo hạng bằng, chương trình và dịch vụ thực tế."],
+    ["HỌC PHÍ","Trước khi đóng tiền cần hỏi rõ những khoản nào?","Học viên nên yêu cầu bảng kê gồm học phí đào tạo, chi phí xe và thực hành, cabin hoặc DAT nếu áp dụng, tài liệu, khám sức khỏe, lệ phí sát hạch, phí thi lại, đưa đón và các khoản phát sinh. Khoản chưa bao gồm phải được ghi rõ trước khi đăng ký."],
+    ["HỒ SƠ","Đăng ký học lái xe thường cần chuẩn bị giấy tờ gì?","Hồ sơ thường gồm giấy tờ định danh, ảnh theo yêu cầu, giấy khám sức khỏe phù hợp với hạng đăng ký và giấy phép lái xe hiện có nếu học nâng hạng. Danh mục chính xác được kiểm tra khi tiếp nhận hồ sơ."],
+    ["ĐÀO TẠO","Quá trình học lái xe ô tô gồm những giai đoạn nào?","Lộ trình thông thường gồm hoàn thiện hồ sơ, học lý thuyết, thực hành trên sân và đường, hoàn thành cabin và DAT theo chương trình áp dụng, kiểm tra hoàn thành khóa học, sau đó tham dự kỳ sát hạch."],
+    ["LỊCH HỌC","Có thể sắp xếp lịch học linh hoạt không?","Có thể sắp xếp ca học theo lịch giáo viên và xe tập lái. Tuy nhiên, học viên vẫn phải hoàn thành đủ nội dung, thời lượng, quãng đường và dữ liệu đào tạo theo hạng đăng ký."],
+    ["DAT · CABIN","DAT và cabin có ý nghĩa gì?","DAT là nội dung thực hành có ghi nhận dữ liệu quãng đường và thời gian học. Cabin điện tử là nội dung đào tạo đối với hạng áp dụng; cabin đào tạo không đồng nghĩa với bài thi mô phỏng trên máy tính."],
+    ["SÁT HẠCH","Từ ngày 01/07/2026, thi sát hạch ô tô gồm những phần nào?","Thí sinh thi tuần tự lý thuyết, thực hành trong hình và lái xe trên đường; phải đạt phần trước mới được thi phần tiếp theo. Bài thi mô phỏng trên máy tính đã được bỏ khỏi kỳ sát hạch từ ngày 01/07/2026."],
+    ["THI LẠI","Nếu không đạt một phần sát hạch thì xử lý thế nào?","Học viên đăng ký dự sát hạch lại nội dung chưa đạt theo lịch và thủ tục hiện hành. Đơn vị tiếp nhận cần thông báo rõ thời gian, hồ sơ và khoản phí liên quan trước khi đăng ký."],
+    ["GIẤY PHÉP","Sau khi thi đạt, khi nào có giấy phép lái xe điện tử?","Theo quy định áp dụng từ ngày 01/07/2026, dữ liệu điện tử của người thi đạt có tài khoản VNeTraffic mức độ 2 được tích hợp trong thời gian rút ngắn, có thể trong vòng 02 giờ. Bản vật lý phụ thuộc quy trình và hình thức trả kết quả."],
+    ["THEO DÕI","Theo dõi lịch học, DAT, cabin và lịch thi ở đâu?","Sau khi được cấp tài khoản, học viên đăng nhập hệ thống Thầy Đạt để xem các mốc đào tạo, lịch học, thông báo DAT, cabin, thi tốt nghiệp, sát hạch và tình trạng học phí."]
+  ];
+
   faqSection.innerHTML=`
-    <div class="section-heading">
-      <p class="section-kicker">KIẾN THỨC AN TOÀN GIAO THÔNG</p>
-      <h2>Câu hỏi thường gặp từ bộ đề chính thức</h2>
-      <span>Nội dung được chọn lọc từ Bộ 600 câu hỏi dùng cho sát hạch lái xe cơ giới đường bộ do Cục Cảnh sát giao thông biên soạn, áp dụng từ ngày 01/06/2025.</span>
-    </div>
-
-    <div class="official-faq-source">
-      <span class="official-faq-source__mark" aria-hidden="true">🛡️</span>
-      <div>
-        <strong>Nguồn: Cục Cảnh sát giao thông · Bộ Công an</strong>
-        <small>Các câu trả lời bên dưới được trình bày theo đáp án đúng trong tài liệu chính thức, giúp học viên ghi nhớ kiến thức an toàn trước khi học và thi sát hạch.</small>
-      </div>
-      <a href="/600-cau-hoi.html">Ôn bộ 600 câu</a>
-    </div>
-
-    <div class="faq-list official-faq-list">
-      <details open>
-        <summary><span>Câu 239</span>Khi lái xe ô tô số tự động, sử dụng chân như thế nào là đúng?</summary>
-        <p><strong>Đáp án đúng:</strong> Không sử dụng chân trái; chân phải điều khiển cả bàn đạp phanh và bàn đạp ga.</p>
-      </details>
-
-      <details>
-        <summary><span>Câu 240</span>Khi tầm nhìn bị hạn chế bởi sương mù hoặc mưa to, cần xử lý thế nào?</summary>
-        <p><strong>Đáp án đúng:</strong> Giảm tốc độ, giữ khoảng cách an toàn với xe phía trước, bật đèn sương mù và đèn chiếu gần.</p>
-      </details>
-
-      <details>
-        <summary><span>Câu 245</span>Khi điều khiển ô tô trong trời mưa, cần làm gì để bảo đảm an toàn?</summary>
-        <p><strong>Đáp án đúng:</strong> Giảm tốc độ, tăng cường quan sát, không phanh gấp, không tăng ga hoặc đánh vô lăng đột ngột; bật đèn chiếu gần và sử dụng gạt nước phù hợp.</p>
-      </details>
-
-      <details>
-        <summary><span>Câu 246</span>Khi lùi xe, người lái xe phải thực hiện thế nào?</summary>
-        <p><strong>Đáp án đúng:</strong> Quan sát bên trái, bên phải và phía sau xe, phát tín hiệu cần thiết rồi lùi với tốc độ phù hợp.</p>
-      </details>
-
-      <details>
-        <summary><span>Câu 247</span>Lái xe trong khu vực đông dân cư cần lưu ý điều gì?</summary>
-        <p><strong>Đáp án đúng:</strong> Giảm tốc độ đến mức an toàn, quan sát, nhường đường cho người đi bộ, giữ khoảng cách với xe phía trước; đi đúng làn và chỉ chuyển làn tại nơi được phép khi bảo đảm an toàn.</p>
-      </details>
-
-      <details>
-        <summary><span>Câu 248</span>Khi nhập vào đường cao tốc, người lái xe cần thực hiện thế nào?</summary>
-        <p><strong>Đáp án đúng:</strong> Quan sát, phát tín hiệu, nhường đường cho xe đang chạy trên cao tốc; khi đủ điều kiện an toàn thì tăng tốc trên làn tăng tốc trước khi nhập vào làn chính.</p>
-      </details>
-
-      <details>
-        <summary><span>Câu 250</span>Khi nào được dừng hoặc đỗ trên làn dừng khẩn cấp của đường cao tốc?</summary>
-        <p><strong>Đáp án đúng:</strong> Chỉ khi xe gặp sự cố, tai nạn hoặc tình huống khẩn cấp khiến xe không thể tiếp tục di chuyển bình thường.</p>
-      </details>
-
-      <details>
-        <summary><span>Câu 253</span>Khi đi từ đường nhánh ra đường chính, phải xử lý thế nào?</summary>
-        <p><strong>Đáp án đúng:</strong> Quan sát, giảm tốc độ, phát tín hiệu và nhường đường cho các xe đang đi trên đường chính từ mọi hướng.</p>
-      </details>
-
-      <details>
-        <summary><span>Câu 254</span>Khi đang lái xe mà cần sử dụng điện thoại, phải làm gì?</summary>
-        <p><strong>Đáp án đúng:</strong> Giảm tốc độ và dừng xe tại nơi được phép, sau đó mới sử dụng điện thoại để nhắn tin hoặc gọi điện.</p>
-      </details>
-    </div>
-
-    <p class="official-faq-note"><b aria-hidden="true">ℹ️</b><span>Đây là nội dung học tập trích chọn từ bộ câu hỏi sát hạch, không thay thế phần tư vấn hồ sơ, học phí hoặc lịch đào tạo riêng của từng học viên.</span></p>`;
+    <div class="section-heading"><p class="section-kicker">GIẢI ĐÁP TRƯỚC KHI ĐĂNG KÝ</p><h2>Những vấn đề học viên thường quan tâm</h2><span>Thông tin về pháp lý, học phí, hồ sơ, quá trình đào tạo, sát hạch và nhận giấy phép lái xe.</span></div>
+    <div class="official-faq-source"><span class="official-faq-source__mark">⚖️</span><div><strong>Đối chiếu quy định chính thức đang áp dụng</strong><small>Sát hạch và cấp giấy phép: Thông tư 108/2026/TT-BCA. Hoạt động, chương trình đào tạo: Nghị định 94/2026/NĐ-CP và quy định của Bộ Xây dựng.</small></div><div class="official-faq-source__links"><a href="https://mps.gov.vn/chinh-sach-phap-luat" target="_blank" rel="noopener noreferrer">Bộ Công an</a><a href="https://moc.gov.vn/vn/Pages/ChiTietVanBan.aspx?TypeVB=2&vID=4968" target="_blank" rel="noopener noreferrer">Bộ Xây dựng</a></div></div>
+    <div class="faq-list official-faq-list">${items.map((item,index)=>`<details ${index===0?"open":""}><summary><span>${item[0]}</span>${item[1]}</summary><p>${item[2]}</p></details>`).join("")}</div>
+    <p class="official-faq-note"><b>ℹ️</b><span>Nội dung pháp lý được tóm tắt để dễ hiểu. Học phí và lịch học cụ thể căn cứ bảng báo giá, hồ sơ và kế hoạch được xác nhận cho từng khóa.</span></p>`;
 }
