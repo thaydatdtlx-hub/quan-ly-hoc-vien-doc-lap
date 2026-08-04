@@ -10,6 +10,7 @@ export default defineConfig({
         student:resolve(__dirname,"hoc-vien.html"),
         theory:resolve(__dirname,"600-cau-hoi.html"),
         drivingRefresh:resolve(__dirname,"bo-tuc-tay-lai.html"),
+        newStudentRegistration:resolve(__dirname,"dang-ky-hoc-lai-xe.html"),
         notFound:resolve(__dirname,"404.html")
       }
     }
