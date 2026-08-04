@@ -1,0 +1,18 @@
+/* Câu hỏi thường gặp chính thống · Cục CSGT - Bộ Công an */
+.official-faq-source{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;max-width:1000px;margin:-18px auto 22px;padding:16px 18px;border:1px solid #c8dbea;border-radius:14px;background:linear-gradient(135deg,#edf6ff,#fff);box-shadow:0 10px 28px rgba(18,61,97,.07)}
+.official-faq-source__mark{display:grid;width:48px;height:48px;place-items:center;border-radius:13px;background:#075aaa;color:#fff;font-size:24px;box-shadow:0 8px 20px rgba(7,90,170,.2)}
+.official-faq-source strong{display:block;color:#123d61;font-size:14px}
+.official-faq-source small{display:block;margin-top:4px;color:#6f8292;font-size:11px;line-height:1.55}
+.official-faq-source a{display:inline-flex;min-height:40px;align-items:center;padding:0 13px;border-radius:8px;background:#063d78;color:#fff;font-size:10px;font-weight:900;white-space:nowrap}
+.official-faq-list details{overflow:hidden;border-color:#d8e4ec;border-radius:13px;box-shadow:0 7px 22px rgba(18,61,97,.045)}
+.official-faq-list details[open]{border-color:#a9c9e3;box-shadow:0 12px 30px rgba(7,90,170,.09)}
+.official-faq-list summary{position:relative;padding:19px 55px 19px 20px;color:#173e5e;list-style:none}
+.official-faq-list summary::-webkit-details-marker{display:none}
+.official-faq-list summary:after{content:'+';position:absolute;right:19px;top:50%;display:grid;width:28px;height:28px;place-items:center;border-radius:8px;background:#eaf4ff;color:#075aaa;font-size:18px;font-weight:900;transform:translateY(-50%)}
+.official-faq-list details[open] summary:after{content:'−';background:#075aaa;color:#fff}
+.official-faq-list summary span{display:inline-flex;margin-right:9px;padding:4px 8px;border-radius:999px;background:#fff2cc;color:#775200;font-size:9px;font-weight:950;vertical-align:2px}
+.official-faq-list p{padding:0 20px 20px;color:#536f84;font-size:13px;line-height:1.75}
+.official-faq-list p strong{color:#075aaa}
+.official-faq-note{display:flex;align-items:flex-start;gap:10px;max-width:1000px;margin:16px auto 0;padding:14px 16px;border-radius:12px;background:#fff7df;color:#6a541d;font-size:10px;line-height:1.6}
+.official-faq-note b{font-size:17px}
+@media(max-width:700px){.official-faq-source{grid-template-columns:auto 1fr;margin-top:-12px;padding:14px}.official-faq-source a{grid-column:1/-1;justify-content:center}.official-faq-list summary{padding:17px 49px 17px 16px;font-size:13px}.official-faq-list p{padding:0 16px 17px;font-size:12px}}
