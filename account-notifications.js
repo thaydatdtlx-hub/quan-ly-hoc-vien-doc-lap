@@ -35,6 +35,18 @@ function scheduleEvents(students){
 
 export function managerNotifications(students,role="user"){
   const notices=[],today=startOfToday(),weekEnd=new Date(today);weekEnd.setDate(weekEnd.getDate()+7);weekEnd.setHours(23,59,59,999);
+
+  notices.push({
+    id:"new-student-registration-launch-20260804",
+    category:"general",
+    tone:"blue",
+    icon:"🚗",
+    title:"Đã mở trang đăng ký học lái xe mới",
+    body:"Học viên mới có thể xem thông tin và đăng ký trực tuyến các hạng A1, A, B số tự động, B số sàn và C1.",
+    href:"/dang-ky-hoc-lai-xe.html",
+    action:"Mở trang đăng ký"
+  });
+
   const trainingRequests=students.flatMap(student=>(student.training_requests||[]).map(request=>({student,request})));
   const pendingRequests=trainingRequests.filter(item=>item.request.status==="pending");
   if(role==="admin"&&pendingRequests.length)notices.push({
@@ -80,6 +92,18 @@ export function managerNotifications(students,role="user"){
 
 export function studentNotifications(student,trainingSlots=[]){
   const notices=[],today=startOfToday(),total=Math.max(0,Number(student.tuition_total)||0),paid=Math.max(0,Number(student.paid)||0),debt=Math.max(0,total-paid);
+
+  notices.push({
+    id:"student-new-license-registration-20260804",
+    category:"general",
+    tone:"blue",
+    icon:"🚗",
+    title:"Trang đăng ký học lái xe mới đã mở",
+    body:"Xem thông tin các hạng A1, A, B số tự động, B số sàn và C1 hoặc gửi đường dẫn cho người thân cần đăng ký.",
+    href:"/dang-ky-hoc-lai-xe.html",
+    action:"Xem trang đăng ký"
+  });
+
   const datSlots=trainingSlots
     .filter(slot=>slot.session_type==="dat_practice"&&slot.status==="open"&&new Date(slot.starts_at)>=today&&Number(slot.available_count)>0)
     .sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
