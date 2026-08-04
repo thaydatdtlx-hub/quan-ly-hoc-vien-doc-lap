@@ -37,14 +37,14 @@ export function managerNotifications(students,role="user"){
   const notices=[],today=startOfToday(),weekEnd=new Date(today);weekEnd.setDate(weekEnd.getDate()+7);weekEnd.setHours(23,59,59,999);
 
   notices.push({
-    id:"new-student-registration-launch-20260804",
+    id:"new-student-registration-professional-20260804",
     category:"general",
     tone:"blue",
-    icon:"🚗",
-    title:"Đã mở trang đăng ký học lái xe mới",
-    body:"Học viên mới có thể xem thông tin và đăng ký trực tuyến các hạng A1, A, B số tự động, B số sàn và C1.",
+    icon:"🚘",
+    title:"Kênh đăng ký học lái xe trực tuyến",
+    body:"Trang tuyển sinh đã sẵn sàng để tư vấn và tiếp nhận đăng ký các hạng A1, A, B số tự động, B số sàn và C1.",
     href:"/dang-ky-hoc-lai-xe.html",
-    action:"Mở trang đăng ký"
+    action:"Xem trang tuyển sinh"
   });
 
   const trainingRequests=students.flatMap(student=>(student.training_requests||[]).map(request=>({student,request})));
@@ -94,14 +94,14 @@ export function studentNotifications(student,trainingSlots=[]){
   const notices=[],today=startOfToday(),total=Math.max(0,Number(student.tuition_total)||0),paid=Math.max(0,Number(student.paid)||0),debt=Math.max(0,total-paid);
 
   notices.push({
-    id:"student-new-license-registration-20260804",
+    id:"student-new-license-registration-professional-20260804",
     category:"general",
     tone:"blue",
-    icon:"🚗",
-    title:"Trang đăng ký học lái xe mới đã mở",
-    body:"Xem thông tin các hạng A1, A, B số tự động, B số sàn và C1 hoặc gửi đường dẫn cho người thân cần đăng ký.",
+    icon:"🚘",
+    title:"Giới thiệu chương trình học lái xe Thầy Đạt",
+    body:"Thông tin khóa học A1, A, B số tự động, B số sàn và C1 đã được tổng hợp đầy đủ. Anh/chị có thể xem hoặc chia sẻ cho người thân đang có nhu cầu.",
     href:"/dang-ky-hoc-lai-xe.html",
-    action:"Xem trang đăng ký"
+    action:"Xem chương trình đào tạo"
   });
 
   const datSlots=trainingSlots
