@@ -1,6 +1,7 @@
 import "./student-profile-self-service.js";
 import "./admin-student-profile-change.js";
 import "./new-student-admin.js";
+import "./student-training-actions.js";
 
 let adminProfileModulesPromise=null;
 let adminProfileObserver=null;
