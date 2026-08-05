@@ -16,7 +16,7 @@ export const SA_HINH_REFRESH_RATES=Object.freeze({
 export const SA_HINH_TRACK_RATE_PER_HOUR=100000;
 
 export const WEEKEND_SURCHARGE_PER_HOUR=50000;
-export const MIN_DURATION_HOURS=2;
+export const MIN_DURATION_HOURS=1;
 export const MAX_DURATION_HOURS=20;
 
 export function isWeekendDate(dateValue){
@@ -58,4 +58,29 @@ export function calculateDrivingRefreshCost({serviceType=REFRESH_SERVICE_TYPES.D
 
 export function formatVnd(value){
   return new Intl.NumberFormat("vi-VN").format(Number(value)||0)+" ₫";
+}
+
+function applyOneHourMinimumUi(){
+  if(typeof document==="undefined")return;
+  const durationInput=document.getElementById("refreshDurationHours");
+  if(durationInput){
+    durationInput.min=String(MIN_DURATION_HOURS);
+    const hint=durationInput.closest(".refresh-duration-field")?.querySelector("small");
+    if(hint)hint.textContent=`Tối thiểu ${MIN_DURATION_HOURS} giờ, tối đa ${MAX_DURATION_HOURS} giờ.`;
+  }
+  const estimatorGroup=document.getElementById("refreshHeroHoursMinus")?.closest(".refresh-estimator-group");
+  const estimatorHint=estimatorGroup?.querySelector("p small");
+  if(estimatorHint)estimatorHint.textContent=`· tối thiểu ${MIN_DURATION_HOURS} giờ`;
+  const presets=[1,2,5,10];
+  estimatorGroup?.querySelectorAll("[data-hero-hours]").forEach((button,index)=>{
+    const value=presets[index];
+    if(!value)return;
+    button.dataset.heroHours=String(value);
+    button.textContent=`${value} giờ`;
+  });
+}
+
+if(typeof document!=="undefined"){
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",applyOneHourMinimumUi,{once:true});
+  else applyOneHourMinimumUi();
 }
