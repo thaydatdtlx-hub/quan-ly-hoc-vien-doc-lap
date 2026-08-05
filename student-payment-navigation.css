@@ -1,0 +1,10 @@
+#studentPortal #studentPayment{display:none!important}
+#studentPortal .tuition-card.debt{position:relative;cursor:pointer;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
+#studentPortal .tuition-card.debt::after{content:"›";position:absolute;right:18px;top:50%;translate:0 -50%;color:#c25f00;font-size:28px;font-weight:900;opacity:.72;transition:transform .16s ease,opacity .16s ease}
+#studentPortal .tuition-card.debt:hover,#studentPortal .tuition-card.debt:focus-visible{transform:translateY(-2px);border-color:#efad61;box-shadow:0 14px 34px #9b52001c;outline:none}
+#studentPortal .tuition-card.debt:hover::after,#studentPortal .tuition-card.debt:focus-visible::after{opacity:1;transform:translateX(3px)}
+#studentPortal .tuition-card.debt #tuitionPaymentLink{display:inline-flex;align-items:center;margin-top:8px;color:#b75600;font-weight:800;text-decoration:none}
+#studentPortal .tuition-card.debt #tuitionPaymentLink:hover{text-decoration:underline}
+#studentPortal .tuition-card.debt.is-payment-complete{cursor:default}
+#studentPortal .tuition-card.debt.is-payment-complete::after{display:none}
+@media(prefers-reduced-motion:reduce){#studentPortal .tuition-card.debt,#studentPortal .tuition-card.debt::after{transition:none}}
