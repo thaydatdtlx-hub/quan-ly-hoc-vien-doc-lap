@@ -3,7 +3,7 @@ import "@fontsource/be-vietnam-pro/600.css";
 import "@fontsource/be-vietnam-pro/700.css";
 import "@fontsource/be-vietnam-pro/800.css";
 import "@fontsource/be-vietnam-pro/900.css";
-import {calculateDrivingRefreshCost,formatVnd,MAX_DURATION_HOURS,MIN_DURATION_HOURS,REFRESH_SERVICE_TYPES,DRIVING_REFRESH_RATES,SA_HINH_REFRESH_RATES} from "./driving-refresh-pricing.js";
+import {calculateDrivingRefreshCost,formatVnd,MAX_DURATION_HOURS,MIN_DURATION_HOURS,DURATION_STEP_HOURS,normalizeDurationHours,REFRESH_SERVICE_TYPES,DRIVING_REFRESH_RATES,SA_HINH_REFRESH_RATES} from "./driving-refresh-pricing.js";
 
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
@@ -96,8 +96,8 @@ function updateServiceOptions(){
 }
 
 function updatePricing(){
-  const hoursInput=$("refreshDurationHours"),rawHours=Number(hoursInput.value);
-  const normalizedHours=Number.isInteger(rawHours)?Math.min(MAX_DURATION_HOURS,Math.max(MIN_DURATION_HOURS,rawHours)):MIN_DURATION_HOURS;
+  const hoursInput=$("refreshDurationHours");
+  const normalizedHours=normalizeDurationHours(hoursInput.value);
   currentPricing=calculateDrivingRefreshCost({
     serviceType:$("refreshServiceType").value,
     transmission:$("refreshTransmission").value,
@@ -107,7 +107,7 @@ function updatePricing(){
   });
   const saHinh=currentPricing.serviceType===REFRESH_SERVICE_TYPES.SA_HINH;
   updateServiceOptions();
-  $("refreshHoursSummary").textContent=`${currentPricing.hours} giờ`;
+  $("refreshHoursSummary").textContent=`${String(currentPricing.hours).replace(".",",")} giờ`;
   $("refreshVehicleRate").textContent=currentPricing.valid?`${formatVnd(currentPricing.vehicleHourlyRate)}/giờ`:"—";
   $("refreshTrackRate").textContent=currentPricing.trackHourlyRate?`${formatVnd(currentPricing.trackHourlyRate)}/giờ`:"0 ₫";
   $("refreshTrackRow").hidden=!saHinh;
@@ -116,9 +116,10 @@ function updatePricing(){
   $("refreshEstimatedTotal").textContent=currentPricing.valid?formatVnd(currentPricing.estimatedTotal):"—";
   $("refreshPricingBadge").textContent=!currentPricing.valid?"Chọn loại xe":currentPricing.weekend?"Giá cuối tuần":"Giá ngày thường";
   $("refreshPricingBadge").classList.toggle("is-weekend",currentPricing.weekend&&currentPricing.valid);
-  $("refreshPricingNote").textContent=!currentPricing.valid?"Chọn loại xe để hệ thống tính chi phí.":currentPricing.weekend?`Đã gồm phụ thu Thứ 7/Chủ nhật cho ${currentPricing.hours} giờ.`:saHinh?`Đã gồm tiền xe và phí sân cho ${currentPricing.hours} giờ.`:`Đơn giá ngày thường cho ${currentPricing.hours} giờ.`;
+  const hoursLabel=String(currentPricing.hours).replace(".",",");
+  $("refreshPricingNote").textContent=!currentPricing.valid?"Chọn loại xe để hệ thống tính chi phí.":currentPricing.weekend?`Đã gồm phụ thu Thứ 7/Chủ nhật cho ${hoursLabel} giờ.`:saHinh?`Đã gồm tiền xe và phí sân cho ${hoursLabel} giờ.`:`Đơn giá ngày thường cho ${hoursLabel} giờ.`;
   if($("refreshHeroTotal"))$("refreshHeroTotal").textContent=currentPricing.valid?formatVnd(currentPricing.estimatedTotal):"—";
-  if($("refreshHeroHours"))$("refreshHeroHours").innerHTML=`${currentPricing.hours} <small>giờ</small>`;
+  if($("refreshHeroHours"))$("refreshHeroHours").innerHTML=`${hoursLabel} <small>giờ</small>`;
   $("refreshHeroTotalNote").textContent=saHinh?"Đã gồm tiền xe & phí sân sa hình":"Đã gồm xăng xe";
   heroServiceButtons.forEach(item=>{
     const active=item.dataset.heroService===currentPricing.serviceType;
@@ -149,7 +150,7 @@ function updatePricing(){
 }
 
 function setHeroHours(value){
-  $("refreshDurationHours").value=Math.min(MAX_DURATION_HOURS,Math.max(MIN_DURATION_HOURS,Number(value)||MIN_DURATION_HOURS));
+  $("refreshDurationHours").value=normalizeDurationHours(value);
   updatePricing();
 }
 
@@ -191,8 +192,8 @@ heroTransmissionButtons.forEach(item=>item.addEventListener("click",()=>{
 }));
 form.querySelectorAll('input[name="saHinhPackage"]').forEach(item=>item.addEventListener("change",updateServiceOptions));
 heroHourPresetButtons.forEach(item=>item.addEventListener("click",()=>setHeroHours(item.dataset.heroHours)));
-$("refreshHeroHoursMinus")?.addEventListener("click",()=>setHeroHours(currentPricing.hours-1));
-$("refreshHeroHoursPlus")?.addEventListener("click",()=>setHeroHours(currentPricing.hours+1));
+$("refreshHeroHoursMinus")?.addEventListener("click",()=>setHeroHours(currentPricing.hours-DURATION_STEP_HOURS));
+$("refreshHeroHoursPlus")?.addEventListener("click",()=>setHeroHours(currentPricing.hours+DURATION_STEP_HOURS));
 heroWeekendButtons.forEach(item=>item.addEventListener("click",()=>{
   const weekend=item.dataset.heroWeekend==="true";
   $("refreshPreferredDate").value="";
@@ -201,9 +202,7 @@ heroWeekendButtons.forEach(item=>item.addEventListener("click",()=>{
 }));
 applyStudentPrefill();
 $("refreshDurationHours").addEventListener("blur",()=>{
-  const value=Number($("refreshDurationHours").value);
-  if(!Number.isInteger(value)||value<MIN_DURATION_HOURS)$("refreshDurationHours").value=MIN_DURATION_HOURS;
-  else if(value>MAX_DURATION_HOURS)$("refreshDurationHours").value=MAX_DURATION_HOURS;
+  $("refreshDurationHours").value=normalizeDurationHours($("refreshDurationHours").value);
   updatePricing();
 });
 updatePricing();
