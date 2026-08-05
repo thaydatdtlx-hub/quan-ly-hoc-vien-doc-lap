@@ -7,4 +7,11 @@
 #studentPortal .tuition-card.debt #tuitionPaymentLink:hover{text-decoration:underline}
 #studentPortal .tuition-card.debt.is-payment-complete{cursor:default}
 #studentPortal .tuition-card.debt.is-payment-complete::after{display:none}
+.student-payment-page #studentPortal{display:block!important;min-height:calc(100vh - 90px);padding-top:34px}
+.student-payment-page #studentPortal .payment-page-hidden{display:none!important}
+.student-payment-page #studentPortal #studentPayment.student-payment-standalone{display:block!important;max-width:1540px;margin:0 auto}
+.student-payment-back{display:inline-flex;align-items:center;min-height:42px;margin:0 0 18px;padding:9px 15px;border:1px solid #b8cfe3;border-radius:11px;background:#fff;color:#0b5fa7;font-weight:800;text-decoration:none;box-shadow:0 6px 18px #123c6410}
+.student-payment-back:hover{border-color:#0b6bdc;background:#f4f9ff}
+.student-payment-page .mobile-page-tabs,.student-payment-page .mobile-dashboard-home{display:none!important}
+@media(max-width:680px){.student-payment-page #studentPortal{padding:18px 10px 30px}.student-payment-page #studentPayment.student-payment-standalone{margin:0}.student-payment-back{width:100%;justify-content:center}}
 @media(prefers-reduced-motion:reduce){#studentPortal .tuition-card.debt,#studentPortal .tuition-card.debt::after{transition:none}}
