@@ -6,6 +6,8 @@ import "./tuition-details.js";
 import "./official-faq-section.js";
 import "./public-site-enhancements.js";
 
+document.querySelector(".gallery-section")?.remove();
+
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
