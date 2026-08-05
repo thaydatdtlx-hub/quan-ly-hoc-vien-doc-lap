@@ -3,6 +3,7 @@ import "./admin-student-profile-change.js";
 import "./new-student-admin.js";
 import "./student-training-actions.js";
 import "./schedule-stat-links.js";
+import "./student-payment-navigation.js";
 
 let adminProfileModulesPromise=null;
 let adminProfileObserver=null;
