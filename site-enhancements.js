@@ -1,3 +1,4 @@
+import "./brand-name.js";
 import "./student-profile-self-service.js";
 import "./admin-student-profile-change.js";
 import "./new-student-admin.js";
