@@ -2,6 +2,7 @@ import "./brand-name.js";
 import "./student-profile-self-service.js";
 import "./admin-student-profile-change.js";
 import "./new-student-admin.js";
+import "./new-student-practice-link.js";
 import "./student-training-actions.js";
 import "./schedule-stat-links.js";
 import "./student-payment-navigation.js";
