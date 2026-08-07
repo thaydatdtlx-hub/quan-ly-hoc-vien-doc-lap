@@ -47,6 +47,18 @@ async function rpc(fn,body){
   return data;
 }
 
+async function notifyTelegram(registrationId){
+  if(!registrationId)return;
+  try{
+    await fetch("/api/telegram-notify",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({registration_id:registrationId}),
+      keepalive:true
+    });
+  }catch{}
+}
+
 cards.forEach(card=>card.addEventListener("click",()=>setLicense(card.dataset.licenseCard)));
 document.querySelectorAll("[data-scroll-form]").forEach(button=>button.addEventListener("click",()=>$("registrationForm").scrollIntoView({behavior:"smooth",block:"start"})));
 document.querySelectorAll("[data-scroll-license]").forEach(button=>button.addEventListener("click",()=>$("hang-bang").scrollIntoView({behavior:"smooth",block:"start"})));
@@ -81,6 +93,7 @@ form.addEventListener("submit",async event=>{
       consent:true,
       website:$("website").value
     }});
+    notifyTelegram(result?.id);
     $("successLicense").textContent=selectedLicense;
     $("successCode").textContent=result?.registration_code||"Đã ghi nhận";
     $("registrationFields").hidden=true;
