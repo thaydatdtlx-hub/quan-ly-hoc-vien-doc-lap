@@ -1,10 +1,18 @@
 import crypto from "node:crypto";
 
 const SUPABASE_URL=process.env.SUPABASE_URL||"https://pkzxkvcncipfszeukpwu.supabase.co";
-const SUPABASE_SERVICE_ROLE_KEY=process.env.SUPABASE_SERVICE_ROLE_KEY||"";
+const SUPABASE_ADMIN_KEY=process.env.SUPABASE_SECRET_KEY||process.env.SUPABASE_SERVICE_ROLE_KEY||"";
 const TELEGRAM_BOT_TOKEN=process.env.TELEGRAM_BOT_TOKEN||"";
 
 const secret=()=>crypto.createHash("sha256").update(TELEGRAM_BOT_TOKEN).digest("hex").slice(0,64);
+
+function supabaseHeaders(extra={}){
+  const base={apikey:SUPABASE_ADMIN_KEY,"Content-Type":"application/json",...extra};
+  if(SUPABASE_ADMIN_KEY&&!SUPABASE_ADMIN_KEY.startsWith("sb_secret_")){
+    base.Authorization=`Bearer ${SUPABASE_ADMIN_KEY}`;
+  }
+  return base;
+}
 
 async function telegram(method,body){
   const response=await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/${method}`,{
@@ -21,12 +29,7 @@ async function saveChat(message){
   if(!chat?.id||chat.type!=="private")return false;
   const response=await fetch(`${SUPABASE_URL}/rest/v1/app_telegram_admin_chats?on_conflict=slot`,{
     method:"POST",
-    headers:{
-      apikey:SUPABASE_SERVICE_ROLE_KEY,
-      Authorization:`Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-      "Content-Type":"application/json",
-      Prefer:"resolution=merge-duplicates,return=minimal"
-    },
+    headers:supabaseHeaders({Prefer:"resolution=merge-duplicates,return=minimal"}),
     body:JSON.stringify({
       slot:"primary",
       chat_id:chat.id,
@@ -43,7 +46,8 @@ async function saveChat(message){
 
 export default async function handler(req,res){
   if(req.method!=="POST")return res.status(405).json({ok:false});
-  if(!TELEGRAM_BOT_TOKEN||!SUPABASE_SERVICE_ROLE_KEY)return res.status(503).json({ok:false});
+  if(!TELEGRAM_BOT_TOKEN)return res.status(503).json({ok:false,error:"TELEGRAM_BOT_TOKEN is not configured"});
+  if(!SUPABASE_ADMIN_KEY)return res.status(503).json({ok:false,error:"SUPABASE_SECRET_KEY or SUPABASE_SERVICE_ROLE_KEY is not configured"});
   if(req.headers["x-telegram-bot-api-secret-token"]!==secret())return res.status(401).json({ok:false});
 
   const message=req.body?.message;
