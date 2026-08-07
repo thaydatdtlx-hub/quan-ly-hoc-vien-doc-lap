@@ -47,13 +47,13 @@ async function rpc(fn,body){
   return data;
 }
 
-async function notifyTelegram(registrationId){
-  if(!registrationId)return;
+async function notifyTelegram(registration){
+  if(!registration?.id)return;
   try{
     await fetch("/api/telegram-notify",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({registration_id:registrationId}),
+      body:JSON.stringify({registration}),
       keepalive:true
     });
   }catch{}
@@ -79,7 +79,7 @@ form.addEventListener("submit",async event=>{
     const source=sessionStorage.getItem("new_student_source")||"Truy cập trực tiếp";
     const originalNote=$("note").value.trim();
     const trackedNote=[originalNote,`Nguồn đăng ký: ${source}`].filter(Boolean).join("\n").slice(0,800);
-    const result=await rpc("app_create_new_student_registration",{p_data:{
+    const payload={
       full_name:$("fullName").value.trim(),
       phone:$("phone").value.trim(),
       license_class:selectedLicense,
@@ -92,8 +92,20 @@ form.addEventListener("submit",async event=>{
       note:trackedNote,
       consent:true,
       website:$("website").value
-    }});
-    notifyTelegram(result?.id);
+    };
+    const result=await rpc("app_create_new_student_registration",{p_data:payload});
+    notifyTelegram({
+      id:result?.id,
+      registration_code:result?.registration_code,
+      full_name:payload.full_name,
+      phone:payload.phone,
+      license_class:payload.license_class,
+      area:payload.area,
+      preferred_start_date:payload.preferred_start_date,
+      preferred_contact_time:payload.preferred_contact_time,
+      consultation_channel:payload.consultation_channel,
+      note:payload.note
+    });
     $("successLicense").textContent=selectedLicense;
     $("successCode").textContent=result?.registration_code||"Đã ghi nhận";
     $("registrationFields").hidden=true;
