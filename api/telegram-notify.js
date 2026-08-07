@@ -1,13 +1,15 @@
 const SUPABASE_URL=process.env.SUPABASE_URL||"https://pkzxkvcncipfszeukpwu.supabase.co";
-const SUPABASE_SERVICE_ROLE_KEY=process.env.SUPABASE_SERVICE_ROLE_KEY||"";
+const SUPABASE_ADMIN_KEY=process.env.SUPABASE_SECRET_KEY||process.env.SUPABASE_SERVICE_ROLE_KEY||"";
 const TELEGRAM_BOT_TOKEN=process.env.TELEGRAM_BOT_TOKEN||"";
 const SITE_URL=(process.env.PUBLIC_SITE_URL||"https://hoclaixecungdat.vercel.app").replace(/\/$/,"");
 
-const headers=()=>({
-  apikey:SUPABASE_SERVICE_ROLE_KEY,
-  Authorization:`Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-  "Content-Type":"application/json"
-});
+const headers=()=>{
+  const result={apikey:SUPABASE_ADMIN_KEY,"Content-Type":"application/json"};
+  if(SUPABASE_ADMIN_KEY&&!SUPABASE_ADMIN_KEY.startsWith("sb_secret_")){
+    result.Authorization=`Bearer ${SUPABASE_ADMIN_KEY}`;
+  }
+  return result;
+};
 
 async function telegram(body){
   const response=await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,{
@@ -20,7 +22,7 @@ async function telegram(body){
 
 export default async function handler(req,res){
   if(req.method!=="POST")return res.status(405).json({ok:false});
-  if(!SUPABASE_SERVICE_ROLE_KEY||!TELEGRAM_BOT_TOKEN)return res.status(503).json({ok:false,error:"Telegram is not configured"});
+  if(!SUPABASE_ADMIN_KEY||!TELEGRAM_BOT_TOKEN)return res.status(503).json({ok:false,error:"Telegram is not configured"});
   const registrationId=String(req.body?.registration_id||"").trim();
   if(!/^[0-9a-f-]{36}$/i.test(registrationId))return res.status(400).json({ok:false,error:"Invalid registration id"});
 
