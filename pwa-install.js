@@ -1,5 +1,9 @@
 import "./admin-tuition-settings.js";
+import "./admin-site-config.js";
+import "./admin-home-logo-link.js";
 import "./site-unification.js";
+import "./site-config-public.js";
+import "./professional-public-polish.js";
 
 const DISMISS_KEY="thay_dat_pwa_install_dismissed";
 const DISMISS_DAYS=7;
@@ -8,6 +12,7 @@ let installBanner=null;
 
 function isStandalone(){return window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true}
 function isIos(){return /iphone|ipad|ipod/i.test(navigator.userAgent)}
+function shouldOfferInstall(){return location.pathname!=="/dang-ky-hoc-lai-xe.html"}
 function recentlyDismissed(){
   const value=Number(localStorage.getItem(DISMISS_KEY)||0);
   return value&&Date.now()-value<DISMISS_DAYS*86400000;
@@ -25,7 +30,7 @@ function showLaunchScreen(){
 }
 
 function showInstallBanner(mode){
-  if(isStandalone()||recentlyDismissed()||installBanner)return;
+  if(!shouldOfferInstall()||isStandalone()||recentlyDismissed()||installBanner)return;
   installBanner=document.createElement("aside");
   installBanner.className="pwa-install-banner";
   installBanner.setAttribute("aria-label","Cài ứng dụng Thầy Đạt");
@@ -55,7 +60,7 @@ if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostnam
 }
 showLaunchScreen();
 window.addEventListener("beforeinstallprompt",event=>{
-  event.preventDefault();deferredInstallPrompt=event;showInstallBanner("native");
+  event.preventDefault();deferredInstallPrompt=event;if(shouldOfferInstall())showInstallBanner("native");
 });
 window.addEventListener("appinstalled",()=>{localStorage.removeItem(DISMISS_KEY);removeInstallBanner()});
-if(isIos()&&!isStandalone())window.setTimeout(()=>showInstallBanner("ios"),1400);
+if(isIos()&&!isStandalone()&&shouldOfferInstall())window.setTimeout(()=>showInstallBanner("ios"),1400);
