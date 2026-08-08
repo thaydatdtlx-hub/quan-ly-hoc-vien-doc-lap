@@ -8,6 +8,7 @@ import "./recruitment-operations.js";
 import "./student-portal-polish.js";
 import "./theory-answer-explanations.js";
 import "./theory-hero-brand.js";
+import "./mobile-public-login.js";
 
 const DISMISS_KEY="thay_dat_pwa_install_dismissed";
 const DISMISS_DAYS=7;
