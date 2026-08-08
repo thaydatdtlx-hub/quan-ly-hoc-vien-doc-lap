@@ -2,7 +2,9 @@ import {access,readFile} from "node:fs/promises";
 import {resolve} from "node:path";
 
 const root=resolve(import.meta.dirname,"..");
-const pages=["index.html","hoc-vien.html","600-cau-hoi.html","lich-dao-tao.html","bo-tuc-tay-lai.html","404.html"];
+const pages=["index.html","hoc-vien.html","600-cau-hoi.html","lich-dao-tao.html","bo-tuc-tay-lai.html","dang-ky-hoc-lai-xe.html","chinh-sach-bao-mat.html","404.html"];
+const manifestOptional=new Set(["chinh-sach-bao-mat.html","404.html"]);
+const publicPages=new Set(["600-cau-hoi.html","bo-tuc-tay-lai.html","dang-ky-hoc-lai-xe.html","chinh-sach-bao-mat.html"]);
 const errors=[];
 
 async function exists(path){
@@ -34,8 +36,10 @@ for(const page of pages){
   if(!/<title>[^<]+<\/title>/.test(html))errors.push(`${page}: thiếu tiêu đề`);
   if(!/<h1[\s>]/.test(html))errors.push(`${page}: thiếu H1`);
   if(!/<link\s+rel="icon"/.test(html))errors.push(`${page}: thiếu favicon`);
-  if(!/<link\s+rel="manifest"/.test(html))errors.push(`${page}: thiếu manifest`);
+  if(!manifestOptional.has(page)&&!/<link\s+rel="manifest"/.test(html))errors.push(`${page}: thiếu manifest`);
   if(page!=="404.html"&&!/<meta\s+name="description"/.test(html))errors.push(`${page}: thiếu mô tả`);
+  if(publicPages.has(page)&&!/<link\s+rel="canonical"/.test(html))errors.push(`${page}: thiếu canonical`);
+  if(publicPages.has(page)&&!/<meta\s+name="robots"[^>]*index,follow/i.test(html))errors.push(`${page}: chưa cho phép index rõ ràng`);
 
   for(const duplicate of new Set(duplicateIds(html)))errors.push(`${page}: trùng id "${duplicate}"`);
   for(const image of html.matchAll(/<img\b[^>]*>/g)){
@@ -49,10 +53,14 @@ for(const page of pages){
   }
 }
 
+for(const publicAsset of ["public/robots.txt","public/sitemap.xml"]){
+  if(!(await exists(resolve(root,publicAsset))))errors.push(`Thiếu ${publicAsset}`);
+}
+
 if(errors.length){
   console.error(`Website chưa hợp lệ (${errors.length} lỗi):`);
   errors.forEach(error=>console.error(`- ${error}`));
   process.exit(1);
 }
 
-console.log(`Hợp lệ: ${pages.length} trang, metadata đầy đủ, ID duy nhất và toàn bộ tài nguyên nội bộ tồn tại.`);
+console.log(`Hợp lệ: ${pages.length} trang, metadata công khai, ID duy nhất và toàn bộ tài nguyên nội bộ tồn tại.`);
