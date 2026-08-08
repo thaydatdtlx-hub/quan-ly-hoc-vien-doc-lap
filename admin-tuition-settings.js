@@ -7,7 +7,10 @@ const DEFAULT_FEES={
   A1:[{name:"Thi lý thuyết",value:60000},{name:"Thi thực hành",value:70000},{name:"Cấp giấy phép PET",value:135000}],
   A:[{name:"Thi lý thuyết",value:60000},{name:"Thi thực hành",value:70000},{name:"Cấp giấy phép PET",value:135000}]
 };
+
 let mounted=false;
+let checkingRole=false;
+let confirmedAdmin=false;
 let config=[];
 
 function token(){return localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||""}
@@ -22,7 +25,7 @@ async function rpc(fn,body={}){
     body:JSON.stringify(body)
   });
   const data=await response.json().catch(()=>null);
-  if(!response.ok)throw new Error(data?.message||data?.details||"Không thể cập nhật cấu hình học phí.");
+  if(!response.ok)throw new Error(data?.message||data?.details||"Không thể kết nối cấu hình học phí.");
   return data;
 }
 
@@ -108,7 +111,7 @@ async function save(){
     }
     await load();
     status.className="admin-tuition-status success";
-    status.textContent="Đã lưu. Bảng học phí công khai sẽ dùng dữ liệu mới ngay khi tải lại trang.";
+    status.textContent="Đã lưu. Trang công khai sẽ dùng mức học phí mới ngay khi tải lại.";
   }catch(error){
     status.className="admin-tuition-status error";
     status.textContent=error?.message||"Không thể lưu cấu hình.";
@@ -130,21 +133,19 @@ function mountDialog(){
 }
 
 async function openDialog(){
+  mountDialog();
   const dialog=document.getElementById("adminTuitionDialog");
   const status=document.getElementById("adminTuitionStatus");
+  status.className="admin-tuition-status";
   status.textContent="Đang tải học phí hiện tại…";
   dialog.showModal();
   try{await load();status.textContent=""}catch(error){status.className="admin-tuition-status error";status.textContent=error?.message||"Không tải được cấu hình."}
 }
 
-function mountAdminControls(){
-  if(mounted)return;
-  const app=document.getElementById("app");
-  const name=document.getElementById("accountName");
+function addDesktopButton(){
+  if(document.getElementById("adminTuitionSettingsBtn"))return;
   const account=document.querySelector(".topbar .account");
-  if(!app||app.classList.contains("hidden")||!name||!/\badmin\b/i.test(name.textContent)||!account)return;
-  mounted=true;
-  mountDialog();
+  if(!account)return;
   const button=document.createElement("button");
   button.id="adminTuitionSettingsBtn";
   button.type="button";
@@ -153,17 +154,74 @@ function mountAdminControls(){
   const password=document.getElementById("changePasswordBtn");
   password?account.insertBefore(button,password):account.append(button);
   button.addEventListener("click",openDialog);
-
-  const mobileMenu=document.getElementById("mobileAdminAccountMenu");
-  if(mobileMenu){
-    const mobileButton=document.createElement("button");
-    mobileButton.type="button";
-    mobileButton.textContent="Học phí & ưu đãi";
-    mobileButton.addEventListener("click",()=>{mobileMenu.classList.add("hidden");openDialog()});
-    mobileMenu.insertBefore(mobileButton,mobileMenu.querySelector(".danger"));
-  }
 }
 
-const observer=new MutationObserver(mountAdminControls);
-observer.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:["class"]});
-if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",mountAdminControls,{once:true});else mountAdminControls();
+function addMobileButton(){
+  if(document.getElementById("adminTuitionMobileBtn"))return;
+  const menu=document.getElementById("mobileAdminAccountMenu");
+  if(!menu)return;
+  const button=document.createElement("button");
+  button.id="adminTuitionMobileBtn";
+  button.type="button";
+  button.textContent="Học phí & ưu đãi";
+  button.addEventListener("click",()=>{menu.classList.add("hidden");openDialog()});
+  const danger=menu.querySelector(".danger");
+  danger?menu.insertBefore(button,danger):menu.append(button);
+}
+
+function addFloatingButton(){
+  if(document.getElementById("adminTuitionFloatingBtn"))return;
+  const button=document.createElement("button");
+  button.id="adminTuitionFloatingBtn";
+  button.className="admin-tuition-floating";
+  button.type="button";
+  button.innerHTML='<span>⚙</span><strong>Học phí & ưu đãi</strong>';
+  button.addEventListener("click",openDialog);
+  document.body.append(button);
+}
+
+function mountAuthorizedControls(){
+  const app=document.getElementById("app");
+  if(!app||app.classList.contains("hidden"))return false;
+  mountDialog();
+  addDesktopButton();
+  addMobileButton();
+  addFloatingButton();
+  mounted=true;
+  return true;
+}
+
+async function ensureAdminControls(){
+  if(mounted){
+    addDesktopButton();addMobileButton();addFloatingButton();
+    return;
+  }
+  const activeToken=token();
+  if(!activeToken||checkingRole)return;
+  const name=document.getElementById("accountName");
+  if(/\badmin\b/i.test(name?.textContent||"")){
+    confirmedAdmin=true;
+    mountAuthorizedControls();
+    return;
+  }
+  if(confirmedAdmin){mountAuthorizedControls();return}
+  checkingRole=true;
+  try{
+    const me=await rpc("app_me",{p_token:activeToken});
+    confirmedAdmin=me?.role==="admin";
+    if(confirmedAdmin)mountAuthorizedControls();
+  }catch{}finally{checkingRole=false}
+}
+
+const observer=new MutationObserver(()=>ensureAdminControls());
+observer.observe(document.documentElement,{subtree:true,childList:true,attributes:true,characterData:true,attributeFilter:["class"]});
+window.addEventListener("pageshow",ensureAdminControls);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")ensureAdminControls()});
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",ensureAdminControls,{once:true});else ensureAdminControls();
+
+let attempts=0;
+const retryTimer=setInterval(()=>{
+  attempts+=1;
+  ensureAdminControls();
+  if(mounted||attempts>=30)clearInterval(retryTimer);
+},1000);
