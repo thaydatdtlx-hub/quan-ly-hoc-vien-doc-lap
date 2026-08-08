@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /hoc-vien.html
+Disallow: /lich-dao-tao.html
+Disallow: /dang-nhap.html
+Disallow: /api/
+
+Sitemap: https://hoclaixecungdat.vercel.app/sitemap.xml
