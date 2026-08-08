@@ -1,3 +1,4 @@
+import "./admin-tuition-settings.js";
 import "./site-unification.js";
 
 const DISMISS_KEY="thay_dat_pwa_install_dismissed";
