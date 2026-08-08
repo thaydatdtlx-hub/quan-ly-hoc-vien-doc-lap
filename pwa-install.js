@@ -1,3 +1,5 @@
+import "./site-unification.js";
+
 const DISMISS_KEY="thay_dat_pwa_install_dismissed";
 const DISMISS_DAYS=7;
 let deferredInstallPrompt=null;
