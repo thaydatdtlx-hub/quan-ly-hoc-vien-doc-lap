@@ -15,7 +15,9 @@ const DEFAULTS={
   video_1_url:"https://youtu.be/eBx6gAFa9a8?si=Heckare8yAd4omLJ",video_1_title:"Nội dung đào tạo thực tế cùng Thầy Đạt",
   video_2_url:"https://youtu.be/5YEjYy8a6NI?si=n49G52_z2fug3HDB",video_2_title:"Xem thêm nội dung hướng dẫn học lái xe",
   seo_title:"Học lái xe cùng Đạt",seo_description:"Đăng ký học lái xe A1, A, B số tự động, B số sàn và C1 cùng Đạt. Học phí rõ ràng, học 600 câu online và theo dõi tiến độ tập trung.",
-  og_image:"/hero-vip-navy-champagne.webp?v=1",announcement:"",announcement_enabled:false
+  og_image:"/hero-vip-navy-champagne.webp?v=1",announcement:"",announcement_enabled:false,
+  bank_name:"MB Bank (MBBank)",bank_bin:"970422",bank_account:"360556789999",bank_holder:"Trần Quốc Đạt",
+  payment_note:"Học phí sẽ được cập nhật sau khi trung tâm đối soát giao dịch."
 };
 
 function token(){return localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||""}
@@ -37,9 +39,11 @@ function renderPanels(){
     panel("brand","Thương hiệu & liên hệ","Tên hiển thị và các kênh liên hệ công khai.",
       field("brand_name","Tên thương hiệu")+field("brand_tagline","Slogan")+field("hotline","Hotline","tel")+field("zalo_url","Zalo URL","url")+field("facebook_url","Facebook URL","url")+field("tiktok_url","TikTok URL","url")+field("youtube_url","YouTube URL","url",true)+field("address","Địa chỉ tiếp nhận hồ sơ","textarea",true,"Để trống nếu chưa muốn công khai")+field("working_hours","Giờ làm việc / hướng dẫn liên hệ","textarea",true)),
     panel("home","Trang chủ & CTA","Nội dung chính khách hàng nhìn thấy đầu tiên.",
-      field("hero_eyebrow","Dòng nhỏ phía trên", "text",true)+field("hero_title","Tiêu đề chính")+field("hero_subtitle","Dòng nhấn")+field("hero_description","Mô tả hero","textarea",true)+field("primary_cta","Nút chính")+field("secondary_cta","Nút phụ")),
+      field("hero_eyebrow","Dòng nhỏ phía trên","text",true)+field("hero_title","Tiêu đề chính")+field("hero_subtitle","Dòng nhấn")+field("hero_description","Mô tả hero","textarea",true)+field("primary_cta","Nút chính")+field("secondary_cta","Nút phụ")),
     panel("video","Video đào tạo","Thay video trực tiếp, không cần sửa code.",
       field("video_1_url","Video 1 URL","url",true)+field("video_1_title","Tiêu đề video 1","text",true)+field("video_2_url","Video 2 URL","url",true)+field("video_2_title","Tiêu đề video 2","text",true)),
+    panel("payment","Thanh toán học viên","Thông tin này được dùng để tạo mã QR học phí trong Cổng học viên. Hãy kiểm tra thật kỹ trước khi lưu.",
+      field("bank_name","Tên ngân hàng")+field("bank_bin","Mã BIN ngân hàng","text",false,"Ví dụ: 970422")+field("bank_account","Số tài khoản","text")+field("bank_holder","Chủ tài khoản")+field("payment_note","Ghi chú đối soát","textarea",true)),
     panel("seo","SEO & chia sẻ","Kiểm soát tiêu đề tab và preview khi chia sẻ link.",
       field("seo_title","SEO title","text",true)+field("seo_description","SEO description","textarea",true)+field("og_image","Ảnh chia sẻ (URL hoặc /path)","text",true)),
     panel("notice","Thông báo","Hiển thị một thông báo nổi ở đầu trang khi cần.",
@@ -49,7 +53,7 @@ function renderPanels(){
 function mountDialog(){
   if(document.getElementById("adminSiteConfigDialog"))return;
   const dialog=document.createElement("dialog");dialog.id="adminSiteConfigDialog";dialog.className="admin-site-dialog";
-  dialog.innerHTML=`<form id="adminSiteConfigForm" method="dialog"><div class="admin-site-head"><div><p>QUẢN TRỊ NỘI DUNG CÔNG KHAI</p><h2>Cấu hình website</h2><span>Thay đổi thương hiệu, liên hệ, nội dung trang chủ, video, SEO và thông báo mà không cần sửa mã nguồn.</span></div><button type="button" data-site-close aria-label="Đóng">×</button></div><div class="admin-site-body"><nav class="admin-site-tabs"><button type="button" data-site-tab="brand">Thương hiệu</button><button type="button" data-site-tab="home">Trang chủ</button><button type="button" data-site-tab="video">Video</button><button type="button" data-site-tab="seo">SEO</button><button type="button" data-site-tab="notice">Thông báo</button></nav><div id="adminSitePanels" class="admin-site-panels"></div></div><p id="adminSiteStatus" class="admin-site-status"></p><div class="admin-site-actions"><button type="button" data-site-reset>Khôi phục mặc định</button><div><button type="button" data-site-close>Đóng</button><button class="primary" type="submit">Lưu cấu hình</button></div></div></form>`;
+  dialog.innerHTML=`<form id="adminSiteConfigForm" method="dialog"><div class="admin-site-head"><div><p>QUẢN TRỊ NỘI DUNG CÔNG KHAI</p><h2>Cấu hình website</h2><span>Thay đổi thương hiệu, liên hệ, trang chủ, video, thanh toán học viên, SEO và thông báo mà không cần sửa mã nguồn.</span></div><button type="button" data-site-close aria-label="Đóng">×</button></div><div class="admin-site-body"><nav class="admin-site-tabs"><button type="button" data-site-tab="brand">Thương hiệu</button><button type="button" data-site-tab="home">Trang chủ</button><button type="button" data-site-tab="video">Video</button><button type="button" data-site-tab="payment">Thanh toán</button><button type="button" data-site-tab="seo">SEO</button><button type="button" data-site-tab="notice">Thông báo</button></nav><div id="adminSitePanels" class="admin-site-panels"></div></div><p id="adminSiteStatus" class="admin-site-status"></p><div class="admin-site-actions"><button type="button" data-site-reset>Khôi phục mặc định</button><div><button type="button" data-site-close>Đóng</button><button class="primary" type="submit">Lưu cấu hình</button></div></div></form>`;
   document.body.append(dialog);
   dialog.querySelectorAll("[data-site-close]").forEach(b=>b.onclick=()=>dialog.close());
   dialog.querySelector("[data-site-reset]").onclick=()=>{currentConfig={...DEFAULTS};renderForm();setStatus("Đã nạp cấu hình mặc định. Nhấn Lưu để áp dụng.")};
@@ -76,7 +80,7 @@ async function saveConfig(event){
   event.preventDefault();setStatus("Đang lưu cấu hình…");
   try{
     const result=await rpc("app_admin_save_site_config",{p_token:token(),p_data:collect()});
-    currentConfig={...DEFAULTS,...(result?.config||{})};renderForm();setStatus("Đã lưu. Trang công khai sẽ nhận cấu hình mới khi tải lại.","success");
+    currentConfig={...DEFAULTS,...(result?.config||{})};renderForm();setStatus("Đã lưu. Trang công khai và Cổng học viên sẽ nhận cấu hình mới khi tải lại.","success");
   }catch(error){setStatus(error?.message||"Không thể lưu cấu hình.","error")}
 }
 async function openDialog(){mountDialog();setStatus("Đang tải cấu hình hiện tại…");document.getElementById("adminSiteConfigDialog").showModal();try{await loadConfig();setStatus("")}catch(e){setStatus(e?.message||"Không tải được cấu hình.","error")}}
