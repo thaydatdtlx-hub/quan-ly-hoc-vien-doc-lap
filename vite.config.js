@@ -34,7 +34,7 @@ function seoPlugin(){
   return{
     name:"thay-dat-static-seo",
     transformIndexHtml(html,ctx){
-      const file=basename(ctx?.filename||"");
+      const file=basename(ctx?.filename||ctx?.path||"");
       const seo=SEO[file];
       if(!seo)return html;
       const canonical=`${ORIGIN}${seo.path}`;
