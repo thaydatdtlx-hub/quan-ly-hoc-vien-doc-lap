@@ -1,6 +1,5 @@
 import "./theory-answer-explanations.css";
 
-const TAPLAI_URL="https://taplai.com/hoc-ly-thuyet-600-cau-lai-xe-o-to-truc-tuyen-moi-nhat.html";
 const CURATED_EXPLANATIONS={
   1:{text:"Phần đường xe chạy là phần của đường bộ dành cho phương tiện giao thông qua lại. Vì vậy chọn đáp án 2; lề đường không được tính là toàn bộ phần dành cho xe chạy."},
   2:{text:"Đây là câu hỏi về khái niệm làn đường. Một làn đường phải nằm trong phần đường xe chạy, được chia theo chiều dọc và có đủ bề rộng để xe chạy an toàn, nên đáp án 2 đầy đủ nhất."},
@@ -96,7 +95,6 @@ function enhanceFeedback(){
         <p>${esc(explanation.text)}</p>
         ${explanation.legal?`<small class="answer-legal-note">${esc(explanation.legal)}</small>`:""}
         ${question.critical?'<small>⚠ Đây là câu điểm liệt. Nếu gặp trong bài thi, cần đặc biệt ghi nhớ đáp án này.</small>':""}
-        <a class="answer-reference-link" href="${TAPLAI_URL}" target="_blank" rel="noopener noreferrer">Đối chiếu cách giải trên TapLai ↗</a>
       </div>
     </div>`;
   applying=false;
