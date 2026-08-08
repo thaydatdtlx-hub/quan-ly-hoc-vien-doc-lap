@@ -1,4 +1,5 @@
 import "./site-unification.css";
+import "./site-unification-hotfix.css";
 
 const PRIMARY_ORIGIN="https://hoclaixecungdat.vercel.app";
 
