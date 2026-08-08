@@ -1,0 +1,21 @@
+/* Regression guard for the login gateway.
+   Keep the premium login composition intact while the public pages share the design system. */
+body.site-area-login #login{
+  padding-top:0!important;
+}
+
+body.site-area-login .site-unified-login-header{
+  display:none!important;
+}
+
+@media(max-width:760px){
+  body.site-area-login #login{
+    padding-top:0!important;
+  }
+}
+
+@media(max-width:520px){
+  body.site-area-login #login{
+    padding-top:0!important;
+  }
+}
