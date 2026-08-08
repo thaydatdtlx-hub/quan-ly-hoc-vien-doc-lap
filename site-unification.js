@@ -4,6 +4,22 @@ function currentCanonicalPath(){
   return location.pathname==="/index.html"?"/":location.pathname;
 }
 
+function ensureStylesheet(){
+  if(document.querySelector('link[data-site-unification-css]'))return;
+  const link=document.createElement("link");
+  link.rel="stylesheet";
+  link.href="/site-unification.css?v=2";
+  link.dataset.siteUnificationCss="true";
+  document.head.append(link);
+}
+
+function setAreaClass(){
+  document.body.classList.add("site-unified");
+  if(["/","/index.html"].includes(location.pathname))document.body.classList.add("site-area-login");
+  if(location.pathname==="/600-cau-hoi.html")document.body.classList.add("site-area-theory");
+  if(location.pathname==="/dang-ky-hoc-lai-xe.html")document.body.classList.add("site-area-registration");
+}
+
 function ensureMetaConsistency(){
   const canonicalUrl=`${PRIMARY_ORIGIN}${currentCanonicalPath()}`;
   let canonical=document.querySelector('link[rel="canonical"]');
@@ -36,17 +52,18 @@ function ensureUnifiedStyles(){
   const style=document.createElement("style");
   style.id="siteUnifiedStyles";
   style.textContent=`
-    .site-unified-nav-link{font-weight:800!important}
-    .quiz-topbar nav .site-unified-nav-link{border:1px solid rgba(7,95,206,.18);border-radius:999px;padding:.55rem .85rem;text-decoration:none}
-    .site-header nav .site-unified-nav-link{font-weight:800}
     .site-unified-registration-cta{text-decoration:none;margin-top:.7rem}
     .site-unified-registration-cta>span:first-child{display:grid;place-items:center}
     .site-unified-footer-link{text-decoration:none}
-    @media(max-width:720px){
-      .quiz-topbar nav .site-unified-nav-link{padding:.45rem .65rem;font-size:.82rem}
-    }
   `;
   document.head.append(style);
+}
+
+function areaBadge(text){
+  const badge=document.createElement("span");
+  badge.className="site-unified-area-badge";
+  badge.textContent=text;
+  return badge;
 }
 
 function footerLink({href,icon,label,key}){
@@ -69,8 +86,28 @@ function addFooterLinks(){
   });
 }
 
+function mountLoginHeader(){
+  if(!["/","/index.html"].includes(location.pathname))return;
+  const login=document.getElementById("login");
+  if(!login||login.querySelector(".site-unified-login-header"))return;
+  const header=document.createElement("header");
+  header.className="site-unified-login-header";
+  header.innerHTML=`
+    <a class="site-unified-login-brand" href="/" aria-label="Thầy Đạt · Cổng đào tạo">
+      <img src="/logo-thay-dat-compact.webp?v=15" alt="Logo Thầy Đạt">
+      <span><strong>THẦY ĐẠT</strong><small>Đào tạo lái xe trọn gói</small></span>
+    </a>
+    <nav class="site-unified-login-nav" aria-label="Điều hướng công khai">
+      <a href="/600-cau-hoi.html">Học 600 câu</a>
+      <a href="/dang-ky-hoc-lai-xe.html">Đăng ký học lái xe</a>
+      <a class="site-unified-primary-link" href="#loginForm">Đăng nhập</a>
+    </nav>`;
+  login.prepend(header);
+}
+
 function enhanceLoginPage(){
   if(!["/","/index.html"].includes(location.pathname))return;
+  mountLoginHeader();
   const publicRegister=document.getElementById("openPublicRegisterBtn");
   if(publicRegister&&!document.querySelector('[data-site-unified="new-student-cta"]')){
     const link=document.createElement("a");
@@ -85,7 +122,10 @@ function enhanceLoginPage(){
 
 function enhanceTheoryPage(){
   if(location.pathname!=="/600-cau-hoi.html")return;
-  const nav=document.querySelector(".quiz-topbar nav");
+  const header=document.querySelector(".quiz-topbar");
+  const brand=header?.querySelector(".quiz-brand");
+  if(brand&&!header.querySelector(".site-unified-area-badge"))brand.insertAdjacentElement("afterend",areaBadge("Học lý thuyết 600 câu"));
+  const nav=header?.querySelector("nav");
   if(nav&&!nav.querySelector('[data-site-unified="register-nav"]')){
     const link=document.createElement("a");
     link.href="/dang-ky-hoc-lai-xe.html";
@@ -120,12 +160,21 @@ function addRegistrationNavLinks(nav){
 
 function enhanceRegistrationPage(){
   if(location.pathname!=="/dang-ky-hoc-lai-xe.html")return;
-  addRegistrationNavLinks(document.querySelector(".site-header nav"));
-  addRegistrationNavLinks(document.querySelector(".site-mobile-drawer nav"));
-  window.setTimeout(()=>addRegistrationNavLinks(document.querySelector(".site-mobile-drawer nav")),120);
+  const header=document.querySelector(".site-header");
+  const brand=header?.querySelector(".brand");
+  if(brand&&!header.querySelector(".site-unified-area-badge"))brand.insertAdjacentElement("afterend",areaBadge("Đăng ký đào tạo"));
+  addRegistrationNavLinks(header?.querySelector("nav"));
+  const footer=document.querySelector("body>footer");
+  footer?.classList.add("site-unified-public-footer");
+  const upgradeDrawer=()=>addRegistrationNavLinks(document.querySelector(".site-mobile-drawer nav"));
+  upgradeDrawer();
+  window.setTimeout(upgradeDrawer,120);
+  window.setTimeout(upgradeDrawer,500);
 }
 
 function initSiteUnification(){
+  ensureStylesheet();
+  setAreaClass();
   ensureMetaConsistency();
   ensureUnifiedStyles();
   enhanceLoginPage();

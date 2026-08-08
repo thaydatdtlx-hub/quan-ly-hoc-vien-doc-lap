@@ -1,0 +1,466 @@
+:root{
+  --td-navy:#07182f;
+  --td-navy-2:#0b2d57;
+  --td-blue:#075fce;
+  --td-blue-2:#0b72e7;
+  --td-sky:#eaf4ff;
+  --td-gold:#f0bd61;
+  --td-green:#14956f;
+  --td-text:#102a43;
+  --td-muted:#66788a;
+  --td-line:#d9e5f1;
+  --td-surface:#ffffff;
+  --td-bg:#f4f8fc;
+  --td-radius-sm:10px;
+  --td-radius:16px;
+  --td-radius-lg:24px;
+  --td-shadow-sm:0 8px 22px rgba(7,24,47,.08);
+  --td-shadow:0 18px 48px rgba(7,24,47,.13);
+}
+
+body.site-unified{
+  color:var(--td-text);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+body.site-unified :where(a,button){
+  transition:background-color .18s ease,border-color .18s ease,color .18s ease,box-shadow .18s ease,transform .18s ease;
+}
+
+body.site-unified :where(.quiz-brand,.site-header .brand,.site-unified-login-brand){
+  text-decoration:none;
+}
+
+/* Shared brand treatment */
+body.site-unified :where(.quiz-brand,.site-header .brand,.site-unified-login-brand) img{
+  width:46px;
+  height:46px;
+  object-fit:contain;
+  border-radius:14px;
+  background:#fff;
+  box-shadow:0 8px 24px rgba(0,0,0,.16);
+}
+
+body.site-unified :where(.quiz-brand,.site-header .brand,.site-unified-login-brand) strong{
+  color:#fff;
+  font-weight:950;
+  letter-spacing:.025em;
+}
+
+body.site-unified :where(.quiz-brand,.site-header .brand,.site-unified-login-brand) small{
+  color:#c8d9ea;
+  font-weight:700;
+}
+
+.site-unified-area-badge{
+  display:inline-flex;
+  align-items:center;
+  min-height:28px;
+  padding:5px 9px;
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:999px;
+  background:rgba(255,255,255,.1);
+  color:#eaf4ff;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+
+.site-unified-nav-link{
+  font-weight:850!important;
+  text-decoration:none!important;
+}
+
+/* Shared public header */
+body.site-area-theory .quiz-topbar,
+body.site-area-registration .site-header,
+.site-unified-login-header{
+  min-height:74px;
+  padding:12px clamp(16px,4vw,56px)!important;
+  border:0!important;
+  border-bottom:1px solid rgba(255,255,255,.12)!important;
+  background:linear-gradient(112deg,var(--td-navy) 0%,var(--td-navy-2) 58%,#0c4d87 125%)!important;
+  color:#fff!important;
+  box-shadow:0 12px 34px rgba(7,24,47,.18)!important;
+}
+
+body.site-area-theory .quiz-topbar,
+body.site-area-registration .site-header{
+  position:sticky!important;
+  top:0;
+  z-index:80;
+}
+
+body.site-area-theory .quiz-topbar nav,
+body.site-area-registration .site-header nav,
+.site-unified-login-nav{
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+
+body.site-area-theory .quiz-topbar nav a,
+body.site-area-registration .site-header nav a,
+.site-unified-login-nav a{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:40px;
+  padding:9px 12px;
+  border:1px solid transparent;
+  border-radius:999px;
+  color:#eaf4ff!important;
+  background:transparent;
+  font-size:12px;
+  font-weight:800;
+  text-decoration:none;
+  white-space:nowrap;
+}
+
+body.site-area-theory .quiz-topbar nav a:hover,
+body.site-area-registration .site-header nav a:hover,
+.site-unified-login-nav a:hover{
+  border-color:rgba(255,255,255,.18);
+  background:rgba(255,255,255,.1);
+  color:#fff!important;
+  transform:translateY(-1px);
+}
+
+body.site-area-theory .quiz-topbar nav .topbar-primary,
+.site-unified-login-nav .site-unified-primary-link{
+  border-color:#fff!important;
+  background:#fff!important;
+  color:var(--td-navy)!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.16);
+}
+
+body.site-area-theory .quiz-topbar nav .topbar-primary:hover,
+.site-unified-login-nav .site-unified-primary-link:hover{
+  background:var(--td-gold)!important;
+  border-color:var(--td-gold)!important;
+  color:var(--td-navy)!important;
+}
+
+body.site-area-theory .theory-sync-status{
+  border-color:rgba(255,255,255,.18)!important;
+  background:rgba(255,255,255,.09)!important;
+  color:#dcecff!important;
+}
+
+/* Login/public gateway header */
+body.site-area-login #login{
+  position:relative;
+  padding-top:102px!important;
+}
+
+.site-unified-login-header{
+  position:absolute;
+  inset:0 0 auto 0;
+  z-index:25;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+}
+
+.site-unified-login-brand{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  min-width:0;
+}
+
+.site-unified-login-brand>span:last-child{
+  display:grid;
+  gap:2px;
+}
+
+.site-unified-login-brand strong{font-size:15px}
+.site-unified-login-brand small{font-size:10px}
+
+body.site-area-login #login .login-shell{
+  width:min(1180px,100%);
+}
+
+body.site-area-login #login .login-card{
+  border-color:rgba(255,255,255,.55)!important;
+  border-radius:var(--td-radius-lg)!important;
+  box-shadow:0 30px 90px rgba(0,17,43,.34)!important;
+}
+
+body.site-area-login #login .public-register-cta,
+body.site-area-login #login .intro-refresh-cta{
+  border-radius:14px!important;
+}
+
+body.site-area-login #login .site-unified-registration-cta{
+  border:1px solid rgba(7,95,206,.2)!important;
+  background:linear-gradient(135deg,#f7fbff,#eaf4ff)!important;
+  color:var(--td-navy)!important;
+  box-shadow:0 9px 24px rgba(7,95,206,.1);
+}
+
+body.site-area-login #login .site-unified-registration-cta:hover{
+  border-color:#9bc8f3!important;
+  box-shadow:0 13px 30px rgba(7,95,206,.16);
+  transform:translateY(-1px);
+}
+
+/* Registration page header identity */
+body.site-area-registration .top-strip{
+  border:0!important;
+  background:var(--td-blue)!important;
+  color:#fff!important;
+}
+
+body.site-area-registration .top-strip a{
+  color:#fff!important;
+  font-weight:850;
+}
+
+body.site-area-registration .site-header .brand{
+  display:flex;
+  align-items:center;
+  gap:11px;
+}
+
+body.site-area-registration .site-header .brand span{
+  display:grid;
+  gap:2px;
+}
+
+body.site-area-registration .site-header .brand strong{font-size:14px!important}
+body.site-area-registration .site-header .brand small{font-size:10px!important}
+
+body.site-area-registration .site-mobile-menu-button{
+  border:1px solid rgba(255,255,255,.22)!important;
+  background:rgba(255,255,255,.1)!important;
+  color:#fff!important;
+  border-radius:12px!important;
+}
+
+body.site-area-registration .site-mobile-drawer__head{
+  background:linear-gradient(112deg,var(--td-navy),var(--td-navy-2));
+  color:#fff;
+}
+
+body.site-area-registration .site-mobile-drawer__brand strong,
+body.site-area-registration .site-mobile-drawer__brand small{
+  color:#fff!important;
+}
+
+body.site-area-registration .site-mobile-drawer nav a{
+  border-radius:12px;
+  color:var(--td-text);
+  font-weight:800;
+}
+
+body.site-area-registration .site-mobile-drawer nav a:hover{
+  background:var(--td-sky);
+  color:var(--td-blue);
+}
+
+/* Shared CTA language */
+body.site-area-registration :where(.btn-primary,.submit-button,.selected-bar button,.site-pricing button,.site-intake-card button),
+body.site-area-theory :where(.hero-primary,.primary),
+body.site-area-login #login :where(.login-submit){
+  border-color:var(--td-blue)!important;
+  border-radius:12px!important;
+  background:linear-gradient(135deg,var(--td-blue),var(--td-blue-2))!important;
+  color:#fff!important;
+  box-shadow:0 9px 24px rgba(7,95,206,.22)!important;
+  font-weight:850!important;
+}
+
+body.site-area-registration :where(.btn-primary,.submit-button,.selected-bar button,.site-pricing button,.site-intake-card button):hover,
+body.site-area-theory :where(.hero-primary,.primary):hover,
+body.site-area-login #login :where(.login-submit):hover{
+  box-shadow:0 13px 30px rgba(7,95,206,.3)!important;
+  transform:translateY(-1px);
+}
+
+/* Consistent cards and section surfaces */
+body.site-area-registration :where(.hero-form-card,.license-card,.selected-bar,.info-cards article,.procedure-card,.registration-form,.site-price-card,.site-intake-card,.site-proof-card),
+body.site-area-theory :where(.current-rule,.progress-overview,.progress-stats article,.question-card,.exam-class-card),
+body.site-area-login #login :where(.login-card){
+  border-radius:var(--td-radius)!important;
+}
+
+body.site-area-registration :where(.license-card,.info-cards article,.procedure-card,.registration-form,.site-price-card,.site-intake-card,.site-proof-card),
+body.site-area-theory :where(.current-rule,.progress-overview,.progress-stats article,.question-card){
+  border-color:var(--td-line)!important;
+  box-shadow:var(--td-shadow-sm)!important;
+}
+
+body.site-area-registration .license-card.active{
+  border-color:var(--td-blue)!important;
+  box-shadow:0 0 0 3px rgba(7,95,206,.1),var(--td-shadow-sm)!important;
+}
+
+body.site-area-registration :where(.section-kicker,.site-upgrade-heading>p),
+body.site-area-theory :where(.hero-kicker,.section-title p){
+  color:var(--td-blue)!important;
+  font-weight:900!important;
+  letter-spacing:.08em;
+}
+
+/* Shared footer */
+body.site-unified .contact-footer,
+body.site-area-registration>footer.site-unified-public-footer{
+  margin-top:0!important;
+  padding:34px clamp(18px,4vw,58px)!important;
+  border:0!important;
+  background:linear-gradient(112deg,var(--td-navy),var(--td-navy-2))!important;
+  color:#dce8f5!important;
+}
+
+body.site-unified .contact-footer__brand strong,
+body.site-area-registration>footer.site-unified-public-footer .footer-brand strong{
+  color:#fff!important;
+  font-weight:950!important;
+  letter-spacing:.02em;
+}
+
+body.site-unified .contact-footer__brand span,
+body.site-area-registration>footer.site-unified-public-footer :where(small,.copyright){
+  color:#aebfd2!important;
+}
+
+body.site-unified .contact-footer__links{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:8px;
+}
+
+body.site-unified .contact-footer__link{
+  min-height:42px;
+  border:1px solid rgba(255,255,255,.14)!important;
+  border-radius:999px!important;
+  background:rgba(255,255,255,.07)!important;
+  color:#f4f8fc!important;
+}
+
+body.site-unified .contact-footer__link:hover{
+  border-color:rgba(255,255,255,.28)!important;
+  background:rgba(255,255,255,.13)!important;
+  transform:translateY(-1px);
+}
+
+body.site-area-registration>footer.site-unified-public-footer .footer-main{
+  width:min(1180px,100%);
+  margin-inline:auto;
+}
+
+body.site-area-registration>footer.site-unified-public-footer a{
+  color:#dce8f5!important;
+  text-decoration:none;
+}
+
+body.site-area-registration>footer.site-unified-public-footer a:hover{color:#fff!important}
+
+body.site-area-registration>footer.site-unified-public-footer .footer-brand img{
+  border-radius:14px;
+  background:#fff;
+  box-shadow:0 8px 24px rgba(0,0,0,.16);
+}
+
+/* More consistent page rhythm */
+body.site-area-theory main,
+body.site-area-registration main{
+  background:linear-gradient(180deg,#fff 0,#f8fbff 28%,#fff 100%);
+}
+
+body.site-area-theory .study-home,
+body.site-area-registration :where(.intro-section,.course-section,.license-info-section,.condition-section,.schedule-section,.registration-section,.site-upgrade-section){
+  scroll-margin-top:94px;
+}
+
+/* Keep the existing account/admin behavior untouched */
+body.site-area-login #app .topbar,
+body.site-area-login #app footer{
+  --td-ignore:1;
+}
+
+@media(max-width:980px){
+  body.site-area-registration .site-header nav{display:none!important}
+  .site-unified-area-badge{display:none}
+}
+
+@media(max-width:760px){
+  body.site-area-theory .quiz-topbar{
+    align-items:flex-start!important;
+    gap:10px!important;
+    flex-direction:column!important;
+  }
+
+  body.site-area-theory .quiz-topbar nav{
+    width:100%;
+    overflow-x:auto;
+    padding-bottom:2px;
+    scrollbar-width:none;
+  }
+
+  body.site-area-theory .quiz-topbar nav::-webkit-scrollbar{display:none}
+
+  body.site-area-theory .quiz-topbar nav a{
+    min-height:38px;
+    padding:8px 10px;
+    font-size:11px;
+  }
+
+  body.site-area-login #login{
+    padding-top:126px!important;
+  }
+
+  .site-unified-login-header{
+    min-height:104px;
+    align-items:flex-start;
+    flex-direction:column;
+    gap:8px;
+    padding:11px 16px!important;
+  }
+
+  .site-unified-login-nav{
+    width:100%;
+    overflow-x:auto;
+    padding-bottom:2px;
+    scrollbar-width:none;
+  }
+
+  .site-unified-login-nav::-webkit-scrollbar{display:none}
+
+  .site-unified-login-nav a{
+    min-height:36px;
+    padding:7px 10px;
+    font-size:10px;
+  }
+
+  body.site-unified .contact-footer,
+  body.site-area-registration>footer.site-unified-public-footer{
+    padding:28px 16px!important;
+  }
+}
+
+@media(max-width:520px){
+  body.site-unified :where(.quiz-brand,.site-header .brand,.site-unified-login-brand) img{
+    width:40px;
+    height:40px;
+    border-radius:12px;
+  }
+
+  .site-unified-login-brand strong{font-size:13px}
+  .site-unified-login-brand small{font-size:9px}
+
+  body.site-area-theory .quiz-topbar,
+  body.site-area-registration .site-header{
+    padding-inline:14px!important;
+  }
+
+  body.site-area-login #login{
+    padding-top:122px!important;
+  }
+}
