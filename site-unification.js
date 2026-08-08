@@ -1,5 +1,6 @@
 import "./site-unification.css";
 import "./site-unification-hotfix.css";
+import "./public-home-router.js";
 
 const PRIMARY_ORIGIN="https://hoclaixecungdat.vercel.app";
 
@@ -100,14 +101,19 @@ function enhanceTheoryPage(){
   const brand=header?.querySelector(".quiz-brand");
   if(brand&&!header.querySelector(".site-unified-area-badge"))brand.insertAdjacentElement("afterend",areaBadge("Học lý thuyết 600 câu"));
   const nav=header?.querySelector("nav");
-  if(nav&&!nav.querySelector('[data-site-unified="register-nav"]')){
-    const link=document.createElement("a");
-    link.href="/dang-ky-hoc-lai-xe.html";
-    link.className="site-unified-nav-link";
-    link.dataset.siteUnified="register-nav";
-    link.textContent="Đăng ký học lái xe";
-    const loginLink=[...nav.querySelectorAll('a[href="/"]')].find(item=>item.id!=="studentPortalLink");
-    loginLink?nav.insertBefore(link,loginLink):nav.append(link);
+  if(nav){
+    [...nav.querySelectorAll('a[href="/"]')].forEach(item=>{
+      if(item.id!=="studentPortalLink")item.href="/dang-nhap.html";
+    });
+    if(!nav.querySelector('[data-site-unified="register-nav"]')){
+      const link=document.createElement("a");
+      link.href="/dang-ky-hoc-lai-xe.html";
+      link.className="site-unified-nav-link";
+      link.dataset.siteUnified="register-nav";
+      link.textContent="Đăng ký học lái xe";
+      const loginLink=[...nav.querySelectorAll('a[href="/dang-nhap.html"]')].find(item=>item.id!=="studentPortalLink");
+      loginLink?nav.insertBefore(link,loginLink):nav.append(link);
+    }
   }
   addFooterLinks();
 }
@@ -124,7 +130,7 @@ function addRegistrationNavLinks(nav){
   }
   if(!nav.querySelector('[data-site-unified="login-nav"]')){
     const login=document.createElement("a");
-    login.href="/";
+    login.href="/dang-nhap.html";
     login.className="site-unified-nav-link";
     login.dataset.siteUnified="login-nav";
     login.textContent="Đăng nhập";
