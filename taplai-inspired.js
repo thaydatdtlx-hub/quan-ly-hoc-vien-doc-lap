@@ -15,7 +15,7 @@ function mountOnlineBanner(){
     </div>
     <div class="td-online-banner__actions">
       <a href="/600-cau-hoi.html">Học 600 câu</a>
-      <a href="/">Đăng nhập học viên</a>
+      <a href="/dang-nhap.html">Đăng nhập học viên</a>
     </div>`;
   anchor.insertAdjacentElement('afterend',section);
 }
