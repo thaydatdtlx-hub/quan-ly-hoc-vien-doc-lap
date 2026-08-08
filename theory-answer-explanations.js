@@ -31,7 +31,8 @@ function enhanceFeedback(){
   const feedback=document.getElementById("answerFeedback");
   if(!feedback||feedback.classList.contains("hidden"))return;
   const id=currentQuestionId(),question=questionMap.get(id);
-  if(!question||feedback.dataset.explanationQuestion===String(id))return;
+  if(!question)return;
+  if(feedback.dataset.explanationQuestion===String(id)&&feedback.querySelector(".answer-explanation-box"))return;
   const selected=selectedOption(question),correct=Number(selected?.n)===Number(question.answer),answer=correctOption(question);
   applying=true;
   feedback.dataset.explanationQuestion=String(id);
