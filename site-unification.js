@@ -1,16 +1,10 @@
+import "./site-unification.css";
+import "./site-unification-hotfix.css";
+
 const PRIMARY_ORIGIN="https://hoclaixecungdat.vercel.app";
 
 function currentCanonicalPath(){
   return location.pathname==="/index.html"?"/":location.pathname;
-}
-
-function ensureStylesheet(){
-  if(document.querySelector('link[data-site-unification-css]'))return;
-  const link=document.createElement("link");
-  link.rel="stylesheet";
-  link.href="/site-unification.css?v=2";
-  link.dataset.siteUnificationCss="true";
-  document.head.append(link);
 }
 
 function setAreaClass(){
@@ -86,28 +80,8 @@ function addFooterLinks(){
   });
 }
 
-function mountLoginHeader(){
-  if(!["/","/index.html"].includes(location.pathname))return;
-  const login=document.getElementById("login");
-  if(!login||login.querySelector(".site-unified-login-header"))return;
-  const header=document.createElement("header");
-  header.className="site-unified-login-header";
-  header.innerHTML=`
-    <a class="site-unified-login-brand" href="/" aria-label="Thầy Đạt · Cổng đào tạo">
-      <img src="/logo-thay-dat-compact.webp?v=15" alt="Logo Thầy Đạt">
-      <span><strong>THẦY ĐẠT</strong><small>Đào tạo lái xe trọn gói</small></span>
-    </a>
-    <nav class="site-unified-login-nav" aria-label="Điều hướng công khai">
-      <a href="/600-cau-hoi.html">Học 600 câu</a>
-      <a href="/dang-ky-hoc-lai-xe.html">Đăng ký học lái xe</a>
-      <a class="site-unified-primary-link" href="#loginForm">Đăng nhập</a>
-    </nav>`;
-  login.prepend(header);
-}
-
 function enhanceLoginPage(){
   if(!["/","/index.html"].includes(location.pathname))return;
-  mountLoginHeader();
   const publicRegister=document.getElementById("openPublicRegisterBtn");
   if(publicRegister&&!document.querySelector('[data-site-unified="new-student-cta"]')){
     const link=document.createElement("a");
@@ -173,7 +147,6 @@ function enhanceRegistrationPage(){
 }
 
 function initSiteUnification(){
-  ensureStylesheet();
   setAreaClass();
   ensureMetaConsistency();
   ensureUnifiedStyles();
