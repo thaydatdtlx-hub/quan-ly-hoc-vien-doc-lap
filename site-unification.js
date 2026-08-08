@@ -140,6 +140,17 @@ function addRegistrationNavLinks(nav){
 
 function enhanceRegistrationPage(){
   if(location.pathname!=="/dang-ky-hoc-lai-xe.html")return;
+
+  const pageTitle="Học lái xe cùng Đạt";
+  document.title=pageTitle;
+  let ogTitle=document.querySelector('meta[property="og:title"]');
+  if(!ogTitle){
+    ogTitle=document.createElement("meta");
+    ogTitle.setAttribute("property","og:title");
+    document.head.append(ogTitle);
+  }
+  ogTitle.content=pageTitle;
+
   const header=document.querySelector(".site-header");
   const brand=header?.querySelector(".brand");
   if(brand&&!header.querySelector(".site-unified-area-badge"))brand.insertAdjacentElement("afterend",areaBadge("Đăng ký đào tạo"));
