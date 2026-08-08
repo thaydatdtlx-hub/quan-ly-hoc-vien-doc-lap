@@ -21,9 +21,13 @@ function localIsoDate(date){
   return new Date(date.getTime()-offset).toISOString().slice(0,10);
 }
 
+function normalizeLicenseForStorage(value){
+  return value==="B số sàn"?"B số cơ khí":value;
+}
+
 function setLicense(value){
   selectedLicense=value;
-  $("licenseClass").value=value;
+  $("licenseClass").value=normalizeLicenseForStorage(value);
   $("selectedLicenseSummary").textContent=value;
   $("selectedLicenseCard").textContent=value;
   $("formLicenseBadge").textContent=value;
@@ -82,7 +86,7 @@ form.addEventListener("submit",async event=>{
     const payload={
       full_name:$("fullName").value.trim(),
       phone:$("phone").value.trim(),
-      license_class:selectedLicense,
+      license_class:normalizeLicenseForStorage(selectedLicense),
       date_of_birth:$("dateOfBirth").value||null,
       area:$("area").value.trim(),
       preferred_start_date:$("preferredStartDate").value||null,
