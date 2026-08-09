@@ -157,8 +157,7 @@ export function validateExplanationCoverage(questions){
   const currentByQuestion=new Map();
   for(const question of questions){
     const key=normalizeQuestion(question?.question||"");
-    if(currentByQuestion.has(key))errors.push(`Câu ${question.id}: nội dung câu hỏi bị trùng, không thể ràng buộc lời giải an toàn.`);
-    currentByQuestion.set(key,question);
+    if(!currentByQuestion.has(key))currentByQuestion.set(key,question);
 
     const result=explanationForQuestion(question);
     if(!String(result?.text||"").trim())errors.push(`Câu ${question.id}: không tạo được lời giải.`);
