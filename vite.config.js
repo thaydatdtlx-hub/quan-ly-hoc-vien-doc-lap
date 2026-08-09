@@ -2,6 +2,7 @@ import {defineConfig} from "vite";
 import {resolve,basename} from "node:path";
 
 const ORIGIN="https://hoclaixecungdat.vercel.app";
+const PACKAGE_WORDING=/đào\s+tạo\s+lái\s+xe\s+trọn\s+gói/giu;
 const SEO={
   "dang-ky-hoc-lai-xe.html":{
     title:"Học lái xe cùng Đạt",
@@ -30,10 +31,17 @@ const SEO={
 };
 
 function setTag(html,pattern,replacement){return pattern.test(html)?html.replace(pattern,replacement):html}
+function cleanBrandWording(html){
+  return html
+    .replace(PACKAGE_WORDING,"")
+    .replace(/>\s*[·|•–—-]+\s*</g,"><")
+    .replace(/\s+[·|•–—-]+\s+(?=<)/g," ");
+}
 function seoPlugin(){
   return{
     name:"thay-dat-static-seo",
     transformIndexHtml(html,ctx){
+      html=cleanBrandWording(html);
       const file=basename(ctx?.filename||ctx?.path||"");
       const seo=SEO[file];
       if(!seo)return html;
@@ -54,7 +62,8 @@ function seoPlugin(){
       if(file==="dang-ky-hoc-lai-xe.html"&&!/application\/ld\+json/i.test(html)){
         extras.push(`<script type="application/ld+json">${JSON.stringify({"@context":"https://schema.org","@type":"Organization","name":"Học lái xe cùng Đạt","url":canonical,"logo":`${ORIGIN}/app-icon-512.png`,"telephone":"0984811037","sameAs":["https://www.facebook.com/profile.php?id=61579863779611","https://www.tiktok.com/@datdidaydo99"]})}</script>`);
       }
-      return extras.length?html.replace("</head>",`  ${extras.join("\n  ")}\n</head>`):html;
+      html=extras.length?html.replace("</head>",`  ${extras.join("\n  ")}\n</head>`):html;
+      return cleanBrandWording(html);
     }
   };
 }
