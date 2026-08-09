@@ -18,7 +18,8 @@ let installBanner=null;
 
 function isStandalone(){return window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true}
 function isIos(){return /iphone|ipad|ipod/i.test(navigator.userAgent)}
-function shouldOfferInstall(){return location.pathname!=="/dang-ky-hoc-lai-xe.html"}
+function isPublicLanding(){return location.pathname==="/dang-ky-hoc-lai-xe.html"||(location.pathname==="/"&&Boolean(document.getElementById("registrationForm")))}
+function shouldOfferInstall(){return !isPublicLanding()}
 function recentlyDismissed(){
   const value=Number(localStorage.getItem(DISMISS_KEY)||0);
   return value&&Date.now()-value<DISMISS_DAYS*86400000;

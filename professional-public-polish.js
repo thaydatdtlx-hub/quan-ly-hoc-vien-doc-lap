@@ -3,6 +3,7 @@ import "./professional-public-polish.css";
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const money=value=>new Intl.NumberFormat("vi-VN").format(Number(value)||0)+" VNĐ";
+const isRegistrationPage=()=>location.pathname==="/dang-ky-hoc-lai-xe.html"||(location.pathname==="/"&&Boolean(document.getElementById("registrationForm")));
 
 async function rpc(fn){
   try{
@@ -16,7 +17,7 @@ function uniqueNav(){
   document.querySelectorAll(".site-unified-area-badge").forEach(n=>n.remove());
 }
 function addTrust(){
-  if(location.pathname!=="/dang-ky-hoc-lai-xe.html"||document.querySelector(".site-professional-trust"))return;
+  if(!isRegistrationPage()||document.querySelector(".site-professional-trust"))return;
   const anchor=document.querySelector(".quick-features");if(!anchor)return;
   const node=document.createElement("div");node.className="site-professional-trust";
   node.innerHTML=`<article><b>✓</b><div><strong>Học phí rõ ràng</strong><small>Giá và ưu đãi lấy trực tiếp từ hệ thống Admin.</small></div></article><article><b>600</b><div><strong>Học lý thuyết online</strong><small>Ôn câu hỏi, thi thử và lưu tiến độ cá nhân.</small></div></article><article><b>↻</b><div><strong>Theo dõi tập trung</strong><small>Lịch học, DAT, cabin và lịch thi trong cùng hệ thống.</small></div></article><article><b>☎</b><div><strong>Hỗ trợ trực tiếp</strong><small>Hotline và Zalo luôn hiển thị rõ ràng khi cần.</small></div></article>`;
@@ -31,7 +32,7 @@ function pricingCard(plan,index){
   return `<article class="tuition-card${index>1?' featured':''}${promo?' has-promotion':''}"><div class="tuition-card__top"><div><span class="tuition-card__badge">${plan.license_class||"KHÓA HỌC"}</span><h3>${plan.license_class}</h3><p>Thông tin học phí cập nhật từ hệ thống quản trị</p></div><div class="tuition-price"><small>${discount?'Học phí ưu đãi':'Học phí & hồ sơ'}</small>${discount?`<del>${money(plan.tuition)}</del>`:''}<strong>${money(final||plan.tuition)}</strong></div></div><div class="tuition-card__body">${promo?`<div class="tuition-promotion"><b>${plan.promotion_title||"Ưu đãi hiện tại"}</b>${plan.promotion_description?`<span>${plan.promotion_description}</span>`:''}${discount?`<strong>Giảm ${money(discount)}</strong>`:''}${plan.promotion_end?`<small>Áp dụng đến ${plan.promotion_end.split('-').reverse().join('/')}</small>`:''}</div>`:''}${feeRows?`<div class="tuition-fees">${feeRows}</div>`:''}<div class="tuition-total"><span>Học phí đang áp dụng${fees.length?' (chưa gồm các khoản nộp riêng)':''}</span><strong>${money(final||plan.tuition)}</strong></div><button type="button" data-polish-license="${plan.license_class}">Đăng ký tư vấn ${plan.license_class}</button></div></article>`;
 }
 async function repairPricing(){
-  if(location.pathname!=="/dang-ky-hoc-lai-xe.html")return;
+  if(!isRegistrationPage())return;
   const config=await rpc("app_public_tuition_config");if(!Array.isArray(config)||!config.length)return;
   const existing=document.getElementById("hoc-phi-tu-van");
   if(existing&&!/Nhận báo giá/.test(existing.textContent||""))return;

@@ -20,6 +20,7 @@
     "check:mobile": "node scripts/validate-mobile-dashboard.mjs",
     "check:admin-assistant": "node scripts/validate-admin-assistant.mjs",
     "check:driving-refresh": "node scripts/validate-driving-refresh.mjs",
+    "check:dist": "node scripts/validate-dist.mjs",
     "push:keys": "node scripts/generate-vapid-keys.mjs",
     "check": "npm run check:questions && npm run check:site && npm run check:excel && npm run check:duplicates && npm run check:payments && npm run check:attendance && npm run check:warnings && npm run check:notifications && npm run check:pwa && npm run check:push && npm run check:mobile && npm run check:admin-assistant && npm run check:driving-refresh"
   },

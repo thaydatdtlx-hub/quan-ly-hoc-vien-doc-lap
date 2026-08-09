@@ -1,5 +1,11 @@
 const SITE_CONFIG_URL="https://pkzxkvcncipfszeukpwu.supabase.co/rest/v1/rpc/app_public_site_config";
 const SITE_CONFIG_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
+const PRIMARY_ORIGIN="https://hoclaixecungdat.vercel.app";
+
+function isRegistrationPage(){
+  return location.pathname==="/dang-ky-hoc-lai-xe.html"||
+    (location.pathname==="/"&&Boolean(document.getElementById("registrationForm")));
+}
 
 function youtubeId(value=""){
   try{
@@ -32,7 +38,7 @@ function replaceContactLinks(config){
 }
 
 function applyRegistrationConfig(config){
-  if(location.pathname!=="/dang-ky-hoc-lai-xe.html")return;
+  if(!isRegistrationPage())return;
   const brandStrong=document.querySelector(".site-header .brand strong");
   const brandSmall=document.querySelector(".site-header .brand small");
   if(brandStrong&&config.brand_name)brandStrong.textContent=String(config.brand_name).toUpperCase();
@@ -60,7 +66,8 @@ function applyRegistrationConfig(config){
   if(config.og_image)setMeta('meta[property="og:image"]',absolute(config.og_image));
 
   const canonical=document.querySelector('link[rel="canonical"]');
-  if(canonical)canonical.href="https://hoclaixecungdat.vercel.app/dang-ky-hoc-lai-xe.html";
+  if(canonical)canonical.href=`${PRIMARY_ORIGIN}/`;
+  setMeta('meta[property="og:url"]',`${PRIMARY_ORIGIN}/`);
 
   const nav=document.querySelector(".site-header nav");
   if(nav){

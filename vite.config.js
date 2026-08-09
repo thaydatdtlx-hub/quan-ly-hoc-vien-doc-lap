@@ -3,11 +3,13 @@ import {resolve,basename} from "node:path";
 
 const ORIGIN="https://hoclaixecungdat.vercel.app";
 const PACKAGE_WORDING=/đào\s+tạo\s+lái\s+xe\s+trọn\s+gói/giu;
+const UNVERIFIED_CENTER=/trung\s+tâm\s+đào\s+tạo\s+lái\s+xe\s+thầy\s+đạt/giu;
+const LEGACY_HOSTS=/https?:\/\/(?:www\.)?(?:daotaolaixetrongoi\.com|hoc-vien-thay-dat\.vercel\.app|daotaolaixe-thaydat\.vercel\.app)/giu;
 const SEO={
   "dang-ky-hoc-lai-xe.html":{
     title:"Học lái xe cùng Đạt",
     description:"Đăng ký học lái xe A1, A, B số tự động, B số sàn và C1 cùng Đạt. Học phí rõ ràng, học 600 câu online và theo dõi tiến độ tập trung.",
-    path:"/dang-ky-hoc-lai-xe.html",
+    path:"/",
     image:"/hero-vip-navy-champagne.webp?v=1"
   },
   "600-cau-hoi.html":{
@@ -34,6 +36,8 @@ function setTag(html,pattern,replacement){return pattern.test(html)?html.replace
 function cleanBrandWording(html){
   return html
     .replace(PACKAGE_WORDING,"")
+    .replace(UNVERIFIED_CENTER,"Học lái xe cùng Đạt")
+    .replace(LEGACY_HOSTS,ORIGIN)
     .replace(/>\s*[·|•–—-]+\s*</g,"><")
     .replace(/\s+[·|•–—-]+\s+(?=<)/g," ");
 }
@@ -60,7 +64,7 @@ function seoPlugin(){
       if(!/name="twitter:description"/i.test(html))extras.push(`<meta name="twitter:description" content="${seo.description}">`);
       if(!/name="twitter:image"/i.test(html))extras.push(`<meta name="twitter:image" content="${image}">`);
       if(file==="dang-ky-hoc-lai-xe.html"&&!/application\/ld\+json/i.test(html)){
-        extras.push(`<script type="application/ld+json">${JSON.stringify({"@context":"https://schema.org","@type":"Organization","name":"Học lái xe cùng Đạt","url":canonical,"logo":`${ORIGIN}/app-icon-512.png`,"telephone":"0984811037","sameAs":["https://www.facebook.com/profile.php?id=61579863779611","https://www.tiktok.com/@datdidaydo99"]})}</script>`);
+        extras.push(`<script type="application/ld+json">${JSON.stringify({"@context":"https://schema.org","@type":"Organization","name":"Học lái xe cùng Đạt","url":`${ORIGIN}/`,"logo":`${ORIGIN}/app-icon-512.png`,"telephone":"0984811037","sameAs":["https://www.facebook.com/profile.php?id=61579863779611","https://www.tiktok.com/@datdidaydo99"]})}</script>`);
       }
       html=extras.length?html.replace("</head>",`  ${extras.join("\n  ")}\n</head>`):html;
       return cleanBrandWording(html);
