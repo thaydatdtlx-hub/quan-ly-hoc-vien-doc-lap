@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts/validate-theory-explanations.mjs && vite build",
     "preview": "vite preview",
     "check:questions": "node scripts/validate-question-data.mjs",
+    "check:explanations": "node scripts/validate-theory-explanations.mjs",
     "check:site": "node scripts/validate-site.mjs",
     "check:excel": "node scripts/validate-excel.mjs",
     "check:duplicates": "node scripts/validate-import-dedup.mjs",
@@ -22,7 +23,7 @@
     "check:driving-refresh": "node scripts/validate-driving-refresh.mjs",
     "check:dist": "node scripts/validate-dist.mjs",
     "push:keys": "node scripts/generate-vapid-keys.mjs",
-    "check": "npm run check:questions && npm run check:site && npm run check:excel && npm run check:duplicates && npm run check:payments && npm run check:attendance && npm run check:warnings && npm run check:notifications && npm run check:pwa && npm run check:push && npm run check:mobile && npm run check:admin-assistant && npm run check:driving-refresh"
+    "check": "npm run check:questions && npm run check:explanations && npm run check:site && npm run check:excel && npm run check:duplicates && npm run check:payments && npm run check:attendance && npm run check:warnings && npm run check:notifications && npm run check:pwa && npm run check:push && npm run check:mobile && npm run check:admin-assistant && npm run check:driving-refresh"
   },
   "devDependencies": {
     "vite": "^7.0.0"
