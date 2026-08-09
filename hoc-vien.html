@@ -10,12 +10,13 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Thầy Đạt">
-  <link rel="canonical" href="https://hoc-vien-thay-dat.vercel.app/hoc-vien.html">
+  <link rel="canonical" href="https://hoclaixecungdat.vercel.app/hoc-vien.html">
   <link rel="icon" href="/app-icon-192.png" type="image/png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180.png">
   <link rel="manifest" href="/site.webmanifest">
-  <title>Cổng học viên · Thầy Đạt</title>
+  <title>Cổng học viên · Học lái xe cùng Đạt</title>
   <link rel="stylesheet" href="/student.css">
+  <link rel="stylesheet" href="/student-fresh.css?v=1">
   <link rel="stylesheet" href="/contact-footer.css?v=1">
   <link rel="stylesheet" href="/professional.css?v=15">
   <link rel="stylesheet" href="/pwa-install.css?v=1">
@@ -26,7 +27,7 @@
   <header class="student-topbar">
     <a class="student-brand" href="/hoc-vien.html">
       <span><img src="/logo-thay-dat-compact.webp?v=15" alt=""></span>
-      <div><strong>THẦY ĐẠT</strong><small>Cổng thông tin học viên</small></div>
+      <div><strong>HỌC LÁI XE CÙNG ĐẠT</strong><small>Cổng thông tin học viên</small></div>
     </a>
     <div class="student-account">
       <span id="studentUsername"></span>
@@ -37,7 +38,7 @@
   </header>
 
   <header class="mobile-appbar" aria-label="Điều hướng học viên trên điện thoại">
-    <a class="mobile-app-brand" href="#studentPortal"><img src="/logo-thay-dat-compact.webp?v=15" alt=""><span><strong>THẦY ĐẠT</strong><small>Cổng học viên</small></span></a>
+    <a class="mobile-app-brand" href="#studentPortal"><img src="/logo-thay-dat-compact.webp?v=15" alt=""><span><strong>HỌC LÁI XE CÙNG ĐẠT</strong><small>Cổng học viên</small></span></a>
     <div class="mobile-app-actions">
       <button type="button" data-mobile-action="student-search" aria-label="Mở chức năng nhanh"><span data-mobile-icon="search"></span></button>
       <button class="mobile-notification-trigger" type="button" data-mobile-click="studentNotificationBtn" aria-label="Mở thông báo"><span data-mobile-icon="bell"></span><b id="mobileStudentNotificationBadge" class="hidden">0</b></button>
@@ -127,7 +128,7 @@
       <div id="paymentPending" class="payment-layout">
         <div class="payment-qr-card">
           <div class="qr-frame">
-            <img id="tuitionQr" alt="Mã QR đóng học phí qua MB Bank" loading="lazy" referrerpolicy="no-referrer">
+            <img id="tuitionQr" alt="Mã QR đóng học phí" loading="lazy" referrerpolicy="no-referrer">
           </div>
           <strong>Quét mã bằng ứng dụng ngân hàng</strong>
           <small>Mã QR đã có sẵn số tiền và nội dung chuyển khoản.</small>
@@ -135,16 +136,16 @@
         </div>
         <div class="payment-details">
           <div class="bank-heading">
-            <span>MB</span>
-            <div><small>NGÂN HÀNG</small><strong>MB Bank (MBBank)</strong></div>
+            <span>₫</span>
+            <div><small>THÔNG TIN THANH TOÁN</small><strong id="paymentBankName">Ngân hàng</strong></div>
           </div>
           <dl>
             <div><dt>Số tiền cần đóng</dt><dd id="paymentDebt">0 ₫</dd></div>
-            <div><dt>Số tài khoản</dt><dd><span>360556789999</span><button class="copy-payment" type="button" data-copy="360556789999">Sao chép</button></dd></div>
-            <div><dt>Chủ tài khoản</dt><dd>Trần Quốc Đạt</dd></div>
+            <div><dt>Số tài khoản</dt><dd><span id="paymentAccountNumber">Đang cập nhật</span><button id="copyPaymentAccount" class="copy-payment" type="button">Sao chép</button></dd></div>
+            <div><dt>Chủ tài khoản</dt><dd id="paymentAccountOwner">Đang cập nhật</dd></div>
             <div><dt>Nội dung chuyển khoản</dt><dd><span id="paymentContent">HOC PHI</span><button id="copyPaymentContent" class="copy-payment" type="button">Sao chép</button></dd></div>
           </dl>
-          <p class="payment-note"><b>Lưu ý:</b> Vui lòng kiểm tra đúng tên người nhận, số tài khoản và số tiền trước khi xác nhận. Học phí sẽ được cập nhật sau khi trung tâm đối soát giao dịch.</p>
+          <p id="paymentReconciliationNote" class="payment-note"><b>Lưu ý:</b> Vui lòng kiểm tra đúng tên người nhận, số tài khoản và số tiền trước khi xác nhận. Học phí sẽ được cập nhật sau khi đối soát giao dịch.</p>
         </div>
       </div>
       <div id="paymentComplete" class="payment-complete hidden">
@@ -159,14 +160,14 @@
         <span id="studentPaymentHistoryCount">0 phiếu thu</span>
       </div>
       <div id="studentPaymentHistoryList" class="student-payment-history-list"></div>
-      <p id="studentPaymentHistoryNotice" class="student-payment-history-notice hidden">Lịch sử học phí đang được trung tâm cập nhật.</p>
+      <p id="studentPaymentHistoryNotice" class="student-payment-history-notice hidden">Lịch sử học phí đang được cập nhật.</p>
     </section>
 
     <section id="studentAttendance" class="portal-section student-attendance-section" aria-labelledby="studentAttendanceHeading">
       <div class="section-heading attendance-student-heading"><div><p>CHUYÊN CẦN CỦA TÔI</p><h2 id="studentAttendanceHeading">Điểm danh &amp; Giờ thực học</h2></div><span id="studentAttendanceRate">0% chuyên cần</span></div>
       <div class="student-attendance-metrics"><article><small>Tổng buổi</small><strong id="studentAttendanceSessions">0</strong></article><article><small>Có mặt</small><strong id="studentAttendancePresent">0</strong></article><article><small>Giờ thực học</small><strong id="studentAttendanceHours">0 giờ</strong></article><article><small>Vắng / Có phép</small><strong id="studentAttendanceAbsent">0 / 0</strong></article></div>
       <div id="studentAttendanceList" class="student-attendance-list"></div>
-      <p id="studentAttendanceNotice" class="student-payment-history-notice hidden">Dữ liệu điểm danh đang được trung tâm cập nhật.</p>
+      <p id="studentAttendanceNotice" class="student-payment-history-notice hidden">Dữ liệu điểm danh đang được cập nhật.</p>
     </section>
 
     <section id="trainingBooking" class="portal-section booking-section" aria-labelledby="bookingHeading">
@@ -215,8 +216,8 @@
   </nav>
 
   <footer class="contact-footer">
-    <div class="contact-footer__brand"><strong>THẦY ĐẠT · ĐÀO TẠO LÁI XE TRỌN GÓI</strong><span>Kết nối với chúng tôi</span></div>
-    <nav class="contact-footer__links" aria-label="Liên hệ Thầy Đạt">
+    <div class="contact-footer__brand"><strong>HỌC LÁI XE CÙNG ĐẠT</strong><span>Kết nối với chúng tôi</span></div>
+    <nav class="contact-footer__links" aria-label="Liên hệ Học lái xe cùng Đạt">
       <a class="contact-footer__link contact-footer__link--tiktok" href="https://www.tiktok.com/@datdidaydo99?is_from_webapp=1&amp;sender_device=pc" target="_blank" rel="noopener noreferrer"><span class="contact-footer__icon">♪</span><span>TikTok</span></a>
       <a class="contact-footer__link contact-footer__link--facebook" href="https://www.facebook.com/profile.php?id=61579863779611" target="_blank" rel="noopener noreferrer"><span class="contact-footer__icon">f</span><span>Facebook</span></a>
       <a class="contact-footer__link contact-footer__link--zalo" href="https://zalo.me/0984811037" target="_blank" rel="noopener noreferrer"><span class="contact-footer__icon">Z</span><span>Zalo</span></a>
