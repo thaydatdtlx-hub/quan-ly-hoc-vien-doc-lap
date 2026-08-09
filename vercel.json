@@ -3,6 +3,16 @@
   "framework": "vite",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/dang-ky-hoc-lai-xe.html"
+    },
+    {
+      "source": "/dang-nhap.html",
+      "destination": "/index.html"
+    }
+  ],
   "headers": [
     {
       "source": "/sw.js",
