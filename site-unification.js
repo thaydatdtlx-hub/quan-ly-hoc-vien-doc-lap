@@ -4,15 +4,24 @@ import "./public-home-router.js";
 
 const PRIMARY_ORIGIN="https://hoclaixecungdat.vercel.app";
 
+function isRegistrationPage(){
+  return location.pathname==="/dang-ky-hoc-lai-xe.html"||
+    (location.pathname==="/"&&Boolean(document.getElementById("registrationForm")));
+}
+function isLoginPage(){
+  return ["/dang-nhap.html","/index.html"].includes(location.pathname)||
+    (location.pathname==="/"&&Boolean(document.getElementById("loginForm"))&&!isRegistrationPage());
+}
 function currentCanonicalPath(){
-  return location.pathname==="/index.html"?"/":location.pathname;
+  if(isRegistrationPage())return "/";
+  return location.pathname==="/index.html"?"/dang-nhap.html":location.pathname;
 }
 
 function setAreaClass(){
   document.body.classList.add("site-unified");
-  if(["/","/index.html"].includes(location.pathname))document.body.classList.add("site-area-login");
+  if(isLoginPage())document.body.classList.add("site-area-login");
   if(location.pathname==="/600-cau-hoi.html")document.body.classList.add("site-area-theory");
-  if(location.pathname==="/dang-ky-hoc-lai-xe.html")document.body.classList.add("site-area-registration");
+  if(isRegistrationPage())document.body.classList.add("site-area-registration");
 }
 
 function ensureMetaConsistency(){
@@ -73,7 +82,7 @@ function footerLink({href,icon,label,key}){
 function addFooterLinks(){
   document.querySelectorAll(".contact-footer__links").forEach(nav=>{
     if(!nav.querySelector('[data-site-unified="register"]')){
-      nav.prepend(footerLink({href:"/dang-ky-hoc-lai-xe.html",icon:"✎",label:"Đăng ký học lái xe",key:"register"}));
+      nav.prepend(footerLink({href:"/",icon:"✎",label:"Đăng ký học lái xe",key:"register"}));
     }
     if(!nav.querySelector('[data-site-unified="theory"]')){
       nav.prepend(footerLink({href:"/600-cau-hoi.html",icon:"600",label:"Học 600 câu",key:"theory"}));
@@ -82,12 +91,12 @@ function addFooterLinks(){
 }
 
 function enhanceLoginPage(){
-  if(!["/","/index.html"].includes(location.pathname))return;
+  if(!isLoginPage())return;
   const publicRegister=document.getElementById("openPublicRegisterBtn");
   if(publicRegister&&!document.querySelector('[data-site-unified="new-student-cta"]')){
     const link=document.createElement("a");
     link.className="public-register-cta site-unified-registration-cta";
-    link.href="/dang-ky-hoc-lai-xe.html";
+    link.href="/";
     link.dataset.siteUnified="new-student-cta";
     link.innerHTML='<span>🚘</span><div><strong>Đăng ký học lái xe mới</strong><small>A1 · A · B · C1 · nhận tư vấn lộ trình</small></div><b>→</b>';
     publicRegister.insertAdjacentElement("afterend",link);
@@ -107,7 +116,7 @@ function enhanceTheoryPage(){
     });
     if(!nav.querySelector('[data-site-unified="register-nav"]')){
       const link=document.createElement("a");
-      link.href="/dang-ky-hoc-lai-xe.html";
+      link.href="/";
       link.className="site-unified-nav-link";
       link.dataset.siteUnified="register-nav";
       link.textContent="Đăng ký học lái xe";
@@ -139,7 +148,7 @@ function addRegistrationNavLinks(nav){
 }
 
 function enhanceRegistrationPage(){
-  if(location.pathname!=="/dang-ky-hoc-lai-xe.html")return;
+  if(!isRegistrationPage())return;
 
   const pageTitle="Học lái xe cùng Đạt";
   document.title=pageTitle;
