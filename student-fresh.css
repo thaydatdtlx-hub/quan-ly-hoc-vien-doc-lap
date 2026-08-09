@@ -1,0 +1,252 @@
+/* Fresh, friendly student portal theme — visual only, no business logic changes */
+:root{
+  --student-blue:#0b72e7;
+  --student-blue-deep:#0c4f9f;
+  --student-cyan:#1db7d8;
+  --student-mint:#17b883;
+  --student-mint-soft:#e7fbf4;
+  --student-gold:#f2a63b;
+  --student-coral:#ef765e;
+  --student-ink:#173b63;
+  --student-muted:#6e859b;
+  --student-line:#dce9f3;
+  --student-surface:#ffffff;
+  --student-bg:#f4f9ff;
+}
+
+body{
+  background:
+    radial-gradient(circle at 4% 0%,rgba(76,205,232,.16),transparent 26%),
+    radial-gradient(circle at 96% 8%,rgba(153,224,106,.15),transparent 24%),
+    linear-gradient(180deg,#f8fcff 0%,#f3f8ff 42%,#f8fbff 100%);
+  color:var(--student-ink);
+}
+
+.student-topbar{
+  position:sticky;
+  top:0;
+  z-index:30;
+  min-height:84px;
+  border-bottom:1px solid rgba(205,226,241,.9);
+  background:rgba(255,255,255,.94);
+  backdrop-filter:blur(18px);
+  box-shadow:0 10px 34px rgba(28,76,118,.08);
+}
+.student-brand>span{
+  border:1px solid #d9e9f5;
+  border-radius:18px;
+  box-shadow:0 10px 24px rgba(36,111,177,.13);
+}
+.student-brand strong{color:#0e579f;font-size:18px;letter-spacing:.035em}
+.student-brand small{color:#7190a8;font-size:11px}
+.student-account span{color:#55718d;font-size:11px}
+.student-account button{
+  min-height:40px;
+  padding:0 14px;
+  border-color:#d8e6f0;
+  border-radius:12px;
+  background:#f9fcff;
+  color:#315d86;
+  font-size:11px;
+  transition:.2s ease;
+}
+.student-account button:hover{transform:translateY(-1px);border-color:#9fc6e8;background:#eef7ff}
+.student-account .notification-btn{background:#eef7ff;color:#1269c5;border-color:#c7e1f6}
+.student-account button:last-child{background:#fff4f0;border-color:#f2d4ca;color:#b44b2d}
+
+.student-main{
+  width:min(1440px,calc(100% - 48px));
+  margin:30px auto 60px;
+}
+
+.student-hero{
+  gap:24px;
+  padding:28px 30px;
+  border:1px solid rgba(255,255,255,.35);
+  border-radius:30px;
+  background:
+    radial-gradient(circle at 82% 20%,rgba(255,255,255,.18),transparent 24%),
+    linear-gradient(120deg,#0871e3 0%,#0b88e7 46%,#20b9c9 100%);
+  box-shadow:0 24px 56px rgba(13,105,181,.22);
+}
+.student-hero:before{
+  content:"";
+  position:absolute;
+  inset:auto -90px -150px auto;
+  width:360px;
+  height:360px;
+  border:64px solid rgba(255,255,255,.08);
+  border-radius:50%;
+}
+.student-hero:after{border-color:rgba(255,255,255,.08)}
+.student-photo-wrap{
+  width:88px;
+  height:110px;
+  border-radius:22px;
+  background:linear-gradient(145deg,#ecfbff,#d9f4ff);
+  box-shadow:0 14px 34px rgba(4,72,127,.28);
+}
+.student-heading p{color:#d7f8ff;font-size:10px;letter-spacing:.18em}
+.student-heading h1{font-size:clamp(30px,4vw,44px);letter-spacing:-.02em}
+.student-tags span{
+  padding:7px 11px;
+  border-color:rgba(255,255,255,.32);
+  background:rgba(255,255,255,.16);
+  font-size:10px;
+  backdrop-filter:blur(8px);
+}
+.student-hero-actions{min-width:320px;gap:10px}
+.schedule-cta{
+  padding:15px 16px;
+  border:1px solid rgba(255,255,255,.72);
+  border-radius:18px;
+  background:rgba(255,255,255,.96);
+  box-shadow:0 12px 30px rgba(5,78,139,.18);
+  transition:.2s ease;
+}
+.schedule-cta:hover{transform:translateY(-2px);box-shadow:0 16px 34px rgba(5,78,139,.24)}
+.schedule-cta>span{width:42px;height:42px;border-radius:13px;background:#e8f3ff;color:#146ec9}
+.schedule-cta strong{font-size:12px}.schedule-cta small{font-size:9px}
+.theory-cta>span{background:#e4faef;color:#0a8a5e}
+.driving-refresh-cta>span{background:#fff0d4;color:#a5660b}
+
+.portal-section{
+  margin-top:20px;
+  padding:24px;
+  border:1px solid #dce9f3;
+  border-radius:24px;
+  background:rgba(255,255,255,.96);
+  box-shadow:0 14px 40px rgba(31,79,118,.075);
+}
+.portal-section:hover{border-color:#d1e3f0}
+.section-heading{margin-bottom:18px}
+.section-heading p{color:#1381dc;font-size:9px;letter-spacing:.16em}
+.section-heading h2{color:#153d66;font-size:21px;letter-spacing:-.015em}
+.section-heading>a,
+.theory-account-heading a{
+  padding:9px 12px;
+  border-radius:11px;
+  background:#eaf5ff;
+  color:#116bc6;
+  font-size:10px;
+  font-weight:900;
+}
+.section-heading>span{padding:7px 11px;font-size:10px}
+
+.theory-account-section{
+  background:linear-gradient(135deg,#f4f9ff 0%,#f2fffa 100%);
+  border-color:#d6e9ef;
+}
+.theory-account-grid{gap:13px}
+.theory-account-grid article{
+  min-height:86px;
+  padding:16px;
+  border-radius:18px;
+  box-shadow:0 8px 20px rgba(33,78,111,.04);
+}
+.theory-account-grid article>span{width:42px;height:42px;border-radius:13px}
+.theory-account-grid small{font-size:9px}
+.theory-account-grid strong{font-size:15px}
+.theory-latest-exam{padding:13px 15px;border-radius:14px}
+
+.tuition-grid{gap:14px}
+.tuition-card{
+  min-height:112px;
+  padding:19px;
+  border-radius:20px;
+  box-shadow:0 8px 22px rgba(28,72,107,.04);
+}
+.tuition-card>span{width:52px;height:52px;border-radius:16px}
+.tuition-card.total{background:linear-gradient(145deg,#eef7ff,#e8f4ff);border-color:#cbe3fa}
+.tuition-card.paid{background:linear-gradient(145deg,#edfbf5,#e4f9f0);border-color:#c7eadb}
+.tuition-card.debt{background:linear-gradient(145deg,#fff6ea,#fff0dc);border-color:#f0d5b5}
+.tuition-card strong{font-size:clamp(22px,2.2vw,30px)}
+.tuition-card small,.tuition-card em,.tuition-card a{font-size:10px}
+
+.payment-section{background:linear-gradient(135deg,#f8fcff,#f2fff9)}
+.payment-qr-card,.payment-details{border-radius:21px;box-shadow:0 10px 28px rgba(31,74,107,.05)}
+.qr-frame{border-radius:18px}
+.bank-heading>span{box-shadow:0 8px 20px rgba(38,76,151,.16)}
+.payment-details dl>div{padding:14px 0}
+
+.booking-section{background:linear-gradient(145deg,#ffffff,#f4fbff)}
+.booking-actions{gap:14px}
+.booking-action{
+  min-height:82px;
+  padding:17px;
+  border-radius:18px;
+  background:#fbfdff;
+  transition:.2s ease;
+}
+.booking-action:hover{transform:translateY(-2px);border-color:#9fc7e7;box-shadow:0 13px 28px rgba(34,84,125,.08)}
+.booking-action>span{width:48px;height:48px;border-radius:15px}
+.booking-action strong{font-size:12px}.booking-action small{font-size:9px}
+
+.student-attendance-metrics{
+  gap:12px;
+}
+.student-attendance-metrics article{
+  border-radius:17px!important;
+  background:linear-gradient(145deg,#fbfdff,#f4f9ff)!important;
+  border-color:#dce9f3!important;
+  box-shadow:0 7px 18px rgba(35,77,108,.04);
+}
+
+.progress-grid>*{
+  border-radius:16px!important;
+}
+.portal-grid{gap:20px}
+.profile-panel,.next-schedule-panel{background:linear-gradient(145deg,#fff,#fbfdff)}
+
+.contact-footer{
+  margin-top:32px;
+  background:linear-gradient(135deg,#0d3869,#0a5b94)!important;
+}
+
+/* Desktop: make the dashboard feel intentional on large screens. */
+@media (min-width:1200px){
+  .student-main{width:min(1440px,calc(100% - 72px))}
+  .student-hero{min-height:210px}
+  .portal-grid{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)}
+}
+
+/* Tablet */
+@media (max-width:980px){
+  .student-main{width:min(100% - 28px,920px);margin-top:20px}
+  .student-hero{align-items:flex-start;flex-wrap:wrap;padding:24px}
+  .student-heading{min-width:calc(100% - 120px)}
+  .student-hero-actions{width:100%;min-width:0;grid-template-columns:repeat(3,minmax(0,1fr))}
+  .schedule-cta{min-width:0}
+  .theory-account-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+/* Mobile: brighter, touch-friendly cards while preserving current bottom navigation. */
+@media (max-width:720px){
+  body{background:linear-gradient(180deg,#f6fbff 0,#f4f8ff 100%)}
+  .student-main{width:calc(100% - 20px);margin:12px auto 88px}
+  .student-hero{padding:20px;border-radius:24px;gap:15px}
+  .student-photo-wrap{width:70px;height:88px;border-radius:18px}
+  .student-heading{min-width:calc(100% - 90px)}
+  .student-heading h1{font-size:27px}
+  .student-heading p{font-size:8px}
+  .student-tags{gap:5px}.student-tags span{padding:5px 8px;font-size:8px}
+  .student-hero-actions{grid-template-columns:1fr;gap:8px}
+  .schedule-cta{padding:12px 13px;border-radius:15px}
+  .portal-section{margin-top:13px;padding:17px;border-radius:20px}
+  .section-heading{align-items:flex-start;margin-bottom:14px}
+  .section-heading h2{font-size:18px}
+  .theory-account-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .theory-account-grid article{min-height:72px;padding:11px;border-radius:15px}
+  .theory-account-grid article>span{width:35px;height:35px}
+  .tuition-grid{grid-template-columns:1fr;gap:9px}
+  .tuition-card{min-height:92px;padding:14px;border-radius:16px}
+  .tuition-card>span{width:43px;height:43px;border-radius:13px}
+  .tuition-card strong{font-size:22px}
+  .booking-actions{grid-template-columns:1fr}
+  .booking-action.dat-practice{grid-column:auto}
+  .payment-layout{grid-template-columns:1fr}
+  .portal-grid{grid-template-columns:1fr}
+  .mobile-action-window{border-radius:20px!important;box-shadow:0 12px 28px rgba(17,91,151,.10)!important}
+  .mobile-module-card{border-radius:18px!important;box-shadow:0 9px 22px rgba(24,79,121,.08)!important}
+  .mobile-bottom-nav{box-shadow:0 -10px 30px rgba(21,66,105,.12)!important}
+}
