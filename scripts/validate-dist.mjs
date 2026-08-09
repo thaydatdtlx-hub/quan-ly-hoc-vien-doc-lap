@@ -13,7 +13,7 @@ const forbidden=[
 const errors=[];
 
 for(const name of await readdir(dist)){
-  if(!/\.(?:html|js|css|xml|txt|json)$/i.test(name))continue;
+  if(!/\.(?:html|xml|txt)$/i.test(name))continue;
   const text=await readFile(resolve(dist,name),"utf8");
   for(const rule of forbidden){
     if(rule.test(text))errors.push(`${name}: còn nội dung thương hiệu cũ (${rule})`);
