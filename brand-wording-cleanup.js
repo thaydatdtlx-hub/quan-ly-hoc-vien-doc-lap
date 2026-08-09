@@ -1,12 +1,16 @@
 const PACKAGE_WORDING=/đào\s+tạo\s+lái\s+xe\s+trọn\s+gói/iu;
 const PACKAGE_WORDING_GLOBAL=/đào\s+tạo\s+lái\s+xe\s+trọn\s+gói/giu;
-const TEXT_ATTRIBUTES=["title","aria-label","alt","content"];
+const UNVERIFIED_CENTER=/trung\s+tâm\s+đào\s+tạo\s+lái\s+xe\s+thầy\s+đạt/giu;
+const LEGACY_HOSTS=/https?:\/\/(?:www\.)?(?:daotaolaixetrongoi\.com|hoc-vien-thay-dat\.vercel\.app|daotaolaixe-thaydat\.vercel\.app)/giu;
+const PRIMARY_ORIGIN="https://hoclaixecungdat.vercel.app";
+const TEXT_ATTRIBUTES=["title","aria-label","alt","content","href"];
 
 function cleanValue(value=""){
   const source=String(value);
-  if(!PACKAGE_WORDING.test(source))return source;
   return source
     .replace(PACKAGE_WORDING_GLOBAL,"")
+    .replace(UNVERIFIED_CENTER,"Học lái xe cùng Đạt")
+    .replace(LEGACY_HOSTS,PRIMARY_ORIGIN)
     .replace(/\s*[·|•–—-]\s*[·|•–—-]\s*/gu," · ")
     .replace(/^[\s·|•–—-]+|[\s·|•–—-]+$/gu,"")
     .replace(/[ \t]{2,}/g," ")
