@@ -7,7 +7,14 @@
     {
       "source": "/",
       "destination": "/dang-ky-hoc-lai-xe.html",
-      "permanent": false
+      "permanent": false,
+      "missing": [
+        {
+          "type": "query",
+          "key": "login",
+          "value": "1"
+        }
+      ]
     }
   ],
   "rewrites": [
