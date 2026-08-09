@@ -1,3 +1,4 @@
+import "./brand-wording-cleanup.js";
 import "./admin-tuition-settings.js";
 import "./admin-site-config.js";
 import "./admin-home-logo-link.js";
