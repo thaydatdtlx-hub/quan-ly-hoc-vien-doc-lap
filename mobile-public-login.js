@@ -1,7 +1,12 @@
 import "./mobile-public-login.css";
 
+function isRegistrationPage(){
+  return location.pathname==="/dang-ky-hoc-lai-xe.html"||
+    (location.pathname==="/"&&Boolean(document.getElementById("registrationForm")));
+}
+
 function mountMobileLogin(){
-  if(location.pathname!=="/dang-ky-hoc-lai-xe.html")return;
+  if(!isRegistrationPage())return;
   const header=document.querySelector(".site-header");
   if(!header||header.querySelector(".site-mobile-login"))return;
 
