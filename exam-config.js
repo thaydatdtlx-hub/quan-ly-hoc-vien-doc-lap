@@ -19,6 +19,8 @@ export const MOTORCYCLE_CRITICAL_IDS=Object.freeze([
   19,20,21,22,24,26,27,28,30,47,48,52,53,63,64,65,68,70,71,72
 ]);
 
+export const B_NUMBERED_EXAM_COUNT=32;
+
 export const EXAMS=Object.freeze({
   A1:Object.freeze({key:"A1",label:"A1",vehicle:"Xe mô tô đến 125 cm³",count:25,minutes:19,pass:21,questionIds:MOTORCYCLE_QUESTION_IDS,criticalIds:MOTORCYCLE_CRITICAL_IDS}),
   A:Object.freeze({key:"A",label:"A",vehicle:"Xe mô tô trên 125 cm³",count:25,minutes:19,pass:23,questionIds:MOTORCYCLE_QUESTION_IDS,criticalIds:MOTORCYCLE_CRITICAL_IDS}),
@@ -26,9 +28,67 @@ export const EXAMS=Object.freeze({
   C1:Object.freeze({key:"C1",label:"C1",vehicle:"Xe tải từ trên 3.500 kg đến 7.500 kg",count:35,minutes:22,pass:32,questionIds:null,criticalIds:null})
 });
 
+function seedFromText(value=""){
+  let hash=2166136261;
+  for(const char of String(value)){
+    hash^=char.charCodeAt(0);
+    hash=Math.imul(hash,16777619);
+  }
+  return hash>>>0;
+}
+
+function seededRandom(seedText){
+  let state=seedFromText(seedText)||1;
+  return()=>{
+    state+=0x6D2B79F5;
+    let value=state;
+    value=Math.imul(value^(value>>>15),value|1);
+    value^=value+Math.imul(value^(value>>>7),value|61);
+    return((value^(value>>>14))>>>0)/4294967296;
+  };
+}
+
+function seededShuffle(items,seedText){
+  const result=[...items],random=seededRandom(seedText);
+  for(let index=result.length-1;index>0;index--){
+    const swap=Math.floor(random()*(index+1));
+    [result[index],result[swap]]=[result[swap],result[index]];
+  }
+  return result;
+}
+
+export function buildNumberedExamPool(questions,examKey,examNumber){
+  if(examKey!=="B")throw new Error("Đề đánh số hiện chỉ áp dụng cho hạng B.");
+  const config=EXAMS.B;
+  const number=Math.trunc(Number(examNumber));
+  if(number<1||number>B_NUMBERED_EXAM_COUNT)throw new Error(`Đề hạng B phải từ 1 đến ${B_NUMBERED_EXAM_COUNT}.`);
+
+  const criticalOrder=seededShuffle(questions.filter(question=>Boolean(question.critical)),"B-numbered-critical-v1");
+  const regularOrder=seededShuffle(questions.filter(question=>!question.critical),"B-numbered-regular-v1");
+  if(criticalOrder.length<B_NUMBERED_EXAM_COUNT||regularOrder.length<config.count-1)throw new Error("Không đủ câu hỏi để tạo 32 đề hạng B.");
+
+  const criticalQuestion=criticalOrder[number-1];
+  const regularCount=config.count-1;
+  const start=((number-1)*regularCount)%regularOrder.length;
+  const regular=Array.from({length:regularCount},(_,offset)=>regularOrder[(start+offset)%regularOrder.length]);
+  const selected=[criticalQuestion,...regular];
+
+  return seededShuffle(selected,`B-numbered-set-${number}-v1`).map(question=>({
+    ...question,
+    examCritical:question.id===criticalQuestion.id,
+    examSet:number
+  }));
+}
+
 export function buildExamPool(questions,examKey,shuffle){
   const config=EXAMS[examKey];
   if(!config)throw new Error(`Hạng thi không hợp lệ: ${examKey}`);
+
+  if(examKey==="B"){
+    const selectedSet=Math.trunc(Number(globalThis.__THAY_DAT_B_EXAM_SET__));
+    if(selectedSet>=1&&selectedSet<=B_NUMBERED_EXAM_COUNT)return buildNumberedExamPool(questions,"B",selectedSet);
+  }
+
   const allowed=config.questionIds?new Set(config.questionIds):null;
   const eligible=allowed?questions.filter(question=>allowed.has(question.id)):questions;
   const criticalIds=config.criticalIds?new Set(config.criticalIds):null;
