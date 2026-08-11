@@ -7,6 +7,8 @@ import "./site-config-public.js";
 import "./professional-public-polish.js";
 import "./recruitment-operations.js";
 import "./student-portal-polish.js";
+import "./student-activity-tracker.js";
+import "./student-activity-admin.js";
 import "./theory-answer-explanations.js";
 import "./theory-hero-brand.js";
 import "./mobile-public-login.js";
