@@ -19,7 +19,8 @@ export const MOTORCYCLE_CRITICAL_IDS=Object.freeze([
   19,20,21,22,24,26,27,28,30,47,48,52,53,63,64,65,68,70,71,72
 ]);
 
-export const B_NUMBERED_EXAM_COUNT=32;
+export const NUMBERED_EXAM_COUNTS=Object.freeze({A1:15,A:15,B:32,C1:29});
+export const B_NUMBERED_EXAM_COUNT=NUMBERED_EXAM_COUNTS.B;
 
 export const EXAMS=Object.freeze({
   A1:Object.freeze({key:"A1",label:"A1",vehicle:"Xe mô tô đến 125 cm³",count:25,minutes:19,pass:21,questionIds:MOTORCYCLE_QUESTION_IDS,criticalIds:MOTORCYCLE_CRITICAL_IDS}),
@@ -57,42 +58,65 @@ function seededShuffle(items,seedText){
   return result;
 }
 
-export function buildNumberedExamPool(questions,examKey,examNumber){
-  if(examKey!=="B")throw new Error("Đề đánh số hiện chỉ áp dụng cho hạng B.");
-  const config=EXAMS.B;
-  const number=Math.trunc(Number(examNumber));
-  if(number<1||number>B_NUMBERED_EXAM_COUNT)throw new Error(`Đề hạng B phải từ 1 đến ${B_NUMBERED_EXAM_COUNT}.`);
+function examQuestionGroups(questions,examKey){
+  const config=EXAMS[examKey];
+  if(!config)throw new Error(`Hạng thi không hợp lệ: ${examKey}`);
+  const allowed=config.questionIds?new Set(config.questionIds):null;
+  const eligible=allowed?questions.filter(question=>allowed.has(question.id)):questions;
+  const criticalIds=config.criticalIds?new Set(config.criticalIds):null;
+  const isCritical=question=>criticalIds?criticalIds.has(question.id):Boolean(question.critical);
+  return{
+    config,
+    eligible,
+    critical:eligible.filter(isCritical),
+    regular:eligible.filter(question=>!isCritical(question)),
+    isCritical
+  };
+}
 
-  const criticalOrder=seededShuffle(questions.filter(question=>Boolean(question.critical)),"B-numbered-critical-v1");
-  const regularOrder=seededShuffle(questions.filter(question=>!question.critical),"B-numbered-regular-v1");
-  if(criticalOrder.length<B_NUMBERED_EXAM_COUNT||regularOrder.length<config.count-1)throw new Error("Không đủ câu hỏi để tạo 32 đề hạng B.");
+export function buildNumberedExamPool(questions,examKey,examNumber){
+  const totalSets=NUMBERED_EXAM_COUNTS[examKey];
+  if(!totalSets)throw new Error(`Hạng ${examKey} chưa hỗ trợ đề đánh số.`);
+  const {config,critical,regular}=examQuestionGroups(questions,examKey);
+  const number=Math.trunc(Number(examNumber));
+  if(number<1||number>totalSets)throw new Error(`Đề hạng ${config.label} phải từ 1 đến ${totalSets}.`);
+
+  const criticalOrder=seededShuffle(critical,`${examKey}-numbered-critical-v2`);
+  const regularOrder=seededShuffle(regular,`${examKey}-numbered-regular-v2`);
+  if(criticalOrder.length<totalSets||regularOrder.length<config.count-1){
+    throw new Error(`Không đủ câu hỏi để tạo ${totalSets} đề hạng ${config.label}.`);
+  }
 
   const criticalQuestion=criticalOrder[number-1];
   const regularCount=config.count-1;
   const start=((number-1)*regularCount)%regularOrder.length;
-  const regular=Array.from({length:regularCount},(_,offset)=>regularOrder[(start+offset)%regularOrder.length]);
-  const selected=[criticalQuestion,...regular];
+  const selectedRegular=Array.from({length:regularCount},(_,offset)=>regularOrder[(start+offset)%regularOrder.length]);
+  const selected=[criticalQuestion,...selectedRegular];
 
-  return seededShuffle(selected,`B-numbered-set-${number}-v1`).map(question=>({
+  return seededShuffle(selected,`${examKey}-numbered-set-${number}-v2`).map(question=>({
     ...question,
     examCritical:question.id===criticalQuestion.id,
-    examSet:number
+    examSet:number,
+    examSetKey:examKey
   }));
 }
 
 export function buildExamPool(questions,examKey,shuffle){
-  const config=EXAMS[examKey];
-  if(!config)throw new Error(`Hạng thi không hợp lệ: ${examKey}`);
+  const {config,eligible,isCritical}=examQuestionGroups(questions,examKey);
 
-  if(examKey==="B"){
-    const selectedSet=Math.trunc(Number(globalThis.__THAY_DAT_B_EXAM_SET__));
-    if(selectedSet>=1&&selectedSet<=B_NUMBERED_EXAM_COUNT)return buildNumberedExamPool(questions,"B",selectedSet);
+  const numbered=globalThis.__THAY_DAT_NUMBERED_EXAM__;
+  if(numbered?.key===examKey){
+    const number=Math.trunc(Number(numbered.number));
+    const totalSets=NUMBERED_EXAM_COUNTS[examKey];
+    if(number>=1&&number<=totalSets)return buildNumberedExamPool(questions,examKey,number);
   }
 
-  const allowed=config.questionIds?new Set(config.questionIds):null;
-  const eligible=allowed?questions.filter(question=>allowed.has(question.id)):questions;
-  const criticalIds=config.criticalIds?new Set(config.criticalIds):null;
-  const isCritical=question=>criticalIds?criticalIds.has(question.id):question.critical;
+  // Compatibility with older cached hạng B picker while Service Worker updates.
+  if(examKey==="B"){
+    const legacySet=Math.trunc(Number(globalThis.__THAY_DAT_B_EXAM_SET__));
+    if(legacySet>=1&&legacySet<=NUMBERED_EXAM_COUNTS.B)return buildNumberedExamPool(questions,"B",legacySet);
+  }
+
   const critical=shuffle(eligible.filter(isCritical)).slice(0,1);
   const regular=shuffle(eligible.filter(question=>!isCritical(question))).slice(0,config.count-1);
   if(critical.length!==1||regular.length!==config.count-1)throw new Error(`Không đủ câu hỏi để tạo đề hạng ${config.label}.`);
