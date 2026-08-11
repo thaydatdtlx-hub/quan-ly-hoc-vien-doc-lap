@@ -10,6 +10,7 @@ import "./student-portal-polish.js";
 import "./theory-answer-explanations.js";
 import "./theory-hero-brand.js";
 import "./mobile-public-login.js";
+import "./b-exam-set-picker.js";
 
 const DISMISS_KEY="thay_dat_pwa_install_dismissed";
 const DISMISS_DAYS=7;
