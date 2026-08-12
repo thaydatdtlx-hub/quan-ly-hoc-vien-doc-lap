@@ -13,6 +13,7 @@ import "./theory-answer-explanations.js";
 import "./theory-hero-brand.js";
 import "./mobile-public-login.js";
 import "./b-exam-set-picker.js";
+import "./exam-candidate-screen.js";
 
 const DISMISS_KEY="thay_dat_pwa_install_dismissed";
 const DISMISS_DAYS=7;
@@ -49,7 +50,7 @@ function showInstallBanner(mode){
     <div><strong>Cài ứng dụng Thầy Đạt</strong><p>${mode==="ios"?"Mở nhanh toàn màn hình ngay từ iPhone.":"Truy cập nhanh như một ứng dụng trên điện thoại."}</p><small class="pwa-ios-help" hidden>Nhấn nút Chia sẻ <b>□↑</b>, sau đó chọn <b>Thêm vào MH chính</b>.</small></div>
     <button class="pwa-install-action" type="button">${mode==="ios"?"Cách cài":"Cài ngay"}</button>
     <button class="pwa-install-close" type="button" aria-label="Để sau">×</button>`;
-  document.body.append(installBanner);
+  document.body.append(splash);
   installBanner.querySelector(".pwa-install-close").addEventListener("click",dismissInstallBanner);
   installBanner.querySelector(".pwa-install-action").addEventListener("click",async()=>{
     if(mode==="ios"){
