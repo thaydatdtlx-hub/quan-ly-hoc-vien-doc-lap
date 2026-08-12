@@ -25,259 +25,32 @@
 <body>
   <a class="skip-link" href="#studentPortal">Chuyển đến nội dung học viên</a>
   <header class="student-topbar">
-    <a class="student-brand" href="/hoc-vien.html">
-      <span><img src="/logo-thay-dat-compact.webp?v=15" alt=""></span>
-      <div><strong>HỌC LÁI XE CÙNG ĐẠT</strong><small>Cổng thông tin học viên</small></div>
-    </a>
-    <div class="student-account">
-      <span id="studentUsername"></span>
-      <button id="studentNotificationBtn" class="notification-btn" type="button"><i aria-hidden="true">🔔</i> Thông báo <b id="studentNotificationBadge" class="hidden">0</b></button>
-      <button id="studentChangePasswordBtn" type="button">Đổi mật khẩu</button>
-      <button id="studentLogoutBtn" type="button">Đăng xuất</button>
-    </div>
+    <a class="student-brand" href="/hoc-vien.html"><span><img src="/logo-thay-dat-compact.webp?v=15" alt=""></span><div><strong>HỌC LÁI XE CÙNG ĐẠT</strong><small>Cổng thông tin học viên</small></div></a>
+    <div class="student-account"><span id="studentUsername"></span><button id="studentNotificationBtn" class="notification-btn" type="button"><i aria-hidden="true">🔔</i> Thông báo <b id="studentNotificationBadge" class="hidden">0</b></button><button id="studentChangePasswordBtn" type="button">Đổi mật khẩu</button><button id="studentLogoutBtn" type="button">Đăng xuất</button></div>
   </header>
-
-  <header class="mobile-appbar" aria-label="Điều hướng học viên trên điện thoại">
-    <a class="mobile-app-brand" href="#studentPortal"><img src="/logo-thay-dat-compact.webp?v=15" alt=""><span><strong>HỌC LÁI XE CÙNG ĐẠT</strong><small>Cổng học viên</small></span></a>
-    <div class="mobile-app-actions">
-      <button type="button" data-mobile-action="student-search" aria-label="Mở chức năng nhanh"><span data-mobile-icon="search"></span></button>
-      <button class="mobile-notification-trigger" type="button" data-mobile-click="studentNotificationBtn" aria-label="Mở thông báo"><span data-mobile-icon="bell"></span><b id="mobileStudentNotificationBadge" class="hidden">0</b></button>
-      <button id="mobileStudentAccountBtn" class="mobile-avatar" type="button" aria-label="Mở tài khoản">HV</button>
-    </div>
-    <div id="mobileStudentAccountMenu" class="mobile-account-menu hidden">
-      <strong id="mobileStudentAccountName">Tài khoản học viên</strong><small>Hồ sơ cá nhân</small>
-      <button type="button" data-mobile-click="studentChangePasswordBtn">Đổi mật khẩu</button>
-      <button class="danger" type="button" data-mobile-click="studentLogoutBtn">Đăng xuất</button>
-    </div>
-  </header>
-  <nav class="mobile-page-tabs" aria-label="Chuyển khu vực học viên">
-    <button class="active" type="button" data-mobile-scroll="#studentPortal">Bảng điều khiển</button>
-    <button type="button" data-mobile-scroll=".profile-panel">Hồ sơ của tôi</button>
-  </nav>
-
+  <header class="mobile-appbar" aria-label="Điều hướng học viên trên điện thoại"><a class="mobile-app-brand" href="#studentPortal"><img src="/logo-thay-dat-compact.webp?v=15" alt=""><span><strong>HỌC LÁI XE CÙNG ĐẠT</strong><small>Cổng học viên</small></span></a><div class="mobile-app-actions"><button type="button" data-mobile-action="student-search" aria-label="Mở chức năng nhanh"><span data-mobile-icon="search"></span></button><button class="mobile-notification-trigger" type="button" data-mobile-click="studentNotificationBtn" aria-label="Mở thông báo"><span data-mobile-icon="bell"></span><b id="mobileStudentNotificationBadge" class="hidden">0</b></button><button id="mobileStudentAccountBtn" class="mobile-avatar" type="button" aria-label="Mở tài khoản">HV</button></div><div id="mobileStudentAccountMenu" class="mobile-account-menu hidden"><strong id="mobileStudentAccountName">Tài khoản học viên</strong><small>Hồ sơ cá nhân</small><button type="button" data-mobile-click="studentChangePasswordBtn">Đổi mật khẩu</button><button class="danger" type="button" data-mobile-click="studentLogoutBtn">Đăng xuất</button></div></header>
+  <nav class="mobile-page-tabs" aria-label="Chuyển khu vực học viên"><button class="active" type="button" data-mobile-scroll="#studentPortal">Bảng điều khiển</button><button type="button" data-mobile-scroll=".profile-panel">Hồ sơ của tôi</button></nav>
   <main id="studentPortal" class="student-main hidden">
-    <section class="mobile-dashboard-home" aria-labelledby="mobileStudentOverviewTitle">
-      <div class="mobile-section-title"><div><small>KHÔNG GIAN HỌC TẬP</small><h2 id="mobileStudentOverviewTitle">Xin chào, học viên</h2></div><span id="mobileStudentClass">Đang học</span></div>
-      <article class="mobile-action-window">
-        <div class="mobile-window-toolbar"><span><i data-mobile-icon="calendar"></i>30 ngày tới</span><a href="/lich-dao-tao.html" aria-label="Mở lịch đào tạo"><span data-mobile-icon="list"></span></a></div>
-        <div class="mobile-action-state"><span id="mobileStudentActionIcon" data-mobile-icon="check"></span><strong id="mobileStudentActionTitle">Đang cập nhật lịch học</strong><small id="mobileStudentActionDetail">Lịch, học phí và thông báo quan trọng sẽ hiển thị tại đây.</small></div>
-      </article>
-      <section id="mobileStudentShortcuts" class="mobile-recent" aria-labelledby="mobileStudentShortcutsTitle">
-        <div class="mobile-section-heading"><h3 id="mobileStudentShortcutsTitle">Nội dung gần đây</h3><span>Vuốt để xem thêm</span></div>
-        <div class="mobile-module-track">
-          <a class="mobile-module-card tone-violet" href="/600-cau-hoi.html"><span><b><i data-mobile-icon="book"></i></b></span><strong>Học lý thuyết</strong><small>Ôn tập và thi thử</small></a>
-          <a class="mobile-module-card tone-blue" href="/lich-dao-tao.html"><span><b><i data-mobile-icon="calendar"></i></b></span><strong>Lịch đào tạo</strong><small>Lịch học và lịch thi</small></a>
-          <a id="studentDrivingRefreshShortcut" class="mobile-module-card tone-orange student-refresh-access is-locked" href="/bo-tuc-tay-lai.html#tinh-chi-phi" aria-disabled="true"><span><b><i data-mobile-icon="car"></i></b></span><strong>Bổ túc tay lái</strong><small id="studentDrivingRefreshShortcutStatus">Mở sau khi nhận bằng</small></a>
-          <button class="mobile-module-card tone-green" type="button" data-mobile-scroll="#trainingBooking"><span><b><i data-mobile-icon="car"></i></b></span><strong>Đăng ký lịch</strong><small>Thực hành và DAT</small></button>
-          <button class="mobile-module-card tone-gold" type="button" data-mobile-scroll="#studentPayment"><span><b><i data-mobile-icon="wallet"></i></b></span><strong>Học phí</strong><small>Tra cứu và thanh toán</small></button>
-          <button class="mobile-module-card tone-cyan" type="button" data-mobile-scroll="#studentAttendance"><span><b><i data-mobile-icon="clipboard"></i></b></span><strong>Điểm danh</strong><small>Giờ học thực tế</small></button>
-        </div>
-      </section>
-    </section>
-    <section class="student-hero">
-      <div class="student-photo-wrap">
-        <img id="studentPhoto" class="hidden" alt="Ảnh học viên">
-        <span id="studentPhotoPlaceholder">HV</span>
-      </div>
-      <div class="student-heading">
-        <p>HỒ SƠ ĐÀO TẠO CÁ NHÂN</p>
-        <h1 id="studentName">Học viên</h1>
-        <div class="student-tags">
-          <span id="studentCode">Chưa có mã</span>
-          <span id="studentCourse">Chưa có khóa</span>
-          <span id="studentLicense">Chưa có hạng</span>
-        </div>
-      </div>
-      <div class="student-hero-actions">
-        <a class="schedule-cta" href="/lich-dao-tao.html"><span>▣</span><div><strong>Xem lịch đào tạo</strong><small>Lịch học và lịch thi của tôi</small></div><b>→</b></a>
-        <a class="schedule-cta theory-cta" href="/600-cau-hoi.html"><span>600</span><div><strong>Học lý thuyết</strong><small>Ôn tập và thi thử A1 · A · B · C1</small></div><b>→</b></a>
-        <a id="studentDrivingRefreshCta" class="schedule-cta driving-refresh-cta student-refresh-access is-locked" href="/bo-tuc-tay-lai.html#tinh-chi-phi" aria-disabled="true"><span>BL</span><div><strong>Đăng ký bổ túc tay lái</strong><small id="studentDrivingRefreshStatus">Tính năng mở khi Admin ghi nhận đã nhận bằng lái</small></div><b>→</b></a>
-      </div>
-    </section>
-
-    <section class="portal-section theory-account-section" aria-labelledby="theoryAccountHeading">
-      <div class="section-heading theory-account-heading">
-        <div><p>LÝ THUYẾT 600 CÂU</p><h2 id="theoryAccountHeading">Tiến độ học của tôi</h2></div>
-        <a href="/600-cau-hoi.html">Tiếp tục học →</a>
-      </div>
-      <div class="theory-account-grid">
-        <article><span>▤</span><div><small>Đã học</small><strong id="theoryLearned">0/600</strong></div></article>
-        <article><span>✓</span><div><small>Trả lời đúng</small><strong id="theoryCorrect">0 câu</strong></div></article>
-        <article><span>⌁</span><div><small>Số lần thi thử</small><strong id="theoryExamCount">0 lần</strong></div></article>
-        <article><span>★</span><div><small>Kết quả tốt nhất</small><strong id="theoryBestScore">Chưa thi</strong></div></article>
-      </div>
-      <div id="theoryLatestExam" class="theory-latest-exam">
-        <span>i</span><p>Hãy bắt đầu học và thi thử để Admin có thể theo dõi, hỗ trợ quá trình ôn tập.</p>
-      </div>
-    </section>
-
-    <section class="portal-section" aria-labelledby="financeHeading">
-      <div class="section-heading"><div><p>HỌC PHÍ CỦA TÔI</p><h2 id="financeHeading">Tình trạng học phí</h2></div><span id="tuitionStatus">Đang cập nhật</span></div>
-      <div class="tuition-grid">
-        <article class="tuition-card total"><span>₫</span><div><small>Tổng học phí</small><strong id="tuitionTotal">0 ₫</strong><em>Mức học phí của khóa</em></div></article>
-        <article class="tuition-card paid"><span>✓</span><div><small>Số tiền đã đóng</small><strong id="tuitionPaid">0 ₫</strong><em id="tuitionRate">Đã đóng 0%</em></div></article>
-        <article class="tuition-card debt"><span>!</span><div><small>Học phí còn nợ</small><strong id="tuitionDebt">0 ₫</strong><em id="tuitionDebtNote">Chưa hoàn tất học phí</em><a id="tuitionPaymentLink" href="#studentPayment">Đóng học phí bằng QR →</a></div></article>
-      </div>
-    </section>
-
-    <section id="studentPayment" class="portal-section payment-section" aria-labelledby="paymentHeading">
-      <div class="section-heading payment-heading">
-        <div><p>THANH TOÁN HỌC PHÍ</p><h2 id="paymentHeading">Đóng học phí</h2></div>
-        <span id="paymentAmountBadge">Còn nợ 0 ₫</span>
-      </div>
-      <div id="paymentPending" class="payment-layout">
-        <div class="payment-qr-card">
-          <div class="qr-frame">
-            <img id="tuitionQr" alt="Mã QR đóng học phí" loading="lazy" referrerpolicy="no-referrer">
-          </div>
-          <strong>Quét mã bằng ứng dụng ngân hàng</strong>
-          <small>Mã QR đã có sẵn số tiền và nội dung chuyển khoản.</small>
-          <a id="tuitionQrOpen" href="#" target="_blank" rel="noopener">Mở mã QR kích thước lớn ↗</a>
-        </div>
-        <div class="payment-details">
-          <div class="bank-heading">
-            <span>₫</span>
-            <div><small>THÔNG TIN THANH TOÁN</small><strong id="paymentBankName">Ngân hàng</strong></div>
-          </div>
-          <dl>
-            <div><dt>Số tiền cần đóng</dt><dd id="paymentDebt">0 ₫</dd></div>
-            <div><dt>Số tài khoản</dt><dd><span id="paymentAccountNumber">Đang cập nhật</span><button id="copyPaymentAccount" class="copy-payment" type="button">Sao chép</button></dd></div>
-            <div><dt>Chủ tài khoản</dt><dd id="paymentAccountOwner">Đang cập nhật</dd></div>
-            <div><dt>Nội dung chuyển khoản</dt><dd><span id="paymentContent">HOC PHI</span><button id="copyPaymentContent" class="copy-payment" type="button">Sao chép</button></dd></div>
-          </dl>
-          <p id="paymentReconciliationNote" class="payment-note"><b>Lưu ý:</b> Vui lòng kiểm tra đúng tên người nhận, số tài khoản và số tiền trước khi xác nhận. Học phí sẽ được cập nhật sau khi đối soát giao dịch.</p>
-        </div>
-      </div>
-      <div id="paymentComplete" class="payment-complete hidden">
-        <span>✓</span>
-        <div><strong>Bạn đã hoàn tất học phí</strong><p>Hiện tại tài khoản không còn học phí cần thanh toán.</p></div>
-      </div>
-    </section>
-
-    <section id="studentPaymentHistory" class="portal-section student-payment-history" aria-labelledby="paymentHistoryHeading">
-      <div class="section-heading payment-history-heading">
-        <div><p>LỊCH SỬ HỌC PHÍ</p><h2 id="paymentHistoryHeading">Các lần đã đóng</h2></div>
-        <span id="studentPaymentHistoryCount">0 phiếu thu</span>
-      </div>
-      <div id="studentPaymentHistoryList" class="student-payment-history-list"></div>
-      <p id="studentPaymentHistoryNotice" class="student-payment-history-notice hidden">Lịch sử học phí đang được cập nhật.</p>
-    </section>
-
-    <section id="studentAttendance" class="portal-section student-attendance-section" aria-labelledby="studentAttendanceHeading">
-      <div class="section-heading attendance-student-heading"><div><p>CHUYÊN CẦN CỦA TÔI</p><h2 id="studentAttendanceHeading">Điểm danh &amp; Giờ thực học</h2></div><span id="studentAttendanceRate">0% chuyên cần</span></div>
-      <div class="student-attendance-metrics"><article><small>Tổng buổi</small><strong id="studentAttendanceSessions">0</strong></article><article><small>Có mặt</small><strong id="studentAttendancePresent">0</strong></article><article><small>Giờ thực học</small><strong id="studentAttendanceHours">0 giờ</strong></article><article><small>Vắng / Có phép</small><strong id="studentAttendanceAbsent">0 / 0</strong></article></div>
-      <div id="studentAttendanceList" class="student-attendance-list"></div>
-      <p id="studentAttendanceNotice" class="student-payment-history-notice hidden">Dữ liệu điểm danh đang được cập nhật.</p>
-    </section>
-
-    <section id="trainingBooking" class="portal-section booking-section" aria-labelledby="bookingHeading">
-      <div class="section-heading booking-heading">
-        <div><p>ĐĂNG KÝ LỊCH HỌC</p><h2 id="bookingHeading">Thực hành theo nhu cầu</h2></div>
-        <span id="bookingPendingBadge">0 yêu cầu chờ duyệt</span>
-      </div>
-      <div class="booking-actions">
-        <button class="booking-action familiar" type="button" data-booking-type="familiar">
-          <span>🚘</span><div><strong>Đăng ký làm quen xe</strong><small>Chọn ca học còn chỗ</small></div><b>＋</b>
-        </button>
-        <button class="booking-action practice" type="button" data-booking-type="practice">
-          <span>🛣️</span><div><strong>Đăng ký học sa hình</strong><small>Chọn ca và gửi Admin duyệt</small></div><b>＋</b>
-        </button>
-        <button class="booking-action dat-practice" type="button" data-booking-type="dat_practice">
-          <span>🛰️</span><div><strong>Đăng ký thực hành DAT</strong><small>Chọn đúng khung giờ còn chỗ</small></div><b>＋</b>
-        </button>
-      </div>
-      <div class="booking-history-head"><strong>Yêu cầu gần đây</strong><small>Admin có thể điều chỉnh thời gian trước khi duyệt</small></div>
-      <div id="studentBookingRequests" class="booking-request-list"></div>
-    </section>
-
-    <section class="portal-section" aria-labelledby="progressHeading">
-      <div class="section-heading"><div><p>TIẾN ĐỘ ĐÀO TẠO</p><h2 id="progressHeading">Quá trình học tập</h2></div></div>
-      <div id="studentProgress" class="progress-grid"></div>
-    </section>
-
-    <section class="portal-grid">
-      <article class="portal-section profile-panel">
-        <div class="section-heading"><div><p>THÔNG TIN CÁ NHÂN</p><h2>Hồ sơ học viên</h2></div></div>
-        <dl id="studentProfile"></dl>
-      </article>
-      <article class="portal-section next-schedule-panel">
-        <div class="section-heading"><div><p>LỊCH SẮP TỚI</p><h2>Các mốc đào tạo</h2></div><a href="/lich-dao-tao.html">Xem đầy đủ →</a></div>
-        <div id="studentUpcoming" class="upcoming-list"></div>
-      </article>
-    </section>
+    <section class="mobile-dashboard-home" aria-labelledby="mobileStudentOverviewTitle"><div class="mobile-section-title"><div><small>KHÔNG GIAN HỌC TẬP</small><h2 id="mobileStudentOverviewTitle">Xin chào, học viên</h2></div><span id="mobileStudentClass">Đang học</span></div><article class="mobile-action-window"><div class="mobile-window-toolbar"><span><i data-mobile-icon="calendar"></i>30 ngày tới</span><a href="/lich-dao-tao.html" aria-label="Mở lịch đào tạo"><span data-mobile-icon="list"></span></a></div><div class="mobile-action-state"><span id="mobileStudentActionIcon" data-mobile-icon="check"></span><strong id="mobileStudentActionTitle">Đang cập nhật lịch học</strong><small id="mobileStudentActionDetail">Lịch, học phí và thông báo quan trọng sẽ hiển thị tại đây.</small></div></article><section id="mobileStudentShortcuts" class="mobile-recent" aria-labelledby="mobileStudentShortcutsTitle"><div class="mobile-section-heading"><h3 id="mobileStudentShortcutsTitle">Nội dung gần đây</h3><span>Vuốt để xem thêm</span></div><div class="mobile-module-track"><a class="mobile-module-card tone-violet" href="/600-cau-hoi.html"><span><b><i data-mobile-icon="book"></i></b></span><strong>Học lý thuyết</strong><small>Ôn tập và thi thử</small></a><a class="mobile-module-card tone-blue" href="/lich-dao-tao.html"><span><b><i data-mobile-icon="calendar"></i></b></span><strong>Lịch đào tạo</strong><small>Lịch học và lịch thi</small></a><a id="studentDrivingRefreshShortcut" class="mobile-module-card tone-orange student-refresh-access is-locked" href="/bo-tuc-tay-lai.html#tinh-chi-phi" aria-disabled="true"><span><b><i data-mobile-icon="car"></i></b></span><strong>Bổ túc tay lái</strong><small id="studentDrivingRefreshShortcutStatus">Mở sau khi nhận bằng</small></a><button class="mobile-module-card tone-green" type="button" data-mobile-scroll="#trainingBooking"><span><b><i data-mobile-icon="car"></i></b></span><strong>Đăng ký lịch</strong><small>Thực hành và DAT</small></button><button class="mobile-module-card tone-gold" type="button" data-mobile-scroll="#studentPayment"><span><b><i data-mobile-icon="wallet"></i></b></span><strong>Học phí</strong><small>Tra cứu và thanh toán</small></button><button class="mobile-module-card tone-cyan" type="button" data-mobile-scroll="#studentAttendance"><span><b><i data-mobile-icon="clipboard"></i></b></span><strong>Điểm danh</strong><small>Giờ học thực tế</small></button></div></section></section>
+    <section class="student-hero"><div class="student-photo-wrap"><img id="studentPhoto" class="hidden" alt="Ảnh học viên"><span id="studentPhotoPlaceholder">HV</span></div><div class="student-heading"><p>HỒ SƠ ĐÀO TẠO CÁ NHÂN</p><h1 id="studentName">Học viên</h1><div class="student-tags"><span id="studentCode">Chưa có mã</span><span id="studentCourse">Chưa có khóa</span><span id="studentLicense">Chưa có hạng</span></div></div><div class="student-hero-actions"><a class="schedule-cta" href="/lich-dao-tao.html"><span>▣</span><div><strong>Xem lịch đào tạo</strong><small>Lịch học và lịch thi của tôi</small></div><b>→</b></a><a class="schedule-cta theory-cta" href="/600-cau-hoi.html"><span>600</span><div><strong>Học lý thuyết</strong><small>Ôn tập và thi thử A1 · A · B · C1</small></div><b>→</b></a><a id="studentDrivingRefreshCta" class="schedule-cta driving-refresh-cta student-refresh-access is-locked" href="/bo-tuc-tay-lai.html#tinh-chi-phi" aria-disabled="true"><span>BL</span><div><strong>Đăng ký bổ túc tay lái</strong><small id="studentDrivingRefreshStatus">Tính năng mở khi Admin ghi nhận đã nhận bằng lái</small></div><b>→</b></a></div></section>
+    <section class="portal-section theory-account-section" aria-labelledby="theoryAccountHeading"><div class="section-heading theory-account-heading"><div><p>LÝ THUYẾT 600 CÂU</p><h2 id="theoryAccountHeading">Tiến độ học của tôi</h2></div><a href="/600-cau-hoi.html">Tiếp tục học →</a></div><div class="theory-account-grid"><article><span>▤</span><div><small>Đã học</small><strong id="theoryLearned">0/600</strong></div></article><article><span>✓</span><div><small>Trả lời đúng</small><strong id="theoryCorrect">0 câu</strong></div></article><article><span>⌁</span><div><small>Số lần thi thử</small><strong id="theoryExamCount">0 lần</strong></div></article><article><span>★</span><div><small>Kết quả tốt nhất</small><strong id="theoryBestScore">Chưa thi</strong></div></article></div><div id="theoryLatestExam" class="theory-latest-exam"><span>i</span><p>Hãy bắt đầu học và thi thử để Admin có thể theo dõi, hỗ trợ quá trình ôn tập.</p></div></section>
+    <section class="portal-section" aria-labelledby="financeHeading"><div class="section-heading"><div><p>HỌC PHÍ CỦA TÔI</p><h2 id="financeHeading">Tình trạng học phí</h2></div><span id="tuitionStatus">Đang cập nhật</span></div><div class="tuition-grid"><article class="tuition-card total"><span>₫</span><div><small>Tổng học phí</small><strong id="tuitionTotal">0 ₫</strong><em>Mức học phí của khóa</em></div></article><article class="tuition-card paid"><span>✓</span><div><small>Số tiền đã đóng</small><strong id="tuitionPaid">0 ₫</strong><em id="tuitionRate">Đã đóng 0%</em></div></article><article class="tuition-card debt"><span>!</span><div><small>Học phí còn nợ</small><strong id="tuitionDebt">0 ₫</strong><em id="tuitionDebtNote">Chưa hoàn tất học phí</em><a id="tuitionPaymentLink" href="#studentPayment">Đóng học phí bằng QR →</a></div></article></div></section>
+    <section id="studentPayment" class="portal-section payment-section" aria-labelledby="paymentHeading"><div class="section-heading payment-heading"><div><p>THANH TOÁN HỌC PHÍ</p><h2 id="paymentHeading">Đóng học phí</h2></div><span id="paymentAmountBadge">Còn nợ 0 ₫</span></div><div id="paymentPending" class="payment-layout"><div class="payment-qr-card"><div class="qr-frame"><img id="tuitionQr" alt="Mã QR đóng học phí" loading="lazy" referrerpolicy="no-referrer"></div><strong>Quét mã bằng ứng dụng ngân hàng</strong><small>Mã QR đã có sẵn số tiền và nội dung chuyển khoản.</small><a id="tuitionQrOpen" href="#" target="_blank" rel="noopener">Mở mã QR kích thước lớn ↗</a></div><div class="payment-details"><div class="bank-heading"><span>₫</span><div><small>THÔNG TIN THANH TOÁN</small><strong id="paymentBankName">Ngân hàng</strong></div></div><dl><div><dt>Số tiền cần đóng</dt><dd id="paymentDebt">0 ₫</dd></div><div><dt>Số tài khoản</dt><dd><span id="paymentAccountNumber">Đang cập nhật</span><button id="copyPaymentAccount" class="copy-payment" type="button">Sao chép</button></dd></div><div><dt>Chủ tài khoản</dt><dd id="paymentAccountOwner">Đang cập nhật</dd></div><div><dt>Nội dung chuyển khoản</dt><dd><span id="paymentContent">HOC PHI</span><button id="copyPaymentContent" class="copy-payment" type="button">Sao chép</button></dd></div></dl><p id="paymentReconciliationNote" class="payment-note"><b>Lưu ý:</b> Vui lòng kiểm tra đúng tên người nhận, số tài khoản và số tiền trước khi xác nhận. Học phí sẽ được cập nhật sau khi đối soát giao dịch.</p></div></div><div id="paymentComplete" class="payment-complete hidden"><span>✓</span><div><strong>Bạn đã hoàn tất học phí</strong><p>Hiện tại tài khoản không còn học phí cần thanh toán.</p></div></div></section>
+    <section id="studentPaymentHistory" class="portal-section student-payment-history" aria-labelledby="paymentHistoryHeading"><div class="section-heading payment-history-heading"><div><p>LỊCH SỬ HỌC PHÍ</p><h2 id="paymentHistoryHeading">Các lần đã đóng</h2></div><span id="studentPaymentHistoryCount">0 phiếu thu</span></div><div id="studentPaymentHistoryList" class="student-payment-history-list"></div><p id="studentPaymentHistoryNotice" class="student-payment-history-notice hidden">Lịch sử học phí đang được cập nhật.</p></section>
+    <section id="studentAttendance" class="portal-section student-attendance-section" aria-labelledby="studentAttendanceHeading"><div class="section-heading attendance-student-heading"><div><p>CHUYÊN CẦN CỦA TÔI</p><h2 id="studentAttendanceHeading">Điểm danh &amp; Giờ thực học</h2></div><span id="studentAttendanceRate">0% chuyên cần</span></div><div class="student-attendance-metrics"><article><small>Tổng buổi</small><strong id="studentAttendanceSessions">0</strong></article><article><small>Có mặt</small><strong id="studentAttendancePresent">0</strong></article><article><small>Giờ thực học</small><strong id="studentAttendanceHours">0 giờ</strong></article><article><small>Vắng / Có phép</small><strong id="studentAttendanceAbsent">0 / 0</strong></article></div><div id="studentAttendanceList" class="student-attendance-list"></div><p id="studentAttendanceNotice" class="student-payment-history-notice hidden">Dữ liệu điểm danh đang được cập nhật.</p></section>
+    <section id="trainingBooking" class="portal-section booking-section" aria-labelledby="bookingHeading"><div class="section-heading booking-heading"><div><p>ĐĂNG KÝ LỊCH HỌC</p><h2 id="bookingHeading">Thực hành theo nhu cầu</h2></div><span id="bookingPendingBadge">0 yêu cầu chờ duyệt</span></div><div class="booking-actions"><button class="booking-action familiar" type="button" data-booking-type="familiar"><span>🚘</span><div><strong>Đăng ký làm quen xe</strong><small>Chọn ca học còn chỗ</small></div><b>＋</b></button><button class="booking-action practice" type="button" data-booking-type="practice"><span>🛣️</span><div><strong>Đăng ký học sa hình</strong><small>Chọn ca và gửi Admin duyệt</small></div><b>＋</b></button><button class="booking-action dat-practice" type="button" data-booking-type="dat_practice"><span>🛰️</span><div><strong>Đăng ký thực hành DAT</strong><small>Chọn đúng khung giờ còn chỗ</small></div><b>＋</b></button></div><div class="booking-history-head"><strong>Yêu cầu gần đây</strong><small>Admin có thể điều chỉnh thời gian trước khi duyệt</small></div><div id="studentBookingRequests" class="booking-request-list"></div></section>
+    <section class="portal-section" aria-labelledby="progressHeading"><div class="section-heading"><div><p>TIẾN ĐỘ ĐÀO TẠO</p><h2 id="progressHeading">Quá trình học tập</h2></div></div><div id="studentProgress" class="progress-grid"></div></section>
+    <section class="portal-grid"><article class="portal-section profile-panel"><div class="section-heading"><div><p>THÔNG TIN CÁ NHÂN</p><h2>Hồ sơ học viên</h2></div></div><dl id="studentProfile"></dl></article><article class="portal-section next-schedule-panel"><div class="section-heading"><div><p>LỊCH SẮP TỚI</p><h2>Các mốc đào tạo</h2></div><a href="/lich-dao-tao.html">Xem đầy đủ →</a></div><div id="studentUpcoming" class="upcoming-list"></div></article></section>
   </main>
-
-  <nav class="mobile-bottom-nav" aria-label="Thanh điều hướng học viên">
-    <button class="active" type="button" data-mobile-scroll="#studentPortal"><span data-mobile-icon="home"></span><small>Tổng quan</small></button>
-    <a href="/600-cau-hoi.html"><span data-mobile-icon="graduation"></span><small>Học tập</small></a>
-    <a href="/lich-dao-tao.html"><span data-mobile-icon="calendar"></span><small>Lịch</small></a>
-    <button class="mobile-bottom-notification" type="button" data-mobile-click="studentNotificationBtn"><span data-mobile-icon="bell"></span><small>Thông báo</small><b id="mobileStudentBottomBadge" class="hidden">0</b></button>
-    <button type="button" data-mobile-action="student-more"><span data-mobile-icon="more"></span><small>Thêm</small></button>
-  </nav>
-
-  <footer class="contact-footer">
-    <div class="contact-footer__brand"><strong>HỌC LÁI XE CÙNG ĐẠT</strong><span>Kết nối với chúng tôi</span></div>
-    <nav class="contact-footer__links" aria-label="Liên hệ Học lái xe cùng Đạt">
-      <a class="contact-footer__link contact-footer__link--tiktok" href="https://www.tiktok.com/@datdidaydo99?is_from_webapp=1&amp;sender_device=pc" target="_blank" rel="noopener noreferrer"><span class="contact-footer__icon">♪</span><span>TikTok</span></a>
-      <a class="contact-footer__link contact-footer__link--facebook" href="https://www.facebook.com/profile.php?id=61579863779611" target="_blank" rel="noopener noreferrer"><span class="contact-footer__icon">f</span><span>Facebook</span></a>
-      <a class="contact-footer__link contact-footer__link--zalo" href="https://zalo.me/0984811037" target="_blank" rel="noopener noreferrer"><span class="contact-footer__icon">Z</span><span>Zalo</span></a>
-    </nav>
-    <p class="contact-footer__copyright">Copyright © Quốc Đạt · Hệ thống quản lý học viên lái xe</p>
-  </footer>
-
+  <nav class="mobile-bottom-nav" aria-label="Thanh điều hướng học viên"><button class="active" type="button" data-mobile-scroll="#studentPortal"><span data-mobile-icon="home"></span><small>Tổng quan</small></button><a href="/600-cau-hoi.html"><span data-mobile-icon="graduation"></span><small>Học tập</small></a><a href="/lich-dao-tao.html"><span data-mobile-icon="calendar"></span><small>Lịch</small></a><button class="mobile-bottom-notification" type="button" data-mobile-click="studentNotificationBtn"><span data-mobile-icon="bell"></span><small>Thông báo</small><b id="mobileStudentBottomBadge" class="hidden">0</b></button><button type="button" data-mobile-action="student-more"><span data-mobile-icon="more"></span><small>Thêm</small></button></nav>
+  <footer class="contact-footer"><div class="contact-footer__brand"><strong>HỌC LÁI XE CÙNG ĐẠT</strong><span>Kết nối với chúng tôi</span></div><nav class="contact-footer__links" aria-label="Liên hệ Học lái xe cùng Đạt"><a class="contact-footer__link contact-footer__link--tiktok" href="https://www.tiktok.com/@datdidaydo99?is_from_webapp=1&amp;sender_device=pc" target="_blank" rel="noopener noreferrer"><span class="contact-footer__icon">♪</span><span>TikTok</span></a><a class="contact-footer__link contact-footer__link--facebook" href="https://www.facebook.com/profile.php?id=61579863779611" target="_blank" rel="noopener noreferrer"><span class="contact-footer__icon">f</span><span>Facebook</span></a><a class="contact-footer__link contact-footer__link--zalo" href="https://zalo.me/0984811037" target="_blank" rel="noopener noreferrer"><span class="contact-footer__icon">Z</span><span>Zalo</span></a></nav><p class="contact-footer__copyright">Copyright © Quốc Đạt · Hệ thống quản lý học viên lái xe</p></footer>
   <div id="studentLoading" class="student-loading" role="status" aria-live="polite">Đang tải thông tin học viên…</div>
-
-  <dialog id="trainingRequestDialog" class="booking-dialog">
-    <form id="trainingRequestForm">
-      <div class="dialog-head"><div><p>ĐĂNG KÝ LỊCH HỌC</p><h2 id="trainingRequestTitle">Đăng ký buổi thực hành</h2></div><button class="dialog-close" type="button" aria-label="Đóng">×</button></div>
-      <label>Nội dung đăng ký
-        <select id="requestType" required>
-          <option value="familiar">🚘 Thực hành làm quen xe</option>
-          <option value="dat_practice">🛰️ Thực hành DAT</option>
-          <option value="practice">🛣️ Học sa hình</option>
-        </select>
-      </label>
-      <label id="requestSlotField">Chọn ca học còn chỗ
-        <select id="requestSlot"></select>
-      </label>
-      <div id="requestSlotDetails" class="request-slot-details"></div>
-      <label id="requestLegacyTimeField" class="hidden">Ngày và giờ mong muốn
-        <input id="requestStartsAt" type="datetime-local">
-      </label>
-      <label>Ghi chú cho Admin
-        <textarea id="requestNote" rows="3" placeholder="Ví dụ: Mong muốn học buổi sáng, cần liên hệ trước…"></textarea>
-      </label>
-      <p class="booking-notice">Số chỗ được giữ trong thời gian yêu cầu chờ duyệt. Lịch chỉ có hiệu lực sau khi Admin xác nhận.</p>
-      <p id="trainingRequestError" class="form-error" role="alert"></p>
-      <div class="dialog-actions"><button class="dialog-close" type="button">Hủy</button><button id="submitTrainingRequest" class="primary" type="submit">Gửi yêu cầu</button></div>
-    </form>
-  </dialog>
-
-  <dialog id="studentNotificationDialog" class="notification-dialog">
-    <div class="dialog-head notification-head"><div><p>TRUNG TÂM THÔNG BÁO</p><h2>Thông báo học viên</h2></div><button class="dialog-close" type="button" aria-label="Đóng">×</button></div>
-    <section class="push-notification-panel" aria-label="Thông báo trên điện thoại"><span aria-hidden="true">▣</span><div><strong>Thông báo ngoài màn hình</strong><small id="studentPushNotificationStatus" role="status">Đang kiểm tra thiết bị…</small></div><button id="studentPushNotificationToggle" type="button">Bật thông báo điện thoại</button><button id="studentPushNotificationTest" type="button" hidden>Gửi thử</button></section>
-    <div class="notification-toolbar"><span id="studentNotificationSummary">0 thông báo</span><button id="studentMarkNotificationsRead" type="button">Đánh dấu đã đọc</button></div>
-    <label class="notification-search"><span>⌕</span><input id="studentNotificationSearch" type="search" placeholder="Tìm theo nội dung thông báo" autocomplete="off"></label>
-    <div class="notification-filters" aria-label="Lọc thông báo">
-      <button class="active" type="button" data-student-notification-filter="all">Tất cả</button><button type="button" data-student-notification-filter="schedule">Lịch học</button><button type="button" data-student-notification-filter="attendance">Điểm danh</button><button type="button" data-student-notification-filter="training">Giờ học</button><button type="button" data-student-notification-filter="theory">Kết quả thi</button><button type="button" data-student-notification-filter="finance">Học phí</button><button type="button" data-student-notification-filter="profile">Hồ sơ</button>
-    </div>
-    <div id="studentNotificationList" class="notification-list"></div>
-  </dialog>
-
-  <dialog id="studentPasswordDialog">
-    <form id="studentPasswordForm">
-      <div class="dialog-head"><div><p>BẢO MẬT TÀI KHOẢN</p><h2>Đổi mật khẩu</h2></div><button id="studentPasswordClose" class="dialog-close" type="button" aria-label="Đóng">×</button></div>
-      <p id="studentPasswordNotice" class="muted">Mật khẩu mới phải có ít nhất 8 ký tự.</p>
-      <label>Mật khẩu hiện tại<input id="studentOldPassword" type="password" autocomplete="current-password" required></label>
-      <label>Mật khẩu mới<input id="studentNewPassword" type="password" autocomplete="new-password" minlength="8" required></label>
-      <label>Nhập lại mật khẩu mới<input id="studentConfirmPassword" type="password" autocomplete="new-password" minlength="8" required></label>
-      <p id="studentPasswordError" class="form-error" role="alert"></p>
-      <div class="dialog-actions"><button id="studentPasswordCancel" class="dialog-close" type="button">Hủy</button><button id="studentSavePasswordBtn" class="primary" type="submit">Đổi mật khẩu</button></div>
-    </form>
-  </dialog>
-
+  <dialog id="trainingRequestDialog" class="booking-dialog"><form id="trainingRequestForm"><div class="dialog-head"><div><p>ĐĂNG KÝ LỊCH HỌC</p><h2 id="trainingRequestTitle">Đăng ký buổi thực hành</h2></div><button class="dialog-close" type="button" aria-label="Đóng">×</button></div><label>Nội dung đăng ký<select id="requestType" required><option value="familiar">🚘 Thực hành làm quen xe</option><option value="dat_practice">🛰️ Thực hành DAT</option><option value="practice">🛣️ Học sa hình</option></select></label><label id="requestSlotField">Chọn ca học còn chỗ<select id="requestSlot"></select></label><div id="requestSlotDetails" class="request-slot-details"></div><label id="requestLegacyTimeField" class="hidden">Ngày và giờ mong muốn<input id="requestStartsAt" type="datetime-local"></label><label>Ghi chú cho Admin<textarea id="requestNote" rows="3" placeholder="Ví dụ: Mong muốn học buổi sáng, cần liên hệ trước…"></textarea></label><p class="booking-notice">Số chỗ được giữ trong thời gian yêu cầu chờ duyệt. Lịch chỉ có hiệu lực sau khi Admin xác nhận.</p><p id="trainingRequestError" class="form-error" role="alert"></p><div class="dialog-actions"><button class="dialog-close" type="button">Hủy</button><button id="submitTrainingRequest" class="primary" type="submit">Gửi yêu cầu</button></div></form></dialog>
+  <dialog id="studentNotificationDialog" class="notification-dialog"><div class="dialog-head notification-head"><div><p>TRUNG TÂM THÔNG BÁO</p><h2>Thông báo học viên</h2></div><button class="dialog-close" type="button" aria-label="Đóng">×</button></div><section class="push-notification-panel" aria-label="Thông báo trên điện thoại"><span aria-hidden="true">▣</span><div><strong>Thông báo ngoài màn hình</strong><small id="studentPushNotificationStatus" role="status">Đang kiểm tra thiết bị…</small></div><button id="studentPushNotificationToggle" type="button">Bật thông báo điện thoại</button><button id="studentPushNotificationTest" type="button" hidden>Gửi thử</button></section><div class="notification-toolbar"><span id="studentNotificationSummary">0 thông báo</span><button id="studentMarkNotificationsRead" type="button">Đánh dấu đã đọc</button></div><label class="notification-search"><span>⌕</span><input id="studentNotificationSearch" type="search" placeholder="Tìm theo nội dung thông báo" autocomplete="off"></label><div class="notification-filters" aria-label="Lọc thông báo"><button class="active" type="button" data-student-notification-filter="all">Tất cả</button><button type="button" data-student-notification-filter="schedule">Lịch học</button><button type="button" data-student-notification-filter="attendance">Điểm danh</button><button type="button" data-student-notification-filter="training">Giờ học</button><button type="button" data-student-notification-filter="theory">Kết quả thi</button><button type="button" data-student-notification-filter="finance">Học phí</button><button type="button" data-student-notification-filter="profile">Hồ sơ</button></div><div id="studentNotificationList" class="notification-list"></div></dialog>
+  <dialog id="studentPasswordDialog"><form id="studentPasswordForm"><div class="dialog-head"><div><p>BẢO MẬT TÀI KHOẢN</p><h2>Đổi mật khẩu</h2></div><button id="studentPasswordClose" class="dialog-close" type="button" aria-label="Đóng">×</button></div><p id="studentPasswordNotice" class="muted">Mật khẩu mới phải có ít nhất 8 ký tự.</p><label>Mật khẩu hiện tại<input id="studentOldPassword" type="password" autocomplete="current-password" required></label><label>Mật khẩu mới<input id="studentNewPassword" type="password" autocomplete="new-password" minlength="8" required></label><label>Nhập lại mật khẩu mới<input id="studentConfirmPassword" type="password" autocomplete="new-password" minlength="8" required></label><p id="studentPasswordError" class="form-error" role="alert"></p><div class="dialog-actions"><button id="studentPasswordCancel" class="dialog-close" type="button">Hủy</button><button id="studentSavePasswordBtn" class="primary" type="submit">Đổi mật khẩu</button></div></form></dialog>
   <div id="studentToast" role="status" aria-live="polite"></div>
-  <script type="module" src="/student.js"></script>
+  <script type="module" src="/student.js?v=5"></script>
+  <script type="module" src="/student-portal-emergency-recovery.js?v=1"></script>
   <script type="module" src="/site-enhancements.js?v=15"></script>
   <script type="module" src="/pwa-install.js?v=1"></script>
   <script type="module" src="/push-notifications.js?v=1"></script>
