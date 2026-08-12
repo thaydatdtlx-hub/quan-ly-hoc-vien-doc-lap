@@ -8,6 +8,7 @@ import "./professional-public-polish.js";
 import "./recruitment-operations.js";
 import "./student-portal-polish.js";
 import "./student-debt-alert.js";
+import "./student-portal-visibility-recovery.js";
 import "./student-activity-tracker.js";
 import "./student-activity-admin.js";
 import "./theory-answer-explanations.js";
