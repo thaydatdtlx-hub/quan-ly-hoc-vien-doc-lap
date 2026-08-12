@@ -34,8 +34,13 @@ function mountExamCandidateEntry(){
   anchor.insertAdjacentElement("afterend",section);
 
   section.querySelector(".exam-candidate-entry__button")?.addEventListener("click",()=>{
-    const examTrigger=document.querySelector('[data-start-mode="exam"]');
-    examTrigger?.click();
+    const dialog=document.getElementById("examCandidateDialog");
+    if(dialog){
+      dialog.showModal();
+      document.getElementById("examCandidateCheck")?.click();
+      return;
+    }
+    document.querySelector('[data-start-mode="exam"]')?.click();
   });
 }
 
