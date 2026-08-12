@@ -68,13 +68,6 @@ function renderProfile(profile){
 async function loadCandidate(){
   const start=document.getElementById("examCandidateStart");
   if(start)start.disabled=true;
-  if(authKind!=="student"||!token){
-    candidateLoaded=false;
-    candidateProfile=null;
-    document.getElementById("examCandidateNumber").value="—";
-    setStatus("Bạn đang ở chế độ khách. Đăng nhập tài khoản học viên để tự động lấy số báo danh và hồ sơ.","error");
-    return;
-  }
   setStatus("Đang kiểm tra thông tin học viên…");
   try{
     candidateProfile=await rpc("app_student_exam_candidate",{p_token:token});
@@ -157,10 +150,10 @@ function mount(){
 
   document.addEventListener("click",event=>{
     const trigger=event.target.closest?.('[data-start-mode="exam"]');
-    if(!trigger)return;
+    if(!trigger||authKind!=="student"||!token)return;
     event.preventDefault();event.stopImmediatePropagation();
     dialog.showModal();
-    if(authKind==="student"&&token&&!candidateLoaded)void loadCandidate();
+    if(!candidateLoaded)void loadCandidate();
   },true);
 }
 
