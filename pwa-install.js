@@ -50,7 +50,7 @@ function showInstallBanner(mode){
     <div><strong>Cài ứng dụng Thầy Đạt</strong><p>${mode==="ios"?"Mở nhanh toàn màn hình ngay từ iPhone.":"Truy cập nhanh như một ứng dụng trên điện thoại."}</p><small class="pwa-ios-help" hidden>Nhấn nút Chia sẻ <b>□↑</b>, sau đó chọn <b>Thêm vào MH chính</b>.</small></div>
     <button class="pwa-install-action" type="button">${mode==="ios"?"Cách cài":"Cài ngay"}</button>
     <button class="pwa-install-close" type="button" aria-label="Để sau">×</button>`;
-  document.body.append(splash);
+  document.body.append(installBanner);
   installBanner.querySelector(".pwa-install-close").addEventListener("click",dismissInstallBanner);
   installBanner.querySelector(".pwa-install-action").addEventListener("click",async()=>{
     if(mode==="ios"){
