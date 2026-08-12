@@ -1,4 +1,4 @@
-import"./exam-candidate-screen.css";
+import"./exam-candidate-screen.css?v=3";
 import{EXAMS,NUMBERED_EXAM_COUNTS}from"./exam-config.js";
 
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
@@ -12,8 +12,11 @@ function esc(value){return String(value??"").replace(/[&<>"']/g,char=>({"&":"&am
 function normalize(value){return String(value??"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d")}
 function formatDate(value){
   if(!value)return"—";
-  const match=String(value).match(/^(\d{4})-(\d{2})-(\d{2})/);
-  return match?`${match[3]}/${match[2]}/${match[1]}`:String(value);
+  const text=String(value).trim();
+  const match=text.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(match)return`${match[3]}/${match[2]}/${match[1]}`;
+  const parsed=new Date(text);
+  return Number.isNaN(parsed.valueOf())?text:new Intl.DateTimeFormat("vi-VN",{day:"2-digit",month:"2-digit",year:"numeric"}).format(parsed);
 }
 function candidateNumber(code){
   const match=String(code||"").match(/\d+/g);
@@ -28,8 +31,18 @@ function examKeyForLicense(value){
   if(text.startsWith("c1"))return"C1";
   return"B";
 }
+function profileValue(profile,...keys){
+  const sources=[profile,profile?.profile,profile?.student,profile?.data].filter(Boolean);
+  for(const source of sources){
+    for(const key of keys){
+      const value=source?.[key];
+      if(value!==undefined&&value!==null&&String(value).trim()!=="")return value;
+    }
+  }
+  return"";
+}
 async function rpc(fn,body={}){
-  const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
+  const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json","Cache-Control":"no-store"},cache:"no-store",body:JSON.stringify(body)});
   const data=await response.json().catch(()=>null);
   if(!response.ok)throw new Error(data?.message||data?.details||data?.error||"Không thể kết nối máy chủ");
   return data;
@@ -40,6 +53,10 @@ function setStatus(message,state=""){
   status.className=`exam-candidate-status ${state}`.trim();
   status.textContent=message;
 }
+function setCandidateText(id,value){
+  const node=document.getElementById(id);
+  if(node)node.textContent=String(value||"—");
+}
 function fillExamOptions(examKey){
   const select=document.getElementById("examCandidateSet");
   const exam=EXAMS[examKey];
@@ -49,25 +66,39 @@ function fillExamOptions(examKey){
   select.value="random";
 }
 function renderProfile(profile){
-  const key=examKeyForLicense(profile?.license_class);
-  document.getElementById("examCandidateNumber").value=candidateNumber(profile?.student_code);
+  const studentCode=profileValue(profile,"student_code","code","studentCode");
+  const studentName=profileValue(profile,"student_name","name","full_name","fullName");
+  const dateOfBirth=profileValue(profile,"date_of_birth","dob","birthday","birth_date");
+  const cccd=profileValue(profile,"cccd","citizen_id","identity_number","id_number");
+  const address=profileValue(profile,"address","permanent_address","current_address");
+  const licenseClass=profileValue(profile,"license_class","licenseClass","gplx_class");
+  const course=profileValue(profile,"course","course_name");
+  const photoData=profileValue(profile,"photo_data","photo","avatar","avatar_url");
+  const key=examKeyForLicense(licenseClass);
+
+  document.getElementById("examCandidateNumber").value=candidateNumber(studentCode);
   document.getElementById("examCandidateLicense").value=key;
-  document.getElementById("examCandidateName").textContent=profile?.student_name||"—";
-  document.getElementById("examCandidateDob").textContent=formatDate(profile?.date_of_birth);
-  document.getElementById("examCandidateId").textContent=profile?.cccd||"—";
-  document.getElementById("examCandidateAddress").textContent=profile?.address||"—";
-  document.getElementById("examCandidateCourse").value=profile?.course||"Tự luyện lý thuyết";
-  document.getElementById("examCandidateLicenseLabel").textContent=`HẠNG ${key}`;
+  setCandidateText("examCandidateName",studentName);
+  setCandidateText("examCandidateDob",formatDate(dateOfBirth));
+  setCandidateText("examCandidateId",cccd);
+  setCandidateText("examCandidateAddress",address);
+  document.getElementById("examCandidateCourse").value=course||"Tự luyện lý thuyết";
+  setCandidateText("examCandidateLicenseLabel",`HẠNG ${key}`);
   const photo=document.getElementById("examCandidatePhoto");
-  photo.innerHTML=profile?.photo_data?`<img src="${esc(profile.photo_data)}" alt="Ảnh học viên">`:'<span>👤</span>';
+  photo.innerHTML=photoData?`<img src="${esc(photoData)}" alt="Ảnh học viên">`:'<span>👤</span>';
   fillExamOptions(key);
   candidateLoaded=true;
   document.getElementById("examCandidateStart").disabled=false;
-  setStatus(`Đã xác nhận hồ sơ ${profile?.student_code||"học viên"}. Số báo danh được sinh tự động từ mã học viên.`,"ok");
+  setStatus(`Đã xác nhận hồ sơ ${studentCode||"học viên"}. Số báo danh được sinh tự động từ mã học viên.`,"ok");
 }
 async function loadCandidate(){
   const start=document.getElementById("examCandidateStart");
   if(start)start.disabled=true;
+  if(authKind!=="student"||!token){
+    candidateLoaded=false;
+    setStatus("Chưa có phiên đăng nhập học viên trên tên miền này. Hãy đăng nhập tài khoản học viên rồi mở lại phòng thi.","error");
+    return;
+  }
   setStatus("Đang kiểm tra thông tin học viên…");
   try{
     candidateProfile=await rpc("app_student_exam_candidate",{p_token:token});
@@ -102,11 +133,11 @@ function dialogMarkup(){
         <div class="exam-candidate-profile">
           <div id="examCandidatePhoto" class="exam-candidate-photo"><span>👤</span></div>
           <div class="exam-candidate-info">
-            <b>Loại GPLX:</b><strong id="examCandidateLicenseLabel">HẠNG B</strong>
-            <b>Họ tên:</b><strong id="examCandidateName" class="candidate-name">—</strong>
-            <b>Ngày sinh:</b><strong id="examCandidateDob">—</strong>
-            <b>Số CCCD:</b><strong id="examCandidateId">—</strong>
-            <b>Địa chỉ:</b><strong id="examCandidateAddress">—</strong>
+            <div class="exam-candidate-field"><b>Loại GPLX:</b><span id="examCandidateLicenseLabel" class="exam-candidate-value accent">HẠNG B</span></div>
+            <div class="exam-candidate-field"><b>Họ tên:</b><span id="examCandidateName" class="exam-candidate-value candidate-name">—</span></div>
+            <div class="exam-candidate-field"><b>Ngày sinh:</b><span id="examCandidateDob" class="exam-candidate-value">—</span></div>
+            <div class="exam-candidate-field"><b>Số CCCD:</b><span id="examCandidateId" class="exam-candidate-value">—</span></div>
+            <div class="exam-candidate-field address"><b>Địa chỉ:</b><span id="examCandidateAddress" class="exam-candidate-value">—</span></div>
           </div>
         </div>
         <p class="exam-candidate-note">Số báo danh được lấy tự động từ phần số của mã học viên. Ví dụ HV-0001 → Số báo danh 1.</p>
@@ -122,7 +153,7 @@ function dialogMarkup(){
 function syncLicense(){
   const key=document.getElementById("examCandidateLicense")?.value||"B";
   fillExamOptions(key);
-  document.getElementById("examCandidateLicenseLabel").textContent=`HẠNG ${key}`;
+  setCandidateText("examCandidateLicenseLabel",`HẠNG ${key}`);
 }
 function startExam(){
   const key=document.getElementById("examCandidateLicense")?.value||"B";
@@ -136,6 +167,13 @@ function startExam(){
   const ready=document.getElementById("examReadyCheck"),start=document.getElementById("startExamBtn");
   if(ready)ready.checked=true;
   if(start){start.disabled=false;document.getElementById("examCandidateDialog")?.close();start.click()}
+}
+function openCandidateDialog(){
+  const dialog=document.getElementById("examCandidateDialog");
+  if(!dialog)return;
+  if(!dialog.open)dialog.showModal();
+  if(authKind==="student"&&token&&!candidateLoaded)void loadCandidate();
+  else if(authKind!=="student"||!token)setStatus("Chưa có phiên đăng nhập học viên trên tên miền này. Hãy đăng nhập để tự động lấy hồ sơ và số báo danh.","error");
 }
 function mount(){
   if(location.pathname!=="/600-cau-hoi.html"||document.getElementById("examCandidateDialog"))return;
@@ -152,9 +190,10 @@ function mount(){
     const trigger=event.target.closest?.('[data-start-mode="exam"]');
     if(!trigger||authKind!=="student"||!token)return;
     event.preventDefault();event.stopImmediatePropagation();
-    dialog.showModal();
-    if(!candidateLoaded)void loadCandidate();
+    openCandidateDialog();
   },true);
+
+  window.__openExamCandidateDialog=openCandidateDialog;
 }
 
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",mount,{once:true});else mount();
