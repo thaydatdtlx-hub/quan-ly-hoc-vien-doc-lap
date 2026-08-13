@@ -121,6 +121,10 @@ img{max-width:100%}
 
 @keyframes professional-spin{to{transform:rotate(360deg)}}
 
+/* Student portal fail-safe: never let a secondary module keep the authenticated dashboard invisible. */
+#studentPortal.student-main{display:block!important}
+#studentLoading{display:none!important}
+
 @media(pointer:coarse){
   :where(button,[role="button"],nav a,.schedule-cta,.booking-action){min-height:44px}
 }
