@@ -1,12 +1,12 @@
 function fixNoticeText(value){return String(value??"").replace(/\bng(?:à6|á6)(?=\s+\d{2}\/\d{2}\/\d{4})/giu,"ngày")}
-const CACHE_NAME="thay-dat-pwa-v37";
-const CORE_ASSETS=["/","/index.html","/dang-nhap.html","/dang-ky-hoc-lai-xe.html","/lich-dao-tao.html","/600-cau-hoi.html","/bo-tuc-tay-lai.html","/offline.html","/site.webmanifest","/app-icon-192.png","/app-icon-512.png","/app-icon-maskable-512.png","/apple-touch-icon-180.png","/logo-thay-dat-compact.webp"];
+const CACHE_NAME="thay-dat-pwa-v38";
+const CORE_ASSETS=["/dang-ky-hoc-lai-xe.html","/lich-dao-tao.html","/600-cau-hoi.html","/bo-tuc-tay-lai.html","/offline.html","/site.webmanifest","/app-icon-192.png","/app-icon-512.png","/app-icon-maskable-512.png","/apple-touch-icon-180.png","/logo-thay-dat-compact.webp"];
 self.addEventListener("install",event=>{event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(CORE_ASSETS)).then(()=>self.skipWaiting()))});
 self.addEventListener("activate",event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith("thay-dat-pwa-")&&key!==CACHE_NAME).map(key=>caches.delete(key)))).then(()=>self.clients.claim()))});
 self.addEventListener("fetch",event=>{
   const request=event.request;if(request.method!=="GET")return;const url=new URL(request.url);if(url.origin!==self.location.origin)return;
-  const isStudent=url.pathname==="/hoc-vien.html"||url.pathname==="/student-rescue-runtime.js";
-  if(isStudent){event.respondWith(fetch(request,{cache:"no-store"}));return}
+  const isAuthCritical=url.pathname==="/"||url.pathname==="/index.html"||url.pathname==="/dang-nhap.html"||url.pathname==="/hoc-vien.html"||url.pathname==="/student-rescue-runtime.js"||url.pathname==="/app.js";
+  if(isAuthCritical){event.respondWith(fetch(request,{cache:"no-store"}));return}
   if(request.mode==="navigate"){
     event.respondWith(fetch(request).then(response=>{if(response.ok){const copy=response.clone();caches.open(CACHE_NAME).then(cache=>cache.put(request,copy))}return response}).catch(async()=>await caches.match(request,{ignoreSearch:true})||await caches.match(url.pathname)||await caches.match("/offline.html")));return;
   }
