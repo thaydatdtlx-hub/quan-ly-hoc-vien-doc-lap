@@ -18,6 +18,20 @@ function cleanBrandWording(html){return html.replace(PACKAGE_WORDING,"").replace
 function isolateStudentPortal(html){
   const scripts=[...html.matchAll(/<script\s+type="module"\s+src="[^"]+"><\/script>/g)].map(match=>match[0]);
   for(const script of scripts)html=html.replace(script,"");
+  const paymentGuard=`<style id="student-payment-main-guard">
+  #studentPayment{display:none!important}
+  #studentPayment.student-payment-expanded{display:block!important}
+  </style>
+  <script>
+  (()=>{
+    if(location.hash==="#studentPayment"){
+      const url=new URL(location.href);
+      url.hash="";
+      history.replaceState(null,"",url.pathname+url.search);
+    }
+  })();
+  </script>`;
+  html=html.replace('</head>',`  ${paymentGuard}\n</head>`);
   const cleanup=`<script>
   (()=>{
     const key="student_rescue_cleanup_20260813_v2";
@@ -44,7 +58,7 @@ function isolateStudentPortal(html){
     })();
   })();
   </script>`;
-  html=html.replace('</body>',`  ${cleanup}\n  <script type="module" src="/student-rescue-runtime.js?v=20260813-4"></script>\n</body>`);
+  html=html.replace('</body>',`  ${cleanup}\n  <script type="module" src="/student-rescue-runtime.js?v=20260813-5"></script>\n</body>`);
   return html;
 }
 function seoPlugin(){return{name:"thay-dat-static-seo",transformIndexHtml:{order:"pre",handler(html,ctx){html=cleanBrandWording(html);const file=basename(ctx?.filename||ctx?.path||"");if(file==="hoc-vien.html")html=isolateStudentPortal(html);const seo=SEO[file];if(!seo)return html;const canonical=`${ORIGIN}${seo.path}`,image=new URL(seo.image,ORIGIN).href;html=setTag(html,/<title>[\s\S]*?<\/title>/i,`<title>${seo.title}</title>`);html=setTag(html,/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/i,`<meta name="description" content="${seo.description}">`);html=setTag(html,/<meta\s+property="og:title"\s+content="[^"]*"\s*\/?>/i,`<meta property="og:title" content="${seo.title}">`);html=setTag(html,/<meta\s+property="og:description"\s+content="[^"]*"\s*\/?>/i,`<meta property="og:description" content="${seo.description}">`);html=setTag(html,/<meta\s+property="og:image"\s+content="[^"]*"\s*\/?>/i,`<meta property="og:image" content="${image}">`);html=setTag(html,/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/i,`<link rel="canonical" href="${canonical}">`);const extras=[];if(!/property="og:url"/i.test(html))extras.push(`<meta property="og:url" content="${canonical}">`);if(!/name="twitter:card"/i.test(html))extras.push('<meta name="twitter:card" content="summary_large_image">');if(!/name="twitter:title"/i.test(html))extras.push(`<meta name="twitter:title" content="${seo.title}">`);if(!/name="twitter:description"/i.test(html))extras.push(`<meta name="twitter:description" content="${seo.description}">`);if(!/name="twitter:image"/i.test(html))extras.push(`<meta name="twitter:image" content="${image}">`);if(file==="dang-ky-hoc-lai-xe.html"&&!/application\/ld\+json/i.test(html))extras.push(`<script type="application/ld+json">${JSON.stringify({"@context":"https://schema.org","@type":"Organization","name":"Học lái xe cùng Đạt","url":`${ORIGIN}/`,"logo":`${ORIGIN}/app-icon-512.png`,"telephone":"0984811037","sameAs":["https://www.facebook.com/profile.php?id=61579863779611","https://www.tiktok.com/@datdidaydo99"]})}</script>`);html=extras.length?html.replace("</head>",`  ${extras.join("\n  ")}\n</head>`):html;return cleanBrandWording(html)}}}}
