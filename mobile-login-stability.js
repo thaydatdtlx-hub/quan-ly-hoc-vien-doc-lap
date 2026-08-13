@@ -1,0 +1,109 @@
+const CANONICAL_ORIGIN="https://hoclaixecungdat.vercel.app";
+const LEGACY_HOSTS=new Set(["hoc-vien-thay-dat.vercel.app","daotaolaixe-thaydat.vercel.app","daotaolaixetrongoi.com","www.daotaolaixetrongoi.com"]);
+const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
+const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
+
+function canonicalizeLoginOrigin(){
+  if(!LEGACY_HOSTS.has(location.hostname))return false;
+  const isLoginPage=location.pathname==="/"||location.pathname==="/index.html"||location.pathname==="/dang-nhap.html";
+  if(!isLoginPage)return false;
+  const target=new URL(location.pathname+location.search+location.hash,CANONICAL_ORIGIN);
+  if(target.pathname==="/dang-nhap.html")target.pathname="/";
+  target.searchParams.set("login","1");
+  location.replace(target.href);
+  return true;
+}
+
+async function rpc(name,body={},timeoutMs=7000){
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),timeoutMs);
+  try{
+    const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`,{
+      method:"POST",
+      cache:"no-store",
+      signal:controller.signal,
+      headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json","Cache-Control":"no-store"},
+      body:JSON.stringify(body)
+    });
+    const data=await response.json().catch(()=>null);
+    if(!response.ok)throw new Error(data?.message||data?.details||data?.error||"Không thể kết nối máy chủ");
+    return data;
+  }catch(error){
+    if(error?.name==="AbortError")throw new Error("Kết nối mạng đang chậm. Vui lòng kiểm tra 4G/5G hoặc Wi-Fi rồi thử lại.");
+    throw error;
+  }finally{clearTimeout(timer)}
+}
+
+function clearAuth(){
+  for(const store of [localStorage,sessionStorage]){
+    store.removeItem("hv_token");
+    store.removeItem("hv_auth_kind");
+  }
+}
+function saveAuth(token,kind,remember){
+  clearAuth();
+  sessionStorage.setItem("hv_token",token);
+  sessionStorage.setItem("hv_auth_kind",kind);
+  if(remember){
+    localStorage.setItem("hv_token",token);
+    localStorage.setItem("hv_auth_kind",kind);
+  }
+}
+function errorText(error){return error?.message||"Đăng nhập chưa thành công. Vui lòng thử lại."}
+
+function mountMobileLoginStability(){
+  if(canonicalizeLoginOrigin())return;
+  const form=document.getElementById("loginForm");
+  if(!form||form.dataset.mobileStableLogin==="1")return;
+  const mobile=matchMedia("(max-width: 900px)").matches||matchMedia("(pointer: coarse)").matches;
+  if(!mobile)return;
+  form.dataset.mobileStableLogin="1";
+
+  form.addEventListener("submit",async event=>{
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    const username=document.getElementById("username")?.value.trim()||"";
+    const password=document.getElementById("password")?.value||"";
+    const remember=Boolean(document.getElementById("rememberLogin")?.checked);
+    const error=document.getElementById("loginError");
+    const button=document.getElementById("loginBtn");
+    const label=button?.querySelector("span");
+    if(error)error.textContent="";
+    if(button){button.disabled=true;button.setAttribute("aria-busy","true")}
+    if(label)label.textContent="Đang đăng nhập…";
+    try{
+      let result=null,kind="student";
+      try{
+        result=await rpc("app_student_login",{p_username:username,p_password:password});
+        kind=result?.role==="public_theory"?"public_theory":"student";
+      }catch(studentError){
+        try{
+          result=await rpc("app_login",{p_username:username,p_password:password});
+          kind="manager";
+        }catch(managerError){
+          throw studentError?.message&&!/app_student_login|schema cache|PGRST202/i.test(studentError.message)?studentError:managerError;
+        }
+      }
+      if(!result?.token)throw new Error("Máy chủ chưa trả phiên đăng nhập. Vui lòng thử lại.");
+      saveAuth(result.token,kind,remember);
+      if(remember)localStorage.setItem("hv_saved_user",username);else localStorage.removeItem("hv_saved_user");
+      if(kind==="student"){
+        location.replace("/hoc-vien.html?mobile=1");
+        return;
+      }
+      if(kind==="public_theory"){
+        location.replace("/600-cau-hoi.html");
+        return;
+      }
+      location.replace("/?login=1");
+    }catch(loginError){
+      if(error)error.textContent=errorText(loginError);
+      if(button){button.disabled=false;button.removeAttribute("aria-busy")}
+      if(label)label.textContent="Đăng nhập";
+    }
+  },true);
+}
+
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",mountMobileLoginStability,{once:true});
+else mountMobileLoginStability();
+window.addEventListener("pageshow",mountMobileLoginStability);
