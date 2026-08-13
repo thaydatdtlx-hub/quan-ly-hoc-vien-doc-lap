@@ -47,6 +47,7 @@ function seoPlugin(){
     transformIndexHtml(html,ctx){
       html=cleanBrandWording(html);
       const file=basename(ctx?.filename||ctx?.path||"");
+      if(file==="hoc-vien.html")html=html.replace('/student.js?v=5','/student-safe-runtime.js?v=1');
       const seo=SEO[file];
       if(!seo)return html;
       const canonical=`${ORIGIN}${seo.path}`;
