@@ -54,7 +54,32 @@ export function embedScheduleInNotes(notes="",schedule=null){
   return clean?`${clean}\n\n${token}`:token;
 }
 
+function installStudentOptionalRpcIsolation(){
+  if(location.pathname!=="/hoc-vien.html"||window.__studentOptionalRpcIsolation||typeof window.fetch!=="function")return;
+  window.__studentOptionalRpcIsolation=true;
+  const fallbacks={
+    app_list_training_sessions:[],app_list_training_requests:[],app_list_training_slots:[],app_list_notifications:[],
+    app_student_get_theory_progress:{},app_student_list_payments:[],app_student_list_attendance:[]
+  };
+  const nativeFetch=window.fetch.bind(window);
+  window.fetch=async(input,init)=>{
+    const url=typeof input==="string"?input:input?.url||"";
+    const rpcName=String(url).match(/\/rest\/v1\/rpc\/([^?/#]+)/)?.[1]||"";
+    if(!Object.prototype.hasOwnProperty.call(fallbacks,rpcName))return nativeFetch(input,init);
+    try{
+      const response=await nativeFetch(input,init);
+      if(response.ok)return response;
+      console.warn(`[student-portal] ${rpcName} unavailable (${response.status}); continuing with empty module data.`);
+    }catch(error){
+      console.warn(`[student-portal] ${rpcName} unavailable; continuing with empty module data.`,error);
+    }
+    const fallback=Array.isArray(fallbacks[rpcName])?[]:{...fallbacks[rpcName]};
+    return new Response(JSON.stringify(fallback),{status:200,headers:{"Content-Type":"application/json"}});
+  };
+}
+
 if(typeof document!=="undefined"){
+  installStudentOptionalRpcIsolation();
   if(location.pathname==="/hoc-vien.html"){
     import("./student-portal-visibility-recovery.js?v=4").catch(()=>{});
     import("./student-debt-alert.js?v=4").catch(()=>{});
