@@ -3,7 +3,7 @@ import {resolve,basename} from "node:path";
 
 const ORIGIN="https://hoclaixecungdat.vercel.app";
 const PACKAGE_WORDING=/đào\s+tạo\s+lái\s+xe\s+trọn\s+gói/giu;
-const UNVERIFIED_CENTER=/trung\s+tâm\s+đào\s+tạo\s+xe\s+thầy\s+đạt/giu;
+const UNVERIFIED_CENTER=/trung\s+tâm\s+đào\s+tạo\s+lái\s+xe\s+thầy\s+đạt/giu;
 const LEGACY_HOSTS=/https?:\/\/(?:www\.)?(?:daotaolaixetrongoi\.com|hoc-vien-thay-dat\.vercel\.app|daotaolaixe-thaydat\.vercel\.app)/giu;
 
 const SEO={
