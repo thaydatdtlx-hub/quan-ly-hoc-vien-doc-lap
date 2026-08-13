@@ -1,0 +1,65 @@
+const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
+const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
+const $=id=>document.getElementById(id);
+const token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"";
+let me=null,student=null;
+
+const esc=value=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money=value=>new Intl.NumberFormat("vi-VN").format(Math.max(0,Number(value)||0))+" ₫";
+function date(value){const match=String(value||"").match(/^(\d{4})-(\d{2})-(\d{2})/);return match?`${match[3]}/${match[2]}/${match[1]}`:(value||"Chưa cập nhật")}
+function showPortal(){$("studentPortal")?.classList.remove("hidden");$("studentLoading")?.classList.add("hidden")}
+function clearAuth(){for(const store of [localStorage,sessionStorage]){store.removeItem("hv_token");store.removeItem("hv_auth_kind")}}
+function warning(message=""){
+  let box=$("studentRuntimeWarning");
+  if(!message){box?.remove();return}
+  if(!box){box=document.createElement("div");box.id="studentRuntimeWarning";box.style.cssText="margin:14px auto;padding:12px 14px;max-width:1200px;border:1px solid #f0d5a8;border-radius:12px;background:#fff8e9;color:#76551c;font:700 12px/1.5 system-ui";$("studentPortal")?.prepend(box)}
+  box.textContent=message;
+}
+async function rpc(fn,body={},timeoutMs=4500){
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeoutMs);
+  try{
+    const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",cache:"no-store",signal:controller.signal,headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json","Cache-Control":"no-store"},body:JSON.stringify(body)});
+    const data=await response.json().catch(()=>null);
+    if(!response.ok)throw new Error(data?.message||data?.details||data?.error||`Không tải được ${fn}`);
+    return data;
+  }catch(error){if(error?.name==="AbortError")throw new Error("Kết nối dữ liệu đang chậm.");throw error}
+  finally{clearTimeout(timer)}
+}
+function paymentReference(){const name=String(student?.name||"HOC VIEN").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/gi,"d").replace(/[^a-zA-Z0-9 ]/g," ").replace(/\s+/g," ").trim().toUpperCase();return`HP DTLX ${name}`.slice(0,50).trim()}
+function render(){
+  if(!student)return;
+  if(me&&$("studentUsername"))$("studentUsername").textContent=`${me.username||"Học viên"} · Học viên`;
+  $("studentName").textContent=student.name||"Học viên";$("studentCode").textContent=student.student_code||"Chưa có mã";$("studentCourse").textContent=student.course||"Chưa có khóa";$("studentLicense").textContent=student.license_class||"Chưa có hạng";
+  if(student.photo_data&&$("studentPhoto")){$("studentPhoto").src=student.photo_data;$("studentPhoto").classList.remove("hidden");$("studentPhotoPlaceholder")?.classList.add("hidden")}
+  const total=Math.max(0,Number(student.tuition_total)||0),paid=Math.max(0,Number(student.paid)||0),debt=Math.max(0,total-paid),rate=total?Math.min(100,Math.round(paid/total*100)):0;
+  $("tuitionTotal").textContent=money(total);$("tuitionPaid").textContent=money(paid);$("tuitionDebt").textContent=money(debt);$("tuitionRate").textContent=`Đã đóng ${rate}% tổng học phí`;$("tuitionStatus").textContent=debt?"Còn học phí cần hoàn tất":"Đã hoàn tất học phí";$("tuitionStatus").className=debt?"has-debt":"complete";$("tuitionDebtNote").textContent=debt?"Vui lòng hoàn tất theo lịch hẹn":"Không còn công nợ";
+  $("paymentDebt").textContent=money(debt);$("paymentAmountBadge").textContent=debt?`Còn nợ ${money(debt)}`:"Đã hoàn tất";$("paymentAmountBadge").className=debt?"has-debt":"complete";$("paymentContent").textContent=paymentReference();$("paymentPending")?.classList.toggle("hidden",debt===0);$("paymentComplete")?.classList.toggle("hidden",debt>0);
+  if($("paymentBankName"))$("paymentBankName").textContent="MB Bank (MBBank)";if($("paymentAccountNumber"))$("paymentAccountNumber").textContent="360556789999";if($("paymentAccountOwner"))$("paymentAccountOwner").textContent="Trần Quốc Đạt";
+  const progress=[["▤","Hồ sơ",student.profile_status||"Chưa cập nhật"],["◉","Lý thuyết online",student.online_status||"Chưa hoàn thành"],["▣","Cabin",student.cabin_status||"Chưa hoàn thành"],["⌖","DAT",student.dat_status||"Chưa thực hiện"],["✓","Thi tốt nghiệp",student.graduation_status||"Chưa hoàn thành"],["★","Thi sát hạch",student.exam_status||"Chưa thi sát hạch"]];
+  if($("studentProgress"))$("studentProgress").innerHTML=progress.map(([icon,label,status])=>`<article class="progress-card"><span>${icon}</span><div><small>${esc(label)}</small><strong>${esc(status)}</strong></div><i></i></article>`).join("");
+  const profile=[["Ngày sinh",date(student.date_of_birth)],["Số CCCD",student.cccd||"Chưa cập nhật"],["Điện thoại",student.phone||"Chưa cập nhật"],["Địa chỉ",student.address||"Chưa cập nhật"],["Hạng đào tạo",student.license_class||"Chưa cập nhật"],["Sát hạch / bằng lái",student.exam_status||"Chưa thi sát hạch"],["Trạng thái hồ sơ",student.profile_status||"Chưa cập nhật"]];
+  if($("studentProfile"))$("studentProfile").innerHTML=profile.map(([label,value])=>`<div><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`).join("");
+  if($("theoryLatestExam"))$("theoryLatestExam").innerHTML="<span>i</span><p>Tiến độ lý thuyết sẽ đồng bộ sau khi Cổng học viên hoạt động ổn định.</p>";
+  if($("studentPaymentHistoryList"))$("studentPaymentHistoryList").innerHTML='<div class="student-payment-empty"><span>₫</span><strong>Lịch sử phiếu thu đang tạm tải sau</strong></div>';
+  if($("studentAttendanceList"))$("studentAttendanceList").innerHTML='<div class="student-attendance-empty"><span>◷</span><strong>Dữ liệu điểm danh đang tạm tải sau</strong></div>';
+  if($("studentBookingRequests"))$("studentBookingRequests").innerHTML='<div class="booking-empty">Đăng ký lịch sẽ mở lại sau khi hệ thống ổn định.</div>';
+  warning("");showPortal();
+}
+function wire(){
+  $("studentLogoutBtn")?.addEventListener("click",async()=>{try{await rpc("app_student_logout",{p_token:token},2500)}catch{}clearAuth();location.replace("/")});
+  $("copyPaymentContent")?.addEventListener("click",()=>navigator.clipboard?.writeText($("paymentContent")?.textContent||"").catch(()=>{}));
+  $("copyPaymentAccount")?.addEventListener("click",()=>navigator.clipboard?.writeText($("paymentAccountNumber")?.textContent||"").catch(()=>{}));
+  $("studentNotificationBtn")?.addEventListener("click",()=>alert("Thông báo đang được tạm tắt trong chế độ ổn định hệ thống."));
+  $("studentChangePasswordBtn")?.addEventListener("click",()=>alert("Đổi mật khẩu đang được tạm tắt trong chế độ ổn định hệ thống."));
+}
+async function boot(){
+  showPortal();wire();
+  if(!token){location.replace("/");return}
+  warning("Đang đồng bộ hồ sơ học viên…");
+  const [meResult,studentResult]=await Promise.allSettled([rpc("app_student_me",{p_token:token}),rpc("app_student_portal",{p_token:token})]);
+  if(meResult.status==="fulfilled")me=meResult.value;if(studentResult.status==="fulfilled")student=studentResult.value;
+  if(meResult.status==="rejected"&&/hết hạn|không hợp lệ|invalid|expired/i.test(meResult.reason?.message||"")){clearAuth();location.replace("/");return}
+  if(student?.id){render();return}
+  warning(studentResult.status==="rejected"?`${studentResult.reason.message} Trang vẫn mở; vui lòng thử tải lại.`:"Hồ sơ chưa tải được. Trang vẫn mở; vui lòng thử tải lại.")
+}
+boot();
