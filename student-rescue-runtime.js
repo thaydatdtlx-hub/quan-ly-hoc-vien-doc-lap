@@ -4,6 +4,7 @@ const $=id=>document.getElementById(id);
 const token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"";
 let me=null,student=null;
 
+const PAYMENT={bank_name:"MB Bank (MBBank)",bank_bin:"970422",bank_account:"360556789999",bank_holder:"Trần Quốc Đạt"};
 const esc=value=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const money=value=>new Intl.NumberFormat("vi-VN").format(Math.max(0,Number(value)||0))+" ₫";
 function date(value){const match=String(value||"").match(/^(\d{4})-(\d{2})-(\d{2})/);return match?`${match[3]}/${match[2]}/${match[1]}`:(value||"Chưa cập nhật")}
@@ -26,6 +27,31 @@ async function rpc(fn,body={},timeoutMs=4500){
   finally{clearTimeout(timer)}
 }
 function paymentReference(){const name=String(student?.name||"HOC VIEN").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/gi,"d").replace(/[^a-zA-Z0-9 ]/g," ").replace(/\s+/g," ").trim().toUpperCase();return`HP DTLX ${name}`.slice(0,50).trim()}
+function tlv(id,value){const text=String(value);return`${id}${String(text.length).padStart(2,"0")}${text}`}
+function crc16(value){let crc=0xffff;for(let i=0;i<value.length;i++){crc^=value.charCodeAt(i)<<8;for(let bit=0;bit<8;bit++)crc=(crc&0x8000)?(crc<<1)^0x1021:crc<<1;crc&=0xffff}return crc.toString(16).toUpperCase().padStart(4,"0")}
+function buildQrPayload(amount,content){
+  const account=tlv("00",PAYMENT.bank_bin)+tlv("01",PAYMENT.bank_account);
+  const receiver=tlv("00","A000000727")+tlv("01",account)+tlv("02","QRIBFTTA");
+  const base=tlv("00","01")+tlv("01","12")+tlv("38",receiver)+tlv("53","704")+tlv("54",String(Math.round(amount)))+tlv("58","VN")+tlv("62",tlv("08",content||"HOC PHI"))+"6304";
+  return base+crc16(base);
+}
+async function renderQr(debt){
+  const image=$("tuitionQr"),open=$("tuitionQrOpen");
+  if(!image)return;
+  if(debt<=0){image.removeAttribute("src");image.alt="Không còn học phí cần thanh toán";if(open)open.classList.add("hidden");return}
+  image.removeAttribute("src");image.alt="Đang tạo mã QR đóng học phí";
+  if(open){open.removeAttribute("href");open.textContent="Đang tạo mã QR…";open.classList.remove("hidden")}
+  try{
+    const {default:QRCode}=await import("qrcode");
+    const dataUrl=await QRCode.toDataURL(buildQrPayload(debt,paymentReference()),{width:640,margin:2,errorCorrectionLevel:"M"});
+    image.src=dataUrl;image.alt=`Mã QR đóng học phí ${money(debt)}`;
+    if(open){open.href=dataUrl;open.textContent="Mở mã QR kích thước lớn ↗"}
+  }catch(error){
+    console.error("Không tạo được mã QR học phí",error);
+    image.alt="Không tạo được mã QR học phí";
+    if(open){open.removeAttribute("href");open.textContent="Không tạo được mã QR – tải lại trang"}
+  }
+}
 function render(){
   if(!student)return;
   if(me&&$("studentUsername"))$("studentUsername").textContent=`${me.username||"Học viên"} · Học viên`;
@@ -34,7 +60,7 @@ function render(){
   const total=Math.max(0,Number(student.tuition_total)||0),paid=Math.max(0,Number(student.paid)||0),debt=Math.max(0,total-paid),rate=total?Math.min(100,Math.round(paid/total*100)):0;
   $("tuitionTotal").textContent=money(total);$("tuitionPaid").textContent=money(paid);$("tuitionDebt").textContent=money(debt);$("tuitionRate").textContent=`Đã đóng ${rate}% tổng học phí`;$("tuitionStatus").textContent=debt?"Còn học phí cần hoàn tất":"Đã hoàn tất học phí";$("tuitionStatus").className=debt?"has-debt":"complete";$("tuitionDebtNote").textContent=debt?"Vui lòng hoàn tất theo lịch hẹn":"Không còn công nợ";
   $("paymentDebt").textContent=money(debt);$("paymentAmountBadge").textContent=debt?`Còn nợ ${money(debt)}`:"Đã hoàn tất";$("paymentAmountBadge").className=debt?"has-debt":"complete";$("paymentContent").textContent=paymentReference();$("paymentPending")?.classList.toggle("hidden",debt===0);$("paymentComplete")?.classList.toggle("hidden",debt>0);
-  if($("paymentBankName"))$("paymentBankName").textContent="MB Bank (MBBank)";if($("paymentAccountNumber"))$("paymentAccountNumber").textContent="360556789999";if($("paymentAccountOwner"))$("paymentAccountOwner").textContent="Trần Quốc Đạt";
+  if($("paymentBankName"))$("paymentBankName").textContent=PAYMENT.bank_name;if($("paymentAccountNumber"))$("paymentAccountNumber").textContent=PAYMENT.bank_account;if($("paymentAccountOwner"))$("paymentAccountOwner").textContent=PAYMENT.bank_holder;
   const progress=[["▤","Hồ sơ",student.profile_status||"Chưa cập nhật"],["◉","Lý thuyết online",student.online_status||"Chưa hoàn thành"],["▣","Cabin",student.cabin_status||"Chưa hoàn thành"],["⌖","DAT",student.dat_status||"Chưa thực hiện"],["✓","Thi tốt nghiệp",student.graduation_status||"Chưa hoàn thành"],["★","Thi sát hạch",student.exam_status||"Chưa thi sát hạch"]];
   if($("studentProgress"))$("studentProgress").innerHTML=progress.map(([icon,label,status])=>`<article class="progress-card"><span>${icon}</span><div><small>${esc(label)}</small><strong>${esc(status)}</strong></div><i></i></article>`).join("");
   const profile=[["Ngày sinh",date(student.date_of_birth)],["Số CCCD",student.cccd||"Chưa cập nhật"],["Điện thoại",student.phone||"Chưa cập nhật"],["Địa chỉ",student.address||"Chưa cập nhật"],["Hạng đào tạo",student.license_class||"Chưa cập nhật"],["Sát hạch / bằng lái",student.exam_status||"Chưa thi sát hạch"],["Trạng thái hồ sơ",student.profile_status||"Chưa cập nhật"]];
@@ -43,7 +69,7 @@ function render(){
   if($("studentPaymentHistoryList"))$("studentPaymentHistoryList").innerHTML='<div class="student-payment-empty"><span>₫</span><strong>Lịch sử phiếu thu đang tạm tải sau</strong></div>';
   if($("studentAttendanceList"))$("studentAttendanceList").innerHTML='<div class="student-attendance-empty"><span>◷</span><strong>Dữ liệu điểm danh đang tạm tải sau</strong></div>';
   if($("studentBookingRequests"))$("studentBookingRequests").innerHTML='<div class="booking-empty">Đăng ký lịch sẽ mở lại sau khi hệ thống ổn định.</div>';
-  warning("");showPortal();
+  warning("");showPortal();void renderQr(debt);
 }
 function wire(){
   $("studentLogoutBtn")?.addEventListener("click",async()=>{try{await rpc("app_student_logout",{p_token:token},2500)}catch{}clearAuth();location.replace("/")});
