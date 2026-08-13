@@ -52,6 +52,42 @@ async function renderQr(debt){
     if(open){open.removeAttribute("href");open.textContent="Không tạo được mã QR – tải lại trang"}
   }
 }
+function mountPaymentDisclosure(){
+  const payment=$("studentPayment"),link=$("tuitionPaymentLink"),finance=document.querySelector('section[aria-labelledby="financeHeading"]');
+  if(!payment||!link||!finance)return;
+  if(!$("studentPaymentDisclosureStyles")){
+    const style=document.createElement("style");style.id="studentPaymentDisclosureStyles";
+    style.textContent=`
+      #studentPayment.student-payment-collapsed{display:none!important}
+      #studentPayment.student-payment-expanded{display:block!important;margin-top:18px;border:1px solid #d9e8f5;background:#f7fbff;box-shadow:none}
+      #tuitionPaymentLink{display:inline-flex;align-items:center;gap:6px;margin-top:9px;font-weight:900;cursor:pointer}
+      .student-payment-collapse{display:flex;justify-content:flex-end;margin:0 0 14px}
+      .student-payment-collapse button{min-height:40px;padding:9px 14px;border:1px solid #d6e5f1;border-radius:12px;background:#fff;color:#144b78;font:800 12px/1 system-ui;cursor:pointer}
+      @media(max-width:760px){#studentPayment.student-payment-expanded{margin:14px -12px 0;padding:18px 12px;border-radius:20px}.student-payment-collapse{margin-bottom:10px}.student-payment-collapse button{width:100%}}
+    `;
+    document.head.append(style);
+  }
+  const grid=finance.querySelector(".tuition-grid");
+  if(grid&&payment.parentElement!==finance)grid.insertAdjacentElement("afterend",payment);
+  payment.classList.remove("student-payment-expanded");payment.classList.add("student-payment-collapsed");
+  let collapse=$("studentPaymentCollapse");
+  if(!collapse){
+    collapse=document.createElement("div");collapse.id="studentPaymentCollapse";collapse.className="student-payment-collapse";collapse.innerHTML='<button type="button">Thu gọn thông tin thanh toán ↑</button>';
+    payment.prepend(collapse);
+    collapse.querySelector("button").addEventListener("click",()=>setPaymentDisclosure(false));
+  }
+  link.textContent="Xem mã QR & thanh toán →";
+  link.setAttribute("role","button");link.setAttribute("aria-controls","studentPayment");link.setAttribute("aria-expanded","false");
+  link.addEventListener("click",event=>{event.preventDefault();setPaymentDisclosure(true)});
+  if(new URLSearchParams(location.search).get("view")==="payment"||location.hash==="#studentPayment")setPaymentDisclosure(true,false);
+}
+function setPaymentDisclosure(open,scroll=true){
+  const payment=$("studentPayment"),link=$("tuitionPaymentLink");if(!payment)return;
+  payment.classList.toggle("student-payment-collapsed",!open);payment.classList.toggle("student-payment-expanded",open);link?.setAttribute("aria-expanded",String(open));
+  if(link)link.textContent=open?"Đang mở thông tin thanh toán ↑":"Xem mã QR & thanh toán →";
+  if(open&&scroll)window.setTimeout(()=>payment.scrollIntoView({behavior:"smooth",block:"start"}),60);
+  if(!open&&scroll)window.setTimeout(()=>link?.closest(".tuition-card")?.scrollIntoView({behavior:"smooth",block:"center"}),40);
+}
 function render(){
   if(!student)return;
   if(me&&$("studentUsername"))$("studentUsername").textContent=`${me.username||"Học viên"} · Học viên`;
@@ -69,7 +105,7 @@ function render(){
   if($("studentPaymentHistoryList"))$("studentPaymentHistoryList").innerHTML='<div class="student-payment-empty"><span>₫</span><strong>Lịch sử phiếu thu đang tạm tải sau</strong></div>';
   if($("studentAttendanceList"))$("studentAttendanceList").innerHTML='<div class="student-attendance-empty"><span>◷</span><strong>Dữ liệu điểm danh đang tạm tải sau</strong></div>';
   if($("studentBookingRequests"))$("studentBookingRequests").innerHTML='<div class="booking-empty">Đăng ký lịch sẽ mở lại sau khi hệ thống ổn định.</div>';
-  warning("");showPortal();void renderQr(debt);
+  mountPaymentDisclosure();warning("");showPortal();void renderQr(debt);
 }
 function wire(){
   $("studentLogoutBtn")?.addEventListener("click",async()=>{try{await rpc("app_student_logout",{p_token:token},2500)}catch{}clearAuth();location.replace("/")});
