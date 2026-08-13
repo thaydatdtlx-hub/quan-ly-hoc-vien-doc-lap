@@ -79,7 +79,6 @@ function mountPaymentDisclosure(){
   link.textContent="Xem mã QR & thanh toán →";
   link.setAttribute("role","button");link.setAttribute("aria-controls","studentPayment");link.setAttribute("aria-expanded","false");
   link.addEventListener("click",event=>{event.preventDefault();setPaymentDisclosure(true)});
-  if(new URLSearchParams(location.search).get("view")==="payment"||location.hash==="#studentPayment")setPaymentDisclosure(true,false);
 }
 function setPaymentDisclosure(open,scroll=true){
   const payment=$("studentPayment"),link=$("tuitionPaymentLink");if(!payment)return;
