@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/validate-question-data.mjs && node scripts/validate-theory-explanations.mjs && node scripts/validate-b-exam-sets.mjs && vite build",
+    "build": "node scripts/validate-question-data.mjs && node scripts/validate-theory-explanations.mjs && node scripts/validate-b-exam-sets.mjs && vite build && node scripts/inject-mobile-login-stability.mjs",
     "preview": "vite preview",
     "check:questions": "node scripts/validate-question-data.mjs",
     "check:explanations": "node scripts/validate-theory-explanations.mjs",
