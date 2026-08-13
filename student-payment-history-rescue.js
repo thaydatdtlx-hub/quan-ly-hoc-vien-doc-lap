@@ -1,22 +1,99 @@
+import {openPaymentReceipt,paymentMethodLabel} from "./payment-receipt.js";
+
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
 const token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"";
 let paymentRecords=[];
 
-const METHOD_LABELS={cash:"Tiền mặt",bank_transfer:"Chuyển khoản",transfer:"Chuyển khoản",qr:"QR ngân hàng",card:"Thẻ",other:"Khác"};
 const esc=value=>String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
 const money=value=>new Intl.NumberFormat("vi-VN").format(Math.max(0,Number(value)||0))+" ₫";
-function date(value){if(!value)return"Chưa cập nhật";const m=String(value).match(/^(\d{4})-(\d{2})-(\d{2})/);if(m)return`${m[3]}/${m[2]}/${m[1]}`;const d=new Date(value);return Number.isNaN(d.valueOf())?String(value):new Intl.DateTimeFormat("vi-VN",{day:"2-digit",month:"2-digit",year:"numeric"}).format(d)}
-function ensureStyles(){if(document.getElementById("student-payment-history-rescue-style"))return;const style=document.createElement("style");style.id="student-payment-history-rescue-style";style.textContent=`
-#studentPaymentHistoryList{display:grid;gap:10px}.student-payment-history-item{display:grid;grid-template-columns:52px minmax(0,1fr) auto;align-items:center;gap:12px;padding:13px 14px;border:1px solid #dce7f0;border-radius:14px;background:linear-gradient(180deg,#fff,#fbfdff)}.student-payment-history-icon{display:grid;width:48px;height:48px;place-items:center;border-radius:13px;background:#e8f3ff;color:#126bc7;font-weight:950}.student-payment-history-main{display:grid;gap:3px;min-width:0}.student-payment-history-main strong{color:#153f68;font-size:11px}.student-payment-history-main small{color:#72869a;font-size:9px;line-height:1.45}.student-payment-history-main em{color:#8a6a44;font-size:8px;font-style:normal;overflow-wrap:anywhere}.student-payment-history-amount{text-align:right;white-space:nowrap}.student-payment-history-amount strong{display:block;color:#087b58;font-size:14px}.student-payment-history-amount small{display:block;margin-top:4px;color:#72869a;font-size:8px}.student-receipt-actions{display:flex;justify-content:flex-end;margin-top:8px}.student-receipt-view{border:1px solid #c9ddee;border-radius:9px;background:#fff;color:#1263af;padding:7px 10px;font:800 10px/1 system-ui;cursor:pointer}.student-receipt-view:hover{background:#eef7ff}.student-payment-history-empty{display:grid;place-items:center;gap:5px;min-height:135px;padding:20px;border:1px dashed #cadce9;border-radius:15px;color:#74899d;text-align:center}.student-payment-history-empty span{font-size:25px;color:#9ab1c4}.student-payment-history-empty strong{font-size:11px}.student-payment-history-empty small{font-size:9px}
-.student-receipt-modal{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:20px;background:rgba(8,28,48,.58);backdrop-filter:blur(5px)}.student-receipt-modal.hidden{display:none}.student-receipt-shell{width:min(860px,96vw);max-height:92vh;overflow:auto;border-radius:18px;background:#fff;box-shadow:0 28px 90px rgba(0,0,0,.28)}.student-receipt-toolbar{position:sticky;top:0;z-index:2;display:flex;justify-content:flex-end;gap:8px;padding:12px 14px;border-bottom:1px solid #e5ebf0;background:rgba(255,255,255,.96)}.student-receipt-toolbar button{min-height:40px;padding:0 14px;border:1px solid #c9d9e6;border-radius:10px;background:#fff;color:#173f63;font:800 11px/1 system-ui;cursor:pointer}.student-receipt-toolbar .primary{border-color:#0b72d2;background:#0b72d2;color:#fff}.student-receipt-document{padding:34px 42px 42px;color:#182838;font:14px/1.55 Arial,sans-serif}.student-receipt-head{display:flex;justify-content:space-between;gap:30px;padding-bottom:22px;border-bottom:1px solid #dfe6ec}.student-receipt-brand strong{display:block;font-size:20px;color:#0c4b83}.student-receipt-brand small{display:block;margin-top:5px;color:#667b8e}.student-receipt-title{text-align:right}.student-receipt-title h2{margin:0;font-size:34px;letter-spacing:.02em}.student-receipt-title b{color:#b9343c}.student-receipt-customer{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:24px 0}.student-receipt-box{padding:18px;border:1px solid #e1e7ec;border-radius:12px;background:#fbfcfd}.student-receipt-box h3{margin:0 0 10px;font-size:14px}.student-receipt-table{width:100%;border-collapse:collapse;margin-top:8px}.student-receipt-table th{padding:12px 10px;background:#f3ead7;text-align:left}.student-receipt-table td{padding:13px 10px;border-bottom:1px solid #e6eaee}.student-receipt-total{margin:20px 0 0 auto;width:min(420px,100%)}.student-receipt-total div{display:flex;justify-content:space-between;padding:8px 0}.student-receipt-total .grand{margin-top:5px;padding-top:12px;border-top:1px solid #d8dee5;color:#b8323b;font-size:18px;font-weight:900}.student-receipt-stamp{display:inline-block;margin-top:24px;padding:9px 16px;border:2px solid #d4545c;border-radius:8px;color:#c94750;font-weight:900;transform:rotate(-2deg)}.student-receipt-note{margin-top:26px;padding-top:16px;border-top:1px solid #e2e7ec;color:#67798a;font-size:12px}
-@media(max-width:680px){.student-payment-history-item{grid-template-columns:44px minmax(0,1fr)}.student-payment-history-icon{width:42px;height:42px}.student-payment-history-amount{grid-column:2;text-align:left}.student-receipt-actions{justify-content:flex-start}.student-receipt-document{padding:22px 18px 30px}.student-receipt-head,.student-receipt-customer{grid-template-columns:1fr;display:grid}.student-receipt-title{text-align:left}.student-receipt-title h2{font-size:28px}}
-@media print{body>*{display:none!important}.student-receipt-modal{position:static!important;display:block!important;padding:0!important;background:#fff!important}.student-receipt-shell{width:100%!important;max-height:none!important;overflow:visible!important;box-shadow:none!important;border-radius:0!important}.student-receipt-toolbar{display:none!important}.student-receipt-document{display:block!important;padding:10mm!important}}
-`;document.head.appendChild(style)}
-function ensureModal(){if($("studentReceiptModal"))return;const modal=document.createElement("div");modal.id="studentReceiptModal";modal.className="student-receipt-modal hidden";modal.innerHTML=`<div class="student-receipt-shell"><div class="student-receipt-toolbar"><button type="button" data-close>Đóng</button><button type="button" class="primary" data-print>In / Lưu PDF</button></div><div id="studentReceiptDocument" class="student-receipt-document"></div></div>`;document.body.appendChild(modal);modal.querySelector("[data-close]").addEventListener("click",()=>modal.classList.add("hidden"));modal.querySelector("[data-print]").addEventListener("click",()=>window.print());modal.addEventListener("click",event=>{if(event.target===modal)modal.classList.add("hidden")})}
-function receiptHtml(record){const method=METHOD_LABELS[record.payment_method]||record.payment_method||"Thanh toán";return `<div class="student-receipt-head"><div class="student-receipt-brand"><strong>HỌC LÁI XE CÙNG ĐẠT</strong><small>Cổng thông tin học viên · Biên nhận học phí</small></div><div class="student-receipt-title"><h2>PHIẾU THU</h2><div>Số: <b>${esc(record.receipt_no||"-")}</b></div><div>Ngày: ${esc(date(record.payment_date))}</div></div></div><div class="student-receipt-customer"><div class="student-receipt-box"><h3>THÔNG TIN HỌC VIÊN</h3><div><b>${esc(record.student_name||"Học viên")}</b></div><div>Mã học viên: ${esc(record.student_code||"-")}</div><div>Hạng GPLX: ${esc(record.license_class||"-")}</div><div>Khóa: ${esc(record.course||"-")}</div></div><div class="student-receipt-box"><h3>THÔNG TIN THANH TOÁN</h3><div>Phương thức: <b>${esc(method)}</b></div><div>Người ghi nhận: ${esc(record.created_by_username||"Hệ thống")}</div><div>Trạng thái: <b>Đã ghi nhận</b></div></div></div><table class="student-receipt-table"><thead><tr><th>Mô tả</th><th>Đơn giá</th><th>Thành tiền</th></tr></thead><tbody><tr><td>Thanh toán học phí ${esc(record.license_class||"")}</td><td>${esc(money(record.amount))}</td><td><b>${esc(money(record.amount))}</b></td></tr></tbody></table><div class="student-receipt-total"><div><span>Số tiền đã thu</span><b>${esc(money(record.amount))}</b></div><div><span>Tổng học phí khóa</span><b>${esc(money(record.tuition_total))}</b></div><div><span>Đã đóng lũy kế</span><b>${esc(money(record.paid))}</b></div><div class="grand"><span>PHIẾU THU NÀY</span><strong>${esc(money(record.amount))}</strong></div></div><div class="student-receipt-stamp">ĐÃ GHI NHẬN</div>${record.note?`<div class="student-receipt-note"><b>Ghi chú:</b> ${esc(record.note)}</div>`:""}<div class="student-receipt-note">Phiếu thu được hiển thị từ dữ liệu học phí do Admin ghi nhận trên hệ thống Học lái xe cùng Đạt.</div>`}
-function openReceipt(index){const record=paymentRecords[index];if(!record)return;ensureModal();$("studentReceiptDocument").innerHTML=receiptHtml(record);$("studentReceiptModal").classList.remove("hidden")}
-async function loadPaymentHistory(){if(!token)return;ensureStyles();ensureModal();const count=$("studentPaymentHistoryCount"),list=$("studentPaymentHistoryList"),notice=$("studentPaymentHistoryNotice");if(count)count.textContent="Đang đồng bộ…";const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),5000);try{const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/app_student_list_payments`,{method:"POST",cache:"no-store",signal:controller.signal,headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json","Cache-Control":"no-store"},body:JSON.stringify({p_token:token})});const data=await response.json().catch(()=>null);if(!response.ok)throw new Error(data?.message||data?.details||data?.error||"Không tải được lịch sử học phí");paymentRecords=Array.isArray(data)?data:[];renderPaymentHistory(paymentRecords)}catch(error){console.warn("[student-payment-history] Không đồng bộ được lịch sử học phí",error);if(count)count.textContent="Chưa đồng bộ";if(notice){notice.textContent="Lịch sử học phí đang đồng bộ lại từ dữ liệu Admin. Vui lòng tải lại sau ít phút.";notice.classList.remove("hidden")}if(list)list.innerHTML='<div class="student-payment-history-empty"><span>₫</span><strong>Chưa đồng bộ được phiếu thu</strong><small>Các số liệu tổng học phí vẫn được giữ nguyên.</small></div>'}finally{clearTimeout(timer)}}
-function renderPaymentHistory(records){const count=$("studentPaymentHistoryCount"),list=$("studentPaymentHistoryList"),notice=$("studentPaymentHistoryNotice");if(count)count.textContent=`${records.length} phiếu thu`;notice?.classList.add("hidden");if(!list)return;if(!records.length){list.innerHTML='<div class="student-payment-history-empty"><span>₫</span><strong>Chưa có phiếu thu</strong><small>Khi Admin ghi nhận khoản thanh toán, phiếu thu sẽ tự xuất hiện tại đây.</small></div>';return}list.innerHTML=records.slice(0,50).map((record,index)=>{const method=METHOD_LABELS[record.payment_method]||record.payment_method||"Thanh toán";const receipt=record.receipt_no||"Phiếu thu";return `<article class="student-payment-history-item"><span class="student-payment-history-icon">₫</span><div class="student-payment-history-main"><strong>${esc(receipt)}</strong><small>${esc(date(record.payment_date))} · ${esc(method)}</small>${record.note?`<em>${esc(record.note)}</em>`:""}</div><div class="student-payment-history-amount"><strong>+${esc(money(record.amount))}</strong><small>${record.created_by_username?`Ghi nhận bởi ${esc(record.created_by_username)}`:"Đã ghi nhận trên hệ thống"}</small><div class="student-receipt-actions"><button type="button" class="student-receipt-view" data-receipt-index="${index}">Xem / In</button></div></div></article>`}).join("");list.querySelectorAll("[data-receipt-index]").forEach(button=>button.addEventListener("click",()=>openReceipt(Number(button.dataset.receiptIndex))))}
+function date(value){
+  if(!value)return"Chưa cập nhật";
+  const match=String(value).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(match)return`${match[3]}/${match[2]}/${match[1]}`;
+  const parsed=new Date(value);
+  return Number.isNaN(parsed.valueOf())?String(value):new Intl.DateTimeFormat("vi-VN",{day:"2-digit",month:"2-digit",year:"numeric"}).format(parsed);
+}
+
+function ensureStyles(){
+  if(document.getElementById("student-payment-history-rescue-style"))return;
+  const style=document.createElement("style");
+  style.id="student-payment-history-rescue-style";
+  style.textContent=`
+    #studentPaymentHistoryList{display:grid;gap:10px}
+    .student-payment-history-item{display:grid;grid-template-columns:52px minmax(0,1fr) auto;align-items:center;gap:12px;padding:13px 14px;border:1px solid #dce7f0;border-radius:14px;background:linear-gradient(180deg,#fff,#fbfdff)}
+    .student-payment-history-icon{display:grid;width:48px;height:48px;place-items:center;border-radius:13px;background:#e8f3ff;color:#126bc7;font-weight:950}
+    .student-payment-history-main{display:grid;gap:3px;min-width:0}.student-payment-history-main strong{color:#153f68;font-size:11px}.student-payment-history-main small{color:#72869a;font-size:9px;line-height:1.45}.student-payment-history-main em{color:#8a6a44;font-size:8px;font-style:normal;overflow-wrap:anywhere}
+    .student-payment-history-amount{text-align:right;white-space:nowrap}.student-payment-history-amount>strong{display:block;color:#087b58;font-size:14px}.student-payment-history-amount>small{display:block;margin-top:4px;color:#72869a;font-size:8px}
+    .student-receipt-actions{display:flex;justify-content:flex-end;margin-top:8px}.student-receipt-view{border:1px solid #c9ddee;border-radius:9px;background:#fff;color:#1263af;padding:7px 10px;font:800 10px/1 system-ui;cursor:pointer}.student-receipt-view:hover{background:#eef7ff}
+    .student-payment-history-empty{display:grid;place-items:center;gap:5px;min-height:135px;padding:20px;border:1px dashed #cadce9;border-radius:15px;color:#74899d;text-align:center}.student-payment-history-empty span{font-size:25px;color:#9ab1c4}.student-payment-history-empty strong{font-size:11px}.student-payment-history-empty small{font-size:9px}
+    @media(max-width:680px){.student-payment-history-item{grid-template-columns:44px minmax(0,1fr)}.student-payment-history-icon{width:42px;height:42px}.student-payment-history-amount{grid-column:2;text-align:left}.student-receipt-actions{justify-content:flex-start}.student-payment-history-amount>strong{font-size:13px}}
+  `;
+  document.head.appendChild(style);
+}
+
+async function loadPaymentHistory(){
+  if(!token)return;
+  ensureStyles();
+  const count=$("studentPaymentHistoryCount"),list=$("studentPaymentHistoryList"),notice=$("studentPaymentHistoryNotice");
+  if(count)count.textContent="Đang đồng bộ…";
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),5000);
+  try{
+    const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/app_student_list_payments`,{
+      method:"POST",
+      cache:"no-store",
+      signal:controller.signal,
+      headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json","Cache-Control":"no-store"},
+      body:JSON.stringify({p_token:token})
+    });
+    const data=await response.json().catch(()=>null);
+    if(!response.ok)throw new Error(data?.message||data?.details||data?.error||"Không tải được lịch sử học phí");
+    paymentRecords=Array.isArray(data)?data:[];
+    renderPaymentHistory(paymentRecords);
+  }catch(error){
+    console.warn("[student-payment-history] Không đồng bộ được lịch sử học phí",error);
+    if(count)count.textContent="Chưa đồng bộ";
+    if(notice){notice.textContent="Lịch sử học phí đang đồng bộ lại từ dữ liệu Admin. Vui lòng tải lại sau ít phút.";notice.classList.remove("hidden")}
+    if(list)list.innerHTML='<div class="student-payment-history-empty"><span>₫</span><strong>Chưa đồng bộ được phiếu thu</strong><small>Các số liệu tổng học phí vẫn được giữ nguyên.</small></div>';
+  }finally{clearTimeout(timer)}
+}
+
+function openAdminReceipt(index){
+  const record=paymentRecords[index];
+  if(!record)return;
+  const opened=openPaymentReceipt(record);
+  if(!opened)alert("Trình duyệt đang chặn cửa sổ phiếu thu. Vui lòng cho phép cửa sổ bật lên rồi thử lại.");
+}
+
+function renderPaymentHistory(records){
+  const count=$("studentPaymentHistoryCount"),list=$("studentPaymentHistoryList"),notice=$("studentPaymentHistoryNotice");
+  if(count)count.textContent=`${records.length} phiếu thu`;
+  notice?.classList.add("hidden");
+  if(!list)return;
+  if(!records.length){
+    list.innerHTML='<div class="student-payment-history-empty"><span>₫</span><strong>Chưa có phiếu thu</strong><small>Khi Admin ghi nhận khoản thanh toán, phiếu thu sẽ tự xuất hiện tại đây.</small></div>';
+    return;
+  }
+  list.innerHTML=records.slice(0,50).map((record,index)=>{
+    const method=paymentMethodLabel(record.payment_method);
+    const receipt=record.receipt_no||"Phiếu thu";
+    return `<article class="student-payment-history-item">
+      <span class="student-payment-history-icon">₫</span>
+      <div class="student-payment-history-main">
+        <strong>${esc(receipt)}</strong>
+        <small>${esc(date(record.payment_date))} · ${esc(method)}</small>
+        ${record.note?`<em>${esc(record.note)}</em>`:""}
+      </div>
+      <div class="student-payment-history-amount">
+        <strong>+${esc(money(record.amount))}</strong>
+        <small>${record.created_by_username?`Ghi nhận bởi ${esc(record.created_by_username)}`:"Đã ghi nhận trên hệ thống"}</small>
+        <div class="student-receipt-actions"><button type="button" class="student-receipt-view" data-receipt-index="${index}">Xem / In phiếu</button></div>
+      </div>
+    </article>`;
+  }).join("");
+  list.querySelectorAll("[data-receipt-index]").forEach(button=>button.addEventListener("click",()=>openAdminReceipt(Number(button.dataset.receiptIndex))));
+}
+
 loadPaymentHistory();
