@@ -31,7 +31,7 @@ function isolateStudentPortal(html){
     }
   })();
   </script>`;
-  html=html.replace('</head>',`  ${paymentGuard}\n</head>`);
+  html=html.replace('</head>',`  <link rel="stylesheet" href="/student-premium-dashboard.css?v=20260813-1">\n  ${paymentGuard}\n</head>`);
   const cleanup=`<script>
   (()=>{
     const key="student_rescue_cleanup_20260813_v2";
