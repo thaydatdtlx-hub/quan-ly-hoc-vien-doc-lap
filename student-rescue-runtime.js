@@ -101,8 +101,6 @@ function render(){
   const profile=[["Ngày sinh",date(student.date_of_birth)],["Số CCCD",student.cccd||"Chưa cập nhật"],["Điện thoại",student.phone||"Chưa cập nhật"],["Địa chỉ",student.address||"Chưa cập nhật"],["Hạng đào tạo",student.license_class||"Chưa cập nhật"],["Sát hạch / bằng lái",student.exam_status||"Chưa thi sát hạch"],["Trạng thái hồ sơ",student.profile_status||"Chưa cập nhật"]];
   if($("studentProfile"))$("studentProfile").innerHTML=profile.map(([label,value])=>`<div><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`).join("");
   if($("theoryLatestExam"))$("theoryLatestExam").innerHTML="<span>i</span><p>Tiến độ lý thuyết sẽ đồng bộ sau khi Cổng học viên hoạt động ổn định.</p>";
-  if($("studentPaymentHistoryList"))$("studentPaymentHistoryList").innerHTML='<div class="student-payment-empty"><span>₫</span><strong>Lịch sử phiếu thu đang tạm tải sau</strong></div>';
-  if($("studentAttendanceList"))$("studentAttendanceList").innerHTML='<div class="student-attendance-empty"><span>◷</span><strong>Dữ liệu điểm danh đang tạm tải sau</strong></div>';
   if($("studentBookingRequests"))$("studentBookingRequests").innerHTML='<div class="booking-empty">Đăng ký lịch sẽ mở lại sau khi hệ thống ổn định.</div>';
   mountPaymentDisclosure();warning("");showPortal();void renderQr(debt);
 }
