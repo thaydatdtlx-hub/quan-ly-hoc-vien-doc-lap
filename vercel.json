@@ -9,17 +9,6 @@
       "has": [
         {
           "type": "host",
-          "value": "hoc-vien-thay-dat.vercel.app"
-        }
-      ],
-      "destination": "https://hoclaixecungdat.vercel.app/:path*",
-      "permanent": false
-    },
-    {
-      "source": "/:path*",
-      "has": [
-        {
-          "type": "host",
           "value": "daotaolaixe-thaydat.vercel.app"
         }
       ],
