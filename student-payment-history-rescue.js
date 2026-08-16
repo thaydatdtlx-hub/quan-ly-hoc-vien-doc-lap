@@ -1,7 +1,6 @@
 import {openPaymentReceipt,paymentMethodLabel} from "./payment-receipt.js";
+import {studentRpc} from "./student-rpc-client.js";
 
-const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
-const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
 const token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"";
 let paymentRecords=[];
@@ -38,18 +37,8 @@ async function loadPaymentHistory(){
   ensureStyles();
   const count=$("studentPaymentHistoryCount"),list=$("studentPaymentHistoryList"),notice=$("studentPaymentHistoryNotice");
   if(count)count.textContent="Đang đồng bộ…";
-  const controller=new AbortController();
-  const timer=setTimeout(()=>controller.abort(),5000);
   try{
-    const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/app_student_list_payments`,{
-      method:"POST",
-      cache:"no-store",
-      signal:controller.signal,
-      headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json","Cache-Control":"no-store"},
-      body:JSON.stringify({p_token:token})
-    });
-    const data=await response.json().catch(()=>null);
-    if(!response.ok)throw new Error(data?.message||data?.details||data?.error||"Không tải được lịch sử học phí");
+    const data=await studentRpc("app_student_list_payments",{p_token:token});
     paymentRecords=Array.isArray(data)?data:[];
     renderPaymentHistory(paymentRecords);
   }catch(error){
@@ -57,7 +46,7 @@ async function loadPaymentHistory(){
     if(count)count.textContent="Chưa đồng bộ";
     if(notice){notice.textContent="Lịch sử học phí đang đồng bộ lại từ dữ liệu Admin. Vui lòng tải lại sau ít phút.";notice.classList.remove("hidden")}
     if(list)list.innerHTML='<div class="student-payment-history-empty"><span>₫</span><strong>Chưa đồng bộ được phiếu thu</strong><small>Các số liệu tổng học phí vẫn được giữ nguyên.</small></div>';
-  }finally{clearTimeout(timer)}
+  }
 }
 
 function openAdminReceipt(index){

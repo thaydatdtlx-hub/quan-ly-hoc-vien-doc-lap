@@ -7,27 +7,49 @@ function canonicalizeLoginOrigin(){
   if(!LEGACY_HOSTS.has(location.hostname))return false;
   const isLoginPage=location.pathname==="/"||location.pathname==="/index.html"||location.pathname==="/dang-nhap.html";
   if(!isLoginPage)return false;
-  const target=new URL("/?login=1",CANONICAL_ORIGIN);
-  location.replace(target.href);
+  location.replace(new URL("/?login=1",CANONICAL_ORIGIN).href);
   return true;
 }
 
-async function rpc(name,body={},timeoutMs=7000){
+function requestError(data,status,fallback){
+  const error=new Error(data?.message||data?.details||data?.error||fallback);
+  error.status=status;
+  return error;
+}
+
+async function request(url,options,timeoutMs){
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),timeoutMs);
   try{
-    const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`,{
-      method:"POST",cache:"no-store",signal:controller.signal,
-      headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json","Cache-Control":"no-store"},
-      body:JSON.stringify(body)
-    });
-    const data=await response.json().catch(()=>null);
-    if(!response.ok)throw new Error(data?.message||data?.details||data?.error||"Không thể kết nối máy chủ");
-    return data;
+    return await fetch(url,{...options,signal:controller.signal});
   }catch(error){
     if(error?.name==="AbortError")throw new Error("Kết nối mạng đang chậm. Vui lòng kiểm tra 4G/5G hoặc Wi-Fi rồi thử lại.");
     throw error;
   }finally{clearTimeout(timer)}
+}
+
+async function parseResponse(response){
+  const data=await response.json().catch(()=>null);
+  if(!response.ok)throw requestError(data,response.status,"Không thể kết nối máy chủ");
+  return data;
+}
+
+async function rpc(name,body={},timeoutMs=9000){
+  try{
+    const response=await request("/api/student-rpc",{
+      method:"POST",cache:"no-store",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({fn:name,body})
+    },timeoutMs);
+    return await parseResponse(response);
+  }catch(proxyError){
+    if(proxyError?.status>=400&&proxyError.status<500)throw proxyError;
+    console.warn(`[mobile-login] same-origin ${name} failed; using direct fallback.`,proxyError);
+    const response=await request(`${SUPABASE_URL}/rest/v1/rpc/${name}`,{
+      method:"POST",cache:"no-store",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},
+      body:JSON.stringify(body)
+    },6500);
+    return parseResponse(response);
+  }
 }
 
 function clearAuth(){for(const store of [localStorage,sessionStorage]){store.removeItem("hv_token");store.removeItem("hv_auth_kind")}}
@@ -62,7 +84,7 @@ function mountMobileLoginStability(){
       if(!result?.token)throw new Error("Máy chủ chưa trả phiên đăng nhập. Vui lòng thử lại.");
       saveAuth(result.token,kind,remember);
       if(remember)localStorage.setItem("hv_saved_user",username);else localStorage.removeItem("hv_saved_user");
-      if(kind==="student")return location.replace("/hoc-vien.html?mobile=1");
+      if(kind==="student")return location.replace("/hoc-vien.html?mobile=2");
       if(kind==="public_theory")return location.replace("/600-cau-hoi.html");
       location.replace("/?login=1");
     }catch(loginError){

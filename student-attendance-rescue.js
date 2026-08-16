@@ -1,5 +1,5 @@
-const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
-const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
+import {studentRpc} from "./student-rpc-client.js";
+
 const $=id=>document.getElementById(id);
 const token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"";
 
@@ -41,18 +41,8 @@ function summary(records){
 }
 async function loadAttendance(){
   if(!token)return;
-  const controller=new AbortController();
-  const timer=setTimeout(()=>controller.abort(),4500);
   try{
-    const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/app_student_list_attendance`,{
-      method:"POST",
-      cache:"no-store",
-      signal:controller.signal,
-      headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json","Cache-Control":"no-store"},
-      body:JSON.stringify({p_token:token})
-    });
-    const data=await response.json().catch(()=>null);
-    if(!response.ok)throw new Error(data?.message||data?.details||data?.error||"Không tải được dữ liệu điểm danh");
+    const data=await studentRpc("app_student_list_attendance",{p_token:token});
     const records=Array.isArray(data)?data:[];
     renderAttendance(records);
   }catch(error){
@@ -61,8 +51,6 @@ async function loadAttendance(){
     if(notice){notice.textContent="Dữ liệu điểm danh đang đồng bộ lại. Vui lòng tải lại sau ít phút.";notice.classList.remove("hidden")}
     const list=$("studentAttendanceList");
     if(list)list.innerHTML='<div class="student-attendance-empty"><span>◷</span><strong>Chưa đồng bộ được dữ liệu điểm danh</strong><small>Cổng học viên vẫn hoạt động bình thường.</small></div>';
-  }finally{
-    clearTimeout(timer);
   }
 }
 function renderAttendance(records){
