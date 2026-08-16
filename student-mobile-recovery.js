@@ -1,4 +1,4 @@
-const KEY="student_mobile_recovery_20260813_v1";
+const KEY="student_mobile_recovery_20260816_v2";
 const $=id=>document.getElementById(id);
 function hasProfile(){const name=$("studentName")?.textContent?.trim()||"",code=$("studentCode")?.textContent?.trim()||"";return (name&&name!=="Học viên")||(code&&code!=="Chưa có mã")}
 function sync(){
@@ -8,7 +8,7 @@ function sync(){
   if($("mobileStudentClass"))$("mobileStudentClass").textContent=license;
   if($("mobileStudentActionTitle"))$("mobileStudentActionTitle").textContent="Hồ sơ đã sẵn sàng";
   if($("mobileStudentActionDetail"))$("mobileStudentActionDetail").textContent="Lịch, học phí và thông báo đang được đồng bộ.";
-  $("studentPortal")?.classList.remove("hidden");$("studentLoading")?.classList.add("hidden");$("studentRuntimeWarning")?.remove();sessionStorage.removeItem(KEY);return true;
+  $("studentPortal")?.classList.remove("hidden");$("studentLoading")?.classList.add("hidden");document.querySelectorAll("#studentRuntimeWarning").forEach(node=>node.remove());document.documentElement?.setAttribute("data-student-profile","ready");sessionStorage.removeItem(KEY);return true;
 }
 const observer=new MutationObserver(sync);observer.observe(document.body,{subtree:true,childList:true,characterData:true});
 setTimeout(()=>{
@@ -20,3 +20,5 @@ setTimeout(()=>{
   }
 },7000);
 window.addEventListener("pageshow",()=>setTimeout(sync,150));
+window.addEventListener("student-profile-ready",sync);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)setTimeout(sync,50)});

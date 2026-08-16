@@ -42,7 +42,7 @@ for(const token of ["studentDrivingRefreshShortcut","studentDrivingRefreshCta","
 for(const token of ["hasReceivedLicense","renderDrivingRefreshAccess","driving_refresh_student_prefill"]){
   if(!studentClient.includes(token)&&!refreshClient.includes(token))throw new Error(`Luồng bổ túc tay lái của học viên thiếu: ${token}`);
 }
-for(const token of ["thay-dat-pwa-v41","/mobile-viewport-lock.css?v=3","cache.put(request,copy)"]){
+for(const token of ["thay-dat-pwa-v42","/mobile-viewport-lock.css?v=3","cache.put(request,copy)"]){
   if(!worker.includes(token))throw new Error(`PWA chưa lưu tài nguyên mobile: ${token}`);
 }
 if(manifest.start_url!=="/?login=1")throw new Error("PWA chưa mở đúng cổng đăng nhập trên điện thoại.");
