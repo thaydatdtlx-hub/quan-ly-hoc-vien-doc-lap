@@ -211,7 +211,8 @@ body.site-area-registration :where(.intro-section,.course-section,.license-info-
 }
 body.site-area-registration :where(.course-section,.condition-section,.registration-section){position:relative!important}
 body.site-area-registration :where(.course-section,.condition-section,.registration-section)::before{
-  content:"";position:absolute;left:50%;top:0;bottom:0;width:100vw;transform:translateX(-50%);z-index:-1;background:#f7fafd;
+  content:"";position:absolute;left:0;top:0;bottom:0;width:100%;z-index:-1;background:#f7fafd;
+  box-shadow:0 0 0 100vmax #f7fafd;clip-path:inset(0 -100vmax);
 }
 body.site-area-registration .section-heading,
 body.site-area-registration .site-upgrade-heading{max-width:760px!important;margin:0 auto 34px!important;text-align:center!important}

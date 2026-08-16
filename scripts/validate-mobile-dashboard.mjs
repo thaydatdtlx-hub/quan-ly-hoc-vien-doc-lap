@@ -46,7 +46,7 @@ for(const token of ["thay-dat-pwa-v40","/mobile-viewport-lock.css?v=3","cache.pu
   if(!worker.includes(token))throw new Error(`PWA chưa lưu tài nguyên mobile: ${token}`);
 }
 if(manifest.start_url!=="/?login=1")throw new Error("PWA chưa mở đúng cổng đăng nhập trên điện thoại.");
-for(const token of [".td-taplai-inspired .mobile-bar{display:none!important}","padding-bottom:calc(82px + env(safe-area-inset-bottom))",".td-mobile-input-active .td-mobile-actionbar"]){
+for(const token of [".td-taplai-inspired .mobile-bar{display:none!important}","padding-bottom:calc(82px + env(safe-area-inset-bottom))",".td-mobile-input-active .td-mobile-actionbar","clip-path:inset(0 -100vmax)"]){
   if(!taplaiCss.includes(token))throw new Error(`Trang đăng ký mobile thiếu: ${token}`);
 }
 for(const token of ["legacyAppRoot","/?login=1"]){
