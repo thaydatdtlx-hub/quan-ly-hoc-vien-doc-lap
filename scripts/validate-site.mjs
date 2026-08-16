@@ -36,6 +36,7 @@ for(const page of pages){
   if(!/<title>[^<]+<\/title>/.test(html))errors.push(`${page}: thiếu tiêu đề`);
   if(!/<h1[\s>]/.test(html))errors.push(`${page}: thiếu H1`);
   if(!/<link\s+rel="icon"/.test(html))errors.push(`${page}: thiếu favicon`);
+  if(!html.includes('/mobile-viewport-lock.css?v=3'))errors.push(`${page}: thiếu CSS ổn định giao diện mobile`);
   if(!manifestOptional.has(page)&&!/<link\s+rel="manifest"/.test(html))errors.push(`${page}: thiếu manifest`);
   if(page!=="404.html"&&!/<meta\s+name="description"/.test(html))errors.push(`${page}: thiếu mô tả`);
   if(publicPages.has(page)&&!/<link\s+rel="canonical"/.test(html))errors.push(`${page}: thiếu canonical`);

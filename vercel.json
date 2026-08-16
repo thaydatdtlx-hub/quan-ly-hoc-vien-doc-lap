@@ -5,6 +5,28 @@
   "outputDirectory": "dist",
   "redirects": [
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "hoc-vien-thay-dat.vercel.app"
+        }
+      ],
+      "destination": "https://hoclaixecungdat.vercel.app/?login=1",
+      "permanent": false
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "hoc-vien-thay-dat.vercel.app"
+        }
+      ],
+      "destination": "https://hoclaixecungdat.vercel.app/:path*",
+      "permanent": false
+    },
+    {
       "source": "/:path*",
       "has": [
         {

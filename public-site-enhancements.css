@@ -11,3 +11,9 @@
 .site-privacy-link{color:#075aaa!important;text-decoration:underline}.site-upgrade-toast{position:fixed;z-index:180;right:18px;bottom:92px;max-width:340px;padding:14px 16px;border-radius:12px;background:#062c50;color:#fff;box-shadow:0 16px 40px #00182b45;transform:translateY(20px);opacity:0;pointer-events:none;transition:.2s}.site-upgrade-toast.show{transform:none;opacity:1}.site-upgrade-toast strong{display:block;font-size:12px}.site-upgrade-toast small{display:block;margin-top:4px;color:#c5d7e4;font-size:9px;line-height:1.45}
 @media(max-width:1100px){.site-mobile-menu-button{display:grid}.site-pricing-grid{grid-template-columns:repeat(3,1fr)}.site-location-grid,.site-trainer-grid{grid-template-columns:1fr}.site-proof-grid,.site-intakes-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:760px){.site-upgrade-section{padding:56px 15px}.site-upgrade-heading{text-align:left}.site-pricing-grid,.site-pricing-details,.site-proof-grid,.site-intakes-grid{grid-template-columns:1fr}.site-price-card{min-height:0}.site-location-info{padding:25px}.site-location-info h2{font-size:31px}.site-location-map{min-height:320px}.site-trainer-media img{height:390px}.site-facility-grid{grid-template-columns:1fr}.site-status-card{grid-template-columns:1fr;padding:20px}.site-status-form{grid-template-columns:1fr}.site-status-result{grid-column:auto}.site-confirmation-actions{grid-template-columns:1fr}.site-mobile-drawer{grid-template-columns:1fr min(88vw,360px)}}
+
+/* Giữ menu mobile nằm trên thanh hành động và cuộn an toàn trên màn hình thấp. */
+.site-mobile-drawer{z-index:130;pointer-events:none}
+.site-mobile-drawer.open{pointer-events:auto}
+.site-mobile-drawer__panel{min-width:0;max-height:100vh;max-height:100svh;grid-template-rows:auto minmax(0,1fr) auto;overflow:hidden}
+.site-mobile-drawer nav{overflow-y:auto;-webkit-overflow-scrolling:touch}

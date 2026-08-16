@@ -4,7 +4,7 @@
   "short_name": "Thầy Đạt",
   "description": "Quản lý hồ sơ, tiến độ, học phí, lịch đào tạo và học lý thuyết 600 câu.",
   "lang": "vi",
-  "start_url": "/",
+  "start_url": "/?login=1",
   "scope": "/",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],

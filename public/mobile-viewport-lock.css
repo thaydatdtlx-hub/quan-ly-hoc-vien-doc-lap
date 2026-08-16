@@ -10,18 +10,20 @@
 
   html{
     width:100%;
-    min-width:320px;
+    min-width:0;
     max-width:100%;
     overflow-x:hidden;
+    overflow-x:clip;
     -webkit-text-size-adjust:100%;
     text-size-adjust:100%;
   }
 
   body{
     width:100%;
-    min-width:320px;
+    min-width:0;
     max-width:100%;
     overflow-x:hidden!important;
+    overflow-x:clip!important;
     overscroll-behavior-x:none;
   }
 
@@ -34,6 +36,7 @@
 
   *,*::before,*::after{box-sizing:border-box}
   img,svg,video,canvas{max-width:100%;height:auto}
+  iframe{max-width:100%}
 
   input:not([type="checkbox"]):not([type="radio"]),
   select,

@@ -2,7 +2,7 @@ import {readFile,stat} from "node:fs/promises";
 
 const root=new URL("../",import.meta.url);
 const manifest=JSON.parse(await readFile(new URL("public/site.webmanifest",root),"utf8"));
-if(manifest.display!=="standalone"||manifest.start_url!=="/"||manifest.scope!=="/")throw new Error("Manifest chưa cấu hình chế độ ứng dụng độc lập.");
+if(manifest.display!=="standalone"||manifest.start_url!=="/?login=1"||manifest.scope!=="/")throw new Error("Manifest chưa mở đúng cổng đăng nhập ở chế độ ứng dụng độc lập.");
 for(const size of ["192x192","512x512"]){
   if(!manifest.icons.some(icon=>icon.sizes===size&&icon.type==="image/png"))throw new Error(`Manifest thiếu biểu tượng PNG ${size}.`);
 }

@@ -19,7 +19,8 @@ function injectLegacyPwaMigration(html){
   const migration=`<script id="legacy-pwa-origin-migration">
   (()=>{
     if(location.hostname!=="hoc-vien-thay-dat.vercel.app")return;
-    const target="${ORIGIN}"+location.pathname+location.search+location.hash;
+    const legacyAppRoot=location.pathname==="/"||location.pathname==="/index.html";
+    const target="${ORIGIN}"+(legacyAppRoot?"/?login=1":location.pathname+location.search+location.hash);
     (async()=>{
       try{
         if("serviceWorker" in navigator){

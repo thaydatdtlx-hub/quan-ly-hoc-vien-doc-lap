@@ -29,6 +29,16 @@ function mountMobileActions(){
   document.body.append(bar);
 }
 
+function stabilizeMobileControls(){
+  const update=()=>{
+    const active=document.activeElement;
+    const editing=active&&/^(INPUT|SELECT|TEXTAREA)$/.test(active.tagName);
+    document.body.classList.toggle('td-mobile-input-active',Boolean(editing));
+  };
+  document.addEventListener('focusin',update);
+  document.addEventListener('focusout',()=>window.setTimeout(update,0));
+}
+
 function improveHeaderLabels(){
   const brand=document.querySelector('.site-header .brand span');
   if(brand){
@@ -59,6 +69,7 @@ function initTaplaiInspired(){
   addTheoryNav();
   mountOnlineBanner();
   mountMobileActions();
+  stabilizeMobileControls();
 }
 
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initTaplaiInspired,{once:true});
