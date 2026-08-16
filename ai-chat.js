@@ -1,11 +1,10 @@
 import "./ai-chat.css";
 import {SCHEDULE_FIELDS,parseScheduleFromNotes} from "./schedule-data.js";
+import {studentRpc as requestStudentRpc} from "./student-rpc-client.js";
 
 const HISTORY_KEY="thay_dat_free_assistant_v2";
 const MAX_HISTORY=8;
 const QUESTION_DATA_URL="/data/600-cau-hoi-2025.json";
-const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
-const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 let questionBankPromise=null;
 let privateSchedulePromise=null;
 
@@ -28,9 +27,7 @@ function currentQuestion(){
   return typeof window.__THAY_DAT_AI_CONTEXT__==="function"?window.__THAY_DAT_AI_CONTEXT__():null;
 }
 async function studentRpc(name,body={}){
-  const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`,{method:"POST",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
-  if(!response.ok)return null;
-  return response.json().catch(()=>null);
+  try{return await requestStudentRpc(name,body)}catch{return null}
 }
 async function loadPrivateSchedule(){
   const token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"";

@@ -1,5 +1,5 @@
-const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
-const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
+import {studentRpc} from "./student-rpc-client.js";
+
 const $=id=>document.getElementById(id);
 const token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"";
 let student=null;
@@ -19,36 +19,8 @@ function warning(message="",retry=false){
   const text=document.createElement("span");text.textContent=message;box.append(text);
   if(retry){const button=document.createElement("button");button.type="button";button.textContent=" Thử lại";button.style.cssText="margin-left:8px;border:0;border-radius:8px;padding:7px 10px;background:#0b74de;color:#fff;font:800 11px system-ui";button.onclick=()=>boot(true);box.append(button)}
 }
-function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
-async function rpcFetch(fn,body,timeoutMs=5000){
-  const request=fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",cache:"no-store",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json","Cache-Control":"no-store"},body:JSON.stringify(body)}).then(async response=>{
-    const data=await response.json().catch(()=>null);
-    if(!response.ok)throw new Error(data?.message||data?.details||data?.error||`Không tải được ${fn}`);
-    return data;
-  });
-  return Promise.race([request,sleep(timeoutMs).then(()=>{throw new Error("FETCH_TIMEOUT")})]);
-}
-function rpcXhr(fn,body,timeoutMs=7000){
-  return new Promise((resolve,reject)=>{
-    const xhr=new XMLHttpRequest();
-    xhr.open("POST",`${SUPABASE_URL}/rest/v1/rpc/${fn}`,true);
-    xhr.timeout=timeoutMs;
-    xhr.setRequestHeader("apikey",SUPABASE_KEY);
-    xhr.setRequestHeader("Content-Type","application/json");
-    xhr.setRequestHeader("Cache-Control","no-store");
-    xhr.onload=()=>{let data=null;try{data=JSON.parse(xhr.responseText||"null")}catch{}if(xhr.status>=200&&xhr.status<300)resolve(data);else reject(new Error(data?.message||data?.details||data?.error||`HTTP ${xhr.status}`))};
-    xhr.onerror=()=>reject(new Error("Không kết nối được máy chủ dữ liệu."));
-    xhr.ontimeout=()=>reject(new Error("Kết nối dữ liệu quá thời gian."));
-    try{xhr.send(JSON.stringify(body))}catch(error){reject(error)}
-  });
-}
 async function rpcReliable(fn,body){
-  try{return await rpcFetch(fn,body,5000)}
-  catch(firstError){
-    console.warn(`[student-ios] fetch ${fn} failed`,firstError);
-    try{return await rpcXhr(fn,body,8000)}
-    catch(secondError){console.warn(`[student-ios] xhr ${fn} failed`,secondError);throw secondError?.message?secondError:firstError}
-  }
+  return studentRpc(fn,body,{proxyTimeoutMs:9500,directTimeoutMs:6500});
 }
 function paymentReference(){const name=String(student?.name||"HOC VIEN").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/gi,"d").replace(/[^a-zA-Z0-9 ]/g," ").replace(/\s+/g," ").trim().toUpperCase();return`HP DTLX ${name}`.slice(0,50).trim()}
 function tlv(id,value){const text=String(value);return`${id}${String(text.length).padStart(2,"0")}${text}`}
