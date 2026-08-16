@@ -29,7 +29,9 @@ for(const token of ["/api/student-rpc","same-origin","app_student_login","app_lo
 }
 if(/headers:\{apikey:[^}]*Cache-Control/.test(login))throw new Error("Fallback đăng nhập trực tiếp không được gửi header Cache-Control qua CORS.");
 if(!serviceWorker.includes('thay-dat-pwa-v41')||!serviceWorker.includes('/mobile-login-stability.js'))throw new Error("PWA chưa làm mới cache cho luồng đăng nhập mobile.");
-if(!injector.includes('mobile-login-stability.js?v=20260816-2'))throw new Error("Trang đăng nhập chưa buộc tải runtime mobile mới.");
+for(const token of ['mobile-login-stability.js?v=20260816-2','copyFile','resolve("dist","mobile-login-stability.js")']){
+  if(!injector.includes(token))throw new Error(`Bản build đăng nhập mobile thiếu: ${token}`);
+}
 
 const {default:handler}=await import(new URL("api/student-rpc.js",root));
 const result=await new Promise(resolve=>{
