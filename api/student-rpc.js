@@ -1,6 +1,8 @@
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const ALLOWED=new Set([
+  "app_student_login",
+  "app_login",
   "app_student_portal",
   "app_student_me",
   "app_student_logout",
@@ -20,9 +22,18 @@ async function upstream(fn,body,timeoutMs=8000){
   })}finally{clearTimeout(timer)}
 }
 
+function parsedBody(req){
+  if(req.body&&typeof req.body==="object")return req.body;
+  if(typeof req.body==="string"){
+    try{return JSON.parse(req.body)}catch{return {}}
+  }
+  return {};
+}
+
 export default async function handler(req,res){
   res.setHeader("Cache-Control","no-store, no-cache, must-revalidate, max-age=0");
   res.setHeader("Content-Type","application/json; charset=utf-8");
+  res.setHeader("X-Student-RPC","same-origin-v2");
   if(req.method==="GET"){
     try{
       const response=await upstream("app_public_site_config",{},5000);
@@ -33,9 +44,10 @@ export default async function handler(req,res){
     }
   }
   if(req.method!=="POST")return res.status(405).json({error:"Method not allowed"});
-  const fn=String(req.body?.fn||"");
+  const incoming=parsedBody(req);
+  const fn=String(incoming.fn||"");
   if(!ALLOWED.has(fn))return res.status(400).json({error:"RPC not allowed"});
-  const body=req.body?.body&&typeof req.body.body==="object"?req.body.body:{};
+  const body=incoming.body&&typeof incoming.body==="object"?incoming.body:{};
   if(JSON.stringify(body).length>20000)return res.status(413).json({error:"Request too large"});
   try{
     const response=await upstream(fn,body);

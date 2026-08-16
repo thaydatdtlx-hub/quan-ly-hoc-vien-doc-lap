@@ -1,26 +1,35 @@
 import {readFile} from "node:fs/promises";
 
 const root=new URL("../",import.meta.url);
-const [client,api,portal,attendance,payments,chat]=await Promise.all([
+const [client,api,portal,attendance,payments,chat,login,serviceWorker,injector]=await Promise.all([
   readFile(new URL("student-rpc-client.js",root),"utf8"),
   readFile(new URL("api/student-rpc.js",root),"utf8"),
   readFile(new URL("student-rescue-runtime-ios.js",root),"utf8"),
   readFile(new URL("student-attendance-rescue.js",root),"utf8"),
   readFile(new URL("student-payment-history-rescue.js",root),"utf8"),
-  readFile(new URL("ai-chat.js",root),"utf8")
+  readFile(new URL("ai-chat.js",root),"utf8"),
+  readFile(new URL("mobile-login-stability.js",root),"utf8"),
+  readFile(new URL("public/sw.js",root),"utf8"),
+  readFile(new URL("scripts/inject-mobile-login-stability.mjs",root),"utf8")
 ]);
 
 for(const token of ["/api/student-rpc","proxyRpc","directRpc","AbortController","proxyError?.status>=400","same-origin"]){
   if(!client.includes(token))throw new Error(`Client RPC học viên thiếu: ${token}`);
 }
 if(/directRpc[\s\S]*?Cache-Control/.test(client))throw new Error("Fallback trực tiếp không được gửi header Cache-Control qua CORS.");
-for(const token of ["app_student_portal","app_student_me","app_student_logout","app_student_list_attendance","app_student_list_payments","app_list_training_sessions","app_public_site_config","Request too large","upstream unavailable"]){
+for(const token of ["app_student_login","app_login","app_student_portal","app_student_me","app_student_logout","app_student_list_attendance","app_student_list_payments","app_list_training_sessions","app_public_site_config","Request too large","upstream unavailable"]){
   if(!api.includes(token))throw new Error(`Proxy RPC học viên thiếu: ${token}`);
 }
 for(const [name,source] of [["portal",portal],["điểm danh",attendance],["học phí",payments],["trợ lý",chat]]){
   if(!source.includes("student-rpc-client.js"))throw new Error(`Module ${name} chưa dùng kết nối cùng domain.`);
 }
 if(portal.includes("XMLHttpRequest")||portal.includes("Promise.race"))throw new Error("Portal iOS vẫn dùng fallback request dễ treo.");
+for(const token of ["/api/student-rpc","same-origin","app_student_login","app_login","/hoc-vien.html?mobile=2"]){
+  if(!login.includes(token))throw new Error(`Đăng nhập mobile thiếu: ${token}`);
+}
+if(/headers:\{apikey:[^}]*Cache-Control/.test(login))throw new Error("Fallback đăng nhập trực tiếp không được gửi header Cache-Control qua CORS.");
+if(!serviceWorker.includes('thay-dat-pwa-v41')||!serviceWorker.includes('/mobile-login-stability.js'))throw new Error("PWA chưa làm mới cache cho luồng đăng nhập mobile.");
+if(!injector.includes('mobile-login-stability.js?v=20260816-2'))throw new Error("Trang đăng nhập chưa buộc tải runtime mobile mới.");
 
 const {default:handler}=await import(new URL("api/student-rpc.js",root));
 const result=await new Promise(resolve=>{
@@ -31,7 +40,7 @@ const result=await new Promise(resolve=>{
     json(payload){resolve({status:this.statusCode,payload});return this},
     send(payload){resolve({status:this.statusCode,payload});return this}
   };
-  handler({method:"POST",body:{fn:"app_login",body:{}}},response);
+  handler({method:"POST",body:{fn:"app_not_allowed",body:{}}},response);
 });
 if(result.status!==400||result.payload?.error!=="RPC not allowed")throw new Error("Whitelist RPC học viên chưa chặn hàm ngoài phạm vi.");
 
