@@ -72,7 +72,7 @@ function ensureAdminLayoutStyles(){
 }
 
 function ensureMobileViewportStyles(){
-  ensureStyleLink("/mobile-viewport-lock.css?v=2","data-mobile-viewport-lock");
+  ensureStyleLink("/mobile-viewport-lock.css?v=3","data-mobile-viewport-lock");
 }
 
 ensureAdminLayoutStyles();

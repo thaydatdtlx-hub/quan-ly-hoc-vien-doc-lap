@@ -13,7 +13,7 @@ if(paymentMethodLabel("bank_transfer")!=="Chuyển khoản")throw new Error("Sai
 if(receiptDate("2026-08-01")!=="01/08/2026")throw new Error("Sai định dạng ngày phiếu thu.");
 if(receiptMoney(5_000_000)!=="5.000.000 ₫")throw new Error("Sai định dạng số tiền phiếu thu.");
 const html=buildReceiptHtml({receipt_no:"PT-20260801-ABC123",student_name:"Nguyễn Văn An",student_code:"HV-0001",amount:5_000_000,payment_date:"2026-08-01",payment_method:"bank_transfer"});
-if(!html.includes("PHIẾU THU HỌC PHÍ")||!html.includes("PT-20260801-ABC123")||!html.includes("5.000.000 ₫")||!html.includes("Trần Quốc Đạt"))throw new Error("Phiếu thu thiếu nội dung bắt buộc.");
+if(!html.includes("BIÊN LAI HỌC PHÍ")||!html.includes("PT-20260801-ABC123")||!html.includes("5.000.000 ₫")||!html.includes("Trần Quốc Đạt"))throw new Error("Biên lai học phí thiếu nội dung bắt buộc.");
 
 const sql=readFileSync(new URL("../CAP-NHAT-LICH-SU-HOC-PHI-PHIEU-THU.sql",import.meta.url),"utf8");
 for(const required of [

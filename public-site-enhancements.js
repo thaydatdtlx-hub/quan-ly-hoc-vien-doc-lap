@@ -9,15 +9,16 @@ function mountMobileMenu(){
   const header=document.querySelector(".site-header"),nav=header?.querySelector("nav");
   if(!header||!nav||document.querySelector(".site-mobile-menu-button"))return;
   const button=document.createElement("button");
-  button.className="site-mobile-menu-button";button.type="button";button.setAttribute("aria-label","Mở menu");button.textContent="☰";
+  button.className="site-mobile-menu-button";button.type="button";button.setAttribute("aria-label","Mở menu");button.setAttribute("aria-controls","siteMobileDrawer");button.setAttribute("aria-expanded","false");button.textContent="☰";
   header.append(button);
   const drawer=document.createElement("div");
-  drawer.className="site-mobile-drawer";
+  drawer.id="siteMobileDrawer";drawer.className="site-mobile-drawer";drawer.setAttribute("aria-hidden","true");
   drawer.innerHTML=`<button class="site-mobile-drawer__backdrop" type="button" aria-label="Đóng menu"></button><aside class="site-mobile-drawer__panel"><div class="site-mobile-drawer__head"><div class="site-mobile-drawer__brand"><img src="/logo-thay-dat-compact.webp?v=15" alt=""><span><strong>THẦY ĐẠT</strong><small>Đào tạo lái xe trọn gói</small></span></div><button class="site-mobile-drawer__close" type="button" aria-label="Đóng menu">×</button></div><nav>${[...nav.querySelectorAll("a")].map(a=>`<a href="${a.getAttribute("href")}">${a.textContent}</a>`).join("")}<a href="#noi-dung-dao-tao">Nội dung đào tạo</a><a href="#thu-tuc-dang-ky">Thủ tục đăng ký</a><a href="#video-dao-tao">Video đào tạo</a></nav><div class="site-mobile-drawer__actions"><a href="tel:${PHONE}">Gọi tư vấn</a><a href="${ZALO_URL}" target="_blank" rel="noopener noreferrer">Nhắn Zalo</a></div></aside>`;
   document.body.append(drawer);
-  const close=()=>{drawer.classList.remove("open");document.body.classList.remove("site-menu-open");button.setAttribute("aria-expanded","false")};
-  button.onclick=()=>{drawer.classList.add("open");document.body.classList.add("site-menu-open");button.setAttribute("aria-expanded","true")};
+  const close=()=>{drawer.classList.remove("open");drawer.setAttribute("aria-hidden","true");document.body.classList.remove("site-menu-open");button.setAttribute("aria-expanded","false")};
+  button.onclick=()=>{drawer.classList.add("open");drawer.setAttribute("aria-hidden","false");document.body.classList.add("site-menu-open");button.setAttribute("aria-expanded","true");drawer.querySelector(".site-mobile-drawer__close")?.focus()};
   drawer.querySelectorAll("button,a").forEach(el=>el.addEventListener("click",close));
+  document.addEventListener("keydown",event=>{if(event.key==="Escape"&&drawer.classList.contains("open")){close();button.focus()}});
 }
 
 function section(className,id,html){const node=document.createElement("section");node.className=`site-upgrade-section ${className}`;node.id=id;node.innerHTML=`<div class="site-upgrade-shell">${html}</div>`;return node}
