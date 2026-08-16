@@ -1,25 +1,22 @@
 const CANONICAL_ORIGIN="https://hoclaixecungdat.vercel.app";
 const LEGACY_HOSTS=new Set(["hoc-vien-thay-dat.vercel.app","daotaolaixe-thaydat.vercel.app","daotaolaixetrongoi.com","www.daotaolaixetrongoi.com"]);
-const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
-const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 
 function canonicalizeLoginOrigin(){
   if(!LEGACY_HOSTS.has(location.hostname))return false;
   const isLoginPage=location.pathname==="/"||location.pathname==="/index.html"||location.pathname==="/dang-nhap.html";
   if(!isLoginPage)return false;
-  const target=new URL("/?login=1",CANONICAL_ORIGIN);
-  location.replace(target.href);
+  location.replace(new URL("/?login=1",CANONICAL_ORIGIN).href);
   return true;
 }
 
-async function rpc(name,body={},timeoutMs=7000){
+async function rpc(name,body={},timeoutMs=9000){
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),timeoutMs);
   try{
-    const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`,{
+    const response=await fetch("/api/student-rpc",{
       method:"POST",cache:"no-store",signal:controller.signal,
-      headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json","Cache-Control":"no-store"},
-      body:JSON.stringify(body)
+      headers:{"Content-Type":"application/json","Cache-Control":"no-store"},
+      body:JSON.stringify({fn:name,body})
     });
     const data=await response.json().catch(()=>null);
     if(!response.ok)throw new Error(data?.message||data?.details||data?.error||"Không thể kết nối máy chủ");
@@ -62,7 +59,7 @@ function mountMobileLoginStability(){
       if(!result?.token)throw new Error("Máy chủ chưa trả phiên đăng nhập. Vui lòng thử lại.");
       saveAuth(result.token,kind,remember);
       if(remember)localStorage.setItem("hv_saved_user",username);else localStorage.removeItem("hv_saved_user");
-      if(kind==="student")return location.replace("/hoc-vien.html?mobile=1");
+      if(kind==="student")return location.replace("/hoc-vien.html?mobile=2");
       if(kind==="public_theory")return location.replace("/600-cau-hoi.html");
       location.replace("/?login=1");
     }catch(loginError){
