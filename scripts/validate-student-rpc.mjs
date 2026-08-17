@@ -23,6 +23,10 @@ if(/directRpc[\s\S]*?Cache-Control/.test(client))throw new Error("Fallback trự
 for(const token of ["app_student_login","app_login","app_student_portal","app_student_me","app_student_logout","app_student_list_attendance","app_student_list_payments","app_list_training_sessions","app_public_site_config","Request too large","upstream unavailable"]){
   if(!api.includes(token))throw new Error(`Proxy RPC học viên thiếu: ${token}`);
 }
+const portalRpcNames=[...fullPortal.matchAll(/rpc\("([^"]+)"/g)].map(match=>match[1]);
+for(const name of new Set(portalRpcNames)){
+  if(!api.includes(`"${name}"`))throw new Error(`Proxy chưa cho phép RPC được portal đầy đủ sử dụng: ${name}`);
+}
 for(const [name,source] of [["portal đầy đủ",fullPortal],["portal dự phòng",portal],["điểm danh",attendance],["học phí",payments],["trợ lý",chat]]){
   if(!source.includes("student-rpc-client.js"))throw new Error(`Module ${name} chưa dùng kết nối cùng domain.`);
 }
