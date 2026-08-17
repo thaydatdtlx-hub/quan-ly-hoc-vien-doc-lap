@@ -8,7 +8,16 @@ const ALLOWED=new Set([
   "app_student_logout",
   "app_student_list_attendance",
   "app_student_list_payments",
-  "app_list_training_sessions"
+  "app_list_training_sessions",
+  "app_list_training_requests",
+  "app_list_training_slots",
+  "app_list_notifications",
+  "app_mark_notifications_read",
+  "app_student_get_theory_progress",
+  "app_student_cancel_training_request",
+  "app_student_create_training_request",
+  "app_student_create_training_request_slot",
+  "app_student_change_password"
 ]);
 
 async function upstream(fn,body,timeoutMs=8000){

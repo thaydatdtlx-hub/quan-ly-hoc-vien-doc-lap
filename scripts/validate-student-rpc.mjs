@@ -23,6 +23,10 @@ if(/directRpc[\s\S]*?Cache-Control/.test(client))throw new Error("Fallback trự
 for(const token of ["app_student_login","app_login","app_student_portal","app_student_me","app_student_logout","app_student_list_attendance","app_student_list_payments","app_list_training_sessions","app_public_site_config","Request too large","upstream unavailable"]){
   if(!api.includes(token))throw new Error(`Proxy RPC học viên thiếu: ${token}`);
 }
+const portalRpcNames=[...fullPortal.matchAll(/rpc\("([^"]+)"/g)].map(match=>match[1]);
+for(const name of new Set(portalRpcNames)){
+  if(!api.includes(`"${name}"`))throw new Error(`Proxy chưa cho phép RPC được portal đầy đủ sử dụng: ${name}`);
+}
 for(const [name,source] of [["portal đầy đủ",fullPortal],["portal dự phòng",portal],["điểm danh",attendance],["học phí",payments],["trợ lý",chat]]){
   if(!source.includes("student-rpc-client.js"))throw new Error(`Module ${name} chưa dùng kết nối cùng domain.`);
 }
@@ -52,7 +56,8 @@ for(const token of ['mobile-login-stability.js?v=20260816-3','copyFile','resolve
 }
 
 const {default:handler}=await import(new URL("api/student-rpc.js",root));
-const result=await new Promise(resolve=>{
+function invokeHandler(fn){
+  return new Promise(resolve=>{
   const response={
     statusCode:200,
     setHeader(){},
@@ -60,9 +65,20 @@ const result=await new Promise(resolve=>{
     json(payload){resolve({status:this.statusCode,payload});return this},
     send(payload){resolve({status:this.statusCode,payload});return this}
   };
-  handler({method:"POST",body:{fn:"app_not_allowed",body:{}}},response);
-});
+    handler({method:"POST",body:{fn,body:{p_token:"test"}}},response);
+  });
+}
+const result=await invokeHandler("app_not_allowed");
 if(result.status!==400||result.payload?.error!=="RPC not allowed")throw new Error("Whitelist RPC học viên chưa chặn hàm ngoài phạm vi.");
+
+const handlerFetch=globalThis.fetch;
+try{
+  globalThis.fetch=async()=>new Response(JSON.stringify({ok:true}),{status:200,headers:{"Content-Type":"application/json"}});
+  for(const name of new Set(portalRpcNames)){
+    const allowed=await invokeHandler(name);
+    if(allowed.status!==200||allowed.payload?.error==="RPC not allowed")throw new Error(`Proxy vẫn chặn RPC portal: ${name}`);
+  }
+}finally{globalThis.fetch=handlerFetch}
 
 const {studentRpc}=await import(new URL("student-rpc-client.js",root));
 const nativeFetch=globalThis.fetch;
