@@ -599,7 +599,7 @@ $("deleteAllScheduleBtn").onclick=async()=>{
 document.querySelectorAll(".dialog-close").forEach(button=>button.onclick=()=>button.closest("dialog").close());
 
 async function boot(){
-  if(!token)return location.replace("/");
+  if(!token)return location.replace("/?login=1");
   busy(true);
   try{
     if(authKind==="student"){
@@ -617,7 +617,7 @@ async function boot(){
     if(!me?.id)throw new Error("Phiên đăng nhập đã hết hạn");
     $("accountName").textContent=me.role==="admin"?`${me.username} · Admin`:me.role==="student"?`${me.username} · Học viên`:me.username;
     if(me.role==="student"){
-      document.querySelectorAll('a[href="/"]').forEach(link=>link.href="/hoc-vien.html");
+      document.querySelectorAll('a[href="/?login=1"]').forEach(link=>link.href="/hoc-vien.html");
       document.querySelector(".topbar-actions a").textContent="← Về cổng học viên";
       $("emptyState").querySelector("p").textContent="Lịch mới sẽ hiển thị tại đây khi được trung tâm cập nhật.";
     }
@@ -634,7 +634,7 @@ async function boot(){
   }catch(error){
     for(const store of [localStorage,sessionStorage]){store.removeItem("hv_token");store.removeItem("hv_auth_kind")}
     alert(error?.message||"Không thể mở lịch đào tạo.");
-    location.replace("/");
+    location.replace("/?login=1");
   }finally{busy(false)}
 }
 

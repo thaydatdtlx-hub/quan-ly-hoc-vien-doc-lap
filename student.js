@@ -2,18 +2,13 @@ import {SCHEDULE_FIELDS,parseScheduleFromNotes} from "./schedule-data.js";
 import {markNoticesRead,readNoticeIds,studentNotifications} from "./account-notifications.js";
 import {openPaymentReceipt,paymentMethodLabel} from "./payment-receipt.js";
 import {attendanceStatusLabel,attendanceSummary,attendanceTypeLabel,formatAttendanceDuration} from "./attendance-utils.js";
-import QRCode from "qrcode";
+import {studentRpc} from "./student-rpc-client.js";
 
-const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
-const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
 let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",me=null,student=null,trainingSessions=[],trainingRequests=[],trainingSlots=[],studentPayments=[],studentAttendance=[],studentNotices=[],serverNotices=[],theoryProgress=null,forcePasswordChange=false,bookingFeatureAvailable=true,slotFeatureAvailable=true,theoryFeatureAvailable=true,paymentHistoryAvailable=true,attendanceHistoryAvailable=true,studentNotificationFilter="all",notificationTimer=null;
 
 async function rpc(fn,body={}){
-  const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
-  const data=await response.json().catch(()=>null);
-  if(!response.ok)throw new Error(data?.message||data?.details||data?.error||"Không thể kết nối máy chủ");
-  return data;
+  return studentRpc(fn,body,{proxyTimeoutMs:9500,directTimeoutMs:6500});
 }
 function clearAuth(){for(const store of [localStorage,sessionStorage]){store.removeItem("hv_token");store.removeItem("hv_auth_kind")}}
 function esc(value){return String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[char]))}
@@ -25,25 +20,6 @@ function paymentReference(){
     .normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/gi,"d")
     .replace(/[^a-zA-Z0-9 ]/g," ").replace(/\s+/g," ").trim().toUpperCase();
   return `HP DTLX ${studentName}`.slice(0,50).trim();
-}
-function tlv(id,value){
-  const text=String(value);
-  return `${id}${String(text.length).padStart(2,"0")}${text}`;
-}
-function crc16(value){
-  let crc=0xffff;
-  for(let index=0;index<value.length;index++){
-    crc^=value.charCodeAt(index)<<8;
-    for(let bit=0;bit<8;bit++)crc=(crc&0x8000)?(crc<<1)^0x1021:crc<<1;
-    crc&=0xffff;
-  }
-  return crc.toString(16).toUpperCase().padStart(4,"0");
-}
-function tuitionQrPayload(amount,content){
-  const account=tlv("00","970422")+tlv("01","360556789999");
-  const receiver=tlv("00","A000000727")+tlv("01",account)+tlv("02","QRIBFTTA");
-  const base=tlv("00","01")+tlv("01","12")+tlv("38",receiver)+tlv("53","704")+tlv("54",String(Math.round(amount)))+tlv("58","VN")+tlv("62",tlv("08",content))+"6304";
-  return base+crc16(base);
 }
 function date(value,withTime=false){
   if(!value)return"Chưa cập nhật";
@@ -266,11 +242,7 @@ function renderPortal(){
   $("paymentContent").textContent=paymentContent;
   $("paymentPending").classList.toggle("hidden",debt===0);
   $("paymentComplete").classList.toggle("hidden",debt>0);
-  if(debt>0){
-    QRCode.toDataURL(tuitionQrPayload(debt,paymentContent),{errorCorrectionLevel:"M",margin:2,width:480,color:{dark:"#14385e",light:"#ffffff"}})
-      .then(qrUrl=>{$("tuitionQr").src=qrUrl;$("tuitionQrOpen").href=qrUrl})
-      .catch(()=>toast("Không thể tạo mã QR. Vui lòng dùng thông tin chuyển khoản bên cạnh."));
-  }else{
+  if(debt===0){
     $("tuitionQr").removeAttribute("src");
     $("tuitionQrOpen").removeAttribute("href");
   }
@@ -309,6 +281,8 @@ function renderPortal(){
   renderTrainingRequests();
   renderStudentNotifications();
   $("studentLoading").classList.add("hidden");$("studentPortal").classList.remove("hidden");
+  document.documentElement.setAttribute("data-student-profile","ready");
+  window.dispatchEvent(new CustomEvent("student-profile-ready"));
 }
 document.querySelectorAll(".student-refresh-access").forEach(link=>link.addEventListener("click",event=>{
   if(!hasReceivedLicense(student?.exam_status)){
@@ -445,10 +419,10 @@ $("studentPasswordForm").onsubmit=async event=>{
 };
 $("studentLogoutBtn").onclick=async()=>{
   try{await rpc("app_student_logout",{p_token:token})}catch{}
-  clearAuth();location.replace("/");
+  clearAuth();location.replace("/?login=1");
 };
 async function boot(){
-  if(!token)return location.replace("/");
+  if(!token)return location.replace("/?login=1");
   try{
     me=await rpc("app_student_me",{p_token:token});
     student=await rpc("app_student_portal",{p_token:token});
@@ -468,7 +442,7 @@ async function boot(){
     },60000);
     if(me.force_change_password)openPassword(true);
   }catch(error){
-    clearAuth();alert(error?.message||"Phiên đăng nhập đã hết hạn.");location.replace("/");
+    clearAuth();alert(error?.message||"Phiên đăng nhập đã hết hạn.");location.replace("/?login=1");
   }
 }
 boot();
