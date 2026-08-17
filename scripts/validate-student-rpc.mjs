@@ -1,16 +1,18 @@
 import {readFile} from "node:fs/promises";
 
 const root=new URL("../",import.meta.url);
-const [client,api,portal,attendance,payments,chat,login,serviceWorker,injector]=await Promise.all([
+const [client,api,portal,recovery,attendance,payments,chat,login,serviceWorker,injector,viteConfig]=await Promise.all([
   readFile(new URL("student-rpc-client.js",root),"utf8"),
   readFile(new URL("api/student-rpc.js",root),"utf8"),
   readFile(new URL("student-rescue-runtime-ios.js",root),"utf8"),
+  readFile(new URL("student-mobile-recovery.js",root),"utf8"),
   readFile(new URL("student-attendance-rescue.js",root),"utf8"),
   readFile(new URL("student-payment-history-rescue.js",root),"utf8"),
   readFile(new URL("ai-chat.js",root),"utf8"),
   readFile(new URL("mobile-login-stability.js",root),"utf8"),
   readFile(new URL("public/sw.js",root),"utf8"),
-  readFile(new URL("scripts/inject-mobile-login-stability.mjs",root),"utf8")
+  readFile(new URL("scripts/inject-mobile-login-stability.mjs",root),"utf8"),
+  readFile(new URL("vite.config.js",root),"utf8")
 ]);
 
 for(const token of ["/api/student-rpc","proxyRpc","directRpc","AbortController","proxyError?.status>=400","same-origin"]){
@@ -24,12 +26,21 @@ for(const [name,source] of [["portal",portal],["điểm danh",attendance],["họ
   if(!source.includes("student-rpc-client.js"))throw new Error(`Module ${name} chưa dùng kết nối cùng domain.`);
 }
 if(portal.includes("XMLHttpRequest")||portal.includes("Promise.race"))throw new Error("Portal iOS vẫn dùng fallback request dễ treo.");
-for(const token of ["/api/student-rpc","same-origin","app_student_login","app_login","/hoc-vien.html?mobile=2"]){
+for(const token of ["finishProfileSync","student-profile-ready","querySelectorAll(\"#studentRuntimeWarning\")","visibilitychange"]){
+  if(!portal.includes(token))throw new Error(`Portal chưa kết thúc chắc chắn trạng thái đồng bộ: ${token}`);
+}
+for(const token of ["student_mobile_recovery_20260816_v2","student-profile-ready","data-student-profile","querySelectorAll"]){
+  if(!recovery.includes(token))throw new Error(`Lớp phục hồi hồ sơ mobile thiếu: ${token}`);
+}
+for(const token of ["student-mobile-recovery.js?v=20260816-2","student_rescue_cleanup_20260816_v5","20260816v5"]){
+  if(!viteConfig.includes(token))throw new Error(`Bản build cổng học viên thiếu: ${token}`);
+}
+for(const token of ["/api/student-rpc","same-origin","app_student_login","app_login","/hoc-vien.html?mobile=3"]){
   if(!login.includes(token))throw new Error(`Đăng nhập mobile thiếu: ${token}`);
 }
 if(/headers:\{apikey:[^}]*Cache-Control/.test(login))throw new Error("Fallback đăng nhập trực tiếp không được gửi header Cache-Control qua CORS.");
-if(!serviceWorker.includes('thay-dat-pwa-v41')||!serviceWorker.includes('/mobile-login-stability.js'))throw new Error("PWA chưa làm mới cache cho luồng đăng nhập mobile.");
-for(const token of ['mobile-login-stability.js?v=20260816-2','copyFile','resolve("dist","mobile-login-stability.js")']){
+if(!serviceWorker.includes('thay-dat-pwa-v42')||!serviceWorker.includes('/mobile-login-stability.js')||!serviceWorker.includes('/student-mobile-recovery.js'))throw new Error("PWA chưa làm mới cache cho luồng đăng nhập và hồ sơ mobile.");
+for(const token of ['mobile-login-stability.js?v=20260816-3','copyFile','resolve("dist","mobile-login-stability.js")']){
   if(!injector.includes(token))throw new Error(`Bản build đăng nhập mobile thiếu: ${token}`);
 }
 

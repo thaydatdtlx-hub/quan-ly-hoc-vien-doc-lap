@@ -84,7 +84,7 @@ function mountMobileLoginStability(){
       if(!result?.token)throw new Error("Máy chủ chưa trả phiên đăng nhập. Vui lòng thử lại.");
       saveAuth(result.token,kind,remember);
       if(remember)localStorage.setItem("hv_saved_user",username);else localStorage.removeItem("hv_saved_user");
-      if(kind==="student")return location.replace("/hoc-vien.html?mobile=2");
+      if(kind==="student")return location.replace("/hoc-vien.html?mobile=3");
       if(kind==="public_theory")return location.replace("/600-cau-hoi.html");
       location.replace("/?login=1");
     }catch(loginError){
