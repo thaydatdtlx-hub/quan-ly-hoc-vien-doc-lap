@@ -124,7 +124,7 @@ async function initStudentSync(){
         event.preventDefault();
         try{await rpc("app_student_logout",{p_token:token})}catch{}
         for(const store of [localStorage,sessionStorage]){store.removeItem("hv_token");store.removeItem("hv_auth_kind")}
-        location.replace("/");
+        location.replace("/?login=1");
       };
     }
     localStorage.setItem(storageKey,JSON.stringify(progress));

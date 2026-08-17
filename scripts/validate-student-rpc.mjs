@@ -1,10 +1,11 @@
 import {readFile} from "node:fs/promises";
 
 const root=new URL("../",import.meta.url);
-const [client,api,portal,recovery,attendance,payments,chat,login,serviceWorker,injector,viteConfig]=await Promise.all([
+const [client,api,portal,fullPortal,recovery,attendance,payments,chat,login,serviceWorker,injector,viteConfig]=await Promise.all([
   readFile(new URL("student-rpc-client.js",root),"utf8"),
   readFile(new URL("api/student-rpc.js",root),"utf8"),
   readFile(new URL("student-rescue-runtime-ios.js",root),"utf8"),
+  readFile(new URL("student.js",root),"utf8"),
   readFile(new URL("student-mobile-recovery.js",root),"utf8"),
   readFile(new URL("student-attendance-rescue.js",root),"utf8"),
   readFile(new URL("student-payment-history-rescue.js",root),"utf8"),
@@ -22,8 +23,11 @@ if(/directRpc[\s\S]*?Cache-Control/.test(client))throw new Error("Fallback trự
 for(const token of ["app_student_login","app_login","app_student_portal","app_student_me","app_student_logout","app_student_list_attendance","app_student_list_payments","app_list_training_sessions","app_public_site_config","Request too large","upstream unavailable"]){
   if(!api.includes(token))throw new Error(`Proxy RPC học viên thiếu: ${token}`);
 }
-for(const [name,source] of [["portal",portal],["điểm danh",attendance],["học phí",payments],["trợ lý",chat]]){
+for(const [name,source] of [["portal đầy đủ",fullPortal],["portal dự phòng",portal],["điểm danh",attendance],["học phí",payments],["trợ lý",chat]]){
   if(!source.includes("student-rpc-client.js"))throw new Error(`Module ${name} chưa dùng kết nối cùng domain.`);
+}
+for(const token of ["studentRpc(fn,body","app_list_training_requests","app_student_change_password","student-profile-ready","data-student-profile"]){
+  if(!fullPortal.includes(token))throw new Error(`Portal đầy đủ thiếu chức năng hoặc trạng thái sẵn sàng: ${token}`);
 }
 if(portal.includes("XMLHttpRequest")||portal.includes("Promise.race"))throw new Error("Portal iOS vẫn dùng fallback request dễ treo.");
 for(const token of ["finishProfileSync","student-profile-ready","querySelectorAll(\"#studentRuntimeWarning\")","visibilitychange"]){
@@ -32,14 +36,17 @@ for(const token of ["finishProfileSync","student-profile-ready","querySelectorAl
 for(const token of ["student_mobile_recovery_20260816_v2","student-profile-ready","data-student-profile","querySelectorAll"]){
   if(!recovery.includes(token))throw new Error(`Lớp phục hồi hồ sơ mobile thiếu: ${token}`);
 }
-for(const token of ["student-mobile-recovery.js?v=20260816-2","student_rescue_cleanup_20260816_v5","20260816v5"]){
+for(const token of ["stabilizeStudentPortal","student-mobile-recovery.js?v=20260817-1","ai-chat.js?v=20260816-3"]){
   if(!viteConfig.includes(token))throw new Error(`Bản build cổng học viên thiếu: ${token}`);
+}
+for(const forbidden of ["html.matchAll(/<script","student_rescue_cleanup_20260816","student-rescue-runtime-ios.js?v="]){
+  if(viteConfig.includes(forbidden))throw new Error(`Build vẫn đang loại bỏ hoặc thay thế portal đầy đủ: ${forbidden}`);
 }
 for(const token of ["/api/student-rpc","same-origin","app_student_login","app_login","/hoc-vien.html?mobile=3"]){
   if(!login.includes(token))throw new Error(`Đăng nhập mobile thiếu: ${token}`);
 }
 if(/headers:\{apikey:[^}]*Cache-Control/.test(login))throw new Error("Fallback đăng nhập trực tiếp không được gửi header Cache-Control qua CORS.");
-if(!serviceWorker.includes('thay-dat-pwa-v42')||!serviceWorker.includes('/mobile-login-stability.js')||!serviceWorker.includes('/student-mobile-recovery.js'))throw new Error("PWA chưa làm mới cache cho luồng đăng nhập và hồ sơ mobile.");
+if(!serviceWorker.includes('thay-dat-pwa-v43')||!serviceWorker.includes('/mobile-login-stability.js')||!serviceWorker.includes('/student-mobile-recovery.js')||!serviceWorker.includes('/lich-dao-tao.html'))throw new Error("PWA chưa làm mới cache cho luồng đăng nhập, lịch và hồ sơ mobile.");
 for(const token of ['mobile-login-stability.js?v=20260816-3','copyFile','resolve("dist","mobile-login-stability.js")']){
   if(!injector.includes(token))throw new Error(`Bản build đăng nhập mobile thiếu: ${token}`);
 }
