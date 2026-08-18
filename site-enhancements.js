@@ -6,7 +6,6 @@ import "./new-student-practice-link.js";
 import "./student-training-actions.js";
 import "./schedule-stat-links.js";
 import "./student-payment-navigation.js";
-import "./admin-tuition-settings.js";
 
 let adminProfileModulesPromise=null;
 let adminProfileObserver=null;

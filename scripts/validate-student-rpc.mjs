@@ -1,11 +1,12 @@
 import {readFile} from "node:fs/promises";
 
 const root=new URL("../",import.meta.url);
-const [client,api,portal,fullPortal,recovery,attendance,payments,chat,login,serviceWorker,injector,viteConfig]=await Promise.all([
+const [client,api,portal,fullPortal,payloadTools,recovery,attendance,payments,chat,login,serviceWorker,injector,viteConfig]=await Promise.all([
   readFile(new URL("student-rpc-client.js",root),"utf8"),
   readFile(new URL("api/student-rpc.js",root),"utf8"),
   readFile(new URL("student-rescue-runtime-ios.js",root),"utf8"),
   readFile(new URL("student.js",root),"utf8"),
+  readFile(new URL("student-payload.js",root),"utf8"),
   readFile(new URL("student-mobile-recovery.js",root),"utf8"),
   readFile(new URL("student-attendance-rescue.js",root),"utf8"),
   readFile(new URL("student-payment-history-rescue.js",root),"utf8"),
@@ -30,8 +31,11 @@ for(const name of new Set(portalRpcNames)){
 for(const [name,source] of [["portal đầy đủ",fullPortal],["portal dự phòng",portal],["điểm danh",attendance],["học phí",payments],["trợ lý",chat]]){
   if(!source.includes("student-rpc-client.js"))throw new Error(`Module ${name} chưa dùng kết nối cùng domain.`);
 }
-for(const token of ["studentRpc(fn,body","app_list_training_requests","app_student_change_password","student-profile-ready","data-student-profile"]){
+for(const token of ["studentRpc(fn,body","app_list_training_requests","app_student_change_password","student-profile-ready","data-student-profile","normalizeCoreRpcPayload","Promise.allSettled","data-student-functions","student-functions-ready"]){
   if(!fullPortal.includes(token))throw new Error(`Portal đầy đủ thiếu chức năng hoặc trạng thái sẵn sàng: ${token}`);
+}
+for(const token of ["normalizeCoreRpcPayload","isStudentAuthError","value.data","value.result"]){
+  if(!payloadTools.includes(token))throw new Error(`Chuẩn hóa phản hồi học viên thiếu: ${token}`);
 }
 if(portal.includes("XMLHttpRequest")||portal.includes("Promise.race"))throw new Error("Portal iOS vẫn dùng fallback request dễ treo.");
 for(const token of ["finishProfileSync","student-profile-ready","querySelectorAll(\"#studentRuntimeWarning\")","visibilitychange"]){
@@ -81,6 +85,11 @@ try{
 }finally{globalThis.fetch=handlerFetch}
 
 const {studentRpc}=await import(new URL("student-rpc-client.js",root));
+const {isStudentAuthError,normalizeCoreRpcPayload}=await import(new URL("student-payload.js",root));
+const wrappedProfile=normalizeCoreRpcPayload([JSON.stringify({data:{id:"student-wrapped",name:"Học viên bọc"}})]);
+if(wrappedProfile?.id!=="student-wrapped")throw new Error("Portal chưa đọc được phản hồi hồ sơ dạng chuỗi/mảng/bọc.");
+if(isStudentAuthError(new Error("Không tìm thấy hồ sơ học viên.")))throw new Error("Lỗi dữ liệu đang bị nhận nhầm là lỗi phiên đăng nhập.");
+if(!isStudentAuthError(Object.assign(new Error("Phiên đăng nhập không hợp lệ hoặc đã hết hạn."),{status:400})))throw new Error("Portal chưa nhận diện đúng phiên học viên hết hạn.");
 const nativeFetch=globalThis.fetch;
 const nativeWarn=console.warn;
 try{
