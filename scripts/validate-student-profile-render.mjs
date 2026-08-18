@@ -1,3 +1,10 @@
+import {readFile} from "node:fs/promises";
+
+const emergencySource=await readFile(new URL("../student-portal-emergency-recovery.js",import.meta.url),"utf8");
+for(const token of ["app_student_portal","renderCoreStudentProfile","studentName","studentCode","studentCourse","studentLicense","studentProgress","studentProfile","data-student-profile"]){
+  if(!emergencySource.includes(token))throw new Error(`Emergency profile recovery thiếu ${token}.`);
+}
+
 class ClassList{
   constructor(values=[]){this.values=new Set(values)}
   add(...values){values.forEach(value=>this.values.add(value))}
