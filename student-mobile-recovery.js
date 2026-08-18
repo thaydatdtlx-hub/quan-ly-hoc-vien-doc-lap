@@ -1,16 +1,19 @@
 const KEY="student_mobile_recovery_20260816_v2";
 const $=id=>document.getElementById(id);
+let observer=null;
 function hasProfile(){const name=$("studentName")?.textContent?.trim()||"",code=$("studentCode")?.textContent?.trim()||"";return (name&&name!=="Học viên")||(code&&code!=="Chưa có mã")}
+function setTextIfChanged(id,value){const node=$(id),next=String(value);if(node&&node.textContent!==next)node.textContent=next}
 function sync(){
   if(!hasProfile())return false;
+  observer?.disconnect();
   const name=$("studentName")?.textContent?.trim()||"học viên",license=$("studentLicense")?.textContent?.trim()||"Đang học";
-  if($("mobileStudentOverviewTitle"))$("mobileStudentOverviewTitle").textContent=`Xin chào, ${name}`;
-  if($("mobileStudentClass"))$("mobileStudentClass").textContent=license;
-  if($("mobileStudentActionTitle"))$("mobileStudentActionTitle").textContent="Hồ sơ đã sẵn sàng";
-  if($("mobileStudentActionDetail"))$("mobileStudentActionDetail").textContent="Lịch, học phí và thông báo đang được đồng bộ.";
-  $("studentPortal")?.classList.remove("hidden");$("studentLoading")?.classList.add("hidden");document.querySelectorAll("#studentRuntimeWarning").forEach(node=>node.remove());document.documentElement?.setAttribute("data-student-profile","ready");sessionStorage.removeItem(KEY);return true;
+  setTextIfChanged("mobileStudentOverviewTitle",`Xin chào, ${name}`);
+  setTextIfChanged("mobileStudentClass",license);
+  setTextIfChanged("mobileStudentActionTitle","Hồ sơ đã sẵn sàng");
+  setTextIfChanged("mobileStudentActionDetail","Lịch, học phí và thông báo đang được đồng bộ.");
+  $("studentPortal")?.classList.remove("hidden");$("studentLoading")?.classList.add("hidden");document.querySelectorAll("#studentRuntimeWarning").forEach(node=>node.remove());if(document.documentElement?.getAttribute("data-student-profile")!=="ready")document.documentElement?.setAttribute("data-student-profile","ready");sessionStorage.removeItem(KEY);return true;
 }
-const observer=new MutationObserver(sync);observer.observe(document.body,{subtree:true,childList:true,characterData:true});
+observer=new MutationObserver(sync);observer.observe(document.body,{subtree:true,childList:true,characterData:true});
 setTimeout(()=>{
   if(sync())return;
   const waiting=/đang đồng bộ hồ sơ/i.test($("studentRuntimeWarning")?.textContent||"");
