@@ -1,15 +1,41 @@
-import "./brand-wording-cleanup.js";
-import "./site-unification.js";
-import "./site-config-public.js";
-import "./professional-public-polish.js";
-import "./student-portal-polish.js";
-import "./student-activity-tracker.js";
-import "./theory-answer-explanations.js";
-import "./theory-hero-brand.js";
-import "./mobile-public-login.js";
-import "./b-exam-set-picker.js";
-import "./exam-candidate-screen.js?v=3";
-import "./exam-candidate-entry.js";
+const isStudentPortal=()=>location.pathname==="/hoc-vien.html";
+let sharedEnhancementsPromise=null;
+
+function loadSharedEnhancements(){
+  if(sharedEnhancementsPromise)return sharedEnhancementsPromise;
+  sharedEnhancementsPromise=Promise.all([
+    import("./brand-wording-cleanup.js"),
+    import("./site-unification.js"),
+    import("./site-config-public.js"),
+    import("./professional-public-polish.js"),
+    import("./student-portal-polish.js"),
+    import("./student-activity-tracker.js"),
+    import("./theory-answer-explanations.js"),
+    import("./theory-hero-brand.js"),
+    import("./mobile-public-login.js"),
+    import("./b-exam-set-picker.js"),
+    import("./exam-candidate-screen.js?v=3"),
+    import("./exam-candidate-entry.js")
+  ]).catch(error=>{
+    console.warn("[pwa-enhancements] Không thể tải tiện ích giao diện.",error);
+    sharedEnhancementsPromise=null;
+  });
+  return sharedEnhancementsPromise;
+}
+
+function loadEnhancementsWhenSafe(){
+  if(!isStudentPortal()){
+    void loadSharedEnhancements();
+    return;
+  }
+  if(document.documentElement.getAttribute("data-student-profile")==="ready"){
+    queueMicrotask(()=>void loadSharedEnhancements());
+    return;
+  }
+  window.addEventListener("student-profile-ready",()=>void loadSharedEnhancements(),{once:true});
+}
+
+loadEnhancementsWhenSafe();
 
 if(document.getElementById("app")){
   void Promise.all([
