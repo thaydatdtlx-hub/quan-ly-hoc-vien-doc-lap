@@ -296,6 +296,16 @@ function renderPortal(){
   document.documentElement.setAttribute("data-student-profile","ready");
   window.dispatchEvent(new CustomEvent("student-profile-ready"));
 }
+function renderCoreIdentity(){
+  $("studentUsername")?.replaceChildren(document.createTextNode(`${me?.username||"Học viên"} · Học viên`));
+  $("studentName")?.replaceChildren(document.createTextNode(student?.name||"Học viên"));
+  $("studentCode")?.replaceChildren(document.createTextNode(student?.student_code||"Chưa có mã"));
+  $("studentCourse")?.replaceChildren(document.createTextNode(student?.course||"Chưa có khóa"));
+  $("studentLicense")?.replaceChildren(document.createTextNode(student?.license_class||"Chưa có hạng"));
+  $("studentPortal")?.classList.remove("hidden");
+  $("studentLoading")?.classList.add("hidden");
+  document.documentElement.setAttribute("data-student-profile","ready");
+}
 document.querySelectorAll(".student-refresh-access").forEach(link=>link.addEventListener("click",event=>{
   if(!hasReceivedLicense(student?.exam_status)){
     event.preventDefault();
@@ -457,7 +467,8 @@ async function boot(){
   }
 
   student.training_sessions=[];
-  renderPortal();
+  renderCoreIdentity();
+  try{renderPortal()}catch(error){console.error("[student-portal] Core render failed",error)}
   showRuntimeWarning("Hồ sơ đã khôi phục. Đang tải lịch học, học phí, điểm danh và thông báo…");
 
   const optionalResults=await Promise.allSettled([
@@ -470,7 +481,7 @@ async function boot(){
     loadStudentAttendance()
   ]);
   student.training_sessions=trainingSessions;
-  renderPortal();
+  try{renderPortal()}catch(error){console.error("[student-portal] Full render failed",error)}
   const failedCount=optionalResults.filter(result=>result.status==="rejected").length;
   document.documentElement.setAttribute("data-student-functions",failedCount?"partial":"ready");
   window.dispatchEvent(new CustomEvent("student-functions-ready",{detail:{failedCount}}));
@@ -481,4 +492,10 @@ async function boot(){
   },60000);
   if(me.force_change_password)openPassword(true);
 }
-boot();
+boot().catch(error=>{
+  console.error("[student-portal] Boot failed",error);
+  $("studentPortal")?.classList.remove("hidden");
+  $("studentLoading")?.classList.add("hidden");
+  showRuntimeWarning(`${error?.message||"Không thể hoàn tất đồng bộ hồ sơ."} Phiên đăng nhập vẫn được giữ.`);
+  document.documentElement.setAttribute("data-student-functions","error");
+});
