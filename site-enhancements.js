@@ -18,16 +18,25 @@ function loadBaseModules(){
   return baseModulesPromise;
 }
 
+function studentFunctionsReady(){
+  const state=document.documentElement.getAttribute("data-student-functions");
+  return state==="ready"||state==="partial";
+}
+
+function afterStudentPaint(callback){
+  requestAnimationFrame(()=>requestAnimationFrame(callback));
+}
+
 function loadBaseModulesWhenSafe(){
   if(location.pathname!=="/hoc-vien.html"){
     void loadBaseModules();
     return;
   }
-  if(document.documentElement.getAttribute("data-student-profile")==="ready"){
-    queueMicrotask(()=>void loadBaseModules());
+  if(studentFunctionsReady()){
+    afterStudentPaint(()=>void loadBaseModules());
     return;
   }
-  window.addEventListener("student-profile-ready",()=>void loadBaseModules(),{once:true});
+  window.addEventListener("student-functions-ready",()=>afterStudentPaint(()=>void loadBaseModules()),{once:true});
 }
 
 loadBaseModulesWhenSafe();

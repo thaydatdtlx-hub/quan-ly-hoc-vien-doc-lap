@@ -23,16 +23,25 @@ function loadSharedEnhancements(){
   return sharedEnhancementsPromise;
 }
 
+function studentFunctionsReady(){
+  const state=document.documentElement.getAttribute("data-student-functions");
+  return state==="ready"||state==="partial";
+}
+
+function afterStudentPaint(callback){
+  requestAnimationFrame(()=>requestAnimationFrame(callback));
+}
+
 function loadEnhancementsWhenSafe(){
   if(!isStudentPortal()){
     void loadSharedEnhancements();
     return;
   }
-  if(document.documentElement.getAttribute("data-student-profile")==="ready"){
-    queueMicrotask(()=>void loadSharedEnhancements());
+  if(studentFunctionsReady()){
+    afterStudentPaint(()=>void loadSharedEnhancements());
     return;
   }
-  window.addEventListener("student-profile-ready",()=>void loadSharedEnhancements(),{once:true});
+  window.addEventListener("student-functions-ready",()=>afterStudentPaint(()=>void loadSharedEnhancements()),{once:true});
 }
 
 loadEnhancementsWhenSafe();
