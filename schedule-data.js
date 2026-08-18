@@ -80,10 +80,6 @@ function installStudentOptionalRpcIsolation(){
 
 if(typeof document!=="undefined"){
   installStudentOptionalRpcIsolation();
-  if(location.pathname==="/hoc-vien.html"){
-    import("./student-portal-visibility-recovery.js?v=4").catch(()=>{});
-    import("./student-debt-alert.js?v=4").catch(()=>{});
-  }
   if(!document.querySelector('link[data-schedule-responsive-sync]')){
     const link=document.createElement("link");
     link.rel="stylesheet";
