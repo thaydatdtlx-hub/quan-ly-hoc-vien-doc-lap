@@ -3,6 +3,7 @@ import {markNoticesRead,readNoticeIds,studentNotifications} from "./account-noti
 import {openPaymentReceipt,paymentMethodLabel} from "./payment-receipt.js";
 import {attendanceStatusLabel,attendanceSummary,attendanceTypeLabel,formatAttendanceDuration} from "./attendance-utils.js";
 import {studentRpc} from "./student-rpc-client.js";
+import {isStudentAuthError,normalizeCoreRpcPayload} from "./student-payload.js";
 
 const $=id=>document.getElementById(id);
 let token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"",me=null,student=null,trainingSessions=[],trainingRequests=[],trainingSlots=[],studentPayments=[],studentAttendance=[],studentNotices=[],serverNotices=[],theoryProgress=null,forcePasswordChange=false,bookingFeatureAvailable=true,slotFeatureAvailable=true,theoryFeatureAvailable=true,paymentHistoryAvailable=true,attendanceHistoryAvailable=true,studentNotificationFilter="all",notificationTimer=null;
@@ -11,6 +12,17 @@ async function rpc(fn,body={}){
   return studentRpc(fn,body,{proxyTimeoutMs:9500,directTimeoutMs:6500});
 }
 function clearAuth(){for(const store of [localStorage,sessionStorage]){store.removeItem("hv_token");store.removeItem("hv_auth_kind")}}
+function showRuntimeWarning(message=""){
+  let box=$("studentRuntimeWarning");
+  if(!message){box?.remove();return}
+  if(!box){
+    box=document.createElement("div");
+    box.id="studentRuntimeWarning";
+    box.style.cssText="margin:14px auto;padding:12px 14px;max-width:1200px;border:1px solid #f0d5a8;border-radius:12px;background:#fff8e9;color:#76551c;font:700 12px/1.5 system-ui";
+    $("studentPortal")?.prepend(box);
+  }
+  box.textContent=message;
+}
 function esc(value){return String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[char]))}
 function normalize(value){return String(value??"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d")}
 function fixNoticeText(value){return String(value??"").replace(/\bng(?:à6|á6)(?=\s+\d{2}\/\d{2}\/\d{4})/giu,"ngày")}
@@ -423,26 +435,50 @@ $("studentLogoutBtn").onclick=async()=>{
 };
 async function boot(){
   if(!token)return location.replace("/?login=1");
-  try{
-    me=await rpc("app_student_me",{p_token:token});
-    student=await rpc("app_student_portal",{p_token:token});
-    if(!me?.id||!student?.id)throw new Error("Không tìm thấy hồ sơ học viên.");
-    try{
-      trainingSessions=await rpc("app_list_training_sessions",{p_token:token,p_student_id:student.id})||[];
-    }catch(error){
-      if(!/app_list_training_sessions|schema cache|PGRST202/i.test(error?.message||""))throw error;
-      trainingSessions=[];
-    }
-    await Promise.all([loadTrainingRequests(),loadTrainingSlots(),loadServerNotifications(),loadTheoryProgress(),loadStudentPayments(),loadStudentAttendance()]);
-    student.training_sessions=trainingSessions;
-    renderPortal();
-    notificationTimer=setInterval(async()=>{
-      if(document.visibilityState!=="visible")return;
-      try{await loadServerNotifications();renderStudentNotifications()}catch{}
-    },60000);
-    if(me.force_change_password)openPassword(true);
-  }catch(error){
-    clearAuth();alert(error?.message||"Phiên đăng nhập đã hết hạn.");location.replace("/?login=1");
+  showRuntimeWarning("Đang đồng bộ dữ liệu học viên…");
+  const [meResult,studentResult]=await Promise.allSettled([
+    rpc("app_student_me",{p_token:token}),
+    rpc("app_student_portal",{p_token:token})
+  ]);
+  if(meResult.status==="fulfilled")me=normalizeCoreRpcPayload(meResult.value);
+  if(studentResult.status==="fulfilled")student=normalizeCoreRpcPayload(studentResult.value);
+  const coreError=meResult.status==="rejected"?meResult.reason:studentResult.status==="rejected"?studentResult.reason:null;
+  if(coreError&&isStudentAuthError(coreError)){
+    clearAuth();
+    location.replace("/?login=1");
+    return;
   }
+  if(!me?.id||!student?.id){
+    $("studentPortal")?.classList.remove("hidden");
+    $("studentLoading")?.classList.add("hidden");
+    showRuntimeWarning(coreError?.message||"Hồ sơ chưa tải được đầy đủ. Phiên đăng nhập vẫn được giữ; vui lòng thử tải lại trang.");
+    document.documentElement.setAttribute("data-student-functions","core-error");
+    return;
+  }
+
+  student.training_sessions=[];
+  renderPortal();
+  showRuntimeWarning("Hồ sơ đã khôi phục. Đang tải lịch học, học phí, điểm danh và thông báo…");
+
+  const optionalResults=await Promise.allSettled([
+    rpc("app_list_training_sessions",{p_token:token,p_student_id:student.id}).then(value=>{trainingSessions=Array.isArray(value)?value:[]}),
+    loadTrainingRequests(),
+    loadTrainingSlots(),
+    loadServerNotifications(),
+    loadTheoryProgress(),
+    loadStudentPayments(),
+    loadStudentAttendance()
+  ]);
+  student.training_sessions=trainingSessions;
+  renderPortal();
+  const failedCount=optionalResults.filter(result=>result.status==="rejected").length;
+  document.documentElement.setAttribute("data-student-functions",failedCount?"partial":"ready");
+  window.dispatchEvent(new CustomEvent("student-functions-ready",{detail:{failedCount}}));
+  showRuntimeWarning(failedCount?`Đã khôi phục hồ sơ; ${failedCount} mục dữ liệu đang tạm thời tải lại. Các chức năng còn lại vẫn sử dụng bình thường.`:"");
+  notificationTimer=setInterval(async()=>{
+    if(document.visibilityState!=="visible")return;
+    try{await loadServerNotifications();renderStudentNotifications()}catch{}
+  },60000);
+  if(me.force_change_password)openPassword(true);
 }
 boot();
