@@ -1,7 +1,10 @@
 import {readFile} from "node:fs/promises";
 
 const dist=new URL("../dist/",import.meta.url);
-const html=await readFile(new URL("hoc-vien.html",dist),"utf8");
+const [html,portalSource]=await Promise.all([
+  readFile(new URL("hoc-vien.html",dist),"utf8"),
+  readFile(new URL("../hoc-vien.html",import.meta.url),"utf8")
+]);
 const assets=[...html.matchAll(/(?:src|href)="(\/assets\/[^"]+\.js)"/g)].map(match=>match[1]);
 if(!assets.length)throw new Error("Build cổng học viên không có JavaScript bundle.");
 
@@ -18,5 +21,10 @@ for(const token of [
   if(!source.includes(token))throw new Error(`Bundle cổng học viên thiếu chức năng đầy đủ: ${token}`);
 }
 if(html.includes("student_rescue_cleanup_20260816")||source.includes("Đổi mật khẩu đang được tạm tắt"))throw new Error("Build vẫn đang dùng portal cứu hộ tối giản thay cho portal đầy đủ.");
+for(const stylesheet of ["student-fresh.css","student-premium-dashboard.css"]){
+  if(portalSource.includes(stylesheet)||html.includes(stylesheet))throw new Error(`Build cổng học viên vẫn còn lớp giao diện mới: ${stylesheet}`);
+}
+if(!portalSource.includes('href="/student.css"'))throw new Error("Mã nguồn cổng học viên thiếu giao diện gốc từ commit 6d64ac7.");
+if(!html.includes('/mobile-viewport-lock.css?v=3'))throw new Error("Build cổng học viên thiếu lớp ổn định giao diện mobile.");
 
-console.log("Build cổng học viên hợp lệ: đầy đủ lịch, thông báo, đổi mật khẩu, RPC cùng domain và recovery mobile.");
+console.log("Build cổng học viên hợp lệ: giao diện 6d64ac7, đầy đủ lịch, thông báo, đổi mật khẩu, RPC cùng domain và recovery mobile.");

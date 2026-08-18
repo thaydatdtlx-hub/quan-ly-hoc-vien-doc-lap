@@ -41,7 +41,6 @@ function injectLegacyPwaMigration(html){
   return html.replace("</head>",`  ${migration}\n</head>`);
 }
 function stabilizeStudentPortal(html){
-  html=html.replace('</head>','  <link rel="stylesheet" href="/student-premium-dashboard.css?v=20260813-1">\n</head>');
   html=html.replace('</body>','  <script type="module" src="/student-mobile-recovery.js?v=20260817-1"></script>\n  <script type="module" src="/ai-chat.js?v=20260816-3"></script>\n</body>');
   return html;
 }
