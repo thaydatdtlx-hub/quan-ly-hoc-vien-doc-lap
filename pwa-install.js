@@ -1,20 +1,25 @@
 import "./brand-wording-cleanup.js";
-import "./admin-tuition-settings.js";
-import "./admin-site-config.js";
-import "./admin-home-logo-link.js";
 import "./site-unification.js";
 import "./site-config-public.js";
 import "./professional-public-polish.js";
-import "./recruitment-operations.js";
 import "./student-portal-polish.js";
 import "./student-activity-tracker.js";
-import "./student-activity-admin.js";
 import "./theory-answer-explanations.js";
 import "./theory-hero-brand.js";
 import "./mobile-public-login.js";
 import "./b-exam-set-picker.js";
 import "./exam-candidate-screen.js?v=3";
 import "./exam-candidate-entry.js";
+
+if(document.getElementById("app")){
+  void Promise.all([
+    import("./admin-tuition-settings.js"),
+    import("./admin-site-config.js"),
+    import("./admin-home-logo-link.js"),
+    import("./recruitment-operations.js"),
+    import("./student-activity-admin.js")
+  ]).catch(error=>console.warn("[admin-modules] Không thể tải tiện ích quản trị.",error));
+}
 
 const DISMISS_KEY="thay_dat_pwa_install_dismissed";
 const DISMISS_DAYS=7;
