@@ -1,11 +1,36 @@
-import "./brand-name.js";
-import "./student-profile-self-service.js";
-import "./admin-student-profile-change.js";
-import "./new-student-admin.js";
-import "./new-student-practice-link.js";
-import "./student-training-actions.js";
-import "./schedule-stat-links.js";
-import "./student-payment-navigation.js";
+let baseModulesPromise=null;
+
+function loadBaseModules(){
+  if(baseModulesPromise)return baseModulesPromise;
+  baseModulesPromise=Promise.all([
+    import("./brand-name.js"),
+    import("./student-profile-self-service.js"),
+    import("./admin-student-profile-change.js"),
+    import("./new-student-admin.js"),
+    import("./new-student-practice-link.js"),
+    import("./student-training-actions.js"),
+    import("./schedule-stat-links.js"),
+    import("./student-payment-navigation.js")
+  ]).catch(error=>{
+    console.warn("[site-enhancements] Không thể tải module phụ.",error);
+    baseModulesPromise=null;
+  });
+  return baseModulesPromise;
+}
+
+function loadBaseModulesWhenSafe(){
+  if(location.pathname!=="/hoc-vien.html"){
+    void loadBaseModules();
+    return;
+  }
+  if(document.documentElement.getAttribute("data-student-profile")==="ready"){
+    queueMicrotask(()=>void loadBaseModules());
+    return;
+  }
+  window.addEventListener("student-profile-ready",()=>void loadBaseModules(),{once:true});
+}
+
+loadBaseModulesWhenSafe();
 
 let adminProfileModulesPromise=null;
 let adminProfileObserver=null;
@@ -16,7 +41,7 @@ function adminSessionReady(){
   const name=document.getElementById("accountName");
   const signedIn=app&&!app.classList.contains("hidden");
   const isAdmin=/\badmin\b/i.test(name?.textContent||"");
-  return Boolean(signedIn&&account&&name&&isAdmin);
+  return Boolean(signedIn&&account&&name&&isAdmin)
 }
 
 function ensureAdminProfileModules(){
@@ -64,6 +89,7 @@ function ensureStyleLink(href,dataAttribute){
 }
 
 function ensureAdminLayoutStyles(){
+  if(!document.getElementById("app"))return;
   ensureStyleLink("/admin-profile.css?v=3","data-admin-profile-base");
   ensureStyleLink("/admin-desktop-layout.css?v=3","data-admin-desktop-layout");
   ensureStyleLink("/admin-account-size-fix.css?v=1","data-admin-account-size-fix");
@@ -73,10 +99,6 @@ function ensureAdminLayoutStyles(){
 function ensureMobileViewportStyles(){
   ensureStyleLink("/mobile-viewport-lock.css?v=3","data-mobile-viewport-lock");
 }
-
-ensureAdminLayoutStyles();
-ensureMobileViewportStyles();
-watchAdminProfile();
 
 const statusHosts=[
   ".login-card",
@@ -146,7 +168,7 @@ function labelDialogCloseButtons(){
 function bootEnhancements(){
   ensureAdminLayoutStyles();
   ensureMobileViewportStyles();
-  watchAdminProfile();
+  if(document.getElementById("app"))watchAdminProfile();
   ensureLiveRegions();
   addConnectionStatus();
   polishExternalLinks();
