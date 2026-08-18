@@ -17,7 +17,8 @@ for(const token of [
   "app_student_change_password",
   "student-profile-ready",
   "data-student-postboot",
-  "render-error"
+  "render-error",
+  "student-functions-ready"
 ]){
   if(!source.includes(token))throw new Error(`Bundle cổng học viên thiếu chức năng/guard: ${token}`);
 }
@@ -29,10 +30,9 @@ for(const stylesheet of ["student-fresh.css","student-premium-dashboard.css"]){
 if(!portalSource.includes('href="/student.css"'))throw new Error("Mã nguồn cổng học viên thiếu giao diện gốc từ commit 6d64ac7.");
 if(!html.includes('/mobile-viewport-lock.css?v=3'))throw new Error("Build cổng học viên thiếu lớp ổn định giao diện mobile.");
 if(!html.includes('/student-core-recovery.js?v=20260818-1'))throw new Error("Build cổng học viên thiếu lớp khôi phục hồ sơ XHR độc lập.");
-if(!/\/assets\/student-postboot-[^\"]+\.js/.test(html))throw new Error("Build cổng học viên chưa có post-boot guard riêng.");
 for(const earlyAsset of ["pwa-install","mobile-dashboard","site-enhancements","ai-chat"]){
   const re=new RegExp(`/assets/${earlyAsset}-[^\\\"]+\\.js`);
   if(re.test(html))throw new Error(`HTML cổng học viên vẫn preload/chạy ${earlyAsset} trước core.`);
 }
 
-console.log("Build cổng học viên hợp lệ: core bundle độc lập, post-boot guard riêng và module phụ không chạy trước DATA.");
+console.log("Build cổng học viên hợp lệ: post-boot guard nằm trong core entry và module phụ không chạy/preload trước DATA.");
