@@ -8,7 +8,7 @@ const LEGACY_HOSTS=/https?:\/\/(?:www\.)?(?:daotaolaixetrongoi\.com|hoc-vien-tha
 
 const SEO={
   "dang-ky-hoc-lai-xe.html":{title:"Học lái xe cùng Đạt",description:"Đăng ký học lái xe A1, A, B số tự động, B số sàn và C1 cùng Đạt. Học phí rõ ràng, học 600 câu online và theo dõi tiến độ tập trung.",path:"/",image:"/hero-vip-navy-champagne.webp?v=1"},
-  "600-cau-hoi.html":{title:"600 câu hỏi sát hạch lái xe | Học lái xe cùng Đạt",description:"Ôn tập 600 câu hỏi sát hạch lái xe, 60 câu điểm liệt và thi thử A1, A, B, C1 trên hệ thống Học lái xe cùng Đạt.",path:"/600-cau-hoi.html",image:"/hero-student-car.webp"},
+  "600-cau-hoi.html":{title:"600 câu hỏi sát hạch lái xe | Học lái xe cùng Đạt",description:"Ôn tập 600 câu hỏi sát hạch lái xe, 60 câu điểm liệt và thi thử A1, A, B, C1 trên hệ thống Học lái xe cùng Đạt.",path:"/600-cau-hoi.html",image:"/hero-student-car.webp?v=2"},
   "bo-tuc-tay-lai.html":{title:"Bổ túc tay lái & sa hình | Học lái xe cùng Đạt",description:"Đăng ký bổ túc tay lái, sa hình và kỹ năng lái xe thực tế cùng Đạt với lịch học linh hoạt và chi phí rõ ràng.",path:"/bo-tuc-tay-lai.html",image:"/hero-vip-navy-champagne.webp?v=1"},
   "chinh-sach-bao-mat.html":{title:"Chính sách bảo mật | Học lái xe cùng Đạt",description:"Chính sách thu thập, sử dụng, bảo vệ và xử lý dữ liệu cá nhân trên hệ thống Học lái xe cùng Đạt.",path:"/chinh-sach-bao-mat.html",image:"/hero-vip-navy-champagne.webp"}
 };
