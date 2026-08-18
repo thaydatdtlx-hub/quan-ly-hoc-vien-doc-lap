@@ -26,5 +26,6 @@ for(const stylesheet of ["student-fresh.css","student-premium-dashboard.css"]){
 }
 if(!portalSource.includes('href="/student.css"'))throw new Error("Mã nguồn cổng học viên thiếu giao diện gốc từ commit 6d64ac7.");
 if(!html.includes('/mobile-viewport-lock.css?v=3'))throw new Error("Build cổng học viên thiếu lớp ổn định giao diện mobile.");
+if(!html.includes('/student-core-recovery.js?v=20260818-1'))throw new Error("Build cổng học viên thiếu lớp khôi phục hồ sơ XHR độc lập.");
 
 console.log("Build cổng học viên hợp lệ: giao diện 6d64ac7, đầy đủ lịch, thông báo, đổi mật khẩu, RPC cùng domain và recovery mobile.");
