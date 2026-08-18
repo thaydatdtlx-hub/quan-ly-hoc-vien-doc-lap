@@ -1,7 +1,7 @@
 import {readFile} from "node:fs/promises";
 
 const root=new URL("../",import.meta.url);
-const [client,api,portal,fullPortal,payloadTools,recovery,attendance,payments,chat,login,serviceWorker,injector,viteConfig]=await Promise.all([
+const [client,api,portal,fullPortal,payloadTools,recovery,attendance,payments,chat,login,serviceWorker,injector,viteConfig,postboot]=await Promise.all([
   readFile(new URL("student-rpc-client.js",root),"utf8"),
   readFile(new URL("api/student-rpc.js",root),"utf8"),
   readFile(new URL("student-rescue-runtime-ios.js",root),"utf8"),
@@ -14,7 +14,8 @@ const [client,api,portal,fullPortal,payloadTools,recovery,attendance,payments,ch
   readFile(new URL("mobile-login-stability.js",root),"utf8"),
   readFile(new URL("public/sw.js",root),"utf8"),
   readFile(new URL("scripts/inject-mobile-login-stability.mjs",root),"utf8"),
-  readFile(new URL("vite.config.js",root),"utf8")
+  readFile(new URL("vite.config.js",root),"utf8"),
+  readFile(new URL("student-postboot.js",root),"utf8")
 ]);
 
 for(const token of ["/api/student-rpc","proxyRpc","directRpc","AbortController","proxyError?.status>=400","same-origin"]){
@@ -44,8 +45,14 @@ for(const token of ["finishProfileSync","student-profile-ready","querySelectorAl
 for(const token of ["student_mobile_recovery_20260816_v2","student-profile-ready","data-student-profile","querySelectorAll"]){
   if(!recovery.includes(token))throw new Error(`Lớp phục hồi hồ sơ mobile thiếu: ${token}`);
 }
-for(const token of ["stabilizeStudentPortal","student-mobile-recovery.js?v=20260817-1","ai-chat.js?v=20260816-3"]){
+for(const token of ["stabilizeStudentPortal","student-postboot.js?v=20260818-1"]){
   if(!viteConfig.includes(token))throw new Error(`Bản build cổng học viên thiếu: ${token}`);
+}
+for(const forbidden of ["student-mobile-recovery.js?v=20260817-1","ai-chat.js?v=20260816-3"]){
+  if(viteConfig.includes(forbidden))throw new Error(`Vite vẫn inject module trước core: ${forbidden}`);
+}
+for(const token of ["fullPortalRendered","render-error","student-functions-ready","__retryStudentCoreProfile"]){
+  if(!postboot.includes(token))throw new Error(`Post-boot guard thiếu: ${token}`);
 }
 for(const forbidden of ["html.matchAll(/<script","student_rescue_cleanup_20260816","student-rescue-runtime-ios.js?v="]){
   if(viteConfig.includes(forbidden))throw new Error(`Build vẫn đang loại bỏ hoặc thay thế portal đầy đủ: ${forbidden}`);
@@ -121,4 +128,4 @@ try{
   if(!rejected||calls.length!==1)throw new Error("Lỗi phiên 4xx đang bị retry không cần thiết.");
 }finally{globalThis.fetch=nativeFetch;console.warn=nativeWarn}
 
-console.log("Kết nối dữ liệu học viên hợp lệ: same-origin trước, fallback iOS an toàn, whitelist và health check đã sẵn sàng.");
+console.log("Kết nối dữ liệu học viên hợp lệ: same-origin trước, fallback iOS an toàn, whitelist và post-boot guard đã sẵn sàng.");

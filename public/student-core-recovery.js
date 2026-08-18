@@ -10,7 +10,8 @@
   function text(id){return (byId(id)&&byId(id).textContent||"").trim()}
   function hasProfile(){return Boolean((text("studentName")&&text("studentName")!=="Học viên")||(text("studentCode")&&text("studentCode")!=="Chưa có mã"))}
   function coreLooksComplete(){
-    return hasProfile()&&text("tuitionTotal")!=="0 ₫"&&byId("studentProfile")&&byId("studentProfile").children.length>0&&byId("studentProgress")&&byId("studentProgress").children.length>0;
+    var finance=text("tuitionStatus");
+    return hasProfile()&&finance&&finance!=="Đang cập nhật"&&byId("studentProfile")&&byId("studentProfile").children.length>0&&byId("studentProgress")&&byId("studentProgress").children.length>0;
   }
   function normalize(payload){
     var value=payload;
