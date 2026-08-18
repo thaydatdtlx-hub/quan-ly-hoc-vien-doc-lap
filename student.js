@@ -468,7 +468,6 @@ async function boot(){
 
   student.training_sessions=[];
   renderCoreIdentity();
-  try{renderPortal()}catch(error){console.error("[student-portal] Core render failed",error)}
   showRuntimeWarning("Hồ sơ đã khôi phục. Đang tải lịch học, học phí, điểm danh và thông báo…");
 
   const optionalResults=await Promise.allSettled([
