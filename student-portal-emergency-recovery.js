@@ -12,6 +12,7 @@ const STUDENT_RPC_URL="/api/student-rpc";
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 let coreProfileRecovery=null;
+let recoveredProfile=null;
 
 function studentToken(){
   return localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"";
@@ -33,6 +34,28 @@ function formatDate(value){
 function setText(id,value){
   const node=document.getElementById(id);
   if(node)node.textContent=String(value??"");
+}
+
+function normalizeStudentProfile(payload){
+  let value=payload;
+  for(let depth=0;depth<4;depth++){
+    if(typeof value==="string"){
+      try{value=JSON.parse(value);continue}catch{return null}
+    }
+    if(Array.isArray(value)){value=value[0];continue}
+    if(value&&typeof value==="object"){
+      const nested=value.data??value.result??value.student??value.profile;
+      if(nested!==undefined&&nested!==value){value=nested;continue}
+    }
+    break;
+  }
+  return value&&typeof value==="object"&&!Array.isArray(value)?value:null;
+}
+
+function coreProfileIsVisible(){
+  const name=document.getElementById("studentName")?.textContent?.trim()||"";
+  const code=document.getElementById("studentCode")?.textContent?.trim()||"";
+  return Boolean((name&&name!=="Học viên")||(code&&code!=="Chưa có mã"));
 }
 
 async function fetchJson(url,options,timeoutMs=9000){
@@ -65,8 +88,10 @@ async function loadStudentProfile(token){
   }
 }
 
-function renderCoreStudentProfile(student){
-  if(!student?.id)return false;
+function renderCoreStudentProfile(payload){
+  const student=normalizeStudentProfile(payload);
+  if(!student||(student.id==null&&!student.name&&!student.student_code))return false;
+  recoveredProfile=student;
   const name=student.name||"Học viên";
   const studentCode=student.student_code||"Chưa có mã";
   const course=student.course||"Chưa có khóa";
@@ -131,7 +156,9 @@ function renderCoreStudentProfile(student){
 }
 
 function recoverCoreStudentProfile(){
-  if(location.pathname!=="/hoc-vien.html"||document.documentElement.getAttribute("data-student-profile")==="ready")return Promise.resolve(false);
+  if(location.pathname!=="/hoc-vien.html")return Promise.resolve(false);
+  if(coreProfileIsVisible())return Promise.resolve(true);
+  if(recoveredProfile)return Promise.resolve(renderCoreStudentProfile(recoveredProfile));
   const token=studentToken();
   if(!token)return Promise.resolve(false);
   if(!coreProfileRecovery)coreProfileRecovery=loadStudentProfile(token).then(renderCoreStudentProfile).catch(error=>{console.warn("[student-portal] Core profile recovery failed.",error);return false}).finally(()=>{coreProfileRecovery=null});
@@ -191,3 +218,4 @@ window.addEventListener("unhandledrejection",showStudentPortal);
 window.setTimeout(showStudentPortal,250);
 window.setTimeout(showStudentPortal,1000);
 window.setTimeout(()=>void recoverCoreStudentProfile(),1200);
+window.setTimeout(()=>void recoverCoreStudentProfile(),3500);
