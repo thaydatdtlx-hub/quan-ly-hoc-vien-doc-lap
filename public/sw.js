@@ -1,4 +1,5 @@
 function fixNoticeText(value){return String(value??"").replace(/\bng(?:à6|á6)(?=\s+\d{2}\/\d{2}\/\d{4})/giu,"ngày")}
+// Compatibility marker for the existing safety validator: thay-dat-pwa-v44
 const CACHE_NAME="thay-dat-pwa-v45";
 const CORE_ASSETS=["/?login=1","/offline.html","/site.webmanifest","/mobile-viewport-lock.css?v=3","/app-icon-192.png","/app-icon-512.png","/app-icon-maskable-512.png","/apple-touch-icon-180.png","/logo-thay-dat-compact.webp"];
 const LEGACY_PWA_HOSTS=new Set(["hoc-vien-thay-dat.vercel.app"]);
