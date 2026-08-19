@@ -7,6 +7,15 @@ import "./official-faq-section.js";
 import "./public-site-enhancements.js";
 import "./new-student-practice-link.js";
 
+const releaseLegacyRegistrationSkin=()=>document.body?.classList.remove("site-area-registration");
+releaseLegacyRegistrationSkin();
+if(document.body){
+  new MutationObserver(releaseLegacyRegistrationSkin).observe(document.body,{attributes:true,attributeFilter:["class"]});
+}
+document.addEventListener("DOMContentLoaded",releaseLegacyRegistrationSkin,{once:true});
+window.setTimeout(releaseLegacyRegistrationSkin,0);
+window.setTimeout(releaseLegacyRegistrationSkin,250);
+
 document.querySelector(".gallery-section")?.remove();
 
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
