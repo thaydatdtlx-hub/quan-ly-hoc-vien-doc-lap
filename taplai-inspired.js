@@ -1,3 +1,6 @@
+import "./student-testimonials.css";
+import "./student-testimonials.js";
+
 function mountOnlineBanner(){
   if(document.querySelector('.td-online-banner'))return;
   const anchor=document.querySelector('.stats-section')||document.querySelector('.schedule-section');
