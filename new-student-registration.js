@@ -1,5 +1,3 @@
-import "./taplai-inspired.css";
-import "./taplai-inspired.js";
 import "./license-training-details.js";
 import "./license-eligibility-section.js";
 import "./training-video-section.js";
