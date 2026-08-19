@@ -1,0 +1,269 @@
+/* Khối ưu đãi + nhận xét học viên trên trang đăng ký. */
+body.site-area-registration .student-social-proof{
+  position:relative!important;
+  width:min(1180px,92%)!important;
+  margin:0 auto!important;
+  padding:72px 0 78px!important;
+  isolation:isolate;
+}
+body.site-area-registration .student-social-proof::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  background:linear-gradient(180deg,#fff 0%,#f6faff 100%);
+  box-shadow:0 0 0 100vmax #f8fbfe;
+  clip-path:inset(0 -100vmax);
+}
+body.site-area-registration .student-social-proof__grid{
+  display:grid;
+  grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);
+  gap:42px;
+  align-items:start;
+}
+body.site-area-registration .student-social-proof__title{
+  margin:0 0 28px;
+  color:#1268c4;
+  text-align:center;
+  font-size:clamp(24px,2.4vw,34px);
+  font-weight:950;
+  letter-spacing:.015em;
+}
+body.site-area-registration .student-social-proof__panel{
+  min-width:0;
+}
+body.site-area-registration .student-offers__box{
+  overflow:hidden;
+  border:1px solid #d9e7f3;
+  border-radius:20px;
+  background:linear-gradient(145deg,#edf5fc 0%,#f6faff 60%,#fbf7ee 100%);
+  box-shadow:0 16px 42px rgba(19,66,108,.09);
+}
+body.site-area-registration .student-offers__tabs{
+  display:flex;
+  gap:10px;
+  padding:18px 18px 0;
+}
+body.site-area-registration .student-offers__tab{
+  min-height:48px;
+  padding:0 18px;
+  border:1.5px solid #4ab76d;
+  border-radius:11px;
+  background:#fff;
+  color:#319957;
+  font-size:14px;
+  font-weight:900;
+}
+body.site-area-registration .student-offers__tab[aria-selected="true"]{
+  background:#4ab76d;
+  color:#fff;
+  box-shadow:0 8px 20px rgba(74,183,109,.18);
+}
+body.site-area-registration .student-offers__list{
+  display:grid;
+  gap:4px;
+  padding:24px 24px 28px;
+}
+body.site-area-registration .student-offers__item{
+  display:grid;
+  grid-template-columns:82px 1fr;
+  gap:18px;
+  align-items:center;
+  padding:18px 12px;
+  border-bottom:1px solid rgba(16,89,157,.1);
+}
+body.site-area-registration .student-offers__item:last-child{border-bottom:0}
+body.site-area-registration .student-offers__icon{
+  display:grid;
+  width:74px;
+  height:74px;
+  place-items:center;
+  color:#0e5eb3;
+}
+body.site-area-registration .student-offers__icon svg{width:64px;height:64px;stroke:currentColor}
+body.site-area-registration .student-offers__item h3{
+  margin:0 0 7px;
+  color:#1268c4;
+  font-size:19px;
+  line-height:1.3;
+}
+body.site-area-registration .student-offers__item p{
+  margin:0;
+  color:#405a70;
+  font-size:13px;
+  line-height:1.65;
+}
+body.site-area-registration .student-testimonials__heading{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+  margin:0 0 20px;
+  min-height:44px;
+}
+body.site-area-registration .student-testimonials__heading .student-social-proof__title{margin:0}
+body.site-area-registration .student-testimonials__add{
+  display:none;
+  align-items:center;
+  justify-content:center;
+  min-height:38px;
+  padding:0 13px;
+  border:1px solid #1268c4;
+  border-radius:9px;
+  background:#fff;
+  color:#0d5ba8;
+  font-size:12px;
+  font-weight:900;
+  box-shadow:0 7px 18px rgba(18,104,196,.08);
+}
+body.site-area-registration .student-testimonials__add[data-admin="true"]{display:inline-flex}
+body.site-area-registration .student-testimonials__add:hover{background:#eef6ff}
+body.site-area-registration .student-testimonials__add:disabled{opacity:.65;cursor:wait}
+body.site-area-registration .student-testimonials__stage{
+  position:relative;
+  min-height:510px;
+}
+body.site-area-registration .student-testimonials__track{
+  display:grid;
+  grid-auto-flow:column;
+  grid-auto-columns:calc(50% - 8px);
+  gap:16px;
+  overflow-x:auto;
+  scroll-snap-type:x mandatory;
+  scrollbar-width:none;
+  overscroll-behavior-inline:contain;
+  padding:2px 2px 12px;
+}
+body.site-area-registration .student-testimonials__track::-webkit-scrollbar{display:none}
+body.site-area-registration .student-testimonial-card{
+  scroll-snap-align:start;
+  overflow:hidden;
+  min-height:482px;
+  border:1px solid #d9e5ef;
+  border-radius:16px;
+  background:#e8f1f8;
+  box-shadow:0 12px 30px rgba(17,58,95,.1);
+}
+body.site-area-registration .student-testimonial-card button{
+  display:block;
+  width:100%;
+  height:100%;
+  min-height:482px;
+  padding:0;
+  border:0;
+  background:#e8f1f8;
+}
+body.site-area-registration .student-testimonial-card img{
+  display:block;
+  width:100%;
+  height:482px;
+  object-fit:contain;
+  background:#e8f1f8;
+}
+body.site-area-registration .student-testimonials__empty{
+  display:grid;
+  min-height:482px;
+  place-items:center;
+  align-content:center;
+  gap:10px;
+  padding:34px;
+  border:1px dashed #b9ccdc;
+  border-radius:18px;
+  background:linear-gradient(145deg,#f6faff,#edf5fc);
+  color:#597287;
+  text-align:center;
+}
+body.site-area-registration .student-testimonials__empty b{color:#185d9b;font-size:18px}
+body.site-area-registration .student-testimonials__empty span{font-size:42px}
+body.site-area-registration .student-testimonials__nav{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  margin-top:7px;
+}
+body.site-area-registration .student-testimonials__nav button{
+  display:grid;
+  width:34px;
+  height:34px;
+  place-items:center;
+  border:1px solid #c7d7e4;
+  border-radius:50%;
+  background:#fff;
+  color:#0f5ca6;
+  font-weight:950;
+}
+body.site-area-registration .student-testimonials__dots{display:flex;align-items:center;gap:7px}
+body.site-area-registration .student-testimonials__dot{
+  width:8px!important;
+  height:8px!important;
+  border:0!important;
+  padding:0!important;
+  border-radius:50%!important;
+  background:#c8d4de!important;
+}
+body.site-area-registration .student-testimonials__dot[aria-current="true"]{background:#163a59!important;transform:scale(1.15)}
+body.site-area-registration .student-testimonials__admin-note{
+  display:none;
+  margin:8px 0 0;
+  color:#788b9a;
+  text-align:center;
+  font-size:10px;
+}
+body.site-area-registration .student-testimonials__admin-note[data-admin="true"]{display:block}
+body.site-area-registration .student-testimonials__status{
+  min-height:18px;
+  margin:6px 0 0;
+  color:#0d5ba8;
+  text-align:center;
+  font-size:11px;
+  font-weight:750;
+}
+.student-testimonial-lightbox{
+  width:min(920px,94vw);
+  max-height:92vh;
+  padding:12px;
+  border:0;
+  border-radius:16px;
+  background:#0b2236;
+  box-shadow:0 30px 80px rgba(0,0,0,.35);
+}
+.student-testimonial-lightbox::backdrop{background:rgba(3,17,29,.78);backdrop-filter:blur(4px)}
+.student-testimonial-lightbox img{display:block;width:100%;max-height:84vh;object-fit:contain;border-radius:10px;background:#fff}
+.student-testimonial-lightbox button{
+  position:absolute;
+  top:18px;
+  right:18px;
+  width:38px;
+  height:38px;
+  border:1px solid rgba(255,255,255,.35);
+  border-radius:50%;
+  background:rgba(6,28,45,.82);
+  color:#fff;
+  font-size:20px;
+  font-weight:900;
+}
+@media(max-width:920px){
+  body.site-area-registration .student-social-proof__grid{grid-template-columns:1fr;gap:54px}
+  body.site-area-registration .student-testimonials__track{grid-auto-columns:calc(50% - 8px)}
+}
+@media(max-width:620px){
+  body.site-area-registration .student-social-proof{width:94%!important;padding:54px 0 60px!important}
+  body.site-area-registration .student-social-proof__title{text-align:left;font-size:25px}
+  body.site-area-registration .student-testimonials__heading{justify-content:space-between;align-items:flex-start}
+  body.site-area-registration .student-offers__tabs{display:grid;grid-template-columns:1fr 1fr;padding:14px 14px 0}
+  body.site-area-registration .student-offers__tab{min-height:44px;padding:0 9px;font-size:11px}
+  body.site-area-registration .student-offers__list{padding:14px 13px 18px}
+  body.site-area-registration .student-offers__item{grid-template-columns:58px 1fr;gap:11px;padding:16px 5px}
+  body.site-area-registration .student-offers__icon{width:54px;height:54px}
+  body.site-area-registration .student-offers__icon svg{width:48px;height:48px}
+  body.site-area-registration .student-offers__item h3{font-size:16px}
+  body.site-area-registration .student-offers__item p{font-size:12px}
+  body.site-area-registration .student-testimonials__stage{min-height:440px}
+  body.site-area-registration .student-testimonials__track{grid-auto-columns:88%}
+  body.site-area-registration .student-testimonial-card,
+  body.site-area-registration .student-testimonial-card button{min-height:420px}
+  body.site-area-registration .student-testimonial-card img{height:420px}
+  body.site-area-registration .student-testimonials__empty{min-height:420px}
+  body.site-area-registration .student-testimonials__add{font-size:11px;padding:0 10px}
+}
