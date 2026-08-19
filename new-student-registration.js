@@ -1,3 +1,5 @@
+import "./taplai-inspired.css";
+import "./taplai-inspired.js";
 import "./license-training-details.js";
 import "./license-eligibility-section.js";
 import "./training-video-section.js";
@@ -6,15 +8,6 @@ import "./tuition-details.js";
 import "./official-faq-section.js";
 import "./public-site-enhancements.js";
 import "./new-student-practice-link.js";
-
-const releaseLegacyRegistrationSkin=()=>document.body?.classList.remove("site-area-registration");
-releaseLegacyRegistrationSkin();
-if(document.body){
-  new MutationObserver(releaseLegacyRegistrationSkin).observe(document.body,{attributes:true,attributeFilter:["class"]});
-}
-document.addEventListener("DOMContentLoaded",releaseLegacyRegistrationSkin,{once:true});
-window.setTimeout(releaseLegacyRegistrationSkin,0);
-window.setTimeout(releaseLegacyRegistrationSkin,250);
 
 document.querySelector(".gallery-section")?.remove();
 
