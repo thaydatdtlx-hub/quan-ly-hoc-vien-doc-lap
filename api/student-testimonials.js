@@ -4,7 +4,7 @@ const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const PREFIX="student-testimonials/";
 const ALLOWED_TYPES=new Set(["image/jpeg","image/png","image/webp"]);
-const MAX_BYTES=3*1024*1024;
+const MAX_BYTES=7*1024*1024;
 
 async function verifyAdmin(token){
   if(!token)return false;
@@ -63,7 +63,7 @@ export default async function handler(req,res){
   if(!data.startsWith(expectedPrefix))return res.status(400).json({error:"Dữ liệu hình ảnh không hợp lệ."});
   let bytes;
   try{bytes=Buffer.from(data.slice(expectedPrefix.length),"base64")}catch{return res.status(400).json({error:"Không đọc được dữ liệu hình ảnh."})}
-  if(!bytes.length||bytes.length>MAX_BYTES)return res.status(400).json({error:"Ảnh phải nhỏ hơn 3 MB."});
+  if(!bytes.length||bytes.length>MAX_BYTES)return res.status(400).json({error:"Ảnh phải nhỏ hơn 7 MB."});
 
   try{
     const pathname=`${PREFIX}${Date.now()}-${name.replace(/\.[a-z0-9]+$/i,"")}.${extension(type)}`;

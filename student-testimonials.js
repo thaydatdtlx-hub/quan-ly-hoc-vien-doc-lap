@@ -72,7 +72,7 @@ function createSection(){
           <div class="student-testimonials__dots" data-testimonial-dots></div>
           <button type="button" aria-label="Ảnh sau" data-testimonial-next>›</button>
         </div>
-        <p class="student-testimonials__admin-note" data-testimonial-admin-note>Chỉ Admin nhìn thấy nút thêm ảnh. Hỗ trợ JPG, PNG, WebP tối đa 3 MB/ảnh.</p>
+        <p class="student-testimonials__admin-note" data-testimonial-admin-note>Chỉ Admin nhìn thấy nút thêm ảnh. Hỗ trợ JPG, PNG, WebP tối đa 7 MB/ảnh.</p>
         <p class="student-testimonials__status" data-testimonial-status></p>
       </div>
     </div>`;
@@ -155,7 +155,7 @@ async function setupAdminUpload(section,lightbox){
     const file=input.files?.[0];if(!file)return;
     input.value="";
     if(!["image/jpeg","image/png","image/webp"].includes(file.type)){status.textContent="Chỉ hỗ trợ ảnh JPG, PNG hoặc WebP.";return}
-    if(file.size>3*1024*1024){status.textContent="Ảnh vượt quá 3 MB. Vui lòng chọn ảnh nhỏ hơn.";return}
+    if(file.size>7*1024*1024){status.textContent="Ảnh vượt quá 7 MB. Vui lòng chọn ảnh nhỏ hơn.";return}
     add.disabled=true;status.textContent="Đang tải ảnh lên…";
     try{
       const dataUrl=await readAsDataUrl(file);
