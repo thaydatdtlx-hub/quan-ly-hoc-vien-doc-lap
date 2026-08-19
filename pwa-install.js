@@ -28,22 +28,12 @@ function studentFunctionsReady(){
   return state==="ready"||state==="partial";
 }
 
-function afterStudentPaint(callback){
-  requestAnimationFrame(()=>requestAnimationFrame(callback));
-}
-
+function afterStudentPaint(callback){requestAnimationFrame(()=>requestAnimationFrame(callback))}
 function loadEnhancementsWhenSafe(){
-  if(!isStudentPortal()){
-    void loadSharedEnhancements();
-    return;
-  }
-  if(studentFunctionsReady()){
-    afterStudentPaint(()=>void loadSharedEnhancements());
-    return;
-  }
+  if(!isStudentPortal()){void loadSharedEnhancements();return}
+  if(studentFunctionsReady()){afterStudentPaint(()=>void loadSharedEnhancements());return}
   window.addEventListener("student-functions-ready",()=>afterStudentPaint(()=>void loadSharedEnhancements()),{once:true});
 }
-
 loadEnhancementsWhenSafe();
 
 if(document.getElementById("app")){
@@ -58,19 +48,32 @@ if(document.getElementById("app")){
 
 const DISMISS_KEY="thay_dat_pwa_install_dismissed";
 const DISMISS_DAYS=7;
+const PUBLIC_MARKETING_PATHS=new Set(["/dang-ky-hoc-lai-xe.html","/600-cau-hoi.html","/bo-tuc-tay-lai.html","/chinh-sach-bao-mat.html"]);
 let deferredInstallPrompt=null;
 let installBanner=null;
 
 function isStandalone(){return window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true}
 function isIos(){return /iphone|ipad|ipod/i.test(navigator.userAgent)}
 function isPublicLanding(){return location.pathname==="/dang-ky-hoc-lai-xe.html"||(location.pathname==="/"&&Boolean(document.getElementById("registrationForm")))}
+function isPublicMarketingPage(){return PUBLIC_MARKETING_PATHS.has(location.pathname)||isPublicLanding()}
 function shouldOfferInstall(){return !isPublicLanding()}
-function recentlyDismissed(){
-  const value=Number(localStorage.getItem(DISMISS_KEY)||0);
-  return value&&Date.now()-value<DISMISS_DAYS*86400000;
-}
+function recentlyDismissed(){const value=Number(localStorage.getItem(DISMISS_KEY)||0);return value&&Date.now()-value<DISMISS_DAYS*86400000}
 function removeInstallBanner(){installBanner?.remove();installBanner=null}
 function dismissInstallBanner(){localStorage.setItem(DISMISS_KEY,String(Date.now()));removeInstallBanner()}
+
+async function clearPublicPwaState(){
+  try{
+    const registrations=await navigator.serviceWorker.getRegistrations();
+    await Promise.all(registrations.map(registration=>registration.unregister()));
+  }catch{}
+  try{
+    if("caches" in window){
+      const keys=await caches.keys();
+      await Promise.all(keys.filter(name=>name.startsWith("thay-dat-pwa-")).map(name=>caches.delete(name)));
+    }
+  }catch{}
+}
+
 function showLaunchScreen(){
   if(!isStandalone()||sessionStorage.getItem("thay_dat_pwa_launched"))return;
   sessionStorage.setItem("thay_dat_pwa_launched","1");
@@ -83,36 +86,23 @@ function showLaunchScreen(){
 
 function showInstallBanner(mode){
   if(!shouldOfferInstall()||isStandalone()||recentlyDismissed()||installBanner)return;
-  installBanner=document.createElement("aside");
-  installBanner.className="pwa-install-banner";
-  installBanner.setAttribute("aria-label","Cài ứng dụng Thầy Đạt");
-  installBanner.innerHTML=`
-    <img src="/app-icon-192.png" alt="">
-    <div><strong>Cài ứng dụng Thầy Đạt</strong><p>${mode==="ios"?"Mở nhanh toàn màn hình ngay từ iPhone.":"Truy cập nhanh như một ứng dụng trên điện thoại."}</p><small class="pwa-ios-help" hidden>Nhấn nút Chia sẻ <b>□↑</b>, sau đó chọn <b>Thêm vào MH chính</b>.</small></div>
-    <button class="pwa-install-action" type="button">${mode==="ios"?"Cách cài":"Cài ngay"}</button>
-    <button class="pwa-install-close" type="button" aria-label="Để sau">×</button>`;
+  installBanner=document.createElement("aside");installBanner.className="pwa-install-banner";installBanner.setAttribute("aria-label","Cài ứng dụng Thầy Đạt");
+  installBanner.innerHTML=`<img src="/app-icon-192.png" alt=""><div><strong>Cài ứng dụng Thầy Đạt</strong><p>${mode==="ios"?"Mở nhanh toàn màn hình ngay từ iPhone.":"Truy cập nhanh như một ứng dụng trên điện thoại."}</p><small class="pwa-ios-help" hidden>Nhấn nút Chia sẻ <b>□↑</b>, sau đó chọn <b>Thêm vào MH chính</b>.</small></div><button class="pwa-install-action" type="button">${mode==="ios"?"Cách cài":"Cài ngay"}</button><button class="pwa-install-close" type="button" aria-label="Để sau">×</button>`;
   document.body.append(installBanner);
   installBanner.querySelector(".pwa-install-close").addEventListener("click",dismissInstallBanner);
   installBanner.querySelector(".pwa-install-action").addEventListener("click",async()=>{
-    if(mode==="ios"){
-      const help=installBanner.querySelector(".pwa-ios-help");help.hidden=false;
-      installBanner.classList.add("show-instructions");
-      return;
-    }
-    if(!deferredInstallPrompt)return;
-    deferredInstallPrompt.prompt();
-    const {outcome}=await deferredInstallPrompt.userChoice;
-    deferredInstallPrompt=null;
-    if(outcome==="accepted")removeInstallBanner();
+    if(mode==="ios"){const help=installBanner.querySelector(".pwa-ios-help");help.hidden=false;installBanner.classList.add("show-instructions");return}
+    if(!deferredInstallPrompt)return;deferredInstallPrompt.prompt();const {outcome}=await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;if(outcome==="accepted")removeInstallBanner();
   });
 }
 
 if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js",{scope:"/"}).catch(()=>{}),{once:true});
+  window.addEventListener("load",()=>{
+    if(isPublicMarketingPage()){void clearPublicPwaState();return}
+    navigator.serviceWorker.register("/sw.js",{scope:"/",updateViaCache:"none"}).catch(()=>{});
+  },{once:true});
 }
 showLaunchScreen();
-window.addEventListener("beforeinstallprompt",event=>{
-  event.preventDefault();deferredInstallPrompt=event;if(shouldOfferInstall())showInstallBanner("native");
-});
+window.addEventListener("beforeinstallprompt",event=>{event.preventDefault();deferredInstallPrompt=event;if(shouldOfferInstall())showInstallBanner("native")});
 window.addEventListener("appinstalled",()=>{localStorage.removeItem(DISMISS_KEY);removeInstallBanner()});
 if(isIos()&&!isStandalone()&&shouldOfferInstall())window.setTimeout(()=>showInstallBanner("ios"),1400);
