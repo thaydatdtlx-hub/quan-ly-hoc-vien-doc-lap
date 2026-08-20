@@ -1,6 +1,12 @@
+import {upload} from "@vercel/blob/client";
+import "./student-testimonials-admin.css";
+
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const TOKEN_KEY="hv_token";
+const PREFIX="student-testimonials/";
+const MAX_BYTES=10*1024*1024;
+const ALLOWED_TYPES=new Set(["image/jpeg","image/png","image/webp"]);
 
 const motorcycleOffers=[
   {icon:"id",title:"Nhận bằng thuận tiện",text:"Theo dõi tiến độ và nhận thông báo các mốc quan trọng trên hệ thống."},
@@ -42,6 +48,20 @@ async function isAdmin(){
   }catch{return false}
 }
 
+function safeBaseName(value="image"){
+  return String(value).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").replace(/\.[a-z0-9]+$/i,"").replace(/[^a-z0-9_-]+/g,"-").replace(/^-+|-+$/g,"").slice(0,56)||"image";
+}
+
+function extension(type){
+  if(type==="image/png")return"png";
+  if(type==="image/webp")return"webp";
+  return"jpg";
+}
+
+function uploadPath(file){
+  return `${PREFIX}${Date.now()}-${safeBaseName(file.name)}.${extension(file.type)}`;
+}
+
 function createSection(){
   const section=document.createElement("section");
   section.className="student-social-proof";
@@ -72,7 +92,7 @@ function createSection(){
           <div class="student-testimonials__dots" data-testimonial-dots></div>
           <button type="button" aria-label="Ảnh sau" data-testimonial-next>›</button>
         </div>
-        <p class="student-testimonials__admin-note" data-testimonial-admin-note>Chỉ Admin nhìn thấy nút thêm ảnh. Hỗ trợ JPG, PNG, WebP tối đa 7 MB/ảnh.</p>
+        <p class="student-testimonials__admin-note" data-testimonial-admin-note>Chỉ Admin nhìn thấy nút thêm/xóa ảnh. Hỗ trợ JPG, PNG, WebP tối đa 10 MB/ảnh.</p>
         <p class="student-testimonials__status" data-testimonial-status></p>
       </div>
     </div>`;
@@ -92,7 +112,30 @@ function createLightbox(){
   return dialog;
 }
 
-async function loadTestimonials(section,lightbox){
+async function deleteTestimonial(section,lightbox,image,button){
+  if(!image?.pathname)return;
+  if(!window.confirm("Xóa ảnh nhận xét này? Ảnh sẽ bị xóa khỏi website."))return;
+  const status=section.querySelector("[data-testimonial-status]");
+  button.disabled=true;
+  status.textContent="Đang xóa ảnh…";
+  try{
+    const response=await fetch("/api/student-testimonials",{
+      method:"DELETE",
+      headers:{"Content-Type":"application/json","X-Admin-Token":getToken()},
+      body:JSON.stringify({pathname:image.pathname})
+    });
+    const data=await response.json().catch(()=>null);
+    if(!response.ok)throw new Error(data?.error||"Không thể xóa ảnh.");
+    if(lightbox.open)lightbox.close();
+    await loadTestimonials(section,lightbox,true);
+    status.textContent="Đã xóa ảnh nhận xét học viên.";
+  }catch(error){
+    status.textContent=error?.message||"Không thể xóa ảnh.";
+    button.disabled=false;
+  }
+}
+
+async function loadTestimonials(section,lightbox,admin=false){
   const track=section.querySelector("[data-testimonial-track]");
   const nav=section.querySelector("[data-testimonial-nav]");
   const dots=section.querySelector("[data-testimonial-dots]");
@@ -106,9 +149,10 @@ async function loadTestimonials(section,lightbox){
     if(!images.length){
       track.innerHTML=`<div class="student-testimonials__empty"><span>💬</span><b>Nhận xét của học viên</b><p>Ảnh phản hồi sẽ được cập nhật tại đây.</p></div>`;
       nav.hidden=true;
+      track.onscroll=null;
       return;
     }
-    track.innerHTML=images.map((item,index)=>`<article class="student-testimonial-card"><button type="button" data-testimonial-open="${index}" aria-label="Xem ảnh nhận xét ${index+1}"><img loading="lazy" decoding="async" src="${item.imageUrl}" alt="Nhận xét học viên ${index+1}"></button></article>`).join("");
+    track.innerHTML=images.map((item,index)=>`<article class="student-testimonial-card"><button class="student-testimonial-card__open" type="button" data-testimonial-open="${index}" aria-label="Xem ảnh nhận xét ${index+1}"><img loading="lazy" decoding="async" src="${item.imageUrl}" alt="Nhận xét học viên ${index+1}"></button>${admin?`<button class="student-testimonial-card__delete" type="button" data-testimonial-delete="${index}" aria-label="Xóa ảnh nhận xét ${index+1}">🗑 Xóa ảnh</button>`:""}</article>`).join("");
     dots.innerHTML=images.map((_,index)=>`<button type="button" class="student-testimonials__dot" data-testimonial-dot="${index}" aria-label="Đến ảnh ${index+1}" aria-current="${index===0}"></button>`).join("");
     nav.hidden=images.length<2;
     const cards=[...track.children];
@@ -122,53 +166,57 @@ async function loadTestimonials(section,lightbox){
       lightbox.querySelector("img").src=image.imageUrl;
       lightbox.showModal();
     }));
+    section.querySelectorAll("[data-testimonial-delete]").forEach(button=>button.addEventListener("click",()=>{
+      const image=images[Number(button.dataset.testimonialDelete)];
+      deleteTestimonial(section,lightbox,image,button);
+    }));
     section.querySelectorAll("[data-testimonial-dot]").forEach(button=>button.addEventListener("click",()=>{
       const index=Number(button.dataset.testimonialDot);setActive(index);cards[index]?.scrollIntoView({behavior:"smooth",block:"nearest",inline:"start"});
     }));
-    section.querySelector("[data-testimonial-prev]")?.addEventListener("click",()=>{const index=(active-1+cards.length)%cards.length;setActive(index);cards[index].scrollIntoView({behavior:"smooth",block:"nearest",inline:"start"})});
-    section.querySelector("[data-testimonial-next]")?.addEventListener("click",()=>{const index=(active+1)%cards.length;setActive(index);cards[index].scrollIntoView({behavior:"smooth",block:"nearest",inline:"start"})});
-    track.addEventListener("scroll",()=>{
+    const prev=section.querySelector("[data-testimonial-prev]");
+    const next=section.querySelector("[data-testimonial-next]");
+    if(prev)prev.onclick=()=>{const index=(active-1+cards.length)%cards.length;setActive(index);cards[index].scrollIntoView({behavior:"smooth",block:"nearest",inline:"start"})};
+    if(next)next.onclick=()=>{const index=(active+1)%cards.length;setActive(index);cards[index].scrollIntoView({behavior:"smooth",block:"nearest",inline:"start"})};
+    track.onscroll=()=>{
       window.clearTimeout(track._dotTimer);
       track._dotTimer=window.setTimeout(()=>{
         const left=track.scrollLeft;let best=0,bestDistance=Infinity;
         cards.forEach((card,index)=>{const distance=Math.abs(card.offsetLeft-left);if(distance<bestDistance){best=index;bestDistance=distance}});setActive(best);
       },80);
-    },{passive:true});
+    };
   }catch(error){
     track.innerHTML=`<div class="student-testimonials__empty"><span>💬</span><b>Nhận xét của học viên</b><p>Tạm thời chưa tải được hình ảnh.</p></div>`;
     nav.hidden=true;
+    track.onscroll=null;
     status.textContent=error?.message||"Không thể tải hình ảnh.";
   }
 }
 
-function readAsDataUrl(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error("Không đọc được ảnh."));reader.readAsDataURL(file)})}
-
-async function setupAdminUpload(section,lightbox){
+function setupAdminUpload(section,lightbox,admin){
   const add=section.querySelector("[data-testimonial-add]");
   const input=section.querySelector("[data-testimonial-file]");
   const note=section.querySelector("[data-testimonial-admin-note]");
   const status=section.querySelector("[data-testimonial-status]");
-  if(!(await isAdmin()))return;
-  add.dataset.admin="true";note.dataset.admin="true";
+  if(!admin)return;
+  add.dataset.admin="true";
+  note.dataset.admin="true";
   add.addEventListener("click",()=>input.click());
   input.addEventListener("change",async()=>{
     const file=input.files?.[0];if(!file)return;
     input.value="";
-    if(!["image/jpeg","image/png","image/webp"].includes(file.type)){status.textContent="Chỉ hỗ trợ ảnh JPG, PNG hoặc WebP.";return}
-    if(file.size>7*1024*1024){status.textContent="Ảnh vượt quá 7 MB. Vui lòng chọn ảnh nhỏ hơn.";return}
+    if(!ALLOWED_TYPES.has(file.type)){status.textContent="Chỉ hỗ trợ ảnh JPG, PNG hoặc WebP.";return}
+    if(file.size>MAX_BYTES){status.textContent="Ảnh vượt quá 10 MB. Vui lòng chọn ảnh nhỏ hơn.";return}
     add.disabled=true;status.textContent="Đang tải ảnh lên…";
     try{
-      const dataUrl=await readAsDataUrl(file);
-      const token=getToken();
-      const response=await fetch("/api/student-testimonials",{
-        method:"POST",
-        headers:{"Content-Type":"application/json","X-Admin-Token":token},
-        body:JSON.stringify({name:file.name,type:file.type,data:dataUrl})
+      await upload(uploadPath(file),file,{
+        access:"private",
+        handleUploadUrl:"/api/student-testimonials-upload",
+        clientPayload:JSON.stringify({token:getToken()}),
+        contentType:file.type,
+        multipart:file.size>4*1024*1024
       });
-      const data=await response.json();
-      if(!response.ok)throw new Error(data?.error||"Không thể tải ảnh lên.");
+      await loadTestimonials(section,lightbox,true);
       status.textContent="Đã thêm ảnh nhận xét học viên.";
-      await loadTestimonials(section,lightbox);
     }catch(error){status.textContent=error?.message||"Không thể tải ảnh lên."}
     finally{add.disabled=false}
   });
@@ -187,7 +235,9 @@ async function init(){
   const section=createSection();if(!section)return;
   const lightbox=createLightbox();
   setupOfferTabs(section);
-  await Promise.all([loadTestimonials(section,lightbox),setupAdminUpload(section,lightbox)]);
+  const admin=await isAdmin();
+  setupAdminUpload(section,lightbox,admin);
+  await loadTestimonials(section,lightbox,admin);
 }
 
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
