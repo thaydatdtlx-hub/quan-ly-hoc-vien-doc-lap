@@ -1,46 +1,10 @@
 import "./license-training-details.css";
 
 const trainingPrograms={
-  "A1":{
-    short:"Xe mô tô hạng A1",
-    title:"Chương trình đào tạo hạng A1",
-    description:"Trang bị kiến thức pháp luật, kỹ thuật điều khiển xe mô tô và kỹ năng thực hành cơ bản để xử lý tình huống an toàn.",
-    metrics:[
-      ["12 giờ","Tổng thời gian tối thiểu"],
-      ["8 giờ","Pháp luật giao thông"],
-      ["2 giờ","Kỹ thuật lái xe"],
-      ["2 giờ","Thực hành lái xe"]
-    ],
-    modules:[
-      ["⚖️","Pháp luật giao thông","Quy tắc giao thông, hệ thống báo hiệu đường bộ, ý thức chấp hành và xử lý tình huống."],
-      ["🛵","Cấu tạo và điều khiển","Vị trí, tác dụng các bộ phận chủ yếu và cách sử dụng xe mô tô an toàn."],
-      ["🧭","Kỹ thuật lái cơ bản","Tư thế lái, xuất phát, dừng xe, giữ thăng bằng, chuyển hướng và quan sát."],
-      ["🛣️","Thực hành sát hạch","Luyện tập trong sân, trong hình và ôn luyện theo nội dung sát hạch."]
-    ],
-    practice:["Tập lái xe trong sân tập","Tập lái xe trong hình","Kỹ thuật phanh và dừng xe","Kỹ thuật vòng cua, giữ thăng bằng","Bài tập tổng hợp","Ôn luyện nội dung sát hạch"]
-  },
-  "A":{
-    short:"Xe mô tô hạng A",
-    title:"Chương trình đào tạo hạng A",
-    description:"Chương trình tăng cường thời lượng lý thuyết và thực hành, chú trọng kỹ năng điều khiển xe mô tô trong nhiều điều kiện giao thông.",
-    metrics:[
-      ["32 giờ","Tổng thời gian tối thiểu"],
-      ["16 giờ","Pháp luật giao thông"],
-      ["4 giờ","Kỹ thuật lái xe"],
-      ["12 giờ","Thực hành lái xe"]
-    ],
-    modules:[
-      ["⚖️","Pháp luật và tình huống","Nắm vững quy tắc giao thông, biển báo, sa hình và phương pháp xử lý tình huống."],
-      ["🏍️","Kỹ thuật điều khiển xe","Sử dụng các bộ phận điều khiển, tư thế lái và kỹ thuật lái xe mô tô an toàn."],
-      ["🛡️","An toàn chủ động","Quan sát, giữ khoảng cách, chuyển hướng, vượt xe và phòng ngừa tai nạn."],
-      ["🏁","Thực hành tổng hợp","Luyện sân tập, bài hình, phanh gấp, vòng cua và ôn luyện sát hạch."]
-    ],
-    practice:["Tập lái trong sân và trong hình","Kỹ thuật phanh gấp","Kỹ thuật lái vòng cua","Bài tập lái xe tổng hợp","Xử lý chướng ngại vật","Ôn luyện nội dung sát hạch"]
-  },
   "B số tự động":{
     short:"Ô tô hạng B · Số tự động",
     title:"Chương trình B số tự động",
-    description:"Phù hợp với học viên lựa chọn xe chuyển số tự động hoặc xe điện; tập trung vào kỹ thuật điều khiển, sa hình và lái xe an toàn trên đường.",
+    description:"Phù hợp với học viên lựa chọn xe chuyển số tự động hoặc xe điện; thời gian đào tạo dự kiến 2,5–3 tháng, tùy kế hoạch khóa và tiến độ hoàn thành của học viên.",
     metrics:[
       ["203 giờ","Tổng thời gian tối thiểu"],
       ["136 giờ","Đào tạo lý thuyết"],
@@ -58,7 +22,7 @@ const trainingPrograms={
   "B số sàn":{
     short:"Ô tô hạng B · Số sàn",
     title:"Chương trình B số sàn",
-    description:"Đào tạo đầy đủ kỹ năng phối hợp côn, ga, phanh, chuyển số và thực hành trên sân, cabin, đường giao thông trong nhiều điều kiện.",
+    description:"Đào tạo đầy đủ kỹ năng phối hợp côn, ga, phanh và chuyển số; thời gian dự kiến 2,5–3 tháng, tùy kế hoạch khóa và tiến độ hoàn thành.",
     metrics:[
       ["235 giờ","Tổng thời gian tối thiểu"],
       ["152 giờ","Đào tạo lý thuyết"],
@@ -76,7 +40,7 @@ const trainingPrograms={
   "C1":{
     short:"Ô tô tải hạng C1",
     title:"Chương trình đào tạo hạng C1",
-    description:"Chú trọng kỹ năng điều khiển xe tải, kỹ thuật chở hàng, quan sát điểm mù và thực hành trên sân, cabin, đường giao thông.",
+    description:"Chú trọng kỹ năng điều khiển xe tải, quan sát điểm mù và thực hành trên sân, cabin, đường giao thông; thời gian dự kiến 3,5–4 tháng.",
     metrics:[
       ["245 giờ","Tổng thời gian tối thiểu"],
       ["152 giờ","Đào tạo lý thuyết"],
@@ -145,7 +109,7 @@ function mountTrainingDetails(){
   const tabs=[...section.querySelectorAll("[data-training-tab]")];
 
   const showProgram=key=>{
-    const program=trainingPrograms[key]||trainingPrograms.A1;
+    const program=trainingPrograms[key]||trainingPrograms["B số tự động"];
     tabs.forEach(tab=>{
       const active=tab.dataset.trainingTab===key;
       tab.classList.toggle("active",active);
@@ -167,7 +131,7 @@ function mountTrainingDetails(){
   }));
 
   document.querySelectorAll("[data-license-card]").forEach(card=>card.addEventListener("click",()=>showProgram(card.dataset.licenseCard)));
-  showProgram("A1");
+  showProgram("B số tự động");
 }
 
 mountTrainingDetails();

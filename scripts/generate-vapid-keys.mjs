@@ -9,5 +9,5 @@ const vapidPrivateKey=decode(privateJwk.d).toString("base64url");
 console.log(JSON.stringify({
   VAPID_PUBLIC_KEY:vapidPublicKey,
   VAPID_PRIVATE_KEY:vapidPrivateKey,
-  VAPID_SUBJECT:"https://hoc-vien-thay-dat.vercel.app/"
+  VAPID_SUBJECT:"https://www.hoclaixecungdat.com/"
 },null,2));

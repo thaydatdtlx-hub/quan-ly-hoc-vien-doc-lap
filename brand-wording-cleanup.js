@@ -1,8 +1,8 @@
 const PACKAGE_WORDING=/đào\s+tạo\s+lái\s+xe\s+trọn\s+gói/iu;
 const PACKAGE_WORDING_GLOBAL=/đào\s+tạo\s+lái\s+xe\s+trọn\s+gói/giu;
 const UNVERIFIED_CENTER=/trung\s+tâm\s+đào\s+tạo\s+lái\s+xe\s+thầy\s+đạt/giu;
-const LEGACY_HOSTS=/https?:\/\/(?:www\.)?(?:daotaolaixetrongoi\.com|hoc-vien-thay-dat\.vercel\.app|daotaolaixe-thaydat\.vercel\.app)/giu;
-const PRIMARY_ORIGIN="https://hoclaixecungdat.vercel.app";
+const LEGACY_HOSTS=/https?:\/\/(?:www\.)?(?:daotaolaixetrongoi\.com|hoc-vien-thay-dat\.vercel\.app|daotaolaixe-thaydat\.vercel\.app|hoclaixecungdat\.vercel\.app)/giu;
+const PRIMARY_ORIGIN="https://www.hoclaixecungdat.com";
 const TEXT_ATTRIBUTES=["title","aria-label","alt","content","href"];
 
 function cleanValue(value=""){

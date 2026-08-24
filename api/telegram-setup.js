@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 
 const TELEGRAM_BOT_TOKEN=process.env.TELEGRAM_BOT_TOKEN||"";
-const SITE_URL=(process.env.PUBLIC_SITE_URL||"https://hoclaixecungdat.vercel.app").replace(/\/$/,"");
+const SITE_URL=(process.env.PUBLIC_SITE_URL||"https://www.hoclaixecungdat.com").replace(/\/$/,"");
 const secret=()=>crypto.createHash("sha256").update(TELEGRAM_BOT_TOKEN).digest("hex").slice(0,64);
 
 export default async function handler(req,res){

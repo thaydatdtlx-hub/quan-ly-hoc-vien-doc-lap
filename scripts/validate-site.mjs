@@ -39,7 +39,7 @@ for(const page of pages){
   if(!html.includes('/mobile-viewport-lock.css?v=3'))errors.push(`${page}: thiếu CSS ổn định giao diện mobile`);
   if(!manifestOptional.has(page)&&!/<link\s+rel="manifest"/.test(html))errors.push(`${page}: thiếu manifest`);
   if(page!=="404.html"&&!/<meta\s+name="description"/.test(html))errors.push(`${page}: thiếu mô tả`);
-  if(publicPages.has(page)&&!/<link\s+rel="canonical"/.test(html))errors.push(`${page}: thiếu canonical`);
+  if(publicPages.has(page)&&!/<link\s+rel="canonical"\s+href="https:\/\/www\.hoclaixecungdat\.com\//.test(html))errors.push(`${page}: canonical chưa dùng tên miền chính`);
   if(publicPages.has(page)&&!/<meta\s+name="robots"[^>]*index,follow/i.test(html))errors.push(`${page}: chưa cho phép index rõ ràng`);
 
   for(const duplicate of new Set(duplicateIds(html)))errors.push(`${page}: trùng id "${duplicate}"`);
@@ -60,13 +60,25 @@ for(const publicAsset of ["public/robots.txt","public/sitemap.xml"]){
 
 const registrationHtml=await readFile(resolve(root,"dang-ky-hoc-lai-xe.html"),"utf8");
 const registrationJs=await readFile(resolve(root,"new-student-registration.js"),"utf8");
-const registrationLicenses=["A1","A","B số tự động","B số sàn","C1"];
+const registrationLicenses=["B số tự động","B số sàn","C1"];
 for(const license of registrationLicenses){
   if(!registrationHtml.includes(`data-license-card="${license}"`))errors.push(`Biểu mẫu đăng ký: thiếu hạng ${license}`);
 }
-if(!/<input\b[^>]*id="licenseClass"[^>]*value="A1"/.test(registrationHtml))errors.push("Biểu mẫu đăng ký: hạng mặc định không phải A1");
+if(!/<input\b[^>]*id="licenseClass"[^>]*value="B số tự động"/.test(registrationHtml))errors.push("Biểu mẫu đăng ký: hạng mặc định không phải B số tự động");
+if(registrationHtml.includes('data-license-card="A1"')||registrationHtml.includes('data-license-card="A"'))errors.push("Biểu mẫu đăng ký: còn hạng A/A1 không cung cấp");
 if(!registrationJs.includes('licenseInput.setAttribute("value",storedLicense)'))errors.push("Biểu mẫu đăng ký: chưa đồng bộ giá trị hạng với HTML");
 if(!registrationJs.includes("license_class:selectedLicenseForSubmit()"))errors.push("Biểu mẫu đăng ký: dữ liệu gửi chưa lấy hạng đã đồng bộ");
+if(!registrationHtml.includes("2,5–3 tháng")||!registrationHtml.includes("3,5–4 tháng"))errors.push("Nội dung khóa học: thiếu thời gian dự kiến của hạng B hoặc C1");
+if(!registrationHtml.includes('href="/chinh-sach-bao-mat.html"'))errors.push("Biểu mẫu đăng ký: thiếu liên kết chính sách dữ liệu trong phần đồng ý");
+
+const privacyHtml=await readFile(resolve(root,"chinh-sach-bao-mat.html"),"utf8");
+for(const requiredText of ["Bên kiểm soát dữ liệu","Mục đích và căn cứ xử lý","Quyền của chủ thể dữ liệu","91/2025/QH15","356/2025/NĐ-CP"]){
+  if(!privacyHtml.includes(requiredText))errors.push(`Chính sách dữ liệu: thiếu "${requiredText}"`);
+}
+
+const sitemap=await readFile(resolve(root,"public/sitemap.xml"),"utf8");
+if(sitemap.includes("vercel.app"))errors.push("sitemap.xml: còn tên miền Vercel");
+if(!sitemap.includes("https://www.hoclaixecungdat.com/"))errors.push("sitemap.xml: thiếu tên miền chính");
 
 if(errors.length){
   console.error(`Website chưa hợp lệ (${errors.length} lỗi):`);

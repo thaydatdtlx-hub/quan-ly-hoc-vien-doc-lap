@@ -5,4 +5,4 @@ Disallow: /lich-dao-tao.html
 Disallow: /dang-nhap.html
 Disallow: /api/
 
-Sitemap: https://hoclaixecungdat.vercel.app/sitemap.xml
+Sitemap: https://www.hoclaixecungdat.com/sitemap.xml

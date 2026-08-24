@@ -2,7 +2,7 @@ import "./site-unification.css";
 import "./site-unification-hotfix.css";
 import "./public-home-router.js";
 
-const PRIMARY_ORIGIN="https://hoclaixecungdat.vercel.app";
+const PRIMARY_ORIGIN="https://www.hoclaixecungdat.com";
 
 function isRegistrationPage(){
   return location.pathname==="/dang-ky-hoc-lai-xe.html"||
@@ -98,7 +98,7 @@ function enhanceLoginPage(){
     link.className="public-register-cta site-unified-registration-cta";
     link.href="/";
     link.dataset.siteUnified="new-student-cta";
-    link.innerHTML='<span>🚘</span><div><strong>Đăng ký học lái xe mới</strong><small>A1 · A · B · C1 · nhận tư vấn lộ trình</small></div><b>→</b>';
+    link.innerHTML='<span>🚘</span><div><strong>Đăng ký học lái xe mới</strong><small>B tự động · B số sàn · C1 · nhận tư vấn lộ trình</small></div><b>→</b>';
     publicRegister.insertAdjacentElement("afterend",link);
   }
   addFooterLinks();

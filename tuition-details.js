@@ -6,11 +6,9 @@ const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const money=value=>new Intl.NumberFormat("vi-VN").format(Number(value)||0)+" VNĐ";
 
 const basePlans=[
-  {license:"A1",badge:"XE MÔ TÔ",title:"Hạng A1",description:"Học phí và hồ sơ đăng ký",tuition:800000,fees:[["Thi lý thuyết",60000],["Thi thực hành",70000],["Cấp giấy phép PET",135000]],included:["Tiếp nhận và hướng dẫn hồ sơ","Tài liệu ôn tập theo chương trình","Hướng dẫn lý thuyết và thực hành cơ bản"]},
-  {license:"A",badge:"XE MÔ TÔ",title:"Hạng A",description:"Học phí và hồ sơ đăng ký",tuition:1800000,fees:[["Thi lý thuyết",60000],["Thi thực hành",70000],["Cấp giấy phép PET",135000]],included:["Tiếp nhận và hướng dẫn hồ sơ","Tài liệu ôn tập theo chương trình","Hướng dẫn lý thuyết và thực hành hạng A"]},
-  {license:"B số tự động",badge:"Ô TÔ HẠNG B",title:"B số tự động",description:"Chương trình đào tạo giới hạn xe số tự động",tuition:22000000,fees:[],included:["Hồ sơ và thủ tục ghi danh","Học lý thuyết theo kế hoạch khóa","Thực hành, nhiên liệu, giáo viên và sân tập","Cabin điện tử theo chương trình hiện hành","DAT và quãng đường đào tạo theo quy định"]},
-  {license:"B số sàn",badge:"Ô TÔ HẠNG B",title:"B số sàn",description:"Đào tạo xe số sàn và sử dụng được xe số tự động",tuition:22000000,fees:[],included:["Hồ sơ và thủ tục ghi danh","Học lý thuyết theo kế hoạch khóa","Thực hành, nhiên liệu, giáo viên và sân tập","Cabin điện tử theo chương trình hiện hành","DAT và quãng đường đào tạo theo quy định"]},
-  {license:"C1",badge:"Ô TÔ HẠNG C1",title:"Hạng C1",description:"Chương trình đào tạo lái xe ô tô tải hạng C1",tuition:25000000,fees:[],included:["Hồ sơ và thủ tục ghi danh","Học lý thuyết theo kế hoạch khóa","Thực hành xe tải, nhiên liệu, giáo viên và sân tập","Cabin điện tử theo chương trình hiện hành","DAT và quãng đường đào tạo theo quy định","Theo dõi tiến độ học và lịch thi trên hệ thống"]}
+  {license:"B số tự động",badge:"Ô TÔ HẠNG B",title:"B số tự động",description:"Thời gian đào tạo dự kiến 2,5–3 tháng",tuition:22000000,fees:[],included:["Hồ sơ và thủ tục ghi danh","Học lý thuyết theo kế hoạch khóa","Thực hành, nhiên liệu, giáo viên và sân tập","Cabin điện tử theo chương trình hiện hành","DAT và quãng đường đào tạo theo quy định"]},
+  {license:"B số sàn",badge:"Ô TÔ HẠNG B",title:"B số sàn",description:"Thời gian đào tạo dự kiến 2,5–3 tháng",tuition:22000000,fees:[],included:["Hồ sơ và thủ tục ghi danh","Học lý thuyết theo kế hoạch khóa","Thực hành, nhiên liệu, giáo viên và sân tập","Cabin điện tử theo chương trình hiện hành","DAT và quãng đường đào tạo theo quy định"]},
+  {license:"C1",badge:"Ô TÔ HẠNG C1",title:"Hạng C1",description:"Thời gian đào tạo dự kiến 3,5–4 tháng",tuition:25000000,fees:[],included:["Hồ sơ và thủ tục ghi danh","Học lý thuyết theo kế hoạch khóa","Thực hành xe tải, nhiên liệu, giáo viên và sân tập","Cabin điện tử theo chương trình hiện hành","DAT và quãng đường đào tạo theo quy định","Theo dõi tiến độ học và lịch thi trên hệ thống"]}
 ];
 
 function promotionActive(item){
@@ -50,7 +48,7 @@ function dateLabel(value){
 }
 
 function card(plan,index){
-  const motorbike=plan.fees.length>0;
+  const hasSeparateFees=plan.fees.length>0;
   const promo=promotionActive(plan);
   const discount=promo?Math.min(Number(plan.discount_amount)||0,Number(plan.tuition)||0):0;
   const finalTuition=Math.max(0,(Number(plan.tuition)||0)-discount);
@@ -60,7 +58,7 @@ function card(plan,index){
     <div class="tuition-card__top"><div><span class="tuition-card__badge">${plan.badge}</span><h3>${plan.title}</h3><p>${plan.description}</p></div><div class="tuition-price">${priceHtml}</div></div>
     <div class="tuition-card__body">
       ${promoHtml}
-      ${motorbike?`<div class="tuition-fees">${plan.fees.map(([name,value])=>`<div><span>${name}</span><b>${money(value)}</b></div>`).join("")}</div><div class="tuition-total"><span>Tổng dự kiến gồm học phí, sát hạch và PET${discount?' sau ưu đãi':''}</span><strong>${money(total(plan,finalTuition))}</strong></div>`:`<div class="tuition-total"><span>Học phí trọn gói khóa đào tạo${discount?' sau ưu đãi':''}</span><strong>${money(finalTuition)}</strong></div>`}
+      ${hasSeparateFees?`<div class="tuition-fees">${plan.fees.map(([name,value])=>`<div><span>${name}</span><b>${money(value)}</b></div>`).join("")}</div><div class="tuition-total"><span>Tổng dự kiến gồm học phí và khoản nộp riêng${discount?' sau ưu đãi':''}</span><strong>${money(total(plan,finalTuition))}</strong></div>`:`<div class="tuition-total"><span>Học phí khóa đào tạo${discount?' sau ưu đãi':''}</span><strong>${money(finalTuition)}</strong></div>`}
       <ul>${plan.included.map(item=>`<li>${item}</li>`).join("")}</ul>
       <button type="button" data-tuition-license="${plan.license}">Đăng ký tư vấn ${plan.title}</button>
     </div>
@@ -83,7 +81,7 @@ async function mountTuition(){
   section.className="site-upgrade-section site-pricing tuition-section";
   section.innerHTML=`<div class="tuition-shell">
     <div class="tuition-heading"><p>HỌC PHÍ & CÁC KHOẢN NỘP RIÊNG</p><h2>Bảng học phí theo từng hạng đào tạo</h2><span>Học phí và ưu đãi được cập nhật từ hệ thống quản trị Thầy Đạt. Các khoản nộp riêng được trình bày tách biệt để học viên dễ theo dõi.</span></div>
-    <div class="tuition-alert"><b>!</b><span><strong>Lưu ý:</strong> A1 và A có lệ phí sát hạch, cấp PET nộp riêng tại sân thi. Với hạng B và C1, lệ phí khám sức khỏe, sát hạch, cấp giấy phép và tập xe cảm biến không nằm trong học phí trọn gói, trừ khi có xác nhận khác bằng văn bản.</span></div>
+    <div class="tuition-alert"><b>!</b><span><strong>Lưu ý:</strong> Với hạng B và C1, lệ phí khám sức khỏe, sát hạch, cấp giấy phép, thi lại và tập xe cảm biến được thông báo riêng nếu phát sinh. Học phí áp dụng được xác nhận lại khi tư vấn.</span></div>
     <div class="tuition-grid">${plans.map(card).join("")}</div>
     <div class="tuition-package">
       <div class="tuition-package__head"><div><p>GÓI HỌC PHÍ Ô TÔ</p><h3>Các nội dung thuộc chương trình đào tạo</h3></div><span>Hạng B hiện hành dùng tên “B số tự động”, “B số sàn” và “C1” để học viên dễ lựa chọn chương trình phù hợp.</span></div>
