@@ -82,7 +82,7 @@ export function buildReceiptHtml(payment){
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <base href="https://hoclaixecungdat.vercel.app/">
+  <base href="https://www.hoclaixecungdat.com/">
   <title>Biên lai học phí ${escapeHtml(receiptNo)}</title>
   <style>
     :root{--navy:#082f63;--blue:#0b6bdc;--blue2:#0f7fe5;--gold:#f4b928;--ink:#172b42;--muted:#63788f;--line:#d8e1ea;--soft:#f6f9fc;--paid:#18895b;--danger:#bd3d47}
@@ -120,7 +120,7 @@ export function buildReceiptHtml(payment){
           <span>Rõ lộ trình · Vững tay lái</span>
           <div class="brand-meta">
             <span>Điện thoại / Zalo: <b>0984 811 037</b></span>
-            <span>Website: <b>hoclaixecungdat.vercel.app</b></span>
+            <span>Website: <b>www.hoclaixecungdat.com</b></span>
           </div>
         </div>
       </div>
@@ -179,7 +179,7 @@ export function buildReceiptHtml(payment){
       <p>• Các khoản lệ phí nhà nước hoặc chi phí phát sinh ngoài học phí được thông báo riêng theo từng hạng đào tạo.</p>
     </section>
 
-    <footer class="receipt-footer"><span><b>Học lái xe cùng Đạt</b> · Rõ lộ trình · Vững tay lái</span><span>hoclaixecungdat.vercel.app</span></footer>
+    <footer class="receipt-footer"><span><b>Học lái xe cùng Đạt</b> · Rõ lộ trình · Vững tay lái</span><span>www.hoclaixecungdat.com</span></footer>
   </main>
 
   <script>

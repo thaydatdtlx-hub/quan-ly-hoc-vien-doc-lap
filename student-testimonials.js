@@ -2,15 +2,16 @@ const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const TOKEN_KEY="hv_token";
 
-const motorcycleOffers=[
-  {icon:"id",title:"Nhận bằng thuận tiện",text:"Theo dõi tiến độ và nhận thông báo các mốc quan trọng trên hệ thống."},
-  {icon:"book",title:"Hỗ trợ tài liệu học",text:"Ôn lý thuyết, bộ câu hỏi và tài liệu cần thiết trong quá trình học."},
-  {icon:"bike",title:"Hướng dẫn hồ sơ rõ ràng",text:"Được hướng dẫn chuẩn bị hồ sơ và các bước đăng ký theo từng hạng bằng."}
+const bOffers=[
+  {icon:"id",title:"B số tự động hoặc số sàn",text:"Được tư vấn lựa chọn chương trình phù hợp với nhu cầu sử dụng xe."},
+  {icon:"book",title:"Thời gian dự kiến 2,5–3 tháng",text:"Lịch thực tế được xác nhận theo kế hoạch khóa và tiến độ hoàn thành."},
+  {icon:"car",title:"Theo dõi đầy đủ lộ trình",text:"Theo dõi lý thuyết, thực hành, DAT, cabin, tốt nghiệp và sát hạch."}
 ];
-const carOffers=[
-  {icon:"id",title:"Theo dõi toàn bộ lộ trình",text:"Theo dõi hồ sơ, lý thuyết, DAT, cabin, lịch tốt nghiệp và sát hạch tập trung."},
+const c1Offers=[
+  {icon:"id",title:"Đào tạo ô tô tải hạng C1",text:"Kiểm tra điều kiện hồ sơ và chương trình đào tạo phù hợp."},
+  {icon:"book",title:"Thời gian dự kiến 3,5–4 tháng",text:"Lịch thực tế phụ thuộc kế hoạch khóa và tiến độ hoàn thành nội dung bắt buộc."},
   {icon:"book",title:"Học lý thuyết & thi thử online",text:"Ôn bộ câu hỏi lý thuyết và thi thử ngay trên hệ thống Học lái xe cùng Đạt."},
-  {icon:"car",title:"Lịch thực hành linh hoạt",text:"Chủ động phối hợp thời gian học thực hành phù hợp với lịch cá nhân."}
+  {icon:"car",title:"Thực hành xe tải",text:"Theo dõi lịch thực hành, cabin, DAT và các mốc đào tạo tập trung."}
 ];
 
 function icon(name){
@@ -52,10 +53,10 @@ function createSection(){
         <h2 class="student-social-proof__title">ƯU ĐÃI HỌC LÁI XE</h2>
         <div class="student-offers__box">
           <div class="student-offers__tabs" role="tablist" aria-label="Ưu đãi theo loại bằng">
-            <button class="student-offers__tab" type="button" role="tab" aria-selected="true" data-offer-tab="motorcycle">Ưu đãi học lái xe máy</button>
-            <button class="student-offers__tab" type="button" role="tab" aria-selected="false" data-offer-tab="car">Ưu đãi học lái xe ô tô</button>
+            <button class="student-offers__tab" type="button" role="tab" aria-selected="true" data-offer-tab="b">Khóa học hạng B</button>
+            <button class="student-offers__tab" type="button" role="tab" aria-selected="false" data-offer-tab="c1">Khóa học hạng C1</button>
           </div>
-          <div class="student-offers__list" data-offer-list>${offersHtml(motorcycleOffers)}</div>
+          <div class="student-offers__list" data-offer-list>${offersHtml(bOffers)}</div>
         </div>
       </div>
       <div class="student-social-proof__panel student-testimonials">
@@ -178,7 +179,7 @@ function setupOfferTabs(section){
   const list=section.querySelector("[data-offer-list]");
   section.querySelectorAll("[data-offer-tab]").forEach(button=>button.addEventListener("click",()=>{
     section.querySelectorAll("[data-offer-tab]").forEach(tab=>tab.setAttribute("aria-selected",String(tab===button)));
-    list.innerHTML=offersHtml(button.dataset.offerTab==="car"?carOffers:motorcycleOffers);
+    list.innerHTML=offersHtml(button.dataset.offerTab==="c1"?c1Offers:bOffers);
   }));
 }
 

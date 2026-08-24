@@ -48,7 +48,6 @@ function syncFaq(config){
   const byClass=Object.fromEntries(config.map(x=>[x.license_class,x]));
   document.querySelectorAll("#faq details").forEach(item=>{
     const q=item.querySelector("summary")?.textContent||"",p=item.querySelector("p");if(!p)return;
-    if(q.includes("Học phí hạng A1")&&byClass.A1)p.textContent=`Học phí A1 hiện tại là ${money(byClass.A1.tuition)}. Các lệ phí sát hạch và cấp giấy phép được trình bày riêng trong bảng học phí để học viên dễ đối chiếu.`;
     if(q.includes("Học phí hạng A là")&&byClass.A)p.textContent=`Học phí hạng A hiện tại là ${money(byClass.A.tuition)}. Các lệ phí nộp riêng được cập nhật tại bảng học phí.`;
     if(q.includes("B số tự động")&&q.includes("B số sàn")&&byClass["B số tự động"]&&byClass["B số sàn"])p.textContent=`Học phí B số tự động hiện tại là ${money(byClass["B số tự động"].tuition)}; B số sàn là ${money(byClass["B số sàn"].tuition)}. Giá và ưu đãi được lấy trực tiếp từ hệ thống Admin.`;
   });

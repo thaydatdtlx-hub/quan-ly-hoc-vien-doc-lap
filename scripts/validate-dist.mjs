@@ -28,11 +28,12 @@ if(!hasHome)errors.push("vercel.json: thiếu rewrite / -> trang chủ công kha
 if(!hasLogin)errors.push("vercel.json: thiếu rewrite /dang-nhap.html -> ứng dụng đăng nhập");
 
 const landing=await readFile(resolve(dist,"dang-ky-hoc-lai-xe.html"),"utf8");
-if(!landing.includes('rel="canonical" href="https://hoclaixecungdat.vercel.app/"'))errors.push("Trang chủ: canonical chưa trỏ về /");
+if(!landing.includes('rel="canonical" href="https://www.hoclaixecungdat.com/"'))errors.push("Trang chủ: canonical chưa trỏ về tên miền chính /");
 if(!landing.includes("Học lái xe cùng Đạt"))errors.push("Trang chủ: thiếu thương hiệu Học lái xe cùng Đạt");
 
 const sitemap=await readFile(resolve(dist,"sitemap.xml"),"utf8");
-if(!sitemap.includes("<loc>https://hoclaixecungdat.vercel.app/</loc>"))errors.push("sitemap.xml: thiếu trang chủ /");
+if(!sitemap.includes("<loc>https://www.hoclaixecungdat.com/</loc>"))errors.push("sitemap.xml: thiếu trang chủ trên tên miền chính /");
+if(sitemap.includes("vercel.app"))errors.push("sitemap.xml: còn tên miền triển khai Vercel");
 if(sitemap.includes("/dang-ky-hoc-lai-xe.html</loc>"))errors.push("sitemap.xml: còn URL trang đăng ký cũ thay vì canonical /");
 
 if(errors.length){

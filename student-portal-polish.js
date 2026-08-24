@@ -30,7 +30,7 @@ async function rpc(fn,body={}){
 
 function fixMetadata(){
   const canonical=document.querySelector('link[rel="canonical"]');
-  if(canonical&&canonical.href!=="https://hoclaixecungdat.vercel.app/hoc-vien.html")canonical.href="https://hoclaixecungdat.vercel.app/hoc-vien.html";
+  if(canonical&&canonical.href!=="https://www.hoclaixecungdat.com/hoc-vien.html")canonical.href="https://www.hoclaixecungdat.com/hoc-vien.html";
 }
 function statusFromText(value=""){
   const n=normalize(value);

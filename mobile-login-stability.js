@@ -1,4 +1,4 @@
-const CANONICAL_ORIGIN="https://hoclaixecungdat.vercel.app";
+const CANONICAL_ORIGIN="https://www.hoclaixecungdat.com";
 const LEGACY_HOSTS=new Set(["hoc-vien-thay-dat.vercel.app","daotaolaixe-thaydat.vercel.app","daotaolaixetrongoi.com","www.daotaolaixetrongoi.com"]);
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";

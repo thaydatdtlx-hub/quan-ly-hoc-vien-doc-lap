@@ -52,7 +52,7 @@ for(const token of [".td-taplai-inspired .mobile-bar{display:none!important}","p
 for(const token of ["legacyAppRoot","/?login=1"]){
   if(!viteConfig.includes(token))throw new Error(`Luồng chuyển PWA iPhone cũ thiếu: ${token}`);
 }
-const legacyRootRedirect=vercelConfig.redirects?.find(rule=>rule.source==="/"&&rule.destination==="https://hoclaixecungdat.vercel.app/?login=1"&&rule.has?.some(condition=>condition.type==="host"&&condition.value==="hoc-vien-thay-dat.vercel.app"));
+const legacyRootRedirect=vercelConfig.redirects?.find(rule=>rule.source==="/"&&rule.destination==="https://www.hoclaixecungdat.com/?login=1"&&rule.has?.some(condition=>condition.type==="host"&&condition.value==="hoc-vien-thay-dat.vercel.app"));
 if(!legacyRootRedirect)throw new Error("Vercel chưa chuyển PWA iPhone cũ về đúng cổng đăng nhập.");
 for(const [name,html] of [["Admin",admin],["Học viên",student]]){
   if(!html.includes("/mobile-viewport-lock.css?v=3"))throw new Error(`${name} chưa nạp CSS chống tràn mobile từ HTML.`);

@@ -42,7 +42,7 @@ export function managerNotifications(students,role="user"){
     tone:"blue",
     icon:"🚘",
     title:"Kênh đăng ký học lái xe trực tuyến",
-    body:"Trang tuyển sinh đã sẵn sàng để tư vấn và tiếp nhận đăng ký các hạng A1, A, B số tự động, B số sàn và C1.",
+    body:"Trang tuyển sinh đã sẵn sàng để tư vấn và tiếp nhận đăng ký B số tự động, B số sàn và C1.",
     href:"/dang-ky-hoc-lai-xe.html",
     action:"Xem trang tuyển sinh"
   });
@@ -99,7 +99,7 @@ export function studentNotifications(student,trainingSlots=[]){
     tone:"blue",
     icon:"🚘",
     title:"Giới thiệu chương trình học lái xe Thầy Đạt",
-    body:"Thông tin khóa học A1, A, B số tự động, B số sàn và C1 đã được tổng hợp đầy đủ. Anh/chị có thể xem hoặc chia sẻ cho người thân đang có nhu cầu.",
+    body:"Thông tin khóa học B số tự động, B số sàn và C1 đã được tổng hợp đầy đủ. Anh/chị có thể xem hoặc chia sẻ cho người thân đang có nhu cầu.",
     href:"/dang-ky-hoc-lai-xe.html",
     action:"Xem chương trình đào tạo"
   });

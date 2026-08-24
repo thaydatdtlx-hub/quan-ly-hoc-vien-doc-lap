@@ -8,7 +8,7 @@ const defaults={
   phone:"0984811037",
   email:"thaydat.dtlx@gmail.com",
   zalo:"0984811037",
-  website:"https://daotaolaixe-thaydat.vercel.app/",
+  website:"https://www.hoclaixecungdat.com/",
   bio:"Quản trị hệ thống đào tạo lái xe Thầy Đạt.",
   avatar:"",
   cover:"",

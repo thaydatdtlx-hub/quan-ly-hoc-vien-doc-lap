@@ -5,6 +5,28 @@
   "outputDirectory": "dist",
   "redirects": [
     {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "hoclaixecungdat.vercel.app"
+        }
+      ],
+      "destination": "https://www.hoclaixecungdat.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "hoclaixecungdat.com"
+        }
+      ],
+      "destination": "https://www.hoclaixecungdat.com/:path*",
+      "permanent": true
+    },
+    {
       "source": "/",
       "has": [
         {
@@ -12,8 +34,8 @@
           "value": "hoc-vien-thay-dat.vercel.app"
         }
       ],
-      "destination": "https://hoclaixecungdat.vercel.app/?login=1",
-      "permanent": false
+      "destination": "https://www.hoclaixecungdat.com/?login=1",
+      "permanent": true
     },
     {
       "source": "/:path*",
@@ -23,8 +45,8 @@
           "value": "hoc-vien-thay-dat.vercel.app"
         }
       ],
-      "destination": "https://hoclaixecungdat.vercel.app/:path*",
-      "permanent": false
+      "destination": "https://www.hoclaixecungdat.com/:path*",
+      "permanent": true
     },
     {
       "source": "/:path*",
@@ -34,8 +56,8 @@
           "value": "daotaolaixe-thaydat.vercel.app"
         }
       ],
-      "destination": "https://hoclaixecungdat.vercel.app/:path*",
-      "permanent": false
+      "destination": "https://www.hoclaixecungdat.com/:path*",
+      "permanent": true
     },
     {
       "source": "/:path*",
@@ -45,8 +67,8 @@
           "value": "daotaolaixetrongoi.com"
         }
       ],
-      "destination": "https://hoclaixecungdat.vercel.app/:path*",
-      "permanent": false
+      "destination": "https://www.hoclaixecungdat.com/:path*",
+      "permanent": true
     },
     {
       "source": "/:path*",
@@ -56,8 +78,8 @@
           "value": "www.daotaolaixetrongoi.com"
         }
       ],
-      "destination": "https://hoclaixecungdat.vercel.app/:path*",
-      "permanent": false
+      "destination": "https://www.hoclaixecungdat.com/:path*",
+      "permanent": true
     },
     {
       "source": "/",

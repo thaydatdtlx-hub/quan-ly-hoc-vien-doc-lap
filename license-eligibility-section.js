@@ -5,8 +5,6 @@ function mountEligibility(){
   const anchor=document.querySelector(".training-detail-section")||document.querySelector(".license-info-section");
   if(!anchor)return;
   const data=[
-    {badge:"A1",title:"Hạng A1",vehicle:"Mô tô hai bánh đến 125 cm³ hoặc động cơ điện đến 11 kW.",age:"Từ đủ 18 tuổi.",term:"Không thời hạn.",exam:"Lý thuyết và thực hành lái xe trong hình."},
-    {badge:"A",title:"Hạng A",vehicle:"Mô tô hai bánh trên 125 cm³ hoặc động cơ điện trên 11 kW; bao gồm phạm vi hạng A1.",age:"Từ đủ 18 tuổi.",term:"Không thời hạn.",exam:"Lý thuyết và thực hành lái xe trong hình."},
     {badge:"B",title:"Hạng B",vehicle:"Ô tô chở người đến 8 chỗ không kể chỗ lái xe; ô tô tải, chuyên dùng đến 3.500 kg và rơ moóc đến 750 kg.",age:"Từ đủ 18 tuổi.",term:"10 năm kể từ ngày cấp.",exam:"Lý thuyết, mô phỏng, thực hành trong hình và trên đường."},
     {badge:"C1",title:"Hạng C1",vehicle:"Ô tô tải, chuyên dùng trên 3.500 kg đến 7.500 kg; rơ moóc đến 750 kg và các xe thuộc hạng B.",age:"Từ đủ 18 tuổi.",term:"10 năm kể từ ngày cấp.",exam:"Lý thuyết, mô phỏng, thực hành trong hình và trên đường."}
   ];

@@ -1,6 +1,6 @@
 const SITE_CONFIG_URL="https://pkzxkvcncipfszeukpwu.supabase.co/rest/v1/rpc/app_public_site_config";
 const SITE_CONFIG_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
-const PRIMARY_ORIGIN="https://hoclaixecungdat.vercel.app";
+const PRIMARY_ORIGIN="https://www.hoclaixecungdat.com";
 
 function isRegistrationPage(){
   return location.pathname==="/dang-ky-hoc-lai-xe.html"||

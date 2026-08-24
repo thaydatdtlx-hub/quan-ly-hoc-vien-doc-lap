@@ -19,7 +19,7 @@ const cards=[...document.querySelectorAll("[data-license-card]")];
 const form=$("registrationForm"),submit=$("registrationSubmit"),error=$("registrationError");
 const licenseInput=$("licenseClass");
 const LICENSES=new Set(cards.map(card=>card.dataset.licenseCard).filter(Boolean));
-let selectedLicense="A1";
+let selectedLicense="B số tự động";
 
 function localIsoDate(date){
   const offset=date.getTimezoneOffset()*60000;
@@ -31,7 +31,7 @@ function normalizeLicenseForStorage(value){
 }
 
 function setLicense(value){
-  const nextLicense=LICENSES.has(value)?value:"A1";
+  const nextLicense=LICENSES.has(value)?value:"B số tự động";
   const storedLicense=normalizeLicenseForStorage(nextLicense);
   selectedLicense=nextLicense;
 
@@ -90,7 +90,7 @@ document.querySelectorAll("[data-scroll-license]").forEach(button=>button.addEve
 
 const tomorrow=new Date();tomorrow.setDate(tomorrow.getDate()+1);
 $("preferredStartDate").min=localIsoDate(tomorrow);
-setLicense("A1");
+setLicense("B số tự động");
 
 form.addEventListener("submit",async event=>{
   event.preventDefault();
@@ -149,7 +149,7 @@ form.addEventListener("submit",async event=>{
 
 $("newRegistration").addEventListener("click",()=>{
   form.reset();
-  setLicense("A1");
+  setLicense("B số tự động");
   $("preferredStartDate").min=localIsoDate(tomorrow);
   $("registrationSuccess").hidden=true;
   $("registrationFields").hidden=false;

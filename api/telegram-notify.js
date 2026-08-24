@@ -1,7 +1,7 @@
 import { get } from "@vercel/blob";
 
 const TELEGRAM_BOT_TOKEN=process.env.TELEGRAM_BOT_TOKEN||"";
-const SITE_URL=(process.env.PUBLIC_SITE_URL||"https://hoclaixecungdat.vercel.app").replace(/\/$/,"");
+const SITE_URL=(process.env.PUBLIC_SITE_URL||"https://www.hoclaixecungdat.com").replace(/\/$/,"");
 const CHAT_BLOB_PATH="telegram/admin-chat.json";
 
 async function telegram(body){
