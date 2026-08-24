@@ -60,6 +60,9 @@ for(const publicAsset of ["public/robots.txt","public/sitemap.xml"]){
 
 const registrationHtml=await readFile(resolve(root,"dang-ky-hoc-lai-xe.html"),"utf8");
 const registrationJs=await readFile(resolve(root,"new-student-registration.js"),"utf8");
+const eligibilityJs=await readFile(resolve(root,"license-eligibility-section.js"),"utf8");
+const faqJs=await readFile(resolve(root,"official-faq-section.js"),"utf8");
+const viteConfig=await readFile(resolve(root,"vite.config.js"),"utf8");
 const registrationLicenses=["B số tự động","B số sàn","C1"];
 for(const license of registrationLicenses){
   if(!registrationHtml.includes(`data-license-card="${license}"`))errors.push(`Biểu mẫu đăng ký: thiếu hạng ${license}`);
@@ -70,6 +73,15 @@ if(!registrationJs.includes('licenseInput.setAttribute("value",storedLicense)'))
 if(!registrationJs.includes("license_class:selectedLicenseForSubmit()"))errors.push("Biểu mẫu đăng ký: dữ liệu gửi chưa lấy hạng đã đồng bộ");
 if(!registrationHtml.includes("2,5–3 tháng")||!registrationHtml.includes("3,5–4 tháng"))errors.push("Nội dung khóa học: thiếu thời gian dự kiến của hạng B hoặc C1");
 if(!registrationHtml.includes('href="/chinh-sach-bao-mat.html"'))errors.push("Biểu mẫu đăng ký: thiếu liên kết chính sách dữ liệu trong phần đồng ý");
+if(!eligibilityJs.includes("Không còn phần thi mô phỏng trên máy tính"))errors.push("Nội dung sát hạch: chưa nêu rõ B/C1 không còn thi mô phỏng");
+for(const requiredText of ["01/07/2026","Thông tư 108/2026/TT-BCA","lý thuyết, thực hành trong hình và thực hành trên đường"]){
+  if(!faqJs.toLowerCase().includes(requiredText.toLowerCase()))errors.push(`Hỏi đáp sát hạch: thiếu "${requiredText}"`);
+}
+if(viteConfig.includes("hero-student-car.webp")||registrationHtml.includes("hero-student-car.webp"))errors.push("Hình ảnh thương hiệu: còn tham chiếu tệp WebP bị hỏng");
+const heroPath=resolve(root,"public/hero-vip-navy-champagne.webp");
+const hero=await readFile(heroPath);
+const declaredRiffSize=hero.length>=12?hero.readUInt32LE(4)+8:0;
+if(hero.subarray(0,4).toString()!=="RIFF"||hero.subarray(8,12).toString()!=="WEBP"||declaredRiffSize!==hero.length)errors.push("Hình ảnh thương hiệu: tệp WebP không đầy đủ hoặc sai định dạng");
 
 const privacyHtml=await readFile(resolve(root,"chinh-sach-bao-mat.html"),"utf8");
 for(const requiredText of ["Bên kiểm soát dữ liệu","Mục đích và căn cứ xử lý","Quyền của chủ thể dữ liệu","91/2025/QH15","356/2025/NĐ-CP"]){

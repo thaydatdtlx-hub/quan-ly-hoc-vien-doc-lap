@@ -71,7 +71,7 @@ body.site-area-registration .hero::before{
   content:"";
   position:absolute;
   inset:0 0 0 54%;
-  background:url('/hero-vip-navy-champagne.webp?v=1') center/cover no-repeat;
+  background:url('/hero-vip-navy-champagne.webp?v=2') center/cover no-repeat;
   opacity:.96;
   clip-path:polygon(17% 0,100% 0,100% 100%,0 100%);
 }
