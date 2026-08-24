@@ -17,6 +17,8 @@ const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
 const cards=[...document.querySelectorAll("[data-license-card]")];
 const form=$("registrationForm"),submit=$("registrationSubmit"),error=$("registrationError");
+const licenseInput=$("licenseClass");
+const LICENSES=new Set(cards.map(card=>card.dataset.licenseCard).filter(Boolean));
 let selectedLicense="A1";
 
 function localIsoDate(date){
@@ -29,18 +31,34 @@ function normalizeLicenseForStorage(value){
 }
 
 function setLicense(value){
-  selectedLicense=value;
-  $("licenseClass").value=normalizeLicenseForStorage(value);
-  $("selectedLicenseSummary").textContent=value;
-  $("selectedLicenseCard").textContent=value;
-  $("formLicenseBadge").textContent=value;
+  const nextLicense=LICENSES.has(value)?value:"A1";
+  const storedLicense=normalizeLicenseForStorage(nextLicense);
+  selectedLicense=nextLicense;
+
+  // Keep both the live value and the HTML default in sync. This prevents
+  // form.reset() or a late page enhancement from silently clearing the class.
+  licenseInput.value=storedLicense;
+  licenseInput.defaultValue=storedLicense;
+  licenseInput.setAttribute("value",storedLicense);
+  form.dataset.licenseClass=storedLicense;
+
+  $("selectedLicenseSummary").textContent=nextLicense;
+  $("selectedLicenseCard").textContent=nextLicense;
+  $("formLicenseBadge").textContent=nextLicense;
   cards.forEach(card=>{
-    const active=card.dataset.licenseCard===value;
+    const active=card.dataset.licenseCard===nextLicense;
     card.classList.toggle("active",active);
     card.setAttribute("aria-pressed",String(active));
     const state=card.querySelector("i");
     if(state)state.textContent=active?"Đã chọn":"Chọn hạng";
   });
+}
+
+function selectedLicenseForSubmit(){
+  const activeCard=cards.find(card=>card.getAttribute("aria-pressed")==="true");
+  const nextLicense=LICENSES.has(activeCard?.dataset.licenseCard)?activeCard.dataset.licenseCard:selectedLicense;
+  setLicense(nextLicense);
+  return licenseInput.value;
 }
 
 async function rpc(fn,body){
@@ -89,7 +107,7 @@ form.addEventListener("submit",async event=>{
     const payload={
       full_name:$("fullName").value.trim(),
       phone:$("phone").value.trim(),
-      license_class:normalizeLicenseForStorage(selectedLicense),
+      license_class:selectedLicenseForSubmit(),
       date_of_birth:$("dateOfBirth").value||null,
       area:$("area").value.trim(),
       preferred_start_date:$("preferredStartDate").value||null,
