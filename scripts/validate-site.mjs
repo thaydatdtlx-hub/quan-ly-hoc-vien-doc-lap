@@ -58,6 +58,16 @@ for(const publicAsset of ["public/robots.txt","public/sitemap.xml"]){
   if(!(await exists(resolve(root,publicAsset))))errors.push(`Thiếu ${publicAsset}`);
 }
 
+const registrationHtml=await readFile(resolve(root,"dang-ky-hoc-lai-xe.html"),"utf8");
+const registrationJs=await readFile(resolve(root,"new-student-registration.js"),"utf8");
+const registrationLicenses=["A1","A","B số tự động","B số sàn","C1"];
+for(const license of registrationLicenses){
+  if(!registrationHtml.includes(`data-license-card="${license}"`))errors.push(`Biểu mẫu đăng ký: thiếu hạng ${license}`);
+}
+if(!/<input\b[^>]*id="licenseClass"[^>]*value="A1"/.test(registrationHtml))errors.push("Biểu mẫu đăng ký: hạng mặc định không phải A1");
+if(!registrationJs.includes('licenseInput.setAttribute("value",storedLicense)'))errors.push("Biểu mẫu đăng ký: chưa đồng bộ giá trị hạng với HTML");
+if(!registrationJs.includes("license_class:selectedLicenseForSubmit()"))errors.push("Biểu mẫu đăng ký: dữ liệu gửi chưa lấy hạng đã đồng bộ");
+
 if(errors.length){
   console.error(`Website chưa hợp lệ (${errors.length} lỗi):`);
   errors.forEach(error=>console.error(`- ${error}`));
