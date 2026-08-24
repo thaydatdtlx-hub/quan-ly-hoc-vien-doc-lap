@@ -41,7 +41,7 @@ button{cursor:pointer}
 .site-header nav a:hover{color:var(--primary)}
 .site-header nav a::after{content:"";position:absolute;right:0;bottom:-7px;left:0;height:2px;background:var(--secondary);transform:scaleX(0);transform-origin:center;transition:transform .2s ease}
 .site-header nav a:hover::after{transform:scaleX(1)}
-.hero{position:relative;min-height:650px;background:url('/hero-student-car.webp?v=3') center/cover no-repeat;color:#fff}
+.hero{position:relative;min-height:650px;background:url('/hero-vip-navy-champagne.webp?v=2') center/cover no-repeat;color:#fff}
 .hero-overlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(7,31,53,.97) 0%,rgba(9,47,79,.90) 48%,rgba(7,31,53,.54) 100%)}
 .hero-inner{position:relative;z-index:2;display:grid;grid-template-columns:1.35fr .65fr;gap:55px;align-items:center;min-height:650px;padding:70px max(5vw,28px)}
 .eyebrow,.section-kicker{margin:0 0 10px;color:var(--secondary);font-size:12px;font-weight:900;letter-spacing:.15em}

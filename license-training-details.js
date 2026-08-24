@@ -15,7 +15,7 @@ const trainingPrograms={
       ["⚖️","Pháp luật giao thông · 90 giờ","Luật trật tự an toàn giao thông, quy tắc, báo hiệu đường bộ và xử lý vi phạm."],
       ["🔧","Cấu tạo ô tô · 8 giờ","Kiến thức cơ bản về các hệ thống ô tô, sử dụng, kiểm tra và bảo dưỡng thông thường."],
       ["🤝","Văn hóa và an toàn · 14 giờ","Đạo đức, văn hóa giao thông, phòng chống rượu bia, phòng cháy chữa cháy và cứu nạn."],
-      ["🎮","Kỹ thuật và mô phỏng · 24 giờ","Kỹ thuật lái xe, tình huống mô phỏng và phương pháp xử lý nguy cơ giao thông."]
+      ["🛡️","Kỹ thuật và xử lý tình huống · 24 giờ","Kỹ thuật lái xe, nhận diện tình huống và phương pháp xử lý nguy cơ giao thông."]
     ],
     practice:["41 giờ thực hành trên sân tập","24 giờ thực hành trên đường","2 giờ học cabin ô tô","Bài tập sa hình liên hoàn","Lái đường dốc, đường vòng, đường phức tạp","Lái ban đêm và đường cao tốc","Kỹ năng chuyển làn, quay đầu, dừng đỗ","Ôn luyện nội dung sát hạch"]
   },
@@ -33,7 +33,7 @@ const trainingPrograms={
       ["⚖️","Pháp luật giao thông · 90 giờ","Quy tắc giao thông, báo hiệu đường bộ, xử lý tình huống và trách nhiệm người lái xe."],
       ["🔧","Cấu tạo ô tô · 18 giờ","Động cơ, hệ thống truyền lực, phanh, lái, điện và bảo dưỡng thông thường."],
       ["🤝","Văn hóa và an toàn · 20 giờ","Đạo đức, văn hóa giao thông, phòng chống rượu bia, phòng cháy chữa cháy và cứu hộ."],
-      ["🎮","Kỹ thuật và mô phỏng · 24 giờ","Kỹ thuật sử dụng xe số sàn, lái an toàn chủ động và mô phỏng tình huống giao thông."]
+      ["🛡️","Kỹ thuật và xử lý tình huống · 24 giờ","Kỹ thuật sử dụng xe số sàn, lái an toàn chủ động và xử lý tình huống giao thông."]
     ],
     practice:["41 giờ thực hành trên sân tập","40 giờ thực hành trên đường","2 giờ học cabin ô tô","Phối hợp côn, ga, phanh và chuyển số","Khởi hành ngang dốc và ghép xe","Lái đường phức tạp, ban đêm, cao tốc","Thực hành với xe số tự động theo chương trình","Ôn luyện nội dung sát hạch"]
   },
@@ -51,7 +51,7 @@ const trainingPrograms={
       ["⚖️","Pháp luật giao thông · 90 giờ","Quy tắc, báo hiệu, trách nhiệm người lái xe và kiến thức liên quan đến vận tải, xếp hàng hóa."],
       ["🔧","Cấu tạo ô tô · 18 giờ","Cấu tạo xe tải, hệ thống truyền động, phanh, lái, kiểm tra và bảo dưỡng thông thường."],
       ["🤝","Văn hóa và an toàn · 20 giờ","Đạo đức nghề nghiệp, rượu bia, phòng cháy chữa cháy, cứu nạn và an toàn hàng hóa."],
-      ["🎮","Kỹ thuật và mô phỏng · 24 giờ","Kỹ thuật điều khiển xe tải, lái xe chở hàng và xử lý tình huống mô phỏng."]
+      ["🛡️","Kỹ thuật và xử lý tình huống · 24 giờ","Kỹ thuật điều khiển xe tải, lái xe chở hàng và xử lý tình huống giao thông."]
     ],
     practice:["43 giờ thực hành trên sân tập","48 giờ thực hành trên đường","2 giờ học cabin ô tô","Kỹ thuật lái xe có tải","Quan sát điểm mù và căn chỉnh thân xe","Lái đường dốc, vòng quanh co, đường phức tạp","Lái ban đêm, cao tốc và xử lý tình huống","Ôn luyện nội dung sát hạch"]
   }
