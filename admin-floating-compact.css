@@ -1,0 +1,173 @@
+/* Compact admin launchers: keep every control accessible without covering content. */
+.student-activity-floating,
+.admin-site-floating,
+.admin-tuition-floating,
+.admin-assistant-launcher {
+  right: 18px;
+  width: 52px;
+  height: 52px;
+  min-height: 52px;
+  padding: 0;
+  justify-content: center;
+  gap: 0;
+}
+
+.student-activity-floating {
+  bottom: 204px;
+  display: grid;
+  place-items: center;
+  font-size: 0;
+}
+
+.student-activity-floating::before {
+  content: "◉";
+  font-size: 23px;
+  line-height: 1;
+}
+
+.admin-site-floating {
+  bottom: 142px;
+  display: grid;
+  place-items: center;
+  font-size: 0;
+}
+
+.admin-site-floating::before {
+  content: "⚙";
+  font-size: 23px;
+  line-height: 1;
+}
+
+.admin-tuition-floating {
+  bottom: 80px;
+}
+
+.admin-tuition-floating > span,
+.admin-tuition-floating > strong {
+  font-size: 0;
+}
+
+.admin-tuition-floating > span::before {
+  content: "₫";
+  font-size: 23px;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.admin-assistant-launcher {
+  bottom: 18px;
+  padding: 4px;
+  z-index: 9999;
+}
+
+.admin-assistant-launcher__copy {
+  display: none;
+}
+
+.admin-assistant-launcher__mark {
+  width: 42px;
+  height: 42px;
+}
+
+.admin-assistant-launcher > i {
+  top: 2px;
+  right: 2px;
+  left: auto;
+}
+
+.student-activity-floating::after,
+.admin-site-floating::after,
+.admin-tuition-floating::after,
+.admin-assistant-launcher::after {
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 10px);
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: #071a33;
+  color: #fff;
+  box-shadow: 0 8px 24px #06182b2e;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(6px, -50%);
+  transition: opacity .18s ease, transform .18s ease;
+}
+
+.student-activity-floating::after {
+  content: "Hoạt động học viên";
+}
+
+.admin-site-floating::after {
+  content: "Cấu hình website";
+}
+
+.admin-tuition-floating::after {
+  content: "Học phí & ưu đãi";
+}
+
+.admin-assistant-launcher::after {
+  content: "Trợ lý Admin";
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .student-activity-floating:hover::after,
+  .student-activity-floating:focus-visible::after,
+  .admin-site-floating:hover::after,
+  .admin-site-floating:focus-visible::after,
+  .admin-tuition-floating:hover::after,
+  .admin-tuition-floating:focus-visible::after,
+  .admin-assistant-launcher:hover::after,
+  .admin-assistant-launcher:focus-visible::after {
+    opacity: 1;
+    transform: translate(0, -50%);
+  }
+}
+
+@media (max-width: 720px) {
+  .student-activity-floating,
+  .admin-site-floating,
+  .admin-tuition-floating,
+  .admin-assistant-launcher {
+    right: 12px;
+    width: 52px;
+    height: 52px;
+    min-height: 52px;
+    padding: 0;
+  }
+
+  .student-activity-floating {
+    bottom: calc(268px + env(safe-area-inset-bottom));
+    font-size: 0;
+  }
+
+  .admin-site-floating {
+    bottom: calc(206px + env(safe-area-inset-bottom));
+    font-size: 0;
+  }
+
+  .admin-tuition-floating {
+    bottom: calc(144px + env(safe-area-inset-bottom));
+  }
+
+  .admin-tuition-floating strong {
+    font-size: 0;
+  }
+
+  .admin-assistant-launcher {
+    bottom: calc(82px + env(safe-area-inset-bottom));
+    padding: 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .student-activity-floating::after,
+  .admin-site-floating::after,
+  .admin-tuition-floating::after,
+  .admin-assistant-launcher::after {
+    transition: none;
+  }
+}
