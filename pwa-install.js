@@ -1,10 +1,11 @@
 const isStudentPortal=()=>location.pathname==="/hoc-vien.html";
+const professionalUiPromise=import("./platform-professional.js?v=20260825-1").catch(error=>console.warn("[professional-ui] Không thể tải giao diện dùng chung.",error));
 let sharedEnhancementsPromise=null;
 
 function loadSharedEnhancements(){
   if(sharedEnhancementsPromise)return sharedEnhancementsPromise;
   sharedEnhancementsPromise=Promise.all([
-    import("./platform-professional.js?v=20260825-1"),
+    professionalUiPromise,
     import("./site-unification.js"),
     import("./site-config-public.js"),
     import("./professional-public-polish.js"),
