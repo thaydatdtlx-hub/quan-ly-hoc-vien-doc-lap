@@ -24,19 +24,18 @@ for(const required of ["BIÊN LAI HỌC PHÍ","PT-20260801-ABC123","5.000.000 �
 for(const required of [
   '<figure class="transfer-qr">',
   "Quét mã để chuyển khoản",
-  "img.vietqr.io/image/970422-360556789999-qr_only.png",
+  "/api/tuition-qr?",
   "amount=5000000",
   "addInfo=HP%20Van%20An%2001ABC123",
-  "accountName=TRAN%20QUOC%20DAT",
   "Mã QR chuyển khoản học phí MB Bank"
 ]){
   if(!html.includes(required))throw new Error(`Biên lai chuyển khoản thiếu mã QR hoặc dữ liệu QR: ${required}`);
 }
 if(html.includes("Mã học viên:")||html.includes("HV-0001"))throw new Error("Biên lai học phí vẫn còn hiển thị mã học viên.");
 const cashHtml=buildReceiptHtml({...receipt,payment_method:"cash"});
-if(cashHtml.includes('<figure class="transfer-qr">')||cashHtml.includes("img.vietqr.io/image/"))throw new Error("Biên lai tiền mặt không được hiển thị mã QR chuyển khoản.");
+if(cashHtml.includes('<figure class="transfer-qr">')||cashHtml.includes("/api/tuition-qr?"))throw new Error("Biên lai tiền mặt không được hiển thị mã QR chuyển khoản.");
 const voidedHtml=buildReceiptHtml({...receipt,voided_at:"2026-08-02T00:00:00Z"});
-if(voidedHtml.includes('<figure class="transfer-qr">')||voidedHtml.includes("img.vietqr.io/image/"))throw new Error("Phiếu thu đã hủy không được hiển thị mã QR chuyển khoản.");
+if(voidedHtml.includes('<figure class="transfer-qr">')||voidedHtml.includes("/api/tuition-qr?"))throw new Error("Phiếu thu đã hủy không được hiển thị mã QR chuyển khoản.");
 
 if(nextTuitionPaymentNumber(0)!==1||nextTuitionPaymentNumber(1)!==2||nextTuitionPaymentNumber(4)!==5)throw new Error("Sai số thứ tự lần đóng học phí.");
 if(tuitionTransferContent("Nguyễn Văn An",0)!=="Nguyễn Văn An HPLX lần 1")throw new Error("Sai nội dung chuyển khoản lần 1.");
@@ -44,12 +43,25 @@ if(tuitionTransferContent("Nguyễn Văn An",1)!=="Nguyễn Văn An HPLX lần 2
 const tuitionQrUrl=tuitionTransferQrUrl("Nguyễn Văn An",5_000_000,1);
 const decodedTuitionQrUrl=decodeURIComponent(tuitionQrUrl.replace(/\+/g," "));
 for(const required of [
-  "img.vietqr.io/image/970422-360556789999-qr_only.png",
+  "/api/tuition-qr?",
   "amount=5000000",
-  "addInfo=Nguyễn Văn An HPLX lần 2",
-  "accountName=TRAN QUOC DAT"
+  "addInfo=Nguyễn Văn An HPLX lần 2"
 ]){
   if(!decodedTuitionQrUrl.includes(required))throw new Error(`Mã QR học phí thiếu dữ liệu: ${required}`);
+}
+if(decodedTuitionQrUrl.includes("img.vietqr.io"))throw new Error("Trình duyệt vẫn tải QR trực tiếp từ máy chủ ngoài thay vì API cùng tên miền.");
+
+const tuitionQrApi=readFileSync(new URL("../api/tuition-qr.js",import.meta.url),"utf8");
+for(const required of [
+  'const BANK_BIN="970422"',
+  'const ACCOUNT_NUMBER="360556789999"',
+  "img.vietqr.io/image/",
+  "AbortController",
+  "s-maxage=300",
+  "X-Tuition-QR-Fallback",
+  "image/svg+xml"
+]){
+  if(!tuitionQrApi.includes(required))throw new Error(`API QR học phí thiếu cơ chế ổn định: ${required}`);
 }
 
 const modalSource=readFileSync(new URL("../student-payment-modal.js",import.meta.url),"utf8");
@@ -64,7 +76,8 @@ for(const required of [
   'setText("paymentContent",snapshot.content)',
   "copyPaymentAccount",
   "data-tuition-payment-qr",
-  "Mở cửa sổ thanh toán QR"
+  "Mở cửa sổ thanh toán QR",
+  "/api/tuition-qr?"
 ]){
   if(!modalSource.includes(required))throw new Error(`Popup QR học phí thiếu nội dung hiển thị: ${required}`);
 }
@@ -88,11 +101,11 @@ if(navigationCss.includes("#studentPortal #studentPayment{display:none!important
 if(!navigationCss.includes("#studentFinanceHub #studentPayment.student-finance-panel.active{display:block!important}"))throw new Error("Tab thanh toán trong hub chưa được bảo đảm hiển thị.");
 
 const pwaSource=readFileSync(new URL("../pwa-install.js",import.meta.url),"utf8");
-for(const required of ["hoclaixecungdat_sw_refresh_v49","registration.update()","SKIP_WAITING","controllerchange"]){
+for(const required of ["hoclaixecungdat_sw_refresh_v50","registration.update()","SKIP_WAITING","controllerchange"]){
   if(!pwaSource.includes(required))throw new Error(`PWA chưa buộc nhận bản sửa thanh toán mới: ${required}`);
 }
 const serviceWorkerSource=readFileSync(new URL("../public/sw.js",import.meta.url),"utf8");
-for(const required of ["hoclaixecungdat-pwa-v49",'/student-payment-modal.js','/student-payment-navigation.js','/student-payment-navigation.css',"SKIP_WAITING"]){
+for(const required of ["hoclaixecungdat-pwa-v50",'/student-payment-modal.js','/student-payment-navigation.js','/student-payment-navigation.css','/api/tuition-qr',"SKIP_WAITING"]){
   if(!serviceWorkerSource.includes(required))throw new Error(`Service worker chưa làm mới trang thanh toán: ${required}`);
 }
 
@@ -120,4 +133,4 @@ const portal=readFileSync(new URL("../student.js",import.meta.url),"utf8");
 if(!admin.includes("openPaymentReceipt(item,student)"))throw new Error("Admin chưa truyền hồ sơ học viên vào biên lai.");
 if(!portal.includes("openPaymentReceipt(payment,student)"))throw new Error("Cổng học viên chưa truyền hồ sơ vào biên lai.");
 
-console.log("Học phí hợp lệ: popup QR, URL thanh toán cũ được chuyển đổi, tab thanh toán hiển thị và cache PWA v49.");
+console.log("Học phí hợp lệ: QR cùng tên miền, popup và biên lai ổn định, cache PWA v50.");

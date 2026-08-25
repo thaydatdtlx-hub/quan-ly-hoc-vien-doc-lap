@@ -63,13 +63,13 @@ if(adminHome.includes('observe(document.documentElement'))throw new Error("Liên
 
 for(const required of [
   'import("./platform-professional.js?v=20260825-1")',
-  'hoclaixecungdat_sw_refresh_v49',
+  'hoclaixecungdat_sw_refresh_v50',
   'HỌC LÁI XE CÙNG ĐẠT'
 ])if(!pwa.includes(required))throw new Error(`PWA chưa tích hợp nâng cấp: ${required}`);
 if(pwa.includes('import("./brand-wording-cleanup.js")'))throw new Error("PWA vẫn tải trình theo dõi thương hiệu toàn DOM cũ.");
 
 for(const required of [
-  'hoclaixecungdat-pwa-v49',
+  'hoclaixecungdat-pwa-v50',
   '/platform-professional.js',
   '/platform-professional.css',
   'SKIP_WAITING'

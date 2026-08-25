@@ -84,6 +84,11 @@ function receiptTransferDescription(payment,receiptNo){
   return ["HP",name,reference].filter(Boolean).join(" ").slice(0,25)||"HOC PHI";
 }
 
+function receiptBaseUrl(){
+  if(typeof window!=="undefined"&&/^https?:$/.test(window.location.protocol))return`${window.location.origin}/`;
+  return"https://www.hoclaixecungdat.com/";
+}
+
 export function buildReceiptHtml(payment){
   const rawAmount=Math.max(0,Number(payment.amount)||0);
   const amount=receiptMoney(rawAmount),date=receiptDate(payment.payment_date);
@@ -91,13 +96,14 @@ export function buildReceiptHtml(payment){
   const method=paymentMethodLabel(payment.payment_method);
   const courseDescription=receiptCourseDescription(payment);
   const receiptNo=payment.receipt_no||"—";
+  const baseUrl=receiptBaseUrl();
   const isBankTransfer=payment.payment_method==="bank_transfer";
   const isVoided=Boolean(payment.voided_at);
   const statusLabel=isVoided?"ĐÃ HỦY":"ĐÃ THANH TOÁN";
   const statusClass=isVoided?"is-voided":"is-paid";
   const transferDescription=receiptTransferDescription(payment,receiptNo);
-  const transferQrQuery=`${rawAmount>0?`amount=${encodeURIComponent(String(Math.round(rawAmount)))}&`:""}addInfo=${encodeURIComponent(transferDescription)}&accountName=${encodeURIComponent("TRAN QUOC DAT")}`;
-  const transferQrUrl=`https://img.vietqr.io/image/970422-360556789999-qr_only.png?${transferQrQuery}`;
+  const transferQrQuery=`${rawAmount>0?`amount=${encodeURIComponent(String(Math.round(rawAmount)))}&`:""}addInfo=${encodeURIComponent(transferDescription)}`;
+  const transferQrUrl=`/api/tuition-qr?${transferQrQuery}`;
   const transferQr=isBankTransfer&&!isVoided?`
     <figure class="transfer-qr">
       <img src="${escapeHtml(transferQrUrl)}" alt="Mã QR chuyển khoản học phí MB Bank" loading="eager" decoding="sync" onerror="this.hidden=true;this.nextElementSibling.hidden=false">
@@ -117,7 +123,7 @@ export function buildReceiptHtml(payment){
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <base href="https://www.hoclaixecungdat.com/">
+  <base href="${escapeHtml(baseUrl)}">
   <title>Biên lai học phí ${escapeHtml(receiptNo)}</title>
   <style>
     :root{--navy:#082f63;--blue:#0b6bdc;--blue2:#0f7fe5;--gold:#f4b928;--ink:#172b42;--muted:#63788f;--line:#d8e1ea;--soft:#f6f9fc;--paid:#18895b;--danger:#bd3d47}
