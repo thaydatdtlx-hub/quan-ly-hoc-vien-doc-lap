@@ -19,6 +19,15 @@ export function receiptMoney(value){
   return new Intl.NumberFormat("vi-VN").format(Math.max(0,Number(value)||0))+" ₫";
 }
 
+export function receiptStudentProfile(payment={},student={}){
+  return{
+    ...payment,
+    date_of_birth:payment.date_of_birth||student?.date_of_birth||null,
+    cccd:String(payment.cccd||student?.cccd||"").trim(),
+    address:String(payment.address||student?.address||"").trim()
+  };
+}
+
 export function paymentTotals(student,payments=[]){
   const total=Math.max(0,Number(student?.tuition_total)||0);
   const activePaid=payments.filter(item=>!item.voided_at).reduce((sum,item)=>sum+Math.max(0,Number(item.amount)||0),0);
@@ -62,6 +71,7 @@ function receiptCourseDescription(payment){
 export function buildReceiptHtml(payment){
   const rawAmount=Math.max(0,Number(payment.amount)||0);
   const amount=receiptMoney(rawAmount),date=receiptDate(payment.payment_date);
+  const birthDate=receiptDate(payment.date_of_birth);
   const method=paymentMethodLabel(payment.payment_method);
   const courseDescription=receiptCourseDescription(payment);
   const receiptNo=payment.receipt_no||"—";
@@ -94,7 +104,7 @@ export function buildReceiptHtml(payment){
     .invoice-head{display:grid;grid-template-columns:minmax(0,1fr) 245px;gap:30px;align-items:start;padding-bottom:20px;border-bottom:1.5px solid var(--line)}
     .brand-block{display:flex;gap:16px;align-items:flex-start}.brand-logo{width:122px;height:68px;display:flex;align-items:center;justify-content:center;border:1px solid #dce6ef;border-radius:14px;background:#fff;overflow:hidden}.brand-logo img{width:100%;height:100%;object-fit:contain}.brand-copy strong{display:block;color:var(--navy);font-size:17px;letter-spacing:.02em}.brand-copy>span{display:block;margin:3px 0 8px;color:var(--blue);font-size:12px;font-weight:800}.brand-meta{display:grid;gap:3px;color:#4d6278;font-size:12px}.brand-meta a{color:inherit;text-decoration:none}
     .invoice-title{text-align:right}.invoice-title h1{margin:0;color:#111;font-size:31px;line-height:1;font-weight:900;letter-spacing:.015em}.invoice-title .receipt-number{margin:14px 0 6px;color:#b7293c;font-size:15px;font-weight:900}.invoice-title .receipt-date{font-size:15px;font-weight:800;color:#293a4d}
-    .party-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:34px;padding:22px 0;border-bottom:1.5px solid var(--line)}.party h2{margin:0 0 12px;font-size:16px;color:#111}.party dl{margin:0;display:grid;gap:7px}.party dl div{display:grid;grid-template-columns:130px 1fr;gap:8px}.party dt{font-weight:800;color:#283d52}.party dd{margin:0;color:#26394c}.payment-info{padding-left:18px;border-left:4px solid #dbeafa}.payment-info h2{color:var(--navy)}.payment-lines{display:grid;gap:8px}.payment-lines>div{display:grid;grid-template-columns:112px 1fr;gap:8px}.payment-lines span{color:#52697f}.payment-lines strong{color:#1f3348}
+    .party-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:34px;padding:22px 0;border-bottom:1.5px solid var(--line)}.party h2{margin:0 0 12px;font-size:16px;color:#111}.party dl{margin:0;display:grid;gap:7px}.party dl div{display:grid;grid-template-columns:130px 1fr;gap:8px}.party dt{font-weight:800;color:#283d52}.party dd{margin:0;color:#26394c}.party .address-row dd{overflow-wrap:anywhere}.payment-info{padding-left:18px;border-left:4px solid #dbeafa}.payment-info h2{color:var(--navy)}.payment-lines{display:grid;gap:8px}.payment-lines>div{display:grid;grid-template-columns:112px 1fr;gap:8px}.payment-lines span{color:#52697f}.payment-lines strong{color:#1f3348}
     .course-table{width:100%;margin-top:26px;border-collapse:collapse;border-spacing:0}.course-table thead th{background:#f2e6cb;color:#263748;text-align:left;padding:13px 12px;font-size:13px}.course-table th:nth-child(n+3),.course-table td:nth-child(n+3){text-align:right}.course-table tbody td{padding:14px 12px;border-bottom:1px solid #e7ddd0;background:#fffaf0}.course-table .course-code{font-weight:800;color:var(--blue)}
     .summary{width:48%;margin:14px 0 0 auto}.summary-row{display:grid;grid-template-columns:1fr auto;gap:20px;padding:8px 0;border-bottom:1px solid #e3e8ee}.summary-row span{font-size:15px}.summary-row strong{font-size:15px}.summary-row.tax strong{font-size:13px;color:#44596d}.summary-row.total{margin-top:3px;padding-top:12px;border-bottom:0;color:#b22f3e}.summary-row.total span,.summary-row.total strong{font-size:18px;font-weight:900}.amount-words{width:65%;margin:10px 0 0 auto;font-size:13px;color:#354b61}.amount-words strong{font-style:italic;color:#172b42}
     .signatures{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:60px;margin-top:42px;text-align:center;min-height:150px}.signature strong{display:block;font-size:14px}.signature small{display:block;margin-top:2px;color:#586e82}.signature .sign-space{display:block;height:80px}.signature em{font-style:normal;font-weight:800;color:#1e3449}.stamp{position:absolute;left:50%;top:40px;transform:translateX(-50%) rotate(-1.5deg);padding:9px 15px;border:2px solid currentColor;border-radius:8px;font-weight:900;letter-spacing:.03em;background:#fff9}.stamp.is-paid{color:var(--paid)}.stamp.is-voided{color:var(--danger)}
@@ -137,6 +147,9 @@ export function buildReceiptHtml(payment){
         <dl>
           <div><dt>Học viên:</dt><dd><strong>${escapeHtml(payment.student_name||"—")}</strong></dd></div>
           <div><dt>Mã học viên:</dt><dd>${escapeHtml(payment.student_code||"—")}</dd></div>
+          <div><dt>Ngày sinh:</dt><dd>${escapeHtml(birthDate)}</dd></div>
+          <div><dt>Số CCCD:</dt><dd>${escapeHtml(payment.cccd||"—")}</dd></div>
+          <div class="address-row"><dt>Địa chỉ:</dt><dd>${escapeHtml(payment.address||"—")}</dd></div>
           <div><dt>Khóa / Hạng:</dt><dd>${escapeHtml([payment.course,payment.license_class].filter(Boolean).join(" · ")||"—")}</dd></div>
           <div><dt>Hình thức:</dt><dd><strong>${escapeHtml(method)}</strong></dd></div>
         </dl>
@@ -215,12 +228,12 @@ export function buildReceiptHtml(payment){
 </html>`;
 }
 
-export function openPaymentReceipt(payment){
+export function openPaymentReceipt(payment,studentProfile={}){
   const receiptWindow=window.open("","_blank");
   if(!receiptWindow)return false;
   receiptWindow.opener=null;
   receiptWindow.document.open();
-  receiptWindow.document.write(buildReceiptHtml(payment));
+  receiptWindow.document.write(buildReceiptHtml(receiptStudentProfile(payment,studentProfile)));
   receiptWindow.document.close();
   return true;
 }

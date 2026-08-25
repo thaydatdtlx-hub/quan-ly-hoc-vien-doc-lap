@@ -544,7 +544,7 @@ $("paymentForm").onsubmit=async event=>{
 };
 $("paymentRows").onclick=async event=>{
   const printId=event.target.dataset.printPayment,voidId=event.target.dataset.voidPayment;
-  if(printId){const item=paymentHistory.find(payment=>String(payment.id)===String(printId));if(item&&!openPaymentReceipt(item))toast("Trình duyệt đang chặn cửa sổ phiếu thu.");return}
+  if(printId){const item=paymentHistory.find(payment=>String(payment.id)===String(printId)),student=students.find(profile=>String(profile.id)===String(item?.student_id));if(item&&!openPaymentReceipt(item,student))toast("Trình duyệt đang chặn cửa sổ phiếu thu.");return}
   if(!voidId)return;
   const item=paymentHistory.find(payment=>String(payment.id)===String(voidId)),reason=prompt(`Nhập lý do hủy phiếu ${item?.receipt_no||""}:`);
   if(reason===null)return;if(reason.trim().length<3)return toast("Lý do hủy cần ít nhất 3 ký tự.");
