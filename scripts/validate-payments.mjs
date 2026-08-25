@@ -20,7 +20,21 @@ const html=buildReceiptHtml(receipt);
 for(const required of ["BIÊN LAI HỌC PHÍ","PT-20260801-ABC123","5.000.000 ₫","Trần Quốc Đạt","Ngày sinh:","15/03/2001","Số CCCD:","079123456789","Địa chỉ:","An Phú Đông, Thành phố Hồ Chí Minh"]){
   if(!html.includes(required))throw new Error(`Biên lai học phí thiếu nội dung bắt buộc: ${required}`);
 }
+for(const required of [
+  "Quét mã để chuyển khoản",
+  "img.vietqr.io/image/970422-360556789999-qr_only.png",
+  "amount=5000000",
+  "addInfo=HP%20Van%20An%2001ABC123",
+  "accountName=TRAN%20QUOC%20DAT",
+  "Mã QR chuyển khoản học phí MB Bank"
+]){
+  if(!html.includes(required))throw new Error(`Biên lai chuyển khoản thiếu mã QR hoặc dữ liệu QR: ${required}`);
+}
 if(html.includes("Mã học viên:")||html.includes("HV-0001"))throw new Error("Biên lai học phí vẫn còn hiển thị mã học viên.");
+const cashHtml=buildReceiptHtml({...receipt,payment_method:"cash"});
+if(cashHtml.includes("transfer-qr")||cashHtml.includes("img.vietqr.io"))throw new Error("Biên lai tiền mặt không được hiển thị mã QR chuyển khoản.");
+const voidedHtml=buildReceiptHtml({...receipt,voided_at:"2026-08-02T00:00:00Z"});
+if(voidedHtml.includes("transfer-qr")||voidedHtml.includes("img.vietqr.io"))throw new Error("Phiếu thu đã hủy không được hiển thị mã QR chuyển khoản.");
 
 const sql=readFileSync(new URL("../CAP-NHAT-LICH-SU-HOC-PHI-PHIEU-THU.sql",import.meta.url),"utf8");
 for(const required of [
@@ -41,4 +55,4 @@ const portal=readFileSync(new URL("../student.js",import.meta.url),"utf8");
 if(!admin.includes("openPaymentReceipt(item,student)"))throw new Error("Admin chưa truyền hồ sơ học viên vào biên lai.");
 if(!portal.includes("openPaymentReceipt(payment,student)"))throw new Error("Cổng học viên chưa truyền hồ sơ vào biên lai.");
 
-console.log("Học phí hợp lệ: công nợ, ngày sinh, CCCD, địa chỉ và phiếu thu điện tử.");
+console.log("Học phí hợp lệ: công nợ, ngày sinh, CCCD, địa chỉ, mã QR chuyển khoản và phiếu thu điện tử.");
