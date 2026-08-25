@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/validate-question-data.mjs && node scripts/validate-theory-explanations.mjs && node scripts/validate-b-exam-sets.mjs && node scripts/validate-student-rpc.mjs && node scripts/validate-student-profile-render.mjs && node scripts/validate-student-runtime-safety.mjs && node scripts/validate-auth-redirects.mjs && vite build && node scripts/inject-mobile-login-stability.mjs && node scripts/validate-student-build.mjs",
+    "build": "node scripts/validate-question-data.mjs && node scripts/validate-theory-explanations.mjs && node scripts/validate-b-exam-sets.mjs && node scripts/validate-student-rpc.mjs && node scripts/validate-student-profile-render.mjs && node scripts/validate-student-runtime-safety.mjs && node scripts/validate-auth-redirects.mjs && node scripts/validate-payments.mjs && vite build && node scripts/inject-mobile-login-stability.mjs && node scripts/validate-student-build.mjs",
     "preview": "vite preview",
     "check:questions": "node scripts/validate-question-data.mjs",
     "check:explanations": "node scripts/validate-theory-explanations.mjs",
