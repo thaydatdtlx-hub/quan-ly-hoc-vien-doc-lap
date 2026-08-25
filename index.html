@@ -341,7 +341,7 @@
       <input id="studentId" type="hidden">
       <div class="form-grid">
         <label id="studentOwnerWrap" class="wide hidden">Tài khoản phụ trách<select id="studentOwner"></select></label>
-        <div class="photo-field wide"><div class="photo-preview"><img id="photoPreview" class="hidden" alt="Ảnh thẻ học viên"><span id="photoPlaceholder">Ảnh<br>3 × 4</span></div><div><label>Ảnh thẻ học viên 3×4 nền trắng<input id="photoFile" type="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png" capture="environment"></label><button id="removePhotoBtn" type="button" class="small-btn">Xóa ảnh</button><p class="muted photo-note">Chỉ nhận file JPG/JPEG hoặc PNG, tỷ lệ 3×4, nền trắng, tối đa 10 MB.</p></div></div>
+        <div class="photo-field wide"><div class="photo-preview"><img id="photoPreview" class="hidden" alt="Ảnh thẻ học viên"><span id="photoPlaceholder">Ảnh<br>3 × 4</span></div><div><label>Ảnh thẻ học viên 3×4 nền trắng<input id="photoFile" type="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png" aria-label="Chọn ảnh có sẵn từ thư viện điện thoại" aria-describedby="photoFileHelp"></label><button id="removePhotoBtn" type="button" class="small-btn">Xóa ảnh</button><p id="photoFileHelp" class="muted photo-note">Nhấn “Chọn tệp” để chọn ảnh có sẵn từ Thư viện ảnh. Chỉ nhận JPG/JPEG hoặc PNG, tỷ lệ 3×4, nền trắng, tối đa 10 MB.</p></div></div>
         <label class="wide">Họ và tên *<input id="name" required></label>
         <label>Ngày sinh<input id="dob" type="date"></label>
         <label>CCCD<input id="cccd" inputmode="numeric" maxlength="12"></label>
