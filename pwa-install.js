@@ -49,6 +49,7 @@ if(document.getElementById("app")){
 const DISMISS_KEY="thay_dat_pwa_install_dismissed";
 const DISMISS_DAYS=7;
 const PUBLIC_MARKETING_PATHS=new Set(["/dang-ky-hoc-lai-xe.html","/600-cau-hoi.html","/bo-tuc-tay-lai.html","/chinh-sach-bao-mat.html"]);
+const SW_REFRESH_KEY="thay_dat_sw_refresh_v47";
 let deferredInstallPrompt=null;
 let installBanner=null;
 
@@ -96,10 +97,29 @@ function showInstallBanner(mode){
   });
 }
 
+function activateWaitingWorker(registration){
+  registration.waiting?.postMessage({type:"SKIP_WAITING"});
+  registration.addEventListener("updatefound",()=>{
+    const worker=registration.installing;
+    if(!worker)return;
+    worker.addEventListener("statechange",()=>{
+      if(worker.state==="installed"&&navigator.serviceWorker.controller)worker.postMessage({type:"SKIP_WAITING"});
+    });
+  });
+}
+
 if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){
+  navigator.serviceWorker.addEventListener("controllerchange",()=>{
+    if(sessionStorage.getItem(SW_REFRESH_KEY))return;
+    sessionStorage.setItem(SW_REFRESH_KEY,"1");
+    location.reload();
+  });
   window.addEventListener("load",()=>{
     if(isPublicMarketingPage()){void clearPublicPwaState();return}
-    navigator.serviceWorker.register("/sw.js",{scope:"/",updateViaCache:"none"}).catch(()=>{});
+    navigator.serviceWorker.register("/sw.js",{scope:"/",updateViaCache:"none"}).then(registration=>{
+      activateWaitingWorker(registration);
+      return registration.update();
+    }).catch(()=>{});
   },{once:true});
 }
 showLaunchScreen();

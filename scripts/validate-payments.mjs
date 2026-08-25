@@ -56,14 +56,32 @@ const modalSource=readFileSync(new URL("../student-payment-modal.js",import.meta
 for(const required of [
   ".tuition-payment-qr-fallback[hidden]{display:none!important}",
   "max-height:calc(100dvh - 20px)",
-  '#tuitionPaymentLink,.tuition-card.debt'
+  "TUITION_MOBILE_TRIGGER_SELECTOR",
+  "#tuitionQrOpen,.payment-qr-card,#paymentAmountBadge",
+  'setText("paymentBankName",TUITION_BANK_NAME)',
+  'setText("paymentAccountNumber",TUITION_ACCOUNT_NUMBER)',
+  'setText("paymentAccountOwner",TUITION_ACCOUNT_DISPLAY_NAME)',
+  'setText("paymentContent",snapshot.content)',
+  "copyPaymentAccount",
+  "data-tuition-payment-qr",
+  "Mở cửa sổ thanh toán QR"
 ]){
-  if(!modalSource.includes(required))throw new Error(`Popup QR học phí thiếu bảo vệ giao diện: ${required}`);
+  if(!modalSource.includes(required))throw new Error(`Popup QR học phí thiếu nội dung hiển thị: ${required}`);
+}
+
+const pwaSource=readFileSync(new URL("../pwa-install.js",import.meta.url),"utf8");
+for(const required of ["thay_dat_sw_refresh_v47","registration.update()","SKIP_WAITING","controllerchange"]){
+  if(!pwaSource.includes(required))throw new Error(`PWA chưa buộc nhận bản QR mới: ${required}`);
+}
+const serviceWorkerSource=readFileSync(new URL("../public/sw.js",import.meta.url),"utf8");
+for(const required of ["thay-dat-pwa-v47",'/student-payment-modal.js',"SKIP_WAITING"]){
+  if(!serviceWorkerSource.includes(required))throw new Error(`Service worker chưa làm mới QR học phí: ${required}`);
 }
 
 const portalHtml=readFileSync(new URL("../hoc-vien.html",import.meta.url),"utf8");
 if(!portalHtml.includes('/student-payment-modal.js?v=20260825-1'))throw new Error("Cổng học viên chưa tải popup QR học phí.");
 if(!portalHtml.includes('id="tuitionPaymentLink"'))throw new Error("Cổng học viên thiếu nút mở popup QR học phí.");
+if(!portalHtml.includes('data-mobile-scroll="#studentPayment"'))throw new Error("Cổng học viên thiếu lối mở thanh toán trên mobile.");
 
 const sql=readFileSync(new URL("../CAP-NHAT-LICH-SU-HOC-PHI-PHIEU-THU.sql",import.meta.url),"utf8");
 for(const required of [
@@ -84,4 +102,4 @@ const portal=readFileSync(new URL("../student.js",import.meta.url),"utf8");
 if(!admin.includes("openPaymentReceipt(item,student)"))throw new Error("Admin chưa truyền hồ sơ học viên vào biên lai.");
 if(!portal.includes("openPaymentReceipt(payment,student)"))throw new Error("Cổng học viên chưa truyền hồ sơ vào biên lai.");
 
-console.log("Học phí hợp lệ: công nợ, QR biên lai, popup QR, nội dung HPLX theo lần đóng và phiếu thu điện tử.");
+console.log("Học phí hợp lệ: thông tin ngân hàng, QR trên trang, popup mobile, nội dung HPLX theo lần đóng và cache PWA mới.");
