@@ -69,13 +69,31 @@ for(const required of [
   if(!modalSource.includes(required))throw new Error(`Popup QR học phí thiếu nội dung hiển thị: ${required}`);
 }
 
+const navigationSource=readFileSync(new URL("../student-payment-navigation.js",import.meta.url),"utf8");
+for(const required of [
+  'import {openTuitionPaymentModal} from "./student-payment-modal.js"',
+  'const PAYMENT_HASH="#studentPayment"',
+  'url.searchParams.delete("view")',
+  "history.replaceState",
+  "paymentLink.href=PAYMENT_HASH",
+  "Đóng học phí bằng QR →",
+  "scheduleLegacyPaymentOpen"
+]){
+  if(!navigationSource.includes(required))throw new Error(`Điều hướng thanh toán chưa mở popup an toàn: ${required}`);
+}
+if(navigationSource.includes("const PAYMENT_URL=")||navigationSource.includes("function buildPaymentView"))throw new Error("Điều hướng học phí vẫn còn tạo trang thanh toán riêng dễ bị trắng.");
+const navigationCss=readFileSync(new URL("../student-payment-navigation.css",import.meta.url),"utf8");
+if(!navigationCss.includes("#studentPortal > #studentPayment{display:none!important}"))throw new Error("CSS học phí chưa giới hạn quy tắc ẩn cho phần tử con trực tiếp.");
+if(navigationCss.includes("#studentPortal #studentPayment{display:none!important}"))throw new Error("CSS học phí vẫn ẩn toàn bộ khu vực thanh toán sau khi được chuyển vào hub.");
+if(!navigationCss.includes("#studentFinanceHub #studentPayment.student-finance-panel.active{display:block!important}"))throw new Error("Tab thanh toán trong hub chưa được bảo đảm hiển thị.");
+
 const pwaSource=readFileSync(new URL("../pwa-install.js",import.meta.url),"utf8");
-for(const required of ["thay_dat_sw_refresh_v47","registration.update()","SKIP_WAITING","controllerchange"]){
-  if(!pwaSource.includes(required))throw new Error(`PWA chưa buộc nhận bản QR mới: ${required}`);
+for(const required of ["thay_dat_sw_refresh_v48","registration.update()","SKIP_WAITING","controllerchange"]){
+  if(!pwaSource.includes(required))throw new Error(`PWA chưa buộc nhận bản sửa thanh toán mới: ${required}`);
 }
 const serviceWorkerSource=readFileSync(new URL("../public/sw.js",import.meta.url),"utf8");
-for(const required of ["thay-dat-pwa-v47",'/student-payment-modal.js',"SKIP_WAITING"]){
-  if(!serviceWorkerSource.includes(required))throw new Error(`Service worker chưa làm mới QR học phí: ${required}`);
+for(const required of ["thay-dat-pwa-v48",'/student-payment-modal.js','/student-payment-navigation.js','/student-payment-navigation.css',"SKIP_WAITING"]){
+  if(!serviceWorkerSource.includes(required))throw new Error(`Service worker chưa làm mới trang thanh toán: ${required}`);
 }
 
 const portalHtml=readFileSync(new URL("../hoc-vien.html",import.meta.url),"utf8");
@@ -102,4 +120,4 @@ const portal=readFileSync(new URL("../student.js",import.meta.url),"utf8");
 if(!admin.includes("openPaymentReceipt(item,student)"))throw new Error("Admin chưa truyền hồ sơ học viên vào biên lai.");
 if(!portal.includes("openPaymentReceipt(payment,student)"))throw new Error("Cổng học viên chưa truyền hồ sơ vào biên lai.");
 
-console.log("Học phí hợp lệ: thông tin ngân hàng, QR trên trang, popup mobile, nội dung HPLX theo lần đóng và cache PWA mới.");
+console.log("Học phí hợp lệ: popup QR, URL thanh toán cũ được chuyển đổi, tab thanh toán hiển thị và cache PWA v48.");
