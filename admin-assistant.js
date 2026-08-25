@@ -1,5 +1,6 @@
 import "./admin-assistant.css";
 import "./admin-floating-compact.css";
+import "./admin-floating-menu.js";
 
 const HISTORY_KEY="thay_dat_admin_assistant_v1";
 const MAX_HISTORY=12;
