@@ -68,6 +68,22 @@ function receiptCourseDescription(payment){
   return course||license?`${course||"Khóa đào tạo"}${license&&!course?` · Hạng ${license}`:""}`:"Học phí khóa đào tạo";
 }
 
+function normalizeTransferText(value){
+  return String(value??"")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"")
+    .replace(/[đĐ]/g,char=>char==="đ"?"d":"D")
+    .replace(/[^a-zA-Z0-9 ]+/g," ")
+    .replace(/\s+/g," ")
+    .trim();
+}
+
+function receiptTransferDescription(payment,receiptNo){
+  const name=normalizeTransferText(payment.student_name).split(" ").filter(Boolean).slice(-2).join(" ");
+  const reference=normalizeTransferText(receiptNo).replace(/\s+/g,"").slice(-8);
+  return ["HP",name,reference].filter(Boolean).join(" ").slice(0,25)||"HOC PHI";
+}
+
 export function buildReceiptHtml(payment){
   const rawAmount=Math.max(0,Number(payment.amount)||0);
   const amount=receiptMoney(rawAmount),date=receiptDate(payment.payment_date);
@@ -79,6 +95,15 @@ export function buildReceiptHtml(payment){
   const isVoided=Boolean(payment.voided_at);
   const statusLabel=isVoided?"ĐÃ HỦY":"ĐÃ THANH TOÁN";
   const statusClass=isVoided?"is-voided":"is-paid";
+  const transferDescription=receiptTransferDescription(payment,receiptNo);
+  const transferQrQuery=`${rawAmount>0?`amount=${encodeURIComponent(String(Math.round(rawAmount)))}&`:""}addInfo=${encodeURIComponent(transferDescription)}&accountName=${encodeURIComponent("TRAN QUOC DAT")}`;
+  const transferQrUrl=`https://img.vietqr.io/image/970422-360556789999-qr_only.png?${transferQrQuery}`;
+  const transferQr=isBankTransfer&&!isVoided?`
+    <figure class="transfer-qr">
+      <img src="${escapeHtml(transferQrUrl)}" alt="Mã QR chuyển khoản học phí MB Bank" loading="eager" decoding="sync" onerror="this.hidden=true;this.nextElementSibling.hidden=false">
+      <div class="transfer-qr-fallback" hidden>Không tải được mã QR. Vui lòng chuyển khoản theo số tài khoản phía trên.</div>
+      <figcaption><strong>Quét mã để chuyển khoản</strong><span>Số tiền: ${escapeHtml(amount)}</span><span>Nội dung: ${escapeHtml(transferDescription)}</span></figcaption>
+    </figure>`:"";
   const paymentInfo=isBankTransfer?`
     <div><span>Tên tài khoản</span><strong>Trần Quốc Đạt</strong></div>
     <div><span>Số tài khoản</span><strong>360556789999</strong></div>
@@ -104,7 +129,7 @@ export function buildReceiptHtml(payment){
     .invoice-head{display:grid;grid-template-columns:minmax(0,1fr) 245px;gap:30px;align-items:start;padding-bottom:20px;border-bottom:1.5px solid var(--line)}
     .brand-block{display:flex;gap:16px;align-items:flex-start}.brand-logo{width:122px;height:68px;display:flex;align-items:center;justify-content:center;border:1px solid #dce6ef;border-radius:14px;background:#fff;overflow:hidden}.brand-logo img{width:100%;height:100%;object-fit:contain}.brand-copy strong{display:block;color:var(--navy);font-size:17px;letter-spacing:.02em}.brand-copy>span{display:block;margin:3px 0 8px;color:var(--blue);font-size:12px;font-weight:800}.brand-meta{display:grid;gap:3px;color:#4d6278;font-size:12px}.brand-meta a{color:inherit;text-decoration:none}
     .invoice-title{text-align:right}.invoice-title h1{margin:0;color:#111;font-size:31px;line-height:1;font-weight:900;letter-spacing:.015em}.invoice-title .receipt-number{margin:14px 0 6px;color:#b7293c;font-size:15px;font-weight:900}.invoice-title .receipt-date{font-size:15px;font-weight:800;color:#293a4d}
-    .party-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:34px;padding:22px 0;border-bottom:1.5px solid var(--line)}.party h2{margin:0 0 12px;font-size:16px;color:#111}.party dl{margin:0;display:grid;gap:7px}.party dl div{display:grid;grid-template-columns:130px 1fr;gap:8px}.party dt{font-weight:800;color:#283d52}.party dd{margin:0;color:#26394c}.party .address-row dd{overflow-wrap:anywhere}.payment-info{padding-left:18px;border-left:4px solid #dbeafa}.payment-info h2{color:var(--navy)}.payment-lines{display:grid;gap:8px}.payment-lines>div{display:grid;grid-template-columns:112px 1fr;gap:8px}.payment-lines span{color:#52697f}.payment-lines strong{color:#1f3348}
+    .party-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:34px;padding:22px 0;border-bottom:1.5px solid var(--line)}.party h2{margin:0 0 12px;font-size:16px;color:#111}.party dl{margin:0;display:grid;gap:7px}.party dl div{display:grid;grid-template-columns:130px 1fr;gap:8px}.party dt{font-weight:800;color:#283d52}.party dd{margin:0;color:#26394c}.party .address-row dd{overflow-wrap:anywhere}.payment-info{padding-left:18px;border-left:4px solid #dbeafa}.payment-info h2{color:var(--navy)}.payment-lines{display:grid;gap:8px}.payment-lines>div{display:grid;grid-template-columns:112px 1fr;gap:8px}.payment-lines span{color:#52697f}.payment-lines strong{color:#1f3348}.transfer-qr{width:184px;margin:16px auto 0;padding:8px;border:1px solid #d7e4ef;border-radius:13px;background:#fff;display:grid;justify-items:center;gap:7px;break-inside:avoid}.transfer-qr img{display:block;width:166px;height:166px;max-width:100%;object-fit:contain}.transfer-qr figcaption{display:grid;gap:2px;text-align:center;color:#52697f;font-size:10.5px;line-height:1.35}.transfer-qr figcaption strong{color:var(--navy);font-size:11px}.transfer-qr-fallback{min-height:110px;padding:14px;place-items:center;text-align:center;border:1px dashed #c6d5e3;border-radius:9px;color:#667b8f;font-size:11px}
     .course-table{width:100%;margin-top:26px;border-collapse:collapse;border-spacing:0}.course-table thead th{background:#f2e6cb;color:#263748;text-align:left;padding:13px 12px;font-size:13px}.course-table th:nth-child(n+3),.course-table td:nth-child(n+3){text-align:right}.course-table tbody td{padding:14px 12px;border-bottom:1px solid #e7ddd0;background:#fffaf0}.course-table .course-code{font-weight:800;color:var(--blue)}
     .summary{width:48%;margin:14px 0 0 auto}.summary-row{display:grid;grid-template-columns:1fr auto;gap:20px;padding:8px 0;border-bottom:1px solid #e3e8ee}.summary-row span{font-size:15px}.summary-row strong{font-size:15px}.summary-row.tax strong{font-size:13px;color:#44596d}.summary-row.total{margin-top:3px;padding-top:12px;border-bottom:0;color:#b22f3e}.summary-row.total span,.summary-row.total strong{font-size:18px;font-weight:900}.amount-words{width:65%;margin:10px 0 0 auto;font-size:13px;color:#354b61}.amount-words strong{font-style:italic;color:#172b42}
     .signatures{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:60px;margin-top:42px;text-align:center;min-height:150px}.signature strong{display:block;font-size:14px}.signature small{display:block;margin-top:2px;color:#586e82}.signature .sign-space{display:block;height:80px}.signature em{font-style:normal;font-weight:800;color:#1e3449}.stamp{position:absolute;left:50%;top:40px;transform:translateX(-50%) rotate(-1.5deg);padding:9px 15px;border:2px solid currentColor;border-radius:8px;font-weight:900;letter-spacing:.03em;background:#fff9}.stamp.is-paid{color:var(--paid)}.stamp.is-voided{color:var(--danger)}
@@ -156,6 +181,7 @@ export function buildReceiptHtml(payment){
       <div class="party payment-info">
         <h2>${isBankTransfer?"Thông tin chuyển khoản":"Thông tin thanh toán"}</h2>
         <div class="payment-lines">${paymentInfo}</div>
+        ${transferQr}
       </div>
     </section>
 
