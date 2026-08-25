@@ -146,7 +146,6 @@ export function buildReceiptHtml(payment){
         <h2>BIÊN LAI CHO:</h2>
         <dl>
           <div><dt>Học viên:</dt><dd><strong>${escapeHtml(payment.student_name||"—")}</strong></dd></div>
-          <div><dt>Mã học viên:</dt><dd>${escapeHtml(payment.student_code||"—")}</dd></div>
           <div><dt>Ngày sinh:</dt><dd>${escapeHtml(birthDate)}</dd></div>
           <div><dt>Số CCCD:</dt><dd>${escapeHtml(payment.cccd||"—")}</dd></div>
           <div class="address-row"><dt>Địa chỉ:</dt><dd>${escapeHtml(payment.address||"—")}</dd></div>
