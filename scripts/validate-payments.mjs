@@ -52,6 +52,15 @@ for(const required of [
   if(!decodedTuitionQrUrl.includes(required))throw new Error(`Mã QR học phí thiếu dữ liệu: ${required}`);
 }
 
+const modalSource=readFileSync(new URL("../student-payment-modal.js",import.meta.url),"utf8");
+for(const required of [
+  ".tuition-payment-qr-fallback[hidden]{display:none!important}",
+  "max-height:calc(100dvh - 20px)",
+  '#tuitionPaymentLink,.tuition-card.debt'
+]){
+  if(!modalSource.includes(required))throw new Error(`Popup QR học phí thiếu bảo vệ giao diện: ${required}`);
+}
+
 const portalHtml=readFileSync(new URL("../hoc-vien.html",import.meta.url),"utf8");
 if(!portalHtml.includes('/student-payment-modal.js?v=20260825-1'))throw new Error("Cổng học viên chưa tải popup QR học phí.");
 if(!portalHtml.includes('id="tuitionPaymentLink"'))throw new Error("Cổng học viên thiếu nút mở popup QR học phí.");
