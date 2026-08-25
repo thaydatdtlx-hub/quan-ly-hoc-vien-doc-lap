@@ -1,9 +1,10 @@
 import {readFile} from "node:fs/promises";
 
-const [emergencySource,pwaSource,mobileRecoverySource]=await Promise.all([
+const [emergencySource,pwaSource,mobileRecoverySource,adminHtml]=await Promise.all([
   readFile(new URL("../student-portal-emergency-recovery.js",import.meta.url),"utf8"),
   readFile(new URL("../pwa-install.js",import.meta.url),"utf8"),
-  readFile(new URL("../student-mobile-recovery.js",import.meta.url),"utf8")
+  readFile(new URL("../student-mobile-recovery.js",import.meta.url),"utf8"),
+  readFile(new URL("../index.html",import.meta.url),"utf8")
 ]);
 for(const token of ["app_student_portal","normalizeStudentProfile","coreProfileIsVisible","renderCoreStudentProfile","studentName","studentCode","studentCourse","studentLicense","studentProgress","studentProfile","data-student-profile"]){
   if(!emergencySource.includes(token))throw new Error(`Emergency profile recovery thiếu ${token}.`);
@@ -15,6 +16,11 @@ for(const moduleName of ["admin-tuition-settings.js","admin-site-config.js","rec
 for(const token of ["setTextIfChanged","observer?.disconnect()","getAttribute(\"data-student-profile\")"]){
   if(!mobileRecoverySource.includes(token))throw new Error(`Mobile recovery thiếu chốt chống vòng lặp: ${token}.`);
 }
+const photoInput=adminHtml.match(/<input\b[^>]*id="photoFile"[^>]*>/)?.[0]||"";
+if(!photoInput)throw new Error("Biểu mẫu học viên thiếu ô chọn ảnh thẻ.");
+if(/\bcapture(?:\s*=|\s|>)/i.test(photoInput))throw new Error("Ô ảnh thẻ vẫn ép mở camera thay vì cho chọn ảnh có sẵn.");
+if(!photoInput.includes('type="file"')||!photoInput.includes("image/jpeg")||!photoInput.includes("image/png"))throw new Error("Ô ảnh thẻ chưa giới hạn đúng file JPG/PNG.");
+if(!photoInput.includes('aria-label="Chọn ảnh có sẵn từ thư viện điện thoại"')||!adminHtml.includes("chọn ảnh có sẵn từ Thư viện ảnh"))throw new Error("Ô ảnh thẻ chưa hướng dẫn chọn ảnh có sẵn trên điện thoại.");
 
 class ClassList{
   constructor(values=[]){this.values=new Set(values)}
