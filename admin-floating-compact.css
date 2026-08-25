@@ -171,3 +171,242 @@
     transition: none;
   }
 }
+
+.admin-toolbox-toggle,
+.admin-toolbox-menu {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .admin-toolbox-toggle {
+    position: fixed;
+    right: 12px;
+    bottom: calc(82px + env(safe-area-inset-bottom));
+    z-index: 10020;
+    display: flex !important;
+    width: 92px;
+    height: 54px;
+    min-height: 54px;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 0 13px;
+    border: 1px solid #e8bd69;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #12375f, #071a33);
+    color: #fff;
+    box-shadow: 0 14px 34px #03152f4d;
+    font: 800 11px/1 "Be Vietnam Pro", system-ui, sans-serif;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .admin-toolbox-toggle[hidden] {
+    display: none !important;
+  }
+
+  .admin-toolbox-toggle.is-open {
+    border-color: #d8a83d;
+    background: linear-gradient(135deg, #f5d77e, #e6b744);
+    color: #102c49;
+  }
+
+  .admin-toolbox-toggle__icon {
+    display: grid;
+    grid-template-columns: repeat(2, 6px);
+    gap: 4px;
+  }
+
+  .admin-toolbox-toggle__icon i {
+    width: 6px;
+    height: 6px;
+    border-radius: 2px;
+    background: currentColor;
+  }
+
+  .admin-toolbox-toggle.is-open .admin-toolbox-toggle__icon {
+    position: relative;
+    display: block;
+    width: 16px;
+    height: 16px;
+  }
+
+  .admin-toolbox-toggle.is-open .admin-toolbox-toggle__icon i {
+    position: absolute;
+    top: 7px;
+    left: 1px;
+    width: 14px;
+    height: 2px;
+    border-radius: 2px;
+    transform: rotate(45deg);
+  }
+
+  .admin-toolbox-toggle.is-open .admin-toolbox-toggle__icon i:nth-child(2) {
+    transform: rotate(-45deg);
+  }
+
+  .admin-toolbox-toggle.is-open .admin-toolbox-toggle__icon i:nth-child(n+3) {
+    display: none;
+  }
+
+  .admin-toolbox-menu {
+    position: fixed;
+    right: 12px;
+    bottom: calc(146px + env(safe-area-inset-bottom));
+    z-index: 10019;
+    display: grid !important;
+    width: min(312px, calc(100vw - 24px));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+    box-sizing: border-box;
+    padding: 11px;
+    border: 1px solid #d8e3ed;
+    border-radius: 20px;
+    background: #fffffff7;
+    box-shadow: 0 22px 60px #071a3342;
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(10px) scale(.97);
+    transform-origin: bottom right;
+    transition: opacity .18s ease, transform .18s ease, visibility .18s ease;
+  }
+
+  .admin-toolbox-open .admin-toolbox-menu {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: none;
+  }
+
+  .admin-toolbox-menu > .student-activity-floating,
+  .admin-toolbox-menu > .admin-site-floating,
+  .admin-toolbox-menu > .admin-tuition-floating,
+  .admin-toolbox-menu > .admin-assistant-launcher {
+    position: relative !important;
+    inset: auto !important;
+    z-index: auto !important;
+    display: flex !important;
+    width: 100% !important;
+    height: 72px !important;
+    min-height: 72px !important;
+    box-sizing: border-box;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 9px !important;
+    margin: 0 !important;
+    padding: 9px 10px !important;
+    border-radius: 14px !important;
+    font-size: 11px !important;
+    line-height: 1.25 !important;
+    text-align: left;
+    white-space: normal;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+  }
+
+  .admin-toolbox-menu > [hidden] {
+    display: none !important;
+  }
+
+  .admin-toolbox-menu > .student-activity-floating::before,
+  .admin-toolbox-menu > .admin-site-floating::before,
+  .admin-toolbox-menu > .student-activity-floating::after,
+  .admin-toolbox-menu > .admin-site-floating::after,
+  .admin-toolbox-menu > .admin-tuition-floating::after,
+  .admin-toolbox-menu > .admin-assistant-launcher::after {
+    display: none !important;
+  }
+
+  .admin-toolbox-menu .admin-toolbox-item__icon {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    place-items: center;
+    border-radius: 11px;
+    background: #e9f4fc;
+    color: #075aaa;
+    font-size: 19px;
+    line-height: 1;
+  }
+
+  .admin-toolbox-menu > .student-activity-floating strong,
+  .admin-toolbox-menu > .admin-site-floating strong,
+  .admin-toolbox-menu > .admin-tuition-floating strong {
+    display: block !important;
+    min-width: 0;
+    color: inherit;
+    font-size: 10.5px !important;
+    font-weight: 900;
+    line-height: 1.35;
+  }
+
+  .admin-toolbox-menu > .admin-tuition-floating > span {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    place-items: center;
+    border-radius: 11px;
+    background: #fff5ce;
+    font-size: 0 !important;
+  }
+
+  .admin-toolbox-menu > .admin-tuition-floating > span::before {
+    content: "₫" !important;
+    font-size: 20px !important;
+  }
+
+  .admin-toolbox-menu .admin-assistant-launcher__mark {
+    width: 36px !important;
+    height: 36px !important;
+    flex: 0 0 36px;
+  }
+
+  .admin-toolbox-menu .admin-assistant-launcher__copy {
+    display: grid !important;
+    min-width: 0;
+    gap: 2px;
+  }
+
+  .admin-toolbox-menu .admin-assistant-launcher__copy strong {
+    font-size: 11px;
+  }
+
+  .admin-toolbox-menu .admin-assistant-launcher__copy small {
+    overflow: hidden;
+    color: #e9d29c;
+    font-size: 8px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .admin-toolbox-menu .admin-assistant-launcher > i {
+    top: 6px !important;
+    right: auto !important;
+    left: 37px !important;
+  }
+}
+
+@media (min-width: 721px) {
+  .admin-toolbox-menu {
+    display: contents;
+  }
+}
+
+@media (max-width: 380px) {
+  .admin-toolbox-menu {
+    width: calc(100vw - 20px);
+    right: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-toolbox-menu {
+    transition: none;
+  }
+}
