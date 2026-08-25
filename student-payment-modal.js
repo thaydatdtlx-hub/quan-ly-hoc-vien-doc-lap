@@ -24,8 +24,7 @@ export function tuitionTransferQrUrl(studentName,amount,existingReceiptCount=0){
   const normalizedAmount=Math.max(0,Math.round(Number(amount)||0));
   if(normalizedAmount)params.set("amount",String(normalizedAmount));
   params.set("addInfo",tuitionTransferContent(studentName,existingReceiptCount));
-  params.set("accountName",TUITION_ACCOUNT_NAME);
-  return `https://img.vietqr.io/image/${TUITION_BANK_BIN}-${TUITION_ACCOUNT_NUMBER}-qr_only.png?${params.toString()}`;
+  return `/api/tuition-qr?${params.toString()}`;
 }
 
 function parseVnd(value){
