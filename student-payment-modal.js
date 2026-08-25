@@ -51,9 +51,9 @@ function ensureModalStyle(){
   style.textContent=`
     #tuitionDebtCard[aria-disabled="false"]{cursor:pointer}
     #tuitionDebtCard[aria-disabled="false"]:focus-visible{outline:3px solid #0b6bdc;outline-offset:4px}
-    #tuitionPaymentDialog{width:min(94vw,520px);max-width:520px;margin:auto;padding:0;border:0;border-radius:22px;background:#fff;color:#17324d;box-shadow:0 28px 80px #001b3c55;overflow:hidden}
+    #tuitionPaymentDialog{width:min(94vw,520px);max-width:520px;max-height:calc(100dvh - 20px);margin:auto;padding:0;border:0;border-radius:22px;background:#fff;color:#17324d;box-shadow:0 28px 80px #001b3c55;overflow:auto;overscroll-behavior:contain}
     #tuitionPaymentDialog::backdrop{background:#071a2db8;backdrop-filter:blur(5px)}
-    .tuition-payment-head{position:relative;padding:22px 58px 18px 22px;background:linear-gradient(135deg,#073d7d,#0b6bdc);color:#fff}
+    .tuition-payment-head{position:sticky;top:0;z-index:2;padding:22px 58px 18px 22px;background:linear-gradient(135deg,#073d7d,#0b6bdc);color:#fff}
     .tuition-payment-head small{display:block;margin-bottom:4px;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.8}
     .tuition-payment-head h2{margin:0;font:900 24px/1.15 system-ui,sans-serif}
     .tuition-payment-head p{margin:8px 0 0;font:600 13px/1.5 system-ui,sans-serif;opacity:.88}
@@ -147,8 +147,9 @@ export function refreshTuitionPaymentQr(){
     trigger.setAttribute("aria-haspopup","dialog");
     trigger.setAttribute("aria-controls","tuitionPaymentDialog");
   }
-  const card=document.getElementById("tuitionDebtCard");
+  const card=document.getElementById("tuitionDebtCard")||trigger?.closest(".tuition-card.debt");
   if(card){
+    if(!card.id)card.id="tuitionDebtCard";
     card.setAttribute("aria-haspopup","dialog");
     card.setAttribute("aria-controls","tuitionPaymentDialog");
     card.setAttribute("aria-disabled",String(snapshot.debt<=0));
@@ -179,13 +180,13 @@ function installTuitionPaymentModal(){
   window.addEventListener("student-profile-ready",refresh);
   window.addEventListener("student-functions-ready",refresh);
   document.addEventListener("click",event=>{
-    const trigger=event.target.closest("#tuitionPaymentLink,#tuitionDebtCard");
+    const trigger=event.target.closest("#tuitionPaymentLink,.tuition-card.debt");
     if(!trigger||trigger.classList.contains("hidden"))return;
     event.preventDefault();
     openTuitionPaymentModal();
   });
   document.addEventListener("keydown",event=>{
-    if(!event.target.closest("#tuitionDebtCard")||!['Enter',' '].includes(event.key))return;
+    if(!event.target.closest("#tuitionDebtCard,.tuition-card.debt")||!['Enter',' '].includes(event.key))return;
     event.preventDefault();
     openTuitionPaymentModal();
   });
