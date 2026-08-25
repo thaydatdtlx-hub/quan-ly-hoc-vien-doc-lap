@@ -321,7 +321,7 @@ document.querySelectorAll(".student-refresh-access").forEach(link=>link.addEvent
 $("studentPaymentHistoryList").onclick=event=>{
   const id=event.target.dataset.studentReceipt;if(!id)return;
   const payment=studentPayments.find(item=>String(item.id)===String(id));
-  if(payment&&!openPaymentReceipt(payment))toast("Trình duyệt đang chặn cửa sổ phiếu thu.");
+  if(payment&&!openPaymentReceipt(payment,student))toast("Trình duyệt đang chặn cửa sổ phiếu thu.");
 };
 $("copyPaymentContent").onclick=()=>copyPaymentValue($("paymentContent").textContent,"Đã sao chép nội dung chuyển khoản");
 document.querySelectorAll(".copy-payment[data-copy]").forEach(button=>button.onclick=()=>copyPaymentValue(button.dataset.copy,"Đã sao chép số tài khoản"));

@@ -1,4 +1,4 @@
-import {buildReceiptHtml,paymentMethodLabel,paymentTotals,receiptDate,receiptMoney} from "../payment-receipt.js";
+import {buildReceiptHtml,paymentMethodLabel,paymentTotals,receiptDate,receiptMoney,receiptStudentProfile} from "../payment-receipt.js";
 import {readFileSync} from "node:fs";
 
 const student={tuition_total:18_500_000,paid:8_500_000};
@@ -12,8 +12,14 @@ if(totals.total!==18_500_000||totals.paid!==8_500_000||totals.debt!==10_000_000)
 if(paymentMethodLabel("bank_transfer")!=="Chuyển khoản")throw new Error("Sai nhãn phương thức thanh toán.");
 if(receiptDate("2026-08-01")!=="01/08/2026")throw new Error("Sai định dạng ngày phiếu thu.");
 if(receiptMoney(5_000_000)!=="5.000.000 ₫")throw new Error("Sai định dạng số tiền phiếu thu.");
-const html=buildReceiptHtml({receipt_no:"PT-20260801-ABC123",student_name:"Nguyễn Văn An",student_code:"HV-0001",amount:5_000_000,payment_date:"2026-08-01",payment_method:"bank_transfer"});
-if(!html.includes("BIÊN LAI HỌC PHÍ")||!html.includes("PT-20260801-ABC123")||!html.includes("5.000.000 ₫")||!html.includes("Trần Quốc Đạt"))throw new Error("Biên lai học phí thiếu nội dung bắt buộc.");
+const receipt=receiptStudentProfile(
+  {receipt_no:"PT-20260801-ABC123",student_id:"student-1",student_name:"Nguyễn Văn An",student_code:"HV-0001",amount:5_000_000,payment_date:"2026-08-01",payment_method:"bank_transfer"},
+  {date_of_birth:"2001-03-15",cccd:"079123456789",address:"An Phú Đông, Thành phố Hồ Chí Minh"}
+);
+const html=buildReceiptHtml(receipt);
+for(const required of ["BIÊN LAI HỌC PHÍ","PT-20260801-ABC123","5.000.000 ₫","Trần Quốc Đạt","Ngày sinh:","15/03/2001","Số CCCD:","079123456789","Địa chỉ:","An Phú Đông, Thành phố Hồ Chí Minh"]){
+  if(!html.includes(required))throw new Error(`Biên lai học phí thiếu nội dung bắt buộc: ${required}`);
+}
 
 const sql=readFileSync(new URL("../CAP-NHAT-LICH-SU-HOC-PHI-PHIEU-THU.sql",import.meta.url),"utf8");
 for(const required of [
@@ -25,5 +31,13 @@ for(const required of [
   "public.app_sync_student_payment_balance",
   "enable row level security"
 ])if(!sql.toLowerCase().includes(required.toLowerCase()))throw new Error(`SQL học phí thiếu: ${required}`);
+for(const field of ["student.date_of_birth","student.cccd","student.address"]){
+  if(sql.split(field).length-1<2)throw new Error(`Hai truy vấn phiếu thu chưa trả đủ trường: ${field}`);
+}
 
-console.log("Học phí hợp lệ: phép tính công nợ, phương thức, ngày và phiếu thu điện tử.");
+const admin=readFileSync(new URL("../app.js",import.meta.url),"utf8");
+const portal=readFileSync(new URL("../student.js",import.meta.url),"utf8");
+if(!admin.includes("openPaymentReceipt(item,student)"))throw new Error("Admin chưa truyền hồ sơ học viên vào biên lai.");
+if(!portal.includes("openPaymentReceipt(payment,student)"))throw new Error("Cổng học viên chưa truyền hồ sơ vào biên lai.");
+
+console.log("Học phí hợp lệ: công nợ, ngày sinh, CCCD, địa chỉ và phiếu thu điện tử.");
