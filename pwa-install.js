@@ -4,7 +4,7 @@ let sharedEnhancementsPromise=null;
 function loadSharedEnhancements(){
   if(sharedEnhancementsPromise)return sharedEnhancementsPromise;
   sharedEnhancementsPromise=Promise.all([
-    import("./brand-wording-cleanup.js"),
+    import("./platform-professional.js?v=20260825-1"),
     import("./site-unification.js"),
     import("./site-config-public.js"),
     import("./professional-public-polish.js"),
@@ -49,7 +49,7 @@ if(document.getElementById("app")){
 const DISMISS_KEY="thay_dat_pwa_install_dismissed";
 const DISMISS_DAYS=7;
 const PUBLIC_MARKETING_PATHS=new Set(["/dang-ky-hoc-lai-xe.html","/600-cau-hoi.html","/bo-tuc-tay-lai.html","/chinh-sach-bao-mat.html"]);
-const SW_REFRESH_KEY="thay_dat_sw_refresh_v48";
+const SW_REFRESH_KEY="hoclaixecungdat_sw_refresh_v49";
 let deferredInstallPrompt=null;
 let installBanner=null;
 
@@ -70,16 +70,16 @@ async function clearPublicPwaState(){
   try{
     if("caches" in window){
       const keys=await caches.keys();
-      await Promise.all(keys.filter(name=>name.startsWith("thay-dat-pwa-")).map(name=>caches.delete(name)));
+      await Promise.all(keys.filter(name=>name.startsWith("thay-dat-pwa-")||name.startsWith("hoclaixecungdat-pwa-")).map(name=>caches.delete(name)));
     }
   }catch{}
 }
 
 function showLaunchScreen(){
-  if(!isStandalone()||sessionStorage.getItem("thay_dat_pwa_launched"))return;
-  sessionStorage.setItem("thay_dat_pwa_launched","1");
+  if(!isStandalone()||sessionStorage.getItem("hoclaixecungdat_pwa_launched"))return;
+  sessionStorage.setItem("hoclaixecungdat_pwa_launched","1");
   const splash=document.createElement("div");splash.className="pwa-launch-screen";
-  splash.innerHTML='<img src="/app-icon-192.png" alt=""><strong>THẦY ĐẠT</strong><span>Hệ thống quản lý đào tạo học viên lái xe</span>';
+  splash.innerHTML='<img src="/app-icon-192.png" alt=""><strong>HỌC LÁI XE CÙNG ĐẠT</strong><span>Cổng học viên và quản lý đào tạo</span>';
   document.body.append(splash);
   requestAnimationFrame(()=>splash.classList.add("visible"));
   window.setTimeout(()=>{splash.classList.add("leaving");window.setTimeout(()=>splash.remove(),320)},950);
@@ -87,8 +87,8 @@ function showLaunchScreen(){
 
 function showInstallBanner(mode){
   if(!shouldOfferInstall()||isStandalone()||recentlyDismissed()||installBanner)return;
-  installBanner=document.createElement("aside");installBanner.className="pwa-install-banner";installBanner.setAttribute("aria-label","Cài ứng dụng Thầy Đạt");
-  installBanner.innerHTML=`<img src="/app-icon-192.png" alt=""><div><strong>Cài ứng dụng Thầy Đạt</strong><p>${mode==="ios"?"Mở nhanh toàn màn hình ngay từ iPhone.":"Truy cập nhanh như một ứng dụng trên điện thoại."}</p><small class="pwa-ios-help" hidden>Nhấn nút Chia sẻ <b>□↑</b>, sau đó chọn <b>Thêm vào MH chính</b>.</small></div><button class="pwa-install-action" type="button">${mode==="ios"?"Cách cài":"Cài ngay"}</button><button class="pwa-install-close" type="button" aria-label="Để sau">×</button>`;
+  installBanner=document.createElement("aside");installBanner.className="pwa-install-banner";installBanner.setAttribute("aria-label","Cài ứng dụng Học lái xe cùng Đạt");
+  installBanner.innerHTML=`<img src="/app-icon-192.png" alt=""><div><strong>Cài ứng dụng Học lái xe cùng Đạt</strong><p>${mode==="ios"?"Mở nhanh cổng học viên toàn màn hình ngay từ iPhone.":"Truy cập lịch học, học phí và tiến độ như một ứng dụng."}</p><small class="pwa-ios-help" hidden>Nhấn nút Chia sẻ <b>□↑</b>, sau đó chọn <b>Thêm vào MH chính</b>.</small></div><button class="pwa-install-action" type="button">${mode==="ios"?"Cách cài":"Cài ngay"}</button><button class="pwa-install-close" type="button" aria-label="Để sau">×</button>`;
   document.body.append(installBanner);
   installBanner.querySelector(".pwa-install-close").addEventListener("click",dismissInstallBanner);
   installBanner.querySelector(".pwa-install-action").addEventListener("click",async()=>{
