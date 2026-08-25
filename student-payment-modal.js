@@ -62,6 +62,7 @@ function ensureModalStyle(){
     .tuition-payment-qr-wrap{display:grid;justify-items:center;gap:8px;padding:14px;border:1px solid #d8e5f1;border-radius:18px;background:#f8fbff}
     .tuition-payment-qr-wrap img{display:block;width:min(68vw,255px);height:min(68vw,255px);max-width:255px;max-height:255px;object-fit:contain;border-radius:10px;background:#fff}
     .tuition-payment-qr-fallback{display:grid;place-items:center;width:min(68vw,255px);min-height:220px;padding:20px;border:1px dashed #c0d0df;border-radius:12px;background:#fff;text-align:center;color:#63778b;font:700 13px/1.5 system-ui,sans-serif}
+    .tuition-payment-qr-fallback[hidden]{display:none!important}
     .tuition-payment-scan{margin:0;color:#0a4e9f;font:900 13px/1.4 system-ui,sans-serif}
     .tuition-payment-details{display:grid;gap:10px;margin-top:16px}
     .tuition-payment-row{display:grid;grid-template-columns:118px minmax(0,1fr);gap:12px;align-items:start;padding:10px 12px;border-radius:12px;background:#f4f7fa;font:13px/1.45 system-ui,sans-serif}
