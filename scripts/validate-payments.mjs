@@ -21,6 +21,7 @@ for(const required of ["BIÊN LAI HỌC PHÍ","PT-20260801-ABC123","5.000.000 �
   if(!html.includes(required))throw new Error(`Biên lai học phí thiếu nội dung bắt buộc: ${required}`);
 }
 for(const required of [
+  '<figure class="transfer-qr">',
   "Quét mã để chuyển khoản",
   "img.vietqr.io/image/970422-360556789999-qr_only.png",
   "amount=5000000",
@@ -32,9 +33,9 @@ for(const required of [
 }
 if(html.includes("Mã học viên:")||html.includes("HV-0001"))throw new Error("Biên lai học phí vẫn còn hiển thị mã học viên.");
 const cashHtml=buildReceiptHtml({...receipt,payment_method:"cash"});
-if(cashHtml.includes("transfer-qr")||cashHtml.includes("img.vietqr.io"))throw new Error("Biên lai tiền mặt không được hiển thị mã QR chuyển khoản.");
+if(cashHtml.includes('<figure class="transfer-qr">')||cashHtml.includes("img.vietqr.io/image/"))throw new Error("Biên lai tiền mặt không được hiển thị mã QR chuyển khoản.");
 const voidedHtml=buildReceiptHtml({...receipt,voided_at:"2026-08-02T00:00:00Z"});
-if(voidedHtml.includes("transfer-qr")||voidedHtml.includes("img.vietqr.io"))throw new Error("Phiếu thu đã hủy không được hiển thị mã QR chuyển khoản.");
+if(voidedHtml.includes('<figure class="transfer-qr">')||voidedHtml.includes("img.vietqr.io/image/"))throw new Error("Phiếu thu đã hủy không được hiển thị mã QR chuyển khoản.");
 
 const sql=readFileSync(new URL("../CAP-NHAT-LICH-SU-HOC-PHI-PHIEU-THU.sql",import.meta.url),"utf8");
 for(const required of [
