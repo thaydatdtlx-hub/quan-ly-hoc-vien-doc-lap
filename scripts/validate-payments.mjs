@@ -88,11 +88,11 @@ if(navigationCss.includes("#studentPortal #studentPayment{display:none!important
 if(!navigationCss.includes("#studentFinanceHub #studentPayment.student-finance-panel.active{display:block!important}"))throw new Error("Tab thanh toán trong hub chưa được bảo đảm hiển thị.");
 
 const pwaSource=readFileSync(new URL("../pwa-install.js",import.meta.url),"utf8");
-for(const required of ["thay_dat_sw_refresh_v48","registration.update()","SKIP_WAITING","controllerchange"]){
+for(const required of ["hoclaixecungdat_sw_refresh_v49","registration.update()","SKIP_WAITING","controllerchange"]){
   if(!pwaSource.includes(required))throw new Error(`PWA chưa buộc nhận bản sửa thanh toán mới: ${required}`);
 }
 const serviceWorkerSource=readFileSync(new URL("../public/sw.js",import.meta.url),"utf8");
-for(const required of ["thay-dat-pwa-v48",'/student-payment-modal.js','/student-payment-navigation.js','/student-payment-navigation.css',"SKIP_WAITING"]){
+for(const required of ["hoclaixecungdat-pwa-v49",'/student-payment-modal.js','/student-payment-navigation.js','/student-payment-navigation.css',"SKIP_WAITING"]){
   if(!serviceWorkerSource.includes(required))throw new Error(`Service worker chưa làm mới trang thanh toán: ${required}`);
 }
 
@@ -120,4 +120,4 @@ const portal=readFileSync(new URL("../student.js",import.meta.url),"utf8");
 if(!admin.includes("openPaymentReceipt(item,student)"))throw new Error("Admin chưa truyền hồ sơ học viên vào biên lai.");
 if(!portal.includes("openPaymentReceipt(payment,student)"))throw new Error("Cổng học viên chưa truyền hồ sơ vào biên lai.");
 
-console.log("Học phí hợp lệ: popup QR, URL thanh toán cũ được chuyển đổi, tab thanh toán hiển thị và cache PWA v48.");
+console.log("Học phí hợp lệ: popup QR, URL thanh toán cũ được chuyển đổi, tab thanh toán hiển thị và cache PWA v49.");
