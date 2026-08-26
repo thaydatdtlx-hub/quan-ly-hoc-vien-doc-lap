@@ -1,4 +1,4 @@
-import "./login-isolated-v20.js?v=4";
+import "./login-isolated-v20.js?v=5";
 
 let baseModulesPromise=null;
 
@@ -8,7 +8,6 @@ function loadBaseModules(){
     import("./brand-name.js"),
     import("./student-profile-self-service.js"),
     import("./admin-student-profile-change.js"),
-    import("./new-student-admin.js"),
     import("./new-student-practice-link.js"),
     import("./student-training-actions.js"),
     import("./schedule-stat-links.js"),
@@ -65,7 +64,8 @@ function ensureAdminProfileModules(){
 
   adminProfileModulesPromise=Promise.all([
     import("./admin-profile.js?v=3"),
-    import("./admin-profile-mobile.js?v=2")
+    import("./admin-profile-mobile.js?v=2"),
+    import("./new-student-admin.js?v=2")
   ]).catch(error=>{
     console.error("Không thể nạp giao diện tài khoản Admin",error);
     adminProfileModulesPromise=null;
@@ -125,10 +125,12 @@ function ensureLoginIsolatedStyle(){
     'link[data-login-final-v24]',
     'link[href*="login-final-v24.css"]',
     'link[data-login-final-v25]',
-    'link[href*="login-final-v25.css"]'
+    'link[href*="login-final-v25.css"]',
+    'link[data-login-final-v26]',
+    'link[href*="login-final-v26.css"]'
   ].join(",")).forEach(link=>link.remove());
   ensureStyleLink("/login-isolated-v20.css?v=3","data-login-isolated-v20");
-  ensureStyleLink("/login-final-v26.css?v=26","data-login-final-v26");
+  ensureStyleLink("/login-final-v27.css?v=27","data-login-final-v27");
 }
 
 const statusHosts=[
