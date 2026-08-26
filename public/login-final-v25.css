@@ -1,0 +1,302 @@
+@import url('/login-final-v24.css?v=24');
+
+/* Login button polish v25 — scoped only to controls inside the login card. */
+#login.login-v20 .login-v20-submit,
+#login.login-v20 .login-v20-course-register,
+#login.login-v20 .login-v20-register,
+#login.login-v20 .login-v20-zalo,
+#login.login-v20 .login-v20-eye,
+#login.login-v20 .login-v20-options>a{
+  -webkit-tap-highlight-color:transparent!important;
+  touch-action:manipulation!important;
+}
+
+/* Primary login button */
+#login.login-v20 .login-v20-submit{
+  position:relative!important;
+  display:flex!important;
+  width:100%!important;
+  min-height:58px!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:0!important;
+  padding:0 58px 0 22px!important;
+  overflow:hidden!important;
+  border:1px solid #f5d58f!important;
+  border-radius:14px!important;
+  background:linear-gradient(135deg,#d99f35 0%,#f3cd72 48%,#dda13a 100%)!important;
+  color:#06172f!important;
+  box-shadow:0 12px 26px rgba(221,164,61,.20),inset 0 1px 0 rgba(255,255,255,.52)!important;
+  font-size:16px!important;
+  font-weight:900!important;
+  letter-spacing:.01em!important;
+  cursor:pointer!important;
+  transition:transform .16s ease,box-shadow .16s ease,filter .16s ease!important;
+}
+#login.login-v20 .login-v20-submit>span:first-child{
+  display:block!important;
+  white-space:nowrap!important;
+}
+#login.login-v20 .login-v20-submit>span:last-child{
+  position:absolute!important;
+  right:14px!important;
+  top:50%!important;
+  display:grid!important;
+  width:32px!important;
+  height:32px!important;
+  place-items:center!important;
+  border:1px solid rgba(7,28,57,.14)!important;
+  border-radius:10px!important;
+  background:rgba(255,255,255,.24)!important;
+  color:#0a2448!important;
+  font-size:18px!important;
+  line-height:1!important;
+  transform:translateY(-50%)!important;
+}
+#login.login-v20 .login-v20-submit:active{transform:translateY(1px)!important}
+#login.login-v20 .login-v20-submit:disabled{
+  cursor:not-allowed!important;
+  opacity:.62!important;
+  filter:saturate(.65)!important;
+  box-shadow:none!important;
+}
+
+/* Secondary registration actions */
+#login.login-v20 .login-v20-course-register,
+#login.login-v20 .login-v20-register{
+  position:relative!important;
+  display:grid!important;
+  width:100%!important;
+  min-height:64px!important;
+  height:auto!important;
+  grid-template-columns:44px minmax(0,1fr) 34px!important;
+  align-items:center!important;
+  gap:11px!important;
+  margin:0 0 9px!important;
+  padding:9px 11px!important;
+  overflow:hidden!important;
+  border:1px solid #d7e3ef!important;
+  border-radius:14px!important;
+  background:linear-gradient(180deg,#ffffff 0%,#f3f7fb 100%)!important;
+  color:#0b2b55!important;
+  box-shadow:0 6px 16px rgba(0,0,0,.10),inset 0 1px 0 #fff!important;
+  text-align:left!important;
+  text-decoration:none!important;
+  cursor:pointer!important;
+  transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease,background .16s ease!important;
+}
+#login.login-v20 .login-v20-course-register::before,
+#login.login-v20 .login-v20-register::before{
+  position:absolute!important;
+  inset:0!important;
+  content:""!important;
+  pointer-events:none!important;
+  background:linear-gradient(90deg,rgba(40,122,205,.035),transparent 44%)!important;
+}
+#login.login-v20 .login-v20-action-icon{
+  position:relative!important;
+  z-index:1!important;
+  display:grid!important;
+  width:42px!important;
+  height:42px!important;
+  place-items:center!important;
+  border:1px solid rgba(29,119,218,.12)!important;
+  border-radius:12px!important;
+  background:linear-gradient(145deg,#eaf6ff,#dcedff)!important;
+  color:#1476dc!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.85)!important;
+  font-size:19px!important;
+  font-weight:900!important;
+  line-height:1!important;
+}
+#login.login-v20 .login-v20-register .login-v20-action-icon{
+  border-color:rgba(202,151,47,.18)!important;
+  background:linear-gradient(145deg,#fff7e7,#f6e9c6)!important;
+  color:#b57916!important;
+}
+#login.login-v20 .login-v20-action-copy{
+  position:relative!important;
+  z-index:1!important;
+  display:grid!important;
+  min-width:0!important;
+  gap:3px!important;
+  overflow:visible!important;
+}
+#login.login-v20 .login-v20-action-copy strong{
+  display:block!important;
+  margin:0!important;
+  overflow:visible!important;
+  color:#092b56!important;
+  font-size:13px!important;
+  font-weight:880!important;
+  line-height:1.22!important;
+  white-space:normal!important;
+  text-overflow:clip!important;
+}
+#login.login-v20 .login-v20-action-copy small{
+  display:block!important;
+  overflow:visible!important;
+  color:#65788c!important;
+  font-size:10.5px!important;
+  font-weight:600!important;
+  line-height:1.28!important;
+  white-space:normal!important;
+  text-overflow:clip!important;
+}
+#login.login-v20 .login-v20-action-arrow{
+  position:relative!important;
+  z-index:1!important;
+  display:grid!important;
+  width:32px!important;
+  height:32px!important;
+  place-items:center!important;
+  justify-self:end!important;
+  border-radius:10px!important;
+  background:#e8eff6!important;
+  color:#214d78!important;
+  font-size:17px!important;
+  font-weight:900!important;
+  line-height:1!important;
+}
+
+/* Zalo support action */
+#login.login-v20 .login-v20-zalo{
+  position:relative!important;
+  display:flex!important;
+  width:100%!important;
+  min-height:58px!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:11px!important;
+  margin:0 0 8px!important;
+  padding:8px 52px 8px 12px!important;
+  overflow:hidden!important;
+  border:1px solid #cfe0f0!important;
+  border-radius:14px!important;
+  background:linear-gradient(180deg,#fbfdff,#eef6fd)!important;
+  color:#0b2b55!important;
+  box-shadow:0 5px 14px rgba(0,0,0,.09)!important;
+  text-decoration:none!important;
+  cursor:pointer!important;
+  transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease!important;
+}
+#login.login-v20 .login-v20-zalo strong{
+  display:grid!important;
+  width:40px!important;
+  height:40px!important;
+  flex:0 0 40px!important;
+  place-items:center!important;
+  border-radius:12px!important;
+  background:linear-gradient(145deg,#1c96ff,#0878df)!important;
+  color:#fff!important;
+  box-shadow:0 5px 12px rgba(18,128,226,.24)!important;
+  font-size:14px!important;
+  font-weight:950!important;
+}
+#login.login-v20 .login-v20-zalo span{
+  min-width:0!important;
+  color:#0b2d58!important;
+  font-size:12.5px!important;
+  font-weight:800!important;
+  line-height:1.25!important;
+  text-align:left!important;
+}
+#login.login-v20 .login-v20-zalo::after{
+  position:absolute!important;
+  right:12px!important;
+  top:50%!important;
+  display:grid!important;
+  width:30px!important;
+  height:30px!important;
+  place-items:center!important;
+  content:"→"!important;
+  border-radius:9px!important;
+  background:#dcecf9!important;
+  color:#1768ae!important;
+  font-size:16px!important;
+  font-weight:900!important;
+  line-height:1!important;
+  transform:translateY(-50%)!important;
+}
+
+/* Small controls */
+#login.login-v20 .login-v20-eye{
+  border-radius:10px!important;
+  cursor:pointer!important;
+  transition:background .14s ease,color .14s ease!important;
+}
+#login.login-v20 .login-v20-options>a{
+  display:inline-flex!important;
+  min-height:32px!important;
+  align-items:center!important;
+  padding:5px 8px!important;
+  border-radius:8px!important;
+  text-decoration:none!important;
+  transition:background .14s ease,color .14s ease!important;
+}
+
+@media(hover:hover){
+  #login.login-v20 .login-v20-submit:hover{
+    filter:brightness(1.045)!important;
+    transform:translateY(-1px)!important;
+    box-shadow:0 15px 30px rgba(221,164,61,.26),inset 0 1px 0 rgba(255,255,255,.58)!important;
+  }
+  #login.login-v20 .login-v20-course-register:hover,
+  #login.login-v20 .login-v20-register:hover,
+  #login.login-v20 .login-v20-zalo:hover{
+    border-color:#b9cfe3!important;
+    transform:translateY(-1px)!important;
+    box-shadow:0 9px 20px rgba(0,0,0,.13)!important;
+  }
+  #login.login-v20 .login-v20-eye:hover{
+    background:rgba(104,161,214,.13)!important;
+    color:#fff!important;
+  }
+  #login.login-v20 .login-v20-options>a:hover{
+    background:rgba(238,187,83,.10)!important;
+    color:#ffe09b!important;
+  }
+}
+
+#login.login-v20 .login-v20-submit:focus-visible,
+#login.login-v20 .login-v20-course-register:focus-visible,
+#login.login-v20 .login-v20-register:focus-visible,
+#login.login-v20 .login-v20-zalo:focus-visible,
+#login.login-v20 .login-v20-eye:focus-visible,
+#login.login-v20 .login-v20-options>a:focus-visible{
+  outline:3px solid rgba(102,177,245,.42)!important;
+  outline-offset:2px!important;
+}
+
+@media(max-width:1450px), (max-height:900px){
+  #login.login-v20 .login-v20-submit{min-height:54px!important;font-size:15.5px!important}
+  #login.login-v20 .login-v20-course-register,
+  #login.login-v20 .login-v20-register{min-height:58px!important;grid-template-columns:40px minmax(0,1fr) 30px!important;padding:7px 10px!important}
+  #login.login-v20 .login-v20-action-icon{width:38px!important;height:38px!important;font-size:17px!important}
+  #login.login-v20 .login-v20-action-copy strong{font-size:12.2px!important}
+  #login.login-v20 .login-v20-action-copy small{font-size:9.6px!important}
+  #login.login-v20 .login-v20-action-arrow{width:29px!important;height:29px!important;font-size:16px!important}
+  #login.login-v20 .login-v20-zalo{min-height:54px!important}
+  #login.login-v20 .login-v20-zalo strong{width:36px!important;height:36px!important;flex-basis:36px!important}
+  #login.login-v20 .login-v20-zalo span{font-size:11.7px!important}
+}
+
+@media(max-width:760px){
+  #login.login-v20 .login-v20-submit{min-height:56px!important;border-radius:13px!important}
+  #login.login-v20 .login-v20-course-register,
+  #login.login-v20 .login-v20-register{min-height:62px!important;grid-template-columns:40px minmax(0,1fr) 30px!important;gap:9px!important;border-radius:13px!important}
+  #login.login-v20 .login-v20-action-copy strong{font-size:12px!important}
+  #login.login-v20 .login-v20-action-copy small{font-size:9.7px!important}
+  #login.login-v20 .login-v20-zalo{min-height:56px!important;border-radius:13px!important;padding-right:48px!important}
+  #login.login-v20 .login-v20-zalo span{font-size:11.7px!important}
+}
+
+@media(max-width:390px){
+  #login.login-v20 .login-v20-submit{padding-left:18px!important}
+  #login.login-v20 .login-v20-course-register,
+  #login.login-v20 .login-v20-register{grid-template-columns:38px minmax(0,1fr) 28px!important;padding-right:8px!important;padding-left:8px!important}
+  #login.login-v20 .login-v20-action-icon{width:36px!important;height:36px!important}
+  #login.login-v20 .login-v20-action-copy strong{font-size:11.5px!important}
+  #login.login-v20 .login-v20-action-copy small{font-size:9.2px!important}
+  #login.login-v20 .login-v20-zalo{padding-left:9px!important}
+}
