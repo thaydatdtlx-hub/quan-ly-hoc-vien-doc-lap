@@ -1,0 +1,343 @@
+/* Login final v24 — single final override for the production login screen. */
+
+body.login-v20-active{
+  margin:0!important;
+  min-width:320px!important;
+  overflow-x:hidden!important;
+  background:#020d1d!important;
+}
+
+#login.login-v20{
+  --login24-gold:#edb94f;
+  --login24-gold-soft:#f4cb72;
+  --login24-panel:#061d39;
+  --login24-line:rgba(157,197,233,.63);
+  min-height:100svh!important;
+  overflow:hidden!important;
+  background:
+    radial-gradient(circle at 16% 38%,rgba(18,84,147,.23),transparent 34%),
+    radial-gradient(circle at 75% 10%,rgba(29,104,187,.13),transparent 28%),
+    linear-gradient(120deg,#061b36 0%,#03142b 53%,#010a19 100%)!important;
+}
+
+#login.login-v20 .login-v20-shell{
+  min-height:100svh!important;
+  padding:clamp(24px,3.8vh,44px) clamp(34px,4.8vw,76px)!important;
+}
+
+#login.login-v20 .login-v20-layout{
+  width:min(1500px,100%)!important;
+  max-width:1500px!important;
+  grid-template-columns:minmax(0,1.22fr) minmax(500px,.86fr)!important;
+  gap:clamp(48px,5.2vw,86px)!important;
+  align-items:center!important;
+}
+
+#login.login-v20 .login-v20-intro,
+#login.login-v20 .login-v20-card{
+  min-height:min(820px,calc(100svh - 58px))!important;
+}
+
+#login.login-v20 .login-v20-intro{
+  justify-content:flex-start!important;
+  padding-top:0!important;
+}
+
+#login.login-v20 .login-v20-brand{
+  gap:14px!important;
+}
+#login.login-v20 .login-v20-mark{
+  width:66px!important;
+  height:66px!important;
+  flex-basis:66px!important;
+}
+#login.login-v20 .login-v20-brand-copy strong{
+  font-size:clamp(21px,1.55vw,27px)!important;
+}
+#login.login-v20 .login-v20-brand-copy small{
+  font-size:10px!important;
+  color:var(--login24-gold-soft)!important;
+}
+
+#login.login-v20 .login-v20-intro h2{
+  width:min(790px,100%)!important;
+  max-width:790px!important;
+  margin:51px 0 20px!important;
+  font-size:clamp(43px,3.45vw,59px)!important;
+  line-height:1.045!important;
+}
+#login.login-v20 .login-v20-intro h2 span{
+  color:var(--login24-gold-soft)!important;
+  white-space:nowrap!important;
+}
+#login.login-v20 .login-v20-intro>p{
+  width:min(700px,100%)!important;
+  margin:15px 0 0!important;
+  color:#c8d2de!important;
+  font-size:clamp(16px,1.12vw,19px)!important;
+  line-height:1.55!important;
+}
+
+#login.login-v20 .login-v20-features{
+  width:min(700px,100%)!important;
+  gap:16px!important;
+  margin-top:26px!important;
+}
+#login.login-v20 .login-v20-feature{
+  min-height:122px!important;
+  padding:14px 10px!important;
+  border-color:rgba(143,180,214,.42)!important;
+  background:linear-gradient(145deg,rgba(10,43,80,.69),rgba(4,22,45,.79))!important;
+}
+#login.login-v20 .login-v20-feature-icon{
+  width:48px!important;
+  height:48px!important;
+  color:var(--login24-gold-soft)!important;
+  border-color:var(--login24-gold-soft)!important;
+}
+
+/* The vehicle scene uses one real WebP asset. No nested SVG/data URI and no dark placeholder layer. */
+#login.login-v20 .login-v20-car-stage{
+  position:relative!important;
+  display:block!important;
+  width:min(810px,104%)!important;
+  height:286px!important;
+  min-height:286px!important;
+  margin:auto 0 0 -2%!important;
+  overflow:hidden!important;
+  border:0!important;
+  border-radius:18px!important;
+  background-color:#04172d!important;
+  background-image:url('/login-cars-approved-v24.webp?v=24')!important;
+  background-position:center center!important;
+  background-repeat:no-repeat!important;
+  background-size:cover!important;
+  box-shadow:0 20px 46px rgba(0,0,0,.22)!important;
+  isolation:isolate!important;
+}
+#login.login-v20 .login-v20-car-stage::before{
+  position:absolute!important;
+  z-index:1!important;
+  inset:0!important;
+  width:auto!important;
+  height:auto!important;
+  content:""!important;
+  background:
+    linear-gradient(180deg,rgba(3,20,43,.18) 0%,transparent 24%,transparent 82%,rgba(1,9,21,.12) 100%),
+    linear-gradient(90deg,rgba(2,14,29,.08),transparent 13%,transparent 90%,rgba(2,14,29,.06))!important;
+  pointer-events:none!important;
+}
+#login.login-v20 .login-v20-car-stage::after{display:none!important;content:none!important}
+#login.login-v20 .login-v20-car-stage>img{display:none!important}
+
+/* Login card: prevent children from being compressed when browser height is short. */
+#login.login-v20 .login-v20-card{
+  width:100%!important;
+  max-width:620px!important;
+  margin:0 0 0 auto!important;
+  padding:32px 40px 25px!important;
+  border:1px solid var(--login24-line)!important;
+  border-radius:29px!important;
+  background:
+    radial-gradient(circle at 50% 0,rgba(48,126,213,.20),transparent 35%),
+    linear-gradient(180deg,rgba(7,37,71,.94),rgba(3,22,44,.98))!important;
+  box-shadow:0 34px 86px rgba(0,0,0,.44),inset 0 1px 0 rgba(255,255,255,.09)!important;
+}
+#login.login-v20 .login-v20-card>*{flex-shrink:0!important}
+#login.login-v20 .login-v20-logo{
+  width:78px!important;
+  height:78px!important;
+  flex-basis:78px!important;
+  margin-bottom:8px!important;
+}
+#login.login-v20 .login-v20-heading{
+  margin-bottom:17px!important;
+  padding-bottom:16px!important;
+}
+#login.login-v20 .login-v20-heading h1{
+  font-size:clamp(28px,1.9vw,34px)!important;
+}
+#login.login-v20 .login-v20-heading p{
+  margin-top:7px!important;
+  font-size:14px!important;
+}
+#login.login-v20 .login-v20-label{
+  margin:10px 0 6px!important;
+  font-size:12.5px!important;
+}
+#login.login-v20 .login-v20-input{
+  min-height:54px!important;
+}
+#login.login-v20 .login-v20-input input{
+  min-height:52px!important;
+}
+#login.login-v20 .login-v20-options{
+  margin:9px 0 0!important;
+}
+#login.login-v20 .login-v20-error{
+  min-height:14px!important;
+  margin:2px 0!important;
+}
+#login.login-v20 .login-v20-submit{
+  min-height:56px!important;
+  margin-top:3px!important;
+  border-color:#f2cd79!important;
+  background:linear-gradient(135deg,#dca43c 0%,#f0ca72 50%,#dca23a 100%)!important;
+}
+#login.login-v20 .login-v20-divider{
+  margin:13px 0 10px!important;
+}
+
+#login.login-v20 .login-v20-course-register,
+#login.login-v20 .login-v20-register,
+#login.login-v20 .login-v20-zalo{
+  width:100%!important;
+  min-height:56px!important;
+  height:auto!important;
+  margin:0 0 8px!important;
+  border:1px solid #dce6f1!important;
+  border-radius:12px!important;
+  background:linear-gradient(180deg,#fbfcff,#eef4fa)!important;
+  color:#0b2b55!important;
+  box-shadow:0 5px 16px rgba(0,0,0,.11)!important;
+  overflow:visible!important;
+}
+#login.login-v20 .login-v20-course-register,
+#login.login-v20 .login-v20-register{
+  display:grid!important;
+  grid-template-columns:40px minmax(0,1fr) 22px!important;
+  align-items:center!important;
+  gap:10px!important;
+  padding:7px 12px!important;
+  text-align:left!important;
+  text-decoration:none!important;
+}
+#login.login-v20 .login-v20-action-icon{
+  display:grid!important;
+  width:38px!important;
+  height:38px!important;
+  place-items:center!important;
+  border-radius:50%!important;
+  background:#e5f3ff!important;
+  color:#1676df!important;
+  font-size:18px!important;
+}
+#login.login-v20 .login-v20-action-copy{
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  overflow:visible!important;
+}
+#login.login-v20 .login-v20-action-copy strong{
+  display:block!important;
+  width:100%!important;
+  margin:0 0 2px!important;
+  color:#0b2c57!important;
+  font-size:12px!important;
+  font-weight:850!important;
+  line-height:1.2!important;
+  white-space:normal!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  word-break:normal!important;
+}
+#login.login-v20 .login-v20-action-copy small{
+  display:block!important;
+  width:100%!important;
+  color:#60758c!important;
+  font-size:9px!important;
+  line-height:1.25!important;
+  white-space:normal!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  word-break:normal!important;
+}
+#login.login-v20 .login-v20-action-arrow{
+  justify-self:end!important;
+  color:#173f6b!important;
+  font-size:17px!important;
+}
+#login.login-v20 .login-v20-zalo{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:10px!important;
+  padding:7px 12px!important;
+  text-decoration:none!important;
+}
+#login.login-v20 .login-v20-zalo strong{
+  width:34px!important;
+  height:34px!important;
+  flex:0 0 34px!important;
+}
+#login.login-v20 .login-v20-security{
+  margin:auto 0 0!important;
+  padding-top:10px!important;
+}
+
+/* Typical 1366–1600px Windows/Coc Coc desktop viewport. */
+@media(max-width:1450px), (max-height:900px){
+  #login.login-v20 .login-v20-shell{
+    padding:24px 3.6vw!important;
+  }
+  #login.login-v20 .login-v20-layout{
+    grid-template-columns:minmax(0,1fr) minmax(450px,535px)!important;
+    gap:36px!important;
+  }
+  #login.login-v20 .login-v20-intro,
+  #login.login-v20 .login-v20-card{
+    min-height:min(735px,calc(100svh - 48px))!important;
+  }
+  #login.login-v20 .login-v20-intro h2{
+    margin-top:39px!important;
+    font-size:clamp(39px,3.65vw,52px)!important;
+  }
+  #login.login-v20 .login-v20-intro>p{font-size:16px!important}
+  #login.login-v20 .login-v20-feature{min-height:108px!important}
+  #login.login-v20 .login-v20-car-stage{
+    height:220px!important;
+    min-height:220px!important;
+    border-radius:15px!important;
+  }
+  #login.login-v20 .login-v20-card{
+    padding:25px 30px 21px!important;
+  }
+  #login.login-v20 .login-v20-logo{
+    width:68px!important;
+    height:68px!important;
+    flex-basis:68px!important;
+  }
+  #login.login-v20 .login-v20-heading h1{font-size:27px!important}
+  #login.login-v20 .login-v20-heading p{font-size:13px!important}
+  #login.login-v20 .login-v20-input{min-height:50px!important}
+  #login.login-v20 .login-v20-input input{min-height:48px!important}
+  #login.login-v20 .login-v20-submit{min-height:52px!important}
+  #login.login-v20 .login-v20-course-register,
+  #login.login-v20 .login-v20-register,
+  #login.login-v20 .login-v20-zalo{min-height:51px!important;margin-bottom:7px!important}
+  #login.login-v20 .login-v20-security{font-size:8.5px!important}
+}
+
+@media(max-width:1040px){
+  #login.login-v20{overflow:auto!important}
+  #login.login-v20 .login-v20-shell{padding:22px 17px 30px!important}
+  #login.login-v20 .login-v20-layout{grid-template-columns:1fr!important;width:min(620px,100%)!important;gap:18px!important}
+  #login.login-v20 .login-v20-intro{min-height:auto!important}
+  #login.login-v20 .login-v20-brand{margin:0 auto!important}
+  #login.login-v20 .login-v20-intro h2,
+  #login.login-v20 .login-v20-intro>p,
+  #login.login-v20 .login-v20-features,
+  #login.login-v20 .login-v20-car-stage{display:none!important}
+  #login.login-v20 .login-v20-card{max-width:620px!important;min-height:auto!important;margin:0 auto!important}
+}
+
+@media(max-width:760px){
+  #login.login-v20 .login-v20-shell{padding:13px 11px 22px!important}
+  #login.login-v20 .login-v20-intro{display:none!important}
+  #login.login-v20 .login-v20-card{padding:22px 17px 20px!important;border-radius:21px!important}
+  #login.login-v20 .login-v20-heading h1{font-size:24px!important}
+  #login.login-v20 .login-v20-course-register,
+  #login.login-v20 .login-v20-register{grid-template-columns:38px minmax(0,1fr) 20px!important;padding:7px 10px!important}
+  #login.login-v20 .login-v20-action-copy strong{font-size:11.5px!important}
+  #login.login-v20 .login-v20-action-copy small{font-size:8.8px!important}
+}
