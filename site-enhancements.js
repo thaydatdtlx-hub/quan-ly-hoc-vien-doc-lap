@@ -109,6 +109,11 @@ function ensureMobileViewportStyles(){
   ensureStyleLink("/mobile-viewport-lock.css?v=3","data-mobile-viewport-lock");
 }
 
+function ensureLoginReferenceStyle(){
+  if(!document.getElementById("login"))return;
+  ensureStyleLink("/login-reference-v19.css?v=1","data-login-reference-v19");
+}
+
 const statusHosts=[
   ".login-card",
   ".topbar .account",
@@ -177,6 +182,7 @@ function labelDialogCloseButtons(){
 function bootEnhancements(){
   ensureAdminLayoutStyles();
   ensureMobileViewportStyles();
+  ensureLoginReferenceStyle();
   if(document.getElementById("app"))watchAdminProfile();
   ensureLiveRegions();
   addConnectionStatus();
