@@ -1,0 +1,340 @@
+@import url('/login-final-v26.css?v=26');
+
+/* v27: completely isolated action cards so legacy span/button rules cannot squeeze text. */
+#login.login-v20 .login-v27-action{
+  box-sizing:border-box!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  height:auto!important;
+  min-height:70px!important;
+  margin:0 0 10px!important;
+  overflow:hidden!important;
+  border:1px solid #d9e4ef!important;
+  border-radius:15px!important;
+  background:linear-gradient(180deg,#ffffff 0%,#f2f7fb 100%)!important;
+  color:#0a2d58!important;
+  box-shadow:0 6px 18px rgba(0,0,0,.10),inset 0 1px 0 rgba(255,255,255,.96)!important;
+  text-decoration:none!important;
+  -webkit-tap-highlight-color:transparent!important;
+  touch-action:manipulation!important;
+}
+
+#login.login-v20 #loginCourseRegistrationBtn.login-v27-course,
+#login.login-v20 #openPublicRegisterBtn.login-v27-theory{
+  position:relative!important;
+  display:grid!important;
+  grid-template-columns:46px minmax(0,1fr) 34px!important;
+  grid-template-rows:auto!important;
+  align-items:center!important;
+  column-gap:12px!important;
+  row-gap:0!important;
+  padding:10px 12px!important;
+  text-align:left!important;
+  cursor:pointer!important;
+}
+
+#login.login-v20 .login-v27-action-icon{
+  position:static!important;
+  display:grid!important;
+  grid-column:1!important;
+  width:42px!important;
+  min-width:42px!important;
+  max-width:42px!important;
+  height:42px!important;
+  min-height:42px!important;
+  max-height:42px!important;
+  place-items:center!important;
+  align-self:center!important;
+  justify-self:center!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+  border:1px solid rgba(35,126,216,.12)!important;
+  border-radius:50%!important;
+  background:#e7f3ff!important;
+  color:#1479e3!important;
+  font-size:18px!important;
+  font-weight:900!important;
+  line-height:1!important;
+  text-align:center!important;
+  transform:none!important;
+}
+
+#login.login-v20 .login-v27-course .login-v27-action-icon{
+  background:#eaf5ff!important;
+  font-size:19px!important;
+}
+
+#login.login-v20 .login-v27-action-copy{
+  position:static!important;
+  display:flex!important;
+  grid-column:2!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  height:auto!important;
+  min-height:0!important;
+  flex:1 1 auto!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  gap:3px!important;
+  align-self:stretch!important;
+  justify-self:stretch!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:visible!important;
+  text-align:left!important;
+  transform:none!important;
+}
+
+#login.login-v20 .login-v27-action-title{
+  position:static!important;
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  height:auto!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:visible!important;
+  color:#092d59!important;
+  font-size:14px!important;
+  font-weight:850!important;
+  line-height:1.22!important;
+  letter-spacing:0!important;
+  white-space:normal!important;
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+  text-overflow:clip!important;
+  transform:none!important;
+}
+
+#login.login-v20 .login-v27-action-subtitle{
+  position:static!important;
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  height:auto!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:visible!important;
+  color:#687b90!important;
+  font-size:10.5px!important;
+  font-weight:550!important;
+  line-height:1.3!important;
+  letter-spacing:0!important;
+  white-space:normal!important;
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+  text-overflow:clip!important;
+  transform:none!important;
+}
+
+#login.login-v20 .login-v27-action-arrow{
+  position:static!important;
+  display:grid!important;
+  grid-column:3!important;
+  width:31px!important;
+  min-width:31px!important;
+  max-width:31px!important;
+  height:31px!important;
+  min-height:31px!important;
+  max-height:31px!important;
+  place-items:center!important;
+  align-self:center!important;
+  justify-self:end!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+  border:0!important;
+  border-radius:9px!important;
+  background:#e5eef6!important;
+  color:#22527f!important;
+  font-size:16px!important;
+  font-weight:900!important;
+  line-height:1!important;
+  text-align:center!important;
+  transform:none!important;
+}
+
+/* Zalo support is isolated too. */
+#login.login-v20 .login-v27-zalo{
+  position:relative!important;
+  display:grid!important;
+  grid-template-columns:44px minmax(0,1fr) 32px!important;
+  align-items:center!important;
+  column-gap:12px!important;
+  padding:10px 12px!important;
+  text-align:left!important;
+}
+
+#login.login-v20 .login-v27-zalo-mark{
+  position:static!important;
+  display:grid!important;
+  width:42px!important;
+  min-width:42px!important;
+  max-width:42px!important;
+  height:42px!important;
+  min-height:42px!important;
+  place-items:center!important;
+  margin:0!important;
+  padding:0!important;
+  border-radius:50%!important;
+  background:#218cf4!important;
+  color:#fff!important;
+  font-size:18px!important;
+  font-weight:900!important;
+  line-height:1!important;
+  transform:none!important;
+}
+
+#login.login-v20 .login-v27-zalo-text{
+  position:static!important;
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:visible!important;
+  color:#0a2e5b!important;
+  font-size:14px!important;
+  font-weight:820!important;
+  line-height:1.3!important;
+  white-space:normal!important;
+  text-align:left!important;
+  text-overflow:clip!important;
+  transform:none!important;
+}
+
+#login.login-v20 .login-v27-zalo-arrow{
+  position:static!important;
+  display:grid!important;
+  width:31px!important;
+  height:31px!important;
+  place-items:center!important;
+  justify-self:end!important;
+  margin:0!important;
+  padding:0!important;
+  border-radius:9px!important;
+  background:#e2edf6!important;
+  color:#21669f!important;
+  font-size:16px!important;
+  font-weight:900!important;
+  line-height:1!important;
+  transform:none!important;
+}
+
+/* The assistant bubble is useful after sign-in, but it must not cover login controls. */
+body.login-v20-active .ai-chat-launcher,
+body.login-v20-active .ai-chat-panel{
+  display:none!important;
+}
+
+@media(hover:hover){
+  #login.login-v20 .login-v27-action:hover{
+    border-color:#bdd0e2!important;
+    background:linear-gradient(180deg,#ffffff 0%,#edf5fb 100%)!important;
+    box-shadow:0 9px 22px rgba(0,0,0,.13)!important;
+    transform:translateY(-1px)!important;
+  }
+}
+
+#login.login-v20 .login-v27-action:focus-visible{
+  outline:3px solid rgba(79,164,240,.38)!important;
+  outline-offset:2px!important;
+}
+
+@media(max-width:1450px), (max-height:900px){
+  #login.login-v20 .login-v27-action{
+    min-height:64px!important;
+    margin-bottom:8px!important;
+  }
+  #login.login-v20 #loginCourseRegistrationBtn.login-v27-course,
+  #login.login-v20 #openPublicRegisterBtn.login-v27-theory{
+    grid-template-columns:42px minmax(0,1fr) 30px!important;
+    column-gap:10px!important;
+    padding:8px 10px!important;
+  }
+  #login.login-v20 .login-v27-action-icon{
+    width:38px!important;
+    min-width:38px!important;
+    max-width:38px!important;
+    height:38px!important;
+    min-height:38px!important;
+    max-height:38px!important;
+    font-size:17px!important;
+  }
+  #login.login-v20 .login-v27-action-title{font-size:12.8px!important}
+  #login.login-v20 .login-v27-action-subtitle{font-size:9.6px!important}
+  #login.login-v20 .login-v27-action-arrow{width:29px!important;min-width:29px!important;max-width:29px!important;height:29px!important;min-height:29px!important;max-height:29px!important}
+  #login.login-v20 .login-v27-zalo{grid-template-columns:40px minmax(0,1fr) 30px!important;column-gap:10px!important;padding:8px 10px!important}
+  #login.login-v20 .login-v27-zalo-mark{width:38px!important;min-width:38px!important;max-width:38px!important;height:38px!important;min-height:38px!important;font-size:16px!important}
+  #login.login-v20 .login-v27-zalo-text{font-size:12.6px!important}
+  #login.login-v20 .login-v27-zalo-arrow{width:29px!important;height:29px!important}
+}
+
+@media(max-width:760px){
+  #login.login-v20 .login-v27-action{
+    min-height:72px!important;
+    border-radius:14px!important;
+  }
+  #login.login-v20 #loginCourseRegistrationBtn.login-v27-course,
+  #login.login-v20 #openPublicRegisterBtn.login-v27-theory{
+    grid-template-columns:44px minmax(0,1fr) 30px!important;
+    column-gap:10px!important;
+    padding:9px 10px!important;
+  }
+  #login.login-v20 .login-v27-action-icon{
+    width:40px!important;
+    min-width:40px!important;
+    max-width:40px!important;
+    height:40px!important;
+    min-height:40px!important;
+    max-height:40px!important;
+  }
+  #login.login-v20 .login-v27-action-title{
+    font-size:13px!important;
+    line-height:1.2!important;
+  }
+  #login.login-v20 .login-v27-action-subtitle{
+    font-size:9.7px!important;
+    line-height:1.28!important;
+  }
+  #login.login-v20 .login-v27-zalo{
+    grid-template-columns:42px minmax(0,1fr) 30px!important;
+    column-gap:10px!important;
+    padding:9px 10px!important;
+  }
+  #login.login-v20 .login-v27-zalo-mark{
+    width:40px!important;
+    min-width:40px!important;
+    max-width:40px!important;
+    height:40px!important;
+    min-height:40px!important;
+  }
+  #login.login-v20 .login-v27-zalo-text{font-size:13px!important}
+}
+
+@media(max-width:430px){
+  #login.login-v20 #loginCourseRegistrationBtn.login-v27-course,
+  #login.login-v20 #openPublicRegisterBtn.login-v27-theory{
+    grid-template-columns:42px minmax(0,1fr) 28px!important;
+    column-gap:8px!important;
+    padding-left:8px!important;
+    padding-right:8px!important;
+  }
+  #login.login-v20 .login-v27-action-title{font-size:12.4px!important}
+  #login.login-v20 .login-v27-action-subtitle{font-size:9.3px!important}
+  #login.login-v20 .login-v27-zalo{
+    grid-template-columns:40px minmax(0,1fr) 28px!important;
+    column-gap:8px!important;
+    padding-left:8px!important;
+    padding-right:8px!important;
+  }
+  #login.login-v20 .login-v27-zalo-mark{width:38px!important;min-width:38px!important;max-width:38px!important;height:38px!important;min-height:38px!important}
+  #login.login-v20 .login-v27-zalo-text{font-size:12px!important}
+}
