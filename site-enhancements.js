@@ -37,10 +37,11 @@ function ensureLoginIsolatedStyle(){
     'link[data-login-final-v24]','link[href*="login-final-v24.css"]',
     'link[data-login-final-v25]','link[href*="login-final-v25.css"]',
     'link[data-login-final-v26]','link[href*="login-final-v26.css"]',
-    'link[data-login-final-v27]','link[href*="login-final-v27.css"]'
+    'link[data-login-final-v27]','link[href*="login-final-v27.css"]',
+    'link[data-login-final-v28]','link[href*="login-final-v28.css"]'
   ].join(",")).forEach(link=>link.remove());
   ensureStyleLink("/login-isolated-v20.css?v=3","data-login-isolated-v20");
-  ensureStyleLink("/login-final-v28.css?v=28","data-login-final-v28");
+  ensureStyleLink("/login-final-v28.css?v=28-1","data-login-final-v28");
 }
 
 const statusHosts=[".topbar .account",".student-account",".topbar-actions",".quiz-topbar nav"];
