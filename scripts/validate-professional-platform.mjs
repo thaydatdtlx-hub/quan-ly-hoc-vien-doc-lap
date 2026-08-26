@@ -5,6 +5,9 @@ const professional=read("platform-professional.js");
 const styles=read("platform-professional.css");
 const coccocSidebar=read("coccoc-sidebar.js");
 const coccocSidebarStyles=read("coccoc-sidebar.css");
+const floatingTools=read("admin-floating-compact.css");
+const floatingMenu=read("admin-floating-menu.js");
+const tuitionSettings=read("admin-tuition-settings.js");
 const adminHome=read("admin-home-logo-link.js");
 const pwa=read("pwa-install.js");
 const serviceWorker=read("public/sw.js");
@@ -59,6 +62,27 @@ for(const required of [
 ])if(!coccocSidebarStyles.includes(required))throw new Error(`CSS thanh bên kiểu Cốc Cốc thiếu: ${required}`);
 if(!coccocSidebarStyles.includes('body.professional-admin-shell #dashboardMain>.toolbar{')||!coccocSidebarStyles.includes('position:relative!important')||!coccocSidebarStyles.includes('inset:auto!important'))throw new Error("Thanh tìm kiếm và thêm học viên vẫn còn khả năng đứng yên khi cuộn.");
 
+for(const required of [
+  '--admin-floating-rail-width:66px',
+  '#adminToolboxMenu.admin-toolbox-menu',
+  'padding-right:96px!important',
+  'order:1;',
+  'order:2;',
+  'order:3;',
+  'order:4;',
+  'Học phí & ưu đãi',
+  'Trợ lý Admin'
+])if(!floatingTools.includes(required))throw new Error(`Cụm bốn nút Admin chưa được thu gọn đồng nhất: ${required}`);
+for(const required of [
+  'const mobileQuery=window.matchMedia("(max-width:720px)")',
+  'menu.hidden=!hasTools',
+  'button.dataset.toolboxReady="2"',
+  'admin-toolbox-item__icon',
+  '>₫</span>',
+  'scheduleSync()'
+])if(!floatingMenu.includes(required))throw new Error(`Điều phối bốn nút Admin thiếu: ${required}`);
+if(!tuitionSettings.includes('admin-toolbox-item__icon')||!tuitionSettings.includes('>₫</span>'))throw new Error("Nút Học phí & ưu đãi vẫn còn dùng biểu tượng bánh răng hoặc để lộ chữ trên cụm nổi.");
+
 if(!adminHome.includes('import "./coccoc-sidebar.js"'))throw new Error("Trang quản trị chưa tải thanh bên kiểu Cốc Cốc.");
 if(adminHome.includes('observe(document.documentElement'))throw new Error("Liên kết logo quản trị vẫn theo dõi toàn bộ DOM.");
 
@@ -80,4 +104,4 @@ if(!publicPage.includes('/pwa-install.js'))throw new Error("Trang tuyển sinh c
 if(!studentPage.includes('/pwa-install.js'))throw new Error("Cổng học viên chưa tải mô-đun nâng cấp.");
 if(!adminPage.includes('/pwa-install.js'))throw new Error("Trang quản trị chưa tải mô-đun nâng cấp.");
 
-console.log("Nâng cấp chuyên nghiệp hợp lệ: thanh bên quản trị thu gọn kiểu Cốc Cốc, thanh công cụ cuộn theo nội dung và không che danh sách học viên.");
+console.log("Nâng cấp chuyên nghiệp hợp lệ: thanh bên thu gọn, thanh công cụ cuộn theo nội dung và bốn nút Admin nằm trong một cột icon không chồng lấn.");
