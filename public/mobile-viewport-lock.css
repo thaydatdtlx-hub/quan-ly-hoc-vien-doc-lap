@@ -1,3 +1,5 @@
+@import url('/login-clean-v4.css?v=4');
+
 /* Khóa tỷ lệ giao diện điện thoại, tránh tự phóng to/thu nhỏ khi nhập liệu */
 @media (max-width: 720px){
   :root{
