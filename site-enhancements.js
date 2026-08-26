@@ -1,4 +1,4 @@
-import "./login-isolated-v20.js?v=3";
+import "./login-isolated-v20.js?v=4";
 
 let baseModulesPromise=null;
 
@@ -113,10 +113,18 @@ function ensureMobileViewportStyles(){
 
 function ensureLoginIsolatedStyle(){
   if(!document.getElementById("login"))return;
-  document.querySelectorAll('link[data-login-reference-v19],link[href*="login-reference-v19.css"],link[data-login-approved-v21],link[href*="login-approved-v21.css"],link[data-login-cars-hotfix-v22],link[href*="login-cars-hotfix-v22.css"]').forEach(link=>link.remove());
-  ensureStyleLink("/login-isolated-v20.css?v=2","data-login-isolated-v20");
-  ensureStyleLink("/login-approved-v21.css?v=2","data-login-approved-v21");
-  ensureStyleLink("/login-cars-hotfix-v22.css?v=23","data-login-cars-hotfix-v22");
+  document.querySelectorAll([
+    'link[data-login-reference-v19]',
+    'link[href*="login-reference-v19.css"]',
+    'link[data-login-approved-v21]',
+    'link[href*="login-approved-v21.css"]',
+    'link[data-login-cars-hotfix-v22]',
+    'link[href*="login-cars-hotfix-v22.css"]',
+    'link[data-login-final-v6]',
+    'link[href*="login-final-v6.css"]'
+  ].join(",")).forEach(link=>link.remove());
+  ensureStyleLink("/login-isolated-v20.css?v=3","data-login-isolated-v20");
+  ensureStyleLink("/login-final-v24.css?v=24","data-login-final-v24");
 }
 
 const statusHosts=[
