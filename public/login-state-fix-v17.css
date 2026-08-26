@@ -1,0 +1,9 @@
+/* Login state fix v17: never keep the login overlay visible after authentication. */
+#login.login-page.hidden,
+#login.hidden {
+  display: none !important;
+}
+
+body:not(:has(#login:not(.hidden))) {
+  overflow-x: hidden;
+}
