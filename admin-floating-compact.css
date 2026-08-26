@@ -119,35 +119,133 @@
 .admin-toolbox-toggle,
 .admin-toolbox-menu { display: none; }
 
-/* Desktop-safe rail. Scoped to the authenticated admin shell only. */
+/* Desktop: one shared launcher. The four tools are revealed only after a click. */
 @media (min-width: 721px) {
-  body.professional-admin-shell #adminToolboxMenu.admin-toolbox-menu {
+  body.professional-admin-shell #adminToolboxToggle.admin-toolbox-toggle {
     position: fixed !important;
     right: 18px !important;
     bottom: 18px !important;
     left: auto !important;
     top: auto !important;
+    z-index: 10021 !important;
+    display: grid !important;
+    width: 58px !important;
+    min-width: 58px !important;
+    height: 58px !important;
+    min-height: 58px !important;
+    place-items: center !important;
+    gap: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 1px solid #d7e4ef !important;
+    border-radius: 50% !important;
+    background: linear-gradient(145deg,#0d67c5,#074781) !important;
+    color: #fff !important;
+    box-shadow: 0 14px 34px rgba(5,35,65,.28) !important;
+    cursor: pointer !important;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform .18s ease,box-shadow .18s ease,background .18s ease !important;
+  }
+
+  body.professional-admin-shell #adminToolboxToggle.admin-toolbox-toggle[hidden] {
+    display: none !important;
+  }
+
+  body.professional-admin-shell #adminToolboxToggle.admin-toolbox-toggle:hover,
+  body.professional-admin-shell #adminToolboxToggle.admin-toolbox-toggle:focus-visible {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 18px 38px rgba(5,35,65,.34) !important;
+  }
+
+  body.professional-admin-shell #adminToolboxToggle.admin-toolbox-toggle.is-open {
+    border-color: #dfb34c !important;
+    background: linear-gradient(145deg,#f3d16f,#dca52d) !important;
+    color: #102f4f !important;
+  }
+
+  body.professional-admin-shell #adminToolboxToggle > strong {
+    display: none !important;
+  }
+
+  body.professional-admin-shell #adminToolboxToggle .admin-toolbox-toggle__icon {
+    display: grid !important;
+    grid-template-columns: repeat(2,8px) !important;
+    gap: 5px !important;
+    width: auto !important;
+    height: auto !important;
+  }
+
+  body.professional-admin-shell #adminToolboxToggle .admin-toolbox-toggle__icon i {
+    position: static !important;
+    display: block !important;
+    width: 8px !important;
+    height: 8px !important;
+    border-radius: 3px !important;
+    background: currentColor !important;
+    transform: none !important;
+  }
+
+  body.professional-admin-shell #adminToolboxToggle.is-open .admin-toolbox-toggle__icon {
+    position: relative !important;
+    display: block !important;
+    width: 22px !important;
+    height: 22px !important;
+  }
+
+  body.professional-admin-shell #adminToolboxToggle.is-open .admin-toolbox-toggle__icon i {
+    position: absolute !important;
+    top: 10px !important;
+    left: 2px !important;
+    width: 18px !important;
+    height: 2px !important;
+    border-radius: 999px !important;
+    transform: rotate(45deg) !important;
+  }
+
+  body.professional-admin-shell #adminToolboxToggle.is-open .admin-toolbox-toggle__icon i:nth-child(2) {
+    transform: rotate(-45deg) !important;
+  }
+
+  body.professional-admin-shell #adminToolboxToggle.is-open .admin-toolbox-toggle__icon i:nth-child(n+3) {
+    display: none !important;
+  }
+
+  body.professional-admin-shell #adminToolboxMenu.admin-toolbox-menu {
+    position: fixed !important;
+    right: 18px !important;
+    bottom: 86px !important;
+    left: auto !important;
+    top: auto !important;
     z-index: 10020 !important;
     display: flex !important;
     width: 66px !important;
-    height: auto !important;
     min-width: 66px !important;
+    height: auto !important;
     flex-direction: column !important;
     align-items: center !important;
     justify-content: flex-end !important;
     gap: 9px !important;
-    padding: 7px !important;
     margin: 0 !important;
+    padding: 7px !important;
     border: 1px solid #d7e4ef !important;
     border-radius: 999px !important;
     background: rgba(255,255,255,.97) !important;
     box-shadow: 0 18px 46px rgba(5,29,55,.18) !important;
-    overflow: visible !important;
     box-sizing: border-box !important;
+    overflow: visible !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transform: translateY(10px) scale(.94) !important;
+    transform-origin: bottom center !important;
+    transition: opacity .18s ease,transform .18s ease,visibility .18s ease !important;
   }
 
-  body.professional-admin-shell #adminToolboxMenu.admin-toolbox-menu[hidden] {
-    display: none !important;
+  html.admin-toolbox-open body.professional-admin-shell #adminToolboxMenu.admin-toolbox-menu {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    transform: none !important;
   }
 
   body.professional-admin-shell #adminToolboxMenu > .student-activity-floating,
@@ -276,7 +374,7 @@
   }
 
   body.professional-admin-shell #dashboardMain {
-    padding-right: 96px !important;
+    padding-right: 82px !important;
   }
 }
 
@@ -442,5 +540,6 @@
   .admin-site-floating::after,
   .admin-tuition-floating::after,
   .admin-assistant-launcher::after,
-  .admin-toolbox-menu { transition: none; }
+  .admin-toolbox-toggle,
+  .admin-toolbox-menu { transition: none !important; }
 }
