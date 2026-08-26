@@ -1,3 +1,5 @@
+import "./login-isolated-v20.js?v=1";
+
 let baseModulesPromise=null;
 
 function loadBaseModules(){
@@ -109,13 +111,13 @@ function ensureMobileViewportStyles(){
   ensureStyleLink("/mobile-viewport-lock.css?v=3","data-mobile-viewport-lock");
 }
 
-function ensureLoginReferenceStyle(){
+function ensureLoginIsolatedStyle(){
   if(!document.getElementById("login"))return;
-  ensureStyleLink("/login-reference-v19.css?v=1","data-login-reference-v19");
+  document.querySelectorAll('link[data-login-reference-v19],link[href*="login-reference-v19.css"]').forEach(link=>link.remove());
+  ensureStyleLink("/login-isolated-v20.css?v=1","data-login-isolated-v20");
 }
 
 const statusHosts=[
-  ".login-card",
   ".topbar .account",
   ".student-account",
   ".topbar-actions",
@@ -182,7 +184,7 @@ function labelDialogCloseButtons(){
 function bootEnhancements(){
   ensureAdminLayoutStyles();
   ensureMobileViewportStyles();
-  ensureLoginReferenceStyle();
+  ensureLoginIsolatedStyle();
   if(document.getElementById("app"))watchAdminProfile();
   ensureLiveRegions();
   addConnectionStatus();
