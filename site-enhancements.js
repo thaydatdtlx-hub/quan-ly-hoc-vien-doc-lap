@@ -121,10 +121,12 @@ function ensureLoginIsolatedStyle(){
     'link[data-login-cars-hotfix-v22]',
     'link[href*="login-cars-hotfix-v22.css"]',
     'link[data-login-final-v6]',
-    'link[href*="login-final-v6.css"]'
+    'link[href*="login-final-v6.css"]',
+    'link[data-login-final-v24]',
+    'link[href*="login-final-v24.css"]'
   ].join(",")).forEach(link=>link.remove());
   ensureStyleLink("/login-isolated-v20.css?v=3","data-login-isolated-v20");
-  ensureStyleLink("/login-final-v24.css?v=24","data-login-final-v24");
+  ensureStyleLink("/login-final-v25.css?v=25","data-login-final-v25");
 }
 
 const statusHosts=[
