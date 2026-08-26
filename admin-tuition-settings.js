@@ -175,7 +175,7 @@ function addFloatingButton(){
   button.id="adminTuitionFloatingBtn";
   button.className="admin-tuition-floating";
   button.type="button";
-  button.innerHTML='<span>⚙</span><strong>Học phí & ưu đãi</strong>';
+  button.innerHTML='<span class="admin-toolbox-item__icon" aria-hidden="true">₫</span><strong>Học phí & ưu đãi</strong>';
   button.addEventListener("click",openDialog);
   document.body.append(button);
 }
