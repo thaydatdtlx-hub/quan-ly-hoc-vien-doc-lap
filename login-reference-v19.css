@@ -1,0 +1,668 @@
+/* Login v19 - high fidelity layout based on the approved reference image. */
+
+html body #login.login-page{
+  --ref-navy:#021226;
+  --ref-navy-2:#061b36;
+  --ref-panel:#08223f;
+  --ref-panel-deep:#041a32;
+  --ref-gold:#e8b34d;
+  --ref-gold-light:#f4cb70;
+  --ref-text:#f8f9fc;
+  --ref-muted:#aebacc;
+  position:relative!important;
+  display:block!important;
+  min-height:100svh!important;
+  padding:0!important;
+  overflow:hidden!important;
+  background:
+    radial-gradient(circle at 13% 58%,rgba(15,82,145,.23),transparent 32%),
+    radial-gradient(circle at 77% 2%,rgba(33,104,184,.14),transparent 25%),
+    linear-gradient(118deg,#061a35 0%,#03142a 52%,#010b1b 100%)!important;
+  color:var(--ref-text)!important;
+}
+
+html body #login .login-bg-shape,
+html body #login .login-dots,
+html body #login .system-status,
+html body #login .professional-login-trust{display:none!important}
+
+html body #login .login-shell{
+  position:relative!important;
+  display:grid!important;
+  min-height:100svh!important;
+  align-items:center!important;
+  width:100%!important;
+  max-width:none!important;
+  margin:0!important;
+  padding:clamp(34px,4.4vh,48px) clamp(44px,5.3vw,88px)!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  isolation:isolate!important;
+}
+
+html body #login .login-shell::before{
+  position:absolute!important;
+  z-index:-1!important;
+  top:-17%!important;
+  left:48%!important;
+  width:1px!important;
+  height:145%!important;
+  content:""!important;
+  background:linear-gradient(180deg,transparent 6%,rgba(232,179,77,.18) 37%,rgba(232,179,77,.48) 50%,rgba(232,179,77,.12) 69%,transparent 93%)!important;
+  box-shadow:0 0 34px rgba(232,179,77,.15)!important;
+  transform:rotate(28deg)!important;
+  pointer-events:none!important;
+}
+
+html body #login .login-layout{
+  position:relative!important;
+  display:grid!important;
+  grid-template-columns:minmax(680px,760px) minmax(560px,660px)!important;
+  justify-content:space-between!important;
+  align-items:center!important;
+  gap:56px!important;
+  width:min(1480px,100%)!important;
+  max-width:1480px!important;
+  margin:auto!important;
+  padding:0!important;
+}
+
+/* LEFT COLUMN */
+html body #login .login-intro{
+  position:relative!important;
+  display:flex!important;
+  min-width:0!important;
+  min-height:min(830px,calc(100svh - 80px))!important;
+  flex-direction:column!important;
+  align-self:center!important;
+  justify-content:flex-start!important;
+  max-width:none!important;
+  padding:4px 0 0!important;
+  overflow:visible!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#fff!important;
+  text-shadow:none!important;
+}
+
+html body #login .intro-brand{
+  position:relative!important;
+  z-index:4!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:16px!important;
+  width:max-content!important;
+  max-width:100%!important;
+  margin:0!important;
+  padding:0!important;
+}
+
+html body #login .intro-brand::before,
+html body #login .intro-brand::after{display:none!important;content:none!important}
+
+html body #login .intro-mark{
+  display:grid!important;
+  width:68px!important;
+  height:68px!important;
+  flex:0 0 68px!important;
+  place-items:center!important;
+  padding:5px!important;
+  overflow:hidden!important;
+  border:1px solid rgba(225,235,244,.74)!important;
+  border-radius:50%!important;
+  background:#fff!important;
+  box-shadow:0 8px 28px rgba(0,0,0,.3),0 0 0 5px rgba(255,255,255,.03)!important;
+}
+html body #login .intro-mark img{width:100%!important;height:100%!important;object-fit:contain!important;border-radius:50%!important}
+
+/* Rebuild the brand text so old runtime modules cannot duplicate it. */
+html body #login .intro-brand>div{
+  display:grid!important;
+  min-width:0!important;
+  gap:4px!important;
+}
+html body #login .intro-brand>div>*{display:none!important}
+html body #login .intro-brand>div::before{
+  display:block!important;
+  content:"HỌC LÁI XE CÙNG ĐẠT"!important;
+  color:#fff!important;
+  font-size:clamp(21px,1.65vw,28px)!important;
+  font-weight:900!important;
+  line-height:1.08!important;
+  letter-spacing:.015em!important;
+  white-space:nowrap!important;
+}
+html body #login .intro-brand>div::after{
+  display:block!important;
+  content:"ĐÀO TẠO VÀ HỖ TRỢ HỌC VIÊN LÁI XE"!important;
+  color:var(--ref-gold-light)!important;
+  font-size:10px!important;
+  font-weight:850!important;
+  line-height:1.35!important;
+  letter-spacing:.08em!important;
+  text-transform:uppercase!important;
+  white-space:nowrap!important;
+}
+
+html body #login .intro-vip-badge{display:none!important}
+
+html body #login .login-intro h2{
+  max-width:760px!important;
+  margin:58px 0 21px!important;
+  color:#fff!important;
+  font-size:clamp(46px,3.65vw,61px)!important;
+  font-weight:900!important;
+  line-height:1.04!important;
+  letter-spacing:-.035em!important;
+  text-shadow:0 8px 28px rgba(0,0,0,.22)!important;
+}
+html body #login .login-intro h2 span{
+  position:relative!important;
+  display:inline-block!important;
+  margin-top:8px!important;
+  color:var(--ref-gold-light)!important;
+  text-shadow:0 0 22px rgba(232,179,77,.08)!important;
+}
+html body #login .login-intro h2 span::after{
+  position:absolute!important;
+  right:3%!important;
+  bottom:-15px!important;
+  left:0!important;
+  height:1px!important;
+  content:""!important;
+  background:linear-gradient(90deg,rgba(232,179,77,.66),transparent 90%)!important;
+  box-shadow:0 0 10px rgba(232,179,77,.35)!important;
+}
+
+html body #login .login-intro>p{
+  max-width:690px!important;
+  margin:15px 0 0!important;
+  color:#c5d0dd!important;
+  font-size:clamp(16px,1.2vw,20px)!important;
+  font-weight:500!important;
+  line-height:1.6!important;
+}
+
+/* Reference image has no CTA/link between the paragraph and feature cards. */
+html body #login .login-intro>.intro-new-student-cta,
+html body #login .login-intro>.intro-refresh-cta,
+html body #login .login-intro>a[href*="dang-ky-hoc-lai-xe"]{display:none!important}
+
+html body #login .intro-features{
+  position:relative!important;
+  z-index:4!important;
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:16px!important;
+  width:min(690px,100%)!important;
+  margin:29px 0 0!important;
+  padding:0!important;
+}
+
+html body #login .intro-features span{
+  position:relative!important;
+  display:grid!important;
+  min-width:0!important;
+  min-height:136px!important;
+  align-content:center!important;
+  justify-items:center!important;
+  gap:11px!important;
+  padding:16px 10px!important;
+  overflow:hidden!important;
+  border:1px solid rgba(139,174,207,.38)!important;
+  border-radius:13px!important;
+  background:linear-gradient(145deg,rgba(10,41,76,.68),rgba(4,22,45,.77))!important;
+  color:transparent!important;
+  font-size:0!important;
+  text-align:center!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035)!important;
+  backdrop-filter:blur(9px)!important;
+}
+html body #login .intro-features span::before{
+  display:block!important;
+  width:53px!important;
+  height:53px!important;
+  content:""!important;
+  background-position:center!important;
+  background-repeat:no-repeat!important;
+  background-size:50px 50px!important;
+  filter:drop-shadow(0 0 10px rgba(244,203,112,.08))!important;
+}
+html body #login .intro-features span::after{
+  display:block!important;
+  color:#fff!important;
+  font-size:15px!important;
+  font-weight:750!important;
+  line-height:1.28!important;
+  white-space:pre-line!important;
+}
+html body #login .intro-features span:nth-child(1)::before{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' fill='none' stroke='%23F4CB70' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 12h36v29H14z'/%3E%3Cpath d='M9 47h46v5H9zM24 41v6m16-6v6'/%3E%3Cpath d='M25 22h14l4 4-11 8-11-8 4-4Z'/%3E%3Cpath d='M24 28v7m16-7v7'/%3E%3C/svg%3E")!important;
+}
+html body #login .intro-features span:nth-child(1)::after{content:"Học tập\A trực tuyến"!important}
+html body #login .intro-features span:nth-child(2)::before{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' fill='none' stroke='%23F4CB70' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='32' cy='32' r='25'/%3E%3Cpath d='M19 42V31m9 11V23m9 19V28m9 14V17'/%3E%3C/svg%3E")!important;
+}
+html body #login .intro-features span:nth-child(2)::after{content:"Theo dõi\A tiến độ"!important}
+html body #login .intro-features span:nth-child(3)::before{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' fill='none' stroke='%23F4CB70' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='12' y='16' width='40' height='38' rx='4'/%3E%3Cpath d='M12 27h40M22 10v12m20-12v12'/%3E%3Cpath d='M22 35h5m8 0h5m-18 9h5m8 0h5'/%3E%3C/svg%3E")!important;
+}
+html body #login .intro-features span:nth-child(3)::after{content:"Lịch học\A chủ động"!important}
+
+/* Car scene - uses the dedicated car asset and keeps the whole vehicle visible. */
+html body #login .intro-hero-visual{
+  position:relative!important;
+  z-index:2!important;
+  display:block!important;
+  width:min(780px,104%)!important;
+  height:286px!important;
+  min-height:286px!important;
+  margin:auto 0 -4px -2%!important;
+  overflow:hidden!important;
+  border:0!important;
+  border-radius:0!important;
+  background:
+    linear-gradient(180deg,#03142a 0%,rgba(3,20,42,.45) 18%,rgba(3,20,42,.02) 54%,rgba(3,20,42,.26) 100%),
+    radial-gradient(circle at 12% 56%,rgba(76,158,232,.32) 0 1px,transparent 2px),
+    radial-gradient(circle at 30% 46%,rgba(232,179,77,.45) 0 1px,transparent 2px),
+    radial-gradient(circle at 78% 47%,rgba(76,158,232,.28) 0 1px,transparent 2px),
+    url('/hero-student-car.webp?v=1') center bottom/contain no-repeat!important;
+  box-shadow:none!important;
+}
+html body #login .intro-hero-visual::before{
+  position:absolute!important;
+  z-index:1!important;
+  right:0!important;
+  bottom:0!important;
+  left:0!important;
+  height:42%!important;
+  content:""!important;
+  background:linear-gradient(180deg,transparent,rgba(0,8,19,.22))!important;
+  pointer-events:none!important;
+}
+html body #login .intro-hero-visual::after{display:none!important;content:none!important}
+html body #login .intro-hero-visual img{display:none!important}
+
+/* RIGHT COLUMN */
+html body #login #loginForm.login-card{
+  position:relative!important;
+  display:flex!important;
+  width:100%!important;
+  max-width:660px!important;
+  min-height:min(830px,calc(100svh - 80px))!important;
+  flex-direction:column!important;
+  align-self:center!important;
+  margin:0!important;
+  padding:38px 46px 30px!important;
+  overflow:hidden!important;
+  border:1px solid rgba(155,194,229,.68)!important;
+  border-radius:29px!important;
+  background:
+    radial-gradient(circle at 50% 0,rgba(49,125,210,.18),transparent 34%),
+    linear-gradient(180deg,rgba(8,37,70,.91),rgba(3,23,46,.96))!important;
+  color:#fff!important;
+  box-shadow:0 34px 84px rgba(0,0,0,.44),inset 0 1px 0 rgba(255,255,255,.1)!important;
+  backdrop-filter:blur(18px)!important;
+}
+html body #login #loginForm.login-card::before{
+  position:absolute!important;
+  top:-1px!important;
+  right:11%!important;
+  left:11%!important;
+  height:2px!important;
+  content:""!important;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.95),transparent)!important;
+  box-shadow:0 0 18px rgba(187,220,255,.88)!important;
+  pointer-events:none!important;
+}
+html body #login #loginForm.login-card::after{display:none!important;content:none!important}
+
+html body #login .login-lock{
+  display:grid!important;
+  width:92px!important;
+  height:92px!important;
+  flex:0 0 92px!important;
+  place-items:center!important;
+  margin:0 auto 11px!important;
+  padding:6px!important;
+  overflow:hidden!important;
+  border:1px solid rgba(227,236,244,.68)!important;
+  border-radius:50%!important;
+  background:#fff!important;
+  box-shadow:0 10px 30px rgba(0,0,0,.24),0 0 0 5px rgba(255,255,255,.035)!important;
+}
+html body #login .login-lock img{width:100%!important;height:100%!important;object-fit:contain!important;border-radius:50%!important}
+html body #login .mobile-brand{display:none!important}
+
+html body #login .login-heading{
+  position:relative!important;
+  display:block!important;
+  margin:0 0 21px!important;
+  padding:0 0 19px!important;
+  text-align:center!important;
+}
+html body #login .login-heading .eyebrow{display:none!important}
+html body #login .login-heading h1{
+  margin:0!important;
+  color:#fff!important;
+  font-size:clamp(30px,2.1vw,37px)!important;
+  font-weight:900!important;
+  line-height:1.1!important;
+  letter-spacing:-.025em!important;
+  text-transform:uppercase!important;
+}
+html body #login .login-heading .muted{
+  min-height:26px!important;
+  margin:9px 0 0!important;
+  color:transparent!important;
+  font-size:0!important;
+}
+html body #login .login-heading .muted::after{
+  display:block!important;
+  content:"Chào mừng bạn trở lại!"!important;
+  color:var(--ref-muted)!important;
+  font-size:16px!important;
+  font-weight:500!important;
+}
+html body #login .login-heading::after{
+  position:absolute!important;
+  right:27%!important;
+  bottom:0!important;
+  left:27%!important;
+  height:1px!important;
+  content:""!important;
+  background:linear-gradient(90deg,transparent,var(--ref-gold),transparent)!important;
+  box-shadow:0 0 13px rgba(232,179,77,.67)!important;
+}
+
+html body #login .login-label{
+  display:block!important;
+  margin:13px 0 7px!important;
+  color:#f4f7fb!important;
+  font-size:13px!important;
+  font-weight:760!important;
+  line-height:1.3!important;
+}
+
+html body #login .input-shell{
+  position:relative!important;
+  display:flex!important;
+  width:100%!important;
+  min-height:58px!important;
+  align-items:center!important;
+  gap:11px!important;
+  padding:0 15px!important;
+  overflow:hidden!important;
+  border:1px solid rgba(144,180,214,.42)!important;
+  border-radius:12px!important;
+  background:rgba(2,16,34,.48)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important;
+}
+html body #login .input-shell:focus-within{
+  border-color:rgba(244,203,112,.78)!important;
+  background:rgba(3,21,43,.72)!important;
+  box-shadow:0 0 0 3px rgba(232,179,77,.09)!important;
+}
+html body #login .input-shell>svg{
+  width:22px!important;
+  height:22px!important;
+  flex:0 0 22px!important;
+  fill:none!important;
+  stroke:#b7c4d4!important;
+  stroke-width:1.7!important;
+}
+html body #login .input-shell input{
+  width:100%!important;
+  min-width:0!important;
+  min-height:56px!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  outline:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#fff!important;
+  font-size:15px!important;
+  font-weight:550!important;
+}
+html body #login .input-shell input::placeholder{color:#8797ad!important;opacity:1!important}
+html body #login .input-shell input:-webkit-autofill,
+html body #login .input-shell input:-webkit-autofill:hover,
+html body #login .input-shell input:-webkit-autofill:focus{
+  -webkit-text-fill-color:#fff!important;
+  -webkit-box-shadow:0 0 0 1000px #071f3b inset!important;
+  caret-color:#fff!important;
+}
+
+html body #login .password-toggle{
+  display:grid!important;
+  width:38px!important;
+  height:38px!important;
+  flex:0 0 38px!important;
+  place-items:center!important;
+  margin:0 -7px 0 0!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  color:#a9b8ca!important;
+  box-shadow:none!important;
+}
+html body #login .password-toggle svg{width:21px!important;height:21px!important;fill:none!important;stroke:currentColor!important}
+
+html body #login .login-options{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:14px!important;
+  margin:12px 0 1px!important;
+}
+html body #login .remember-option{
+  display:flex!important;
+  min-height:30px!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  gap:8px!important;
+  margin:0!important;
+  color:#aebccc!important;
+  font-size:11px!important;
+  font-weight:600!important;
+}
+html body #login .remember-option input{width:17px!important;height:17px!important;min-height:17px!important;margin:0!important;accent-color:var(--ref-gold)!important}
+html body #login .remember-option>span{display:none!important}
+html body #login .login-options>a{color:var(--ref-gold-light)!important;font-size:11px!important;font-weight:800!important;text-decoration:none!important}
+
+html body #login .login-error{min-height:18px!important;margin:3px 0!important;color:#ff9b93!important;font-size:11px!important}
+
+html body #login #loginBtn.login-submit{
+  display:flex!important;
+  width:100%!important;
+  min-height:61px!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:24px!important;
+  margin:5px 0 0!important;
+  padding:0 22px!important;
+  border:1px solid #f0c971!important;
+  border-radius:12px!important;
+  background:linear-gradient(135deg,#dda43c 0%,#f0ca71 50%,#dba13a 100%)!important;
+  color:#07172f!important;
+  font-size:17px!important;
+  font-weight:900!important;
+  line-height:1!important;
+  box-shadow:0 13px 28px rgba(223,167,62,.18),inset 0 1px 0 rgba(255,255,255,.43)!important;
+}
+html body #login #loginBtn.login-submit span:last-child{font-size:22px!important;font-weight:700!important}
+
+html body #login .login-divider{
+  display:flex!important;
+  align-items:center!important;
+  gap:13px!important;
+  margin:19px 0 13px!important;
+  color:#7e8da3!important;
+  font-size:10px!important;
+}
+html body #login .login-divider::before,
+html body #login .login-divider::after{height:1px!important;flex:1!important;content:""!important;background:#69809a55!important}
+html body #login .login-divider span{padding:0 4px!important;background:transparent!important;color:#8090a6!important}
+
+/* Keep the site's real functions but give the two visible actions the same visual rhythm as the reference. */
+html body #login .public-register-cta,
+html body #login .zalo-contact{
+  width:100%!important;
+  min-height:61px!important;
+  margin:0 0 11px!important;
+  border:1px solid #dce6f1!important;
+  border-radius:12px!important;
+  background:linear-gradient(180deg,#fbfcff,#eef4fa)!important;
+  color:#0b2b55!important;
+  box-shadow:0 6px 18px rgba(0,0,0,.12)!important;
+}
+html body #login .public-register-cta{
+  display:grid!important;
+  grid-template-columns:42px minmax(0,1fr) auto!important;
+  align-items:center!important;
+  gap:11px!important;
+  padding:8px 13px!important;
+  text-align:left!important;
+}
+html body #login .public-register-cta>span{
+  display:grid!important;
+  width:40px!important;
+  height:40px!important;
+  place-items:center!important;
+  border-radius:50%!important;
+  background:#e4f2ff!important;
+  color:#1676df!important;
+  font-size:20px!important;
+  font-weight:850!important;
+}
+html body #login .public-register-cta>div{display:grid!important;gap:2px!important;min-width:0!important}
+html body #login .public-register-cta strong{color:#0b2c57!important;font-size:12px!important;font-weight:850!important}
+html body #login .public-register-cta small{color:#60758c!important;font-size:9px!important;line-height:1.35!important}
+html body #login .public-register-cta>b{color:#1c4f80!important;font-size:18px!important}
+
+html body #login .zalo-contact{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:12px!important;
+  padding:8px 14px!important;
+  text-decoration:none!important;
+}
+html body #login .zalo-contact strong{
+  display:grid!important;
+  width:38px!important;
+  height:38px!important;
+  place-items:center!important;
+  border-radius:50%!important;
+  background:#1689f3!important;
+  color:#fff!important;
+  font-size:14px!important;
+  font-weight:900!important;
+}
+html body #login .zalo-contact span{color:#0b2b55!important;font-size:12px!important;font-weight:800!important}
+
+/* Any injected driving-course registration CTA becomes the small bottom text link instead of a third large button. */
+html body #login #loginForm>a[href*="dang-ky-hoc-lai-xe"]{
+  order:80!important;
+  display:block!important;
+  width:auto!important;
+  min-height:0!important;
+  margin:2px auto 0!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:transparent!important;
+  font-size:0!important;
+  text-align:center!important;
+  text-decoration:none!important;
+}
+html body #login #loginForm>a[href*="dang-ky-hoc-lai-xe"]>*{display:none!important}
+html body #login #loginForm>a[href*="dang-ky-hoc-lai-xe"]::before{
+  display:inline!important;
+  content:"Chưa đăng ký học lái xe? "!important;
+  color:#9eacbd!important;
+  font-size:12px!important;
+  font-weight:500!important;
+}
+html body #login #loginForm>a[href*="dang-ky-hoc-lai-xe"]::after{
+  display:inline!important;
+  content:"Đăng ký ngay"!important;
+  color:var(--ref-gold-light)!important;
+  font-size:12px!important;
+  font-weight:850!important;
+}
+
+html body #login .login-register{display:none!important}
+html body #login .login-security{
+  order:90!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:7px!important;
+  margin:auto 0 0!important;
+  padding:14px 0 0!important;
+  border-top:1px solid rgba(121,153,185,.18)!important;
+  color:#71839a!important;
+  font-size:9px!important;
+}
+html body #login .login-security svg{width:15px!important;height:15px!important;fill:none!important;stroke:#7394b4!important}
+html body #login>.contact-footer{display:none!important}
+
+@media(max-width:1400px){
+  html body #login .login-shell{padding:34px 4vw!important}
+  html body #login .login-layout{grid-template-columns:minmax(0,1fr) minmax(470px,560px)!important;gap:38px!important}
+  html body #login .login-intro,
+  html body #login #loginForm.login-card{min-height:min(750px,calc(100svh - 68px))!important}
+  html body #login .login-intro h2{margin-top:46px!important;font-size:clamp(41px,4vw,54px)!important}
+  html body #login .intro-features span{min-height:120px!important}
+  html body #login .intro-hero-visual{height:235px!important;min-height:235px!important}
+  html body #login #loginForm.login-card{padding:31px 34px 26px!important}
+  html body #login .login-lock{width:78px!important;height:78px!important;flex-basis:78px!important}
+}
+
+@media(max-width:1040px){
+  html body #login.login-page{overflow:auto!important}
+  html body #login .login-shell{min-height:100svh!important;padding:25px 18px 34px!important}
+  html body #login .login-layout{grid-template-columns:1fr!important;gap:22px!important;width:min(620px,100%)!important}
+  html body #login .login-intro{min-height:auto!important;padding:0 4px!important}
+  html body #login .intro-brand{margin:0 auto!important}
+  html body #login .intro-mark{width:56px!important;height:56px!important;flex-basis:56px!important}
+  html body #login .intro-brand>div::before{font-size:20px!important}
+  html body #login .intro-brand>div::after{font-size:8.5px!important}
+  html body #login .login-intro h2,
+  html body #login .login-intro>p,
+  html body #login .intro-features,
+  html body #login .intro-hero-visual,
+  html body #login .intro-refresh-cta,
+  html body #login .intro-new-student-cta{display:none!important}
+  html body #login #loginForm.login-card{max-width:620px!important;min-height:auto!important;margin:0 auto!important}
+}
+
+@media(max-width:760px){
+  body:has(#login:not(.hidden)){padding-bottom:0!important}
+  html body #login .login-shell{padding:15px 12px 24px!important}
+  html body #login .login-layout{gap:13px!important}
+  html body #login .login-intro{display:none!important}
+  html body #login #loginForm.login-card{width:100%!important;min-height:0!important;padding:24px 18px 22px!important;border-radius:22px!important}
+  html body #login .login-lock{width:72px!important;height:72px!important;flex-basis:72px!important;margin-bottom:8px!important}
+  html body #login .login-heading{margin-bottom:17px!important;padding-bottom:17px!important}
+  html body #login .login-heading h1{font-size:25px!important}
+  html body #login .login-heading .muted::after{font-size:14px!important}
+  html body #login .input-shell{min-height:53px!important}
+  html body #login .input-shell input{min-height:51px!important;font-size:16px!important}
+  html body #login #loginBtn.login-submit{min-height:55px!important}
+  html body #login .public-register-cta,
+  html body #login .zalo-contact{min-height:57px!important}
+}
+
+@media(max-width:390px){
+  html body #login #loginForm.login-card{padding-right:14px!important;padding-left:14px!important}
+  html body #login .login-options{align-items:flex-start!important;flex-direction:column!important;gap:2px!important}
+  html body #login .login-options>a{align-self:flex-end!important;margin-top:-25px!important}
+}
