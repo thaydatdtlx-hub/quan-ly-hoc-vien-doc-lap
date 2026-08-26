@@ -49,6 +49,7 @@
   display:block!important;
   width:auto!important;
   min-width:0!important;
+  max-width:none!important;
   flex:1 1 auto!important;
   margin:0!important;
   padding:0!important;
@@ -66,6 +67,7 @@
 #login.login-v20 .login-v28-sub{
   display:block!important;
   width:100%!important;
+  max-width:none!important;
   margin:2px 0 0!important;
   padding:0!important;
   color:#66798d!important;
@@ -92,6 +94,65 @@
   font-weight:900!important;
   line-height:1!important;
   transform:translateY(-50%)!important;
+}
+
+/* Highest-specificity fix for the first row: bypass any legacy anchor/span width rules. */
+#login.login-v20 #loginCourseRegistrationBtn.login-v28-row{
+  display:block!important;
+  min-height:68px!important;
+  padding:0!important;
+}
+#login.login-v20 #loginCourseRegistrationBtn.login-v28-row>.login-v28-icon{
+  position:absolute!important;
+  left:12px!important;
+  top:50%!important;
+  width:40px!important;
+  min-width:40px!important;
+  max-width:40px!important;
+  height:40px!important;
+  margin:0!important;
+  transform:translateY(-50%)!important;
+}
+#login.login-v20 #loginCourseRegistrationBtn.login-v28-row>.login-v28-text{
+  position:absolute!important;
+  left:64px!important;
+  right:52px!important;
+  top:50%!important;
+  display:block!important;
+  width:auto!important;
+  min-width:0!important;
+  max-width:none!important;
+  height:auto!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:visible!important;
+  color:#0a2d58!important;
+  font-size:13px!important;
+  font-weight:850!important;
+  line-height:1.22!important;
+  white-space:normal!important;
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+  text-overflow:clip!important;
+  transform:translateY(-50%)!important;
+}
+#login.login-v20 #loginCourseRegistrationBtn.login-v28-row>.login-v28-text>.login-v28-sub{
+  display:block!important;
+  width:auto!important;
+  max-width:none!important;
+  margin:3px 0 0!important;
+  padding:0!important;
+  overflow:visible!important;
+  color:#66798d!important;
+  font-size:9.5px!important;
+  font-weight:550!important;
+  line-height:1.2!important;
+  white-space:normal!important;
+}
+#login.login-v20 #loginCourseRegistrationBtn.login-v28-row>.login-v28-arrow{
+  position:absolute!important;
+  right:12px!important;
+  top:50%!important;
 }
 
 /* Force old action descendants out of the layout if a cached DOM survives. */
@@ -122,6 +183,10 @@ body.login-v20-active .ai-chat-panel{display:none!important}
   }
   #login.login-v20 .login-v28-text{font-size:13px!important}
   #login.login-v20 .login-v28-sub{font-size:9.4px!important}
+  #login.login-v20 #loginCourseRegistrationBtn.login-v28-row{min-height:70px!important;padding:0!important}
+  #login.login-v20 #loginCourseRegistrationBtn.login-v28-row>.login-v28-icon{left:10px!important}
+  #login.login-v20 #loginCourseRegistrationBtn.login-v28-row>.login-v28-text{left:62px!important;right:48px!important;font-size:13px!important}
+  #login.login-v20 #loginCourseRegistrationBtn.login-v28-row>.login-v28-text>.login-v28-sub{font-size:9.4px!important}
 }
 
 @media(max-width:430px){
@@ -140,4 +205,7 @@ body.login-v20-active .ai-chat-panel{display:none!important}
   #login.login-v20 .login-v28-text{font-size:12.2px!important}
   #login.login-v20 .login-v28-sub{font-size:9px!important}
   #login.login-v20 .login-v28-arrow{right:9px!important;width:28px!important;height:28px!important}
+  #login.login-v20 #loginCourseRegistrationBtn.login-v28-row>.login-v28-icon{left:9px!important;width:38px!important;min-width:38px!important;max-width:38px!important;height:38px!important}
+  #login.login-v20 #loginCourseRegistrationBtn.login-v28-row>.login-v28-text{left:57px!important;right:43px!important;font-size:12.2px!important}
+  #login.login-v20 #loginCourseRegistrationBtn.login-v28-row>.login-v28-text>.login-v28-sub{font-size:9px!important}
 }
