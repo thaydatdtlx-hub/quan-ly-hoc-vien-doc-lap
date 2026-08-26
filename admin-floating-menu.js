@@ -74,13 +74,14 @@ function syncTools(){
     labelTool(button);
     if(button.parentElement!==menu)menu.append(button);
   });
-  const assistantOpen=document.querySelector(".admin-assistant-panel.is-open");
+  const assistantOpen=Boolean(document.querySelector(".admin-assistant-panel.is-open"));
   const hasTools=[...menu.querySelectorAll(TOOL_SELECTOR)].some(button=>!button.hidden);
   const mobile=mobileQuery.matches;
-  menu.hidden=!hasTools;
+  const shouldHideMenu=!hasTools||assistantOpen;
+  if(menu.hidden!==shouldHideMenu)menu.hidden=shouldHideMenu;
   if(!mobile)document.documentElement.classList.remove("admin-toolbox-open");
-  menu.setAttribute("aria-hidden",String(!hasTools||(mobile&&!document.documentElement.classList.contains("admin-toolbox-open"))));
-  const shouldHideToggle=!mobile||!hasTools||Boolean(assistantOpen);
+  menu.setAttribute("aria-hidden",String(shouldHideMenu||(mobile&&!document.documentElement.classList.contains("admin-toolbox-open"))));
+  const shouldHideToggle=!mobile||!hasTools||assistantOpen;
   if(toggle.hidden!==shouldHideToggle)toggle.hidden=shouldHideToggle;
   if(assistantOpen)setOpen(false);
 }
