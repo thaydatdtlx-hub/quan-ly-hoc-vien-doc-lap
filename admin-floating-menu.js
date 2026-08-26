@@ -5,6 +5,7 @@ const TOOL_SELECTOR=[
   ".admin-assistant-launcher"
 ].join(",");
 
+const mobileQuery=window.matchMedia("(max-width:720px)");
 let scheduled=false;
 
 function buildShell(){
@@ -14,6 +15,7 @@ function buildShell(){
     menu=document.createElement("aside");
     menu.id="adminToolboxMenu";
     menu.className="admin-toolbox-menu";
+    menu.hidden=true;
     menu.setAttribute("aria-label","Công cụ quản trị");
     menu.setAttribute("aria-hidden","true");
     document.body.append(menu);
@@ -38,8 +40,8 @@ function buildShell(){
 }
 
 function labelTool(button){
-  if(button.dataset.toolboxReady==="true")return;
-  button.dataset.toolboxReady="true";
+  if(button.dataset.toolboxReady==="2")return;
+  button.dataset.toolboxReady="2";
   if(button.classList.contains("student-activity-floating")){
     button.setAttribute("aria-label","Hoạt động học viên");
     button.innerHTML='<span class="admin-toolbox-item__icon" aria-hidden="true">◉</span><strong>Hoạt động<br>học viên</strong>';
@@ -48,15 +50,17 @@ function labelTool(button){
     button.innerHTML='<span class="admin-toolbox-item__icon" aria-hidden="true">⚙</span><strong>Cấu hình<br>website</strong>';
   }else if(button.classList.contains("admin-tuition-floating")){
     button.setAttribute("aria-label","Học phí và ưu đãi");
+    button.innerHTML='<span class="admin-toolbox-item__icon" aria-hidden="true">₫</span><strong>Học phí<br>&amp; ưu đãi</strong>';
   }
 }
 
 function setOpen(open){
   const{menu,toggle}=buildShell();
   const hasVisibleTools=[...menu.querySelectorAll(TOOL_SELECTOR)].some(button=>!button.hidden);
-  const next=Boolean(open&&hasVisibleTools);
+  const mobile=mobileQuery.matches;
+  const next=Boolean(mobile&&open&&hasVisibleTools);
   document.documentElement.classList.toggle("admin-toolbox-open",next);
-  menu.setAttribute("aria-hidden",String(!next));
+  menu.setAttribute("aria-hidden",String(!hasVisibleTools||(mobile&&!next)));
   toggle.classList.toggle("is-open",next);
   toggle.setAttribute("aria-expanded",String(next));
   toggle.setAttribute("aria-label",next?"Đóng công cụ quản trị":"Mở công cụ quản trị");
@@ -72,7 +76,11 @@ function syncTools(){
   });
   const assistantOpen=document.querySelector(".admin-assistant-panel.is-open");
   const hasTools=[...menu.querySelectorAll(TOOL_SELECTOR)].some(button=>!button.hidden);
-  const shouldHideToggle=!hasTools||Boolean(assistantOpen);
+  const mobile=mobileQuery.matches;
+  menu.hidden=!hasTools;
+  if(!mobile)document.documentElement.classList.remove("admin-toolbox-open");
+  menu.setAttribute("aria-hidden",String(!hasTools||(mobile&&!document.documentElement.classList.contains("admin-toolbox-open"))));
+  const shouldHideToggle=!mobile||!hasTools||Boolean(assistantOpen);
   if(toggle.hidden!==shouldHideToggle)toggle.hidden=shouldHideToggle;
   if(assistantOpen)setOpen(false);
 }
@@ -91,6 +99,6 @@ document.addEventListener("click",event=>{
   else if(document.documentElement.classList.contains("admin-toolbox-open")&&!menu?.contains(event.target)&&!toggle?.contains(event.target))setOpen(false);
 });
 document.addEventListener("keydown",event=>{if(event.key==="Escape")setOpen(false)});
-window.matchMedia("(max-width:720px)").addEventListener?.("change",()=>setOpen(false));
+mobileQuery.addEventListener?.("change",()=>{setOpen(false);scheduleSync()});
 new MutationObserver(scheduleSync).observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:["class","hidden"]});
 scheduleSync();
