@@ -50,6 +50,12 @@
   }
   body.professional-admin-shell #dashboardMain>*{max-width:100%;min-width:0;box-sizing:border-box}
   body.professional-admin-shell #dashboardMain .table-wrap{max-width:100%;overflow-x:auto}
+  body.professional-admin-shell #dashboardMain>.toolbar{
+    position:relative!important;
+    inset:auto!important;
+    z-index:1!important;
+    transform:none!important;
+  }
   body.professional-admin-shell #app>.contact-footer{
     width:calc(100% - var(--coccoc-sidebar-current-width))!important;
     margin-left:var(--coccoc-sidebar-current-width)!important;

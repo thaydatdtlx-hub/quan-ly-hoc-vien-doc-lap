@@ -57,6 +57,7 @@ for(const required of [
   '.coccoc-sidebar-toggle',
   '.coccoc-sidebar-tooltip'
 ])if(!coccocSidebarStyles.includes(required))throw new Error(`CSS thanh bên kiểu Cốc Cốc thiếu: ${required}`);
+if(!coccocSidebarStyles.includes('body.professional-admin-shell #dashboardMain>.toolbar{')||!coccocSidebarStyles.includes('position:relative!important')||!coccocSidebarStyles.includes('inset:auto!important'))throw new Error("Thanh tìm kiếm và thêm học viên vẫn còn khả năng đứng yên khi cuộn.");
 
 if(!adminHome.includes('import "./coccoc-sidebar.js"'))throw new Error("Trang quản trị chưa tải thanh bên kiểu Cốc Cốc.");
 if(adminHome.includes('observe(document.documentElement'))throw new Error("Liên kết logo quản trị vẫn theo dõi toàn bộ DOM.");
@@ -79,4 +80,4 @@ if(!publicPage.includes('/pwa-install.js'))throw new Error("Trang tuyển sinh c
 if(!studentPage.includes('/pwa-install.js'))throw new Error("Cổng học viên chưa tải mô-đun nâng cấp.");
 if(!adminPage.includes('/pwa-install.js'))throw new Error("Trang quản trị chưa tải mô-đun nâng cấp.");
 
-console.log("Nâng cấp chuyên nghiệp hợp lệ: thanh bên quản trị thu gọn kiểu Cốc Cốc, không che nội dung và vẫn giữ các lớp ổn định hiện có.");
+console.log("Nâng cấp chuyên nghiệp hợp lệ: thanh bên quản trị thu gọn kiểu Cốc Cốc, thanh công cụ cuộn theo nội dung và không che danh sách học viên.");
