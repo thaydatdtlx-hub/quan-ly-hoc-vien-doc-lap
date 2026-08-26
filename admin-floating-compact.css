@@ -1,412 +1,444 @@
-/* Compact admin launchers: keep every control accessible without covering content. */
-.student-activity-floating,
-.admin-site-floating,
-.admin-tuition-floating,
-.admin-assistant-launcher {
-  right: 18px;
-  width: 52px;
-  height: 52px;
-  min-height: 52px;
-  padding: 0;
-  justify-content: center;
-  gap: 0;
-}
-
-.student-activity-floating {
-  bottom: 204px;
-  display: grid;
-  place-items: center;
-  font-size: 0;
-}
-
-.student-activity-floating::before {
-  content: "◉";
-  font-size: 23px;
-  line-height: 1;
-}
-
-.admin-site-floating {
-  bottom: 142px;
-  display: grid;
-  place-items: center;
-  font-size: 0;
-}
-
-.admin-site-floating::before {
-  content: "⚙";
-  font-size: 23px;
-  line-height: 1;
-}
-
-.admin-tuition-floating {
-  bottom: 80px;
-}
-
-.admin-tuition-floating > span,
-.admin-tuition-floating > strong {
-  font-size: 0;
-}
-
-.admin-tuition-floating > span::before {
-  content: "₫";
-  font-size: 23px;
-  font-weight: 950;
-  line-height: 1;
-}
-
-.admin-assistant-launcher {
-  bottom: 18px;
-  padding: 4px;
-  z-index: 9999;
-}
-
-.admin-assistant-launcher__copy {
-  display: none;
-}
-
-.admin-assistant-launcher__mark {
-  width: 42px;
-  height: 42px;
-}
-
-.admin-assistant-launcher > i {
-  top: 2px;
-  right: 2px;
-  left: auto;
-}
-
-.student-activity-floating::after,
-.admin-site-floating::after,
-.admin-tuition-floating::after,
-.admin-assistant-launcher::after {
-  position: absolute;
-  top: 50%;
-  right: calc(100% + 10px);
-  padding: 7px 10px;
-  border-radius: 8px;
-  background: #071a33;
-  color: #fff;
-  box-shadow: 0 8px 24px #06182b2e;
-  font-size: 11px;
-  font-weight: 800;
-  line-height: 1.2;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transform: translate(6px, -50%);
-  transition: opacity .18s ease, transform .18s ease;
-}
-
-.student-activity-floating::after {
-  content: "Hoạt động học viên";
-}
-
-.admin-site-floating::after {
-  content: "Cấu hình website";
-}
-
-.admin-tuition-floating::after {
-  content: "Học phí & ưu đãi";
-}
-
-.admin-assistant-launcher::after {
-  content: "Trợ lý Admin";
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .student-activity-floating:hover::after,
-  .student-activity-floating:focus-visible::after,
-  .admin-site-floating:hover::after,
-  .admin-site-floating:focus-visible::after,
-  .admin-tuition-floating:hover::after,
-  .admin-tuition-floating:focus-visible::after,
-  .admin-assistant-launcher:hover::after,
-  .admin-assistant-launcher:focus-visible::after {
-    opacity: 1;
-    transform: translate(0, -50%);
-  }
-}
-
-@media (max-width: 720px) {
-  .student-activity-floating,
-  .admin-site-floating,
-  .admin-tuition-floating,
-  .admin-assistant-launcher {
-    right: 12px;
-    width: 52px;
-    height: 52px;
-    min-height: 52px;
-    padding: 0;
-  }
-
-  .student-activity-floating {
-    bottom: calc(268px + env(safe-area-inset-bottom));
-    font-size: 0;
-  }
-
-  .admin-site-floating {
-    bottom: calc(206px + env(safe-area-inset-bottom));
-    font-size: 0;
-  }
-
-  .admin-tuition-floating {
-    bottom: calc(144px + env(safe-area-inset-bottom));
-  }
-
-  .admin-tuition-floating strong {
-    font-size: 0;
-  }
-
-  .admin-assistant-launcher {
-    bottom: calc(82px + env(safe-area-inset-bottom));
-    padding: 4px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .student-activity-floating::after,
-  .admin-site-floating::after,
-  .admin-tuition-floating::after,
-  .admin-assistant-launcher::after {
-    transition: none;
-  }
+/* Unified admin floating tools: one compact rail on desktop, one toolbox on mobile. */
+:root{
+  --admin-floating-size:52px;
+  --admin-floating-gap:9px;
+  --admin-floating-rail-width:66px
 }
 
 .admin-toolbox-toggle,
-.admin-toolbox-menu {
-  display: none;
+.admin-toolbox-menu{
+  display:none
 }
 
-@media (max-width: 720px) {
-  .admin-toolbox-toggle {
-    position: fixed;
-    right: 12px;
-    bottom: calc(82px + env(safe-area-inset-bottom));
-    z-index: 10020;
-    display: flex !important;
-    width: 92px;
-    height: 54px;
-    min-height: 54px;
-    align-items: center;
-    justify-content: center;
-    gap: 9px;
-    padding: 0 13px;
-    border: 1px solid #e8bd69;
-    border-radius: 999px;
-    background: linear-gradient(135deg, #12375f, #071a33);
-    color: #fff;
-    box-shadow: 0 14px 34px #03152f4d;
-    font: 800 11px/1 "Be Vietnam Pro", system-ui, sans-serif;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
+@media(min-width:721px){
+  html body.professional-admin-shell #dashboardMain{
+    padding-right:96px!important
   }
 
-  .admin-toolbox-toggle[hidden] {
-    display: none !important;
+  html body.professional-admin-shell #adminToolboxMenu.admin-toolbox-menu{
+    position:fixed!important;
+    top:auto!important;
+    right:18px!important;
+    bottom:18px!important;
+    left:auto!important;
+    z-index:10020!important;
+    display:flex!important;
+    width:var(--admin-floating-rail-width)!important;
+    min-width:var(--admin-floating-rail-width)!important;
+    height:auto!important;
+    max-height:calc(100dvh - 36px)!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    gap:var(--admin-floating-gap)!important;
+    box-sizing:border-box!important;
+    margin:0!important;
+    padding:7px!important;
+    overflow:visible!important;
+    border:1px solid #d7e4ef!important;
+    border-radius:999px!important;
+    background:rgba(255,255,255,.96)!important;
+    box-shadow:0 18px 46px rgba(5,29,55,.18)!important;
+    -webkit-backdrop-filter:blur(14px);
+    backdrop-filter:blur(14px);
+    opacity:1!important;
+    visibility:visible!important;
+    pointer-events:auto!important;
+    transform:none!important
   }
 
-  .admin-toolbox-toggle.is-open {
-    border-color: #d8a83d;
-    background: linear-gradient(135deg, #f5d77e, #e6b744);
-    color: #102c49;
+  html body.professional-admin-shell #adminToolboxMenu.admin-toolbox-menu[hidden]{
+    display:none!important
   }
 
-  .admin-toolbox-toggle__icon {
-    display: grid;
-    grid-template-columns: repeat(2, 6px);
-    gap: 4px;
+  html body.professional-admin-shell #adminToolboxMenu>.student-activity-floating,
+  html body.professional-admin-shell #adminToolboxMenu>.admin-site-floating,
+  html body.professional-admin-shell #adminToolboxMenu>.admin-tuition-floating,
+  html body.professional-admin-shell #adminToolboxMenu>.admin-assistant-launcher{
+    position:relative!important;
+    inset:auto!important;
+    z-index:1!important;
+    display:grid!important;
+    width:var(--admin-floating-size)!important;
+    min-width:var(--admin-floating-size)!important;
+    max-width:var(--admin-floating-size)!important;
+    height:var(--admin-floating-size)!important;
+    min-height:var(--admin-floating-size)!important;
+    max-height:var(--admin-floating-size)!important;
+    flex:0 0 var(--admin-floating-size)!important;
+    place-items:center!important;
+    gap:0!important;
+    box-sizing:border-box!important;
+    margin:0!important;
+    padding:0!important;
+    overflow:visible!important;
+    border-radius:50%!important;
+    font-size:0!important;
+    line-height:1!important;
+    text-align:center!important;
+    white-space:nowrap!important;
+    opacity:1!important;
+    visibility:visible!important;
+    pointer-events:auto!important;
+    transform:none!important;
+    transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease!important;
+    -webkit-tap-highlight-color:transparent
   }
 
-  .admin-toolbox-toggle__icon i {
-    width: 6px;
-    height: 6px;
-    border-radius: 2px;
-    background: currentColor;
+  html body.professional-admin-shell #adminToolboxMenu>[hidden]{
+    display:none!important
   }
 
-  .admin-toolbox-toggle.is-open .admin-toolbox-toggle__icon {
-    position: relative;
-    display: block;
-    width: 16px;
-    height: 16px;
+  html body.professional-admin-shell #adminToolboxMenu>.student-activity-floating{
+    order:1;
+    border:1px solid #9ec5e2!important;
+    background:#fff!important;
+    color:#075b91!important;
+    box-shadow:0 8px 20px rgba(7,72,118,.13)!important
   }
 
-  .admin-toolbox-toggle.is-open .admin-toolbox-toggle__icon i {
-    position: absolute;
-    top: 7px;
-    left: 1px;
-    width: 14px;
-    height: 2px;
-    border-radius: 2px;
-    transform: rotate(45deg);
+  html body.professional-admin-shell #adminToolboxMenu>.admin-site-floating{
+    order:2;
+    border:1px solid #9ec5e2!important;
+    background:#fff!important;
+    color:#075b91!important;
+    box-shadow:0 8px 20px rgba(7,72,118,.13)!important
   }
 
-  .admin-toolbox-toggle.is-open .admin-toolbox-toggle__icon i:nth-child(2) {
-    transform: rotate(-45deg);
+  html body.professional-admin-shell #adminToolboxMenu>.admin-tuition-floating{
+    order:3;
+    border:1px solid #dfad39!important;
+    background:linear-gradient(145deg,#f9dc83,#e8b33c)!important;
+    color:#143650!important;
+    box-shadow:0 9px 22px rgba(123,82,7,.22)!important
   }
 
-  .admin-toolbox-toggle.is-open .admin-toolbox-toggle__icon i:nth-child(n+3) {
-    display: none;
+  html body.professional-admin-shell #adminToolboxMenu>.admin-assistant-launcher{
+    order:4;
+    padding:4px!important;
+    border:1px solid #e7bd63!important;
+    background:linear-gradient(145deg,#103a66,#06172f)!important;
+    color:#fff!important;
+    box-shadow:0 10px 24px rgba(3,21,47,.28)!important
   }
 
-  .admin-toolbox-menu {
-    position: fixed;
-    right: 12px;
-    bottom: calc(146px + env(safe-area-inset-bottom));
-    z-index: 10019;
-    display: grid !important;
-    width: min(312px, calc(100vw - 24px));
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 9px;
-    box-sizing: border-box;
-    padding: 11px;
-    border: 1px solid #d8e3ed;
-    border-radius: 20px;
-    background: #fffffff7;
-    box-shadow: 0 22px 60px #071a3342;
-    -webkit-backdrop-filter: blur(14px);
-    backdrop-filter: blur(14px);
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transform: translateY(10px) scale(.97);
-    transform-origin: bottom right;
-    transition: opacity .18s ease, transform .18s ease, visibility .18s ease;
+  html body.professional-admin-shell #adminToolboxMenu>.student-activity-floating:hover,
+  html body.professional-admin-shell #adminToolboxMenu>.student-activity-floating:focus-visible,
+  html body.professional-admin-shell #adminToolboxMenu>.admin-site-floating:hover,
+  html body.professional-admin-shell #adminToolboxMenu>.admin-site-floating:focus-visible,
+  html body.professional-admin-shell #adminToolboxMenu>.admin-tuition-floating:hover,
+  html body.professional-admin-shell #adminToolboxMenu>.admin-tuition-floating:focus-visible,
+  html body.professional-admin-shell #adminToolboxMenu>.admin-assistant-launcher:hover,
+  html body.professional-admin-shell #adminToolboxMenu>.admin-assistant-launcher:focus-visible{
+    transform:translateX(-2px)!important;
+    box-shadow:0 13px 28px rgba(4,36,68,.23)!important
   }
 
-  .admin-toolbox-open .admin-toolbox-menu {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-    transform: none;
+  html body.professional-admin-shell #adminToolboxMenu>.student-activity-floating:focus-visible,
+  html body.professional-admin-shell #adminToolboxMenu>.admin-site-floating:focus-visible,
+  html body.professional-admin-shell #adminToolboxMenu>.admin-tuition-floating:focus-visible,
+  html body.professional-admin-shell #adminToolboxMenu>.admin-assistant-launcher:focus-visible{
+    outline:3px solid rgba(11,107,220,.3)!important;
+    outline-offset:3px!important
   }
 
-  .admin-toolbox-menu > .student-activity-floating,
-  .admin-toolbox-menu > .admin-site-floating,
-  .admin-toolbox-menu > .admin-tuition-floating,
-  .admin-toolbox-menu > .admin-assistant-launcher {
-    position: relative !important;
-    inset: auto !important;
-    z-index: auto !important;
-    display: flex !important;
-    width: 100% !important;
-    height: 72px !important;
-    min-height: 72px !important;
-    box-sizing: border-box;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    gap: 9px !important;
-    margin: 0 !important;
-    padding: 9px 10px !important;
-    border-radius: 14px !important;
-    font-size: 11px !important;
-    line-height: 1.25 !important;
-    text-align: left;
-    white-space: normal;
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: none !important;
+  html body.professional-admin-shell #adminToolboxMenu .admin-toolbox-item__icon{
+    display:grid!important;
+    width:34px!important;
+    height:34px!important;
+    flex:0 0 34px!important;
+    place-items:center!important;
+    margin:0!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:50%!important;
+    background:transparent!important;
+    color:inherit!important;
+    font-size:23px!important;
+    font-weight:900!important;
+    line-height:1!important
   }
 
-  .admin-toolbox-menu > [hidden] {
-    display: none !important;
+  html body.professional-admin-shell #adminToolboxMenu>.student-activity-floating::before,
+  html body.professional-admin-shell #adminToolboxMenu>.admin-site-floating::before{
+    display:none!important;
+    content:none!important
   }
 
-  .admin-toolbox-menu > .student-activity-floating::before,
-  .admin-toolbox-menu > .admin-site-floating::before,
-  .admin-toolbox-menu > .student-activity-floating::after,
-  .admin-toolbox-menu > .admin-site-floating::after,
-  .admin-toolbox-menu > .admin-tuition-floating::after,
-  .admin-toolbox-menu > .admin-assistant-launcher::after {
-    display: none !important;
+  html body.professional-admin-shell #adminToolboxMenu>.student-activity-floating>strong,
+  html body.professional-admin-shell #adminToolboxMenu>.admin-site-floating>strong,
+  html body.professional-admin-shell #adminToolboxMenu>.admin-tuition-floating>strong,
+  html body.professional-admin-shell #adminToolboxMenu .admin-assistant-launcher__copy{
+    display:none!important;
+    width:0!important;
+    height:0!important;
+    overflow:hidden!important;
+    font-size:0!important
   }
 
-  .admin-toolbox-menu .admin-toolbox-item__icon {
-    display: grid;
-    width: 34px;
-    height: 34px;
-    flex: 0 0 34px;
-    place-items: center;
-    border-radius: 11px;
-    background: #e9f4fc;
-    color: #075aaa;
-    font-size: 19px;
-    line-height: 1;
+  html body.professional-admin-shell #adminToolboxMenu>.admin-tuition-floating>span{
+    display:grid!important;
+    width:34px!important;
+    height:34px!important;
+    place-items:center!important;
+    margin:0!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:50%!important;
+    background:transparent!important;
+    color:inherit!important;
+    font-size:24px!important;
+    font-weight:950!important;
+    line-height:1!important
   }
 
-  .admin-toolbox-menu > .student-activity-floating strong,
-  .admin-toolbox-menu > .admin-site-floating strong,
-  .admin-toolbox-menu > .admin-tuition-floating strong {
-    display: block !important;
-    min-width: 0;
-    color: inherit;
-    font-size: 10.5px !important;
-    font-weight: 900;
-    line-height: 1.35;
+  html body.professional-admin-shell #adminToolboxMenu>.admin-tuition-floating>span::before{
+    display:none!important;
+    content:none!important
   }
 
-  .admin-toolbox-menu > .admin-tuition-floating > span {
-    display: grid;
-    width: 34px;
-    height: 34px;
-    flex: 0 0 34px;
-    place-items: center;
-    border-radius: 11px;
-    background: #fff5ce;
-    font-size: 0 !important;
+  html body.professional-admin-shell #adminToolboxMenu .admin-assistant-launcher__mark{
+    display:grid!important;
+    width:42px!important;
+    height:42px!important;
+    min-width:42px!important;
+    min-height:42px!important;
+    place-items:center!important;
+    margin:0!important;
+    overflow:hidden!important;
+    border:2px solid #fff!important;
+    border-radius:50%!important;
+    background:#fff!important
   }
 
-  .admin-toolbox-menu > .admin-tuition-floating > span::before {
-    content: "₫" !important;
-    font-size: 20px !important;
+  html body.professional-admin-shell #adminToolboxMenu .admin-assistant-launcher__mark img{
+    display:block!important;
+    width:100%!important;
+    height:100%!important;
+    object-fit:cover!important
   }
 
-  .admin-toolbox-menu .admin-assistant-launcher__mark {
-    width: 36px !important;
-    height: 36px !important;
-    flex: 0 0 36px;
+  html body.professional-admin-shell #adminToolboxMenu>.admin-assistant-launcher>i{
+    position:absolute!important;
+    top:2px!important;
+    right:2px!important;
+    bottom:auto!important;
+    left:auto!important;
+    width:10px!important;
+    height:10px!important;
+    border:2px solid #071a33!important;
+    border-radius:50%!important;
+    background:#39d589!important
   }
 
-  .admin-toolbox-menu .admin-assistant-launcher__copy {
-    display: grid !important;
-    min-width: 0;
-    gap: 2px;
+  html body.professional-admin-shell #adminToolboxMenu>.student-activity-floating::after,
+  html body.professional-admin-shell #adminToolboxMenu>.admin-site-floating::after,
+  html body.professional-admin-shell #adminToolboxMenu>.admin-tuition-floating::after,
+  html body.professional-admin-shell #adminToolboxMenu>.admin-assistant-launcher::after{
+    position:absolute!important;
+    top:50%!important;
+    right:calc(100% + 12px)!important;
+    bottom:auto!important;
+    left:auto!important;
+    z-index:3!important;
+    display:block!important;
+    width:max-content!important;
+    max-width:220px!important;
+    padding:7px 10px!important;
+    border:1px solid rgba(255,255,255,.12)!important;
+    border-radius:9px!important;
+    background:#071a33!important;
+    color:#fff!important;
+    box-shadow:0 10px 26px rgba(3,21,47,.24)!important;
+    font-size:11px!important;
+    font-weight:800!important;
+    line-height:1.25!important;
+    white-space:nowrap!important;
+    opacity:0!important;
+    pointer-events:none!important;
+    transform:translate(6px,-50%)!important;
+    transition:opacity .16s ease,transform .16s ease!important
   }
 
-  .admin-toolbox-menu .admin-assistant-launcher__copy strong {
-    font-size: 11px;
-  }
+  html body.professional-admin-shell #adminToolboxMenu>.student-activity-floating::after{content:"Hoạt động học viên"!important}
+  html body.professional-admin-shell #adminToolboxMenu>.admin-site-floating::after{content:"Cấu hình website"!important}
+  html body.professional-admin-shell #adminToolboxMenu>.admin-tuition-floating::after{content:"Học phí & ưu đãi"!important}
+  html body.professional-admin-shell #adminToolboxMenu>.admin-assistant-launcher::after{content:"Trợ lý Admin"!important}
 
-  .admin-toolbox-menu .admin-assistant-launcher__copy small {
-    overflow: hidden;
-    color: #e9d29c;
-    font-size: 8px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .admin-toolbox-menu .admin-assistant-launcher > i {
-    top: 6px !important;
-    right: auto !important;
-    left: 37px !important;
+  @media(hover:hover) and (pointer:fine){
+    html body.professional-admin-shell #adminToolboxMenu>.student-activity-floating:hover::after,
+    html body.professional-admin-shell #adminToolboxMenu>.student-activity-floating:focus-visible::after,
+    html body.professional-admin-shell #adminToolboxMenu>.admin-site-floating:hover::after,
+    html body.professional-admin-shell #adminToolboxMenu>.admin-site-floating:focus-visible::after,
+    html body.professional-admin-shell #adminToolboxMenu>.admin-tuition-floating:hover::after,
+    html body.professional-admin-shell #adminToolboxMenu>.admin-tuition-floating:focus-visible::after,
+    html body.professional-admin-shell #adminToolboxMenu>.admin-assistant-launcher:hover::after,
+    html body.professional-admin-shell #adminToolboxMenu>.admin-assistant-launcher:focus-visible::after{
+      opacity:1!important;
+      transform:translate(0,-50%)!important
+    }
   }
 }
 
-@media (min-width: 721px) {
-  .admin-toolbox-menu {
-    display: contents;
+@media(max-width:720px){
+  .admin-toolbox-toggle{
+    position:fixed;
+    right:12px;
+    bottom:calc(82px + env(safe-area-inset-bottom));
+    z-index:10020;
+    display:flex!important;
+    width:92px;
+    height:54px;
+    min-height:54px;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    padding:0 13px;
+    border:1px solid #e8bd69;
+    border-radius:999px;
+    background:linear-gradient(135deg,#12375f,#071a33);
+    color:#fff;
+    box-shadow:0 14px 34px #03152f4d;
+    font:800 11px/1 "Be Vietnam Pro",system-ui,sans-serif;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent
   }
+
+  .admin-toolbox-toggle[hidden]{display:none!important}
+  .admin-toolbox-toggle.is-open{border-color:#d8a83d;background:linear-gradient(135deg,#f5d77e,#e6b744);color:#102c49}
+  .admin-toolbox-toggle__icon{display:grid;grid-template-columns:repeat(2,6px);gap:4px}
+  .admin-toolbox-toggle__icon i{width:6px;height:6px;border-radius:2px;background:currentColor}
+  .admin-toolbox-toggle.is-open .admin-toolbox-toggle__icon{position:relative;display:block;width:16px;height:16px}
+  .admin-toolbox-toggle.is-open .admin-toolbox-toggle__icon i{position:absolute;top:7px;left:1px;width:14px;height:2px;border-radius:2px;transform:rotate(45deg)}
+  .admin-toolbox-toggle.is-open .admin-toolbox-toggle__icon i:nth-child(2){transform:rotate(-45deg)}
+  .admin-toolbox-toggle.is-open .admin-toolbox-toggle__icon i:nth-child(n+3){display:none}
+
+  .admin-toolbox-menu{
+    position:fixed;
+    right:12px;
+    bottom:calc(146px + env(safe-area-inset-bottom));
+    z-index:10019;
+    display:grid!important;
+    width:min(312px,calc(100vw - 24px));
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:9px;
+    box-sizing:border-box;
+    padding:11px;
+    border:1px solid #d8e3ed;
+    border-radius:20px;
+    background:#fffffff7;
+    box-shadow:0 22px 60px #071a3342;
+    -webkit-backdrop-filter:blur(14px);
+    backdrop-filter:blur(14px);
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transform:translateY(10px) scale(.97);
+    transform-origin:bottom right;
+    transition:opacity .18s ease,transform .18s ease,visibility .18s ease
+  }
+
+  .admin-toolbox-menu[hidden]{display:none!important}
+  .admin-toolbox-open .admin-toolbox-menu{opacity:1;visibility:visible;pointer-events:auto;transform:none}
+
+  .admin-toolbox-menu>.student-activity-floating,
+  .admin-toolbox-menu>.admin-site-floating,
+  .admin-toolbox-menu>.admin-tuition-floating,
+  .admin-toolbox-menu>.admin-assistant-launcher{
+    position:relative!important;
+    inset:auto!important;
+    z-index:auto!important;
+    display:flex!important;
+    width:100%!important;
+    height:72px!important;
+    min-height:72px!important;
+    box-sizing:border-box;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    gap:9px!important;
+    margin:0!important;
+    padding:9px 10px!important;
+    border-radius:14px!important;
+    font-size:11px!important;
+    line-height:1.25!important;
+    text-align:left;
+    white-space:normal;
+    opacity:1!important;
+    visibility:visible!important;
+    transform:none!important
+  }
+
+  .admin-toolbox-menu>[hidden]{display:none!important}
+
+  .admin-toolbox-menu>.student-activity-floating::before,
+  .admin-toolbox-menu>.admin-site-floating::before,
+  .admin-toolbox-menu>.student-activity-floating::after,
+  .admin-toolbox-menu>.admin-site-floating::after,
+  .admin-toolbox-menu>.admin-tuition-floating::after,
+  .admin-toolbox-menu>.admin-assistant-launcher::after{
+    display:none!important
+  }
+
+  .admin-toolbox-menu .admin-toolbox-item__icon{
+    display:grid;
+    width:34px;
+    height:34px;
+    flex:0 0 34px;
+    place-items:center;
+    border-radius:11px;
+    background:#e9f4fc;
+    color:#075aaa;
+    font-size:19px;
+    line-height:1
+  }
+
+  .admin-toolbox-menu>.student-activity-floating strong,
+  .admin-toolbox-menu>.admin-site-floating strong,
+  .admin-toolbox-menu>.admin-tuition-floating strong{
+    display:block!important;
+    min-width:0;
+    color:inherit;
+    font-size:10.5px!important;
+    font-weight:900;
+    line-height:1.35
+  }
+
+  .admin-toolbox-menu>.admin-tuition-floating>span{
+    display:grid;
+    width:34px;
+    height:34px;
+    flex:0 0 34px;
+    place-items:center;
+    border-radius:11px;
+    background:#fff5ce;
+    color:#17324a;
+    font-size:20px!important;
+    font-weight:950!important
+  }
+
+  .admin-toolbox-menu>.admin-tuition-floating>span::before{display:none!important;content:none!important}
+  .admin-toolbox-menu .admin-assistant-launcher__mark{width:36px!important;height:36px!important;flex:0 0 36px}
+  .admin-toolbox-menu .admin-assistant-launcher__copy{display:grid!important;min-width:0;gap:2px}
+  .admin-toolbox-menu .admin-assistant-launcher__copy strong{font-size:11px}
+  .admin-toolbox-menu .admin-assistant-launcher__copy small{overflow:hidden;color:#e9d29c;font-size:8px;text-overflow:ellipsis;white-space:nowrap}
+  .admin-toolbox-menu .admin-assistant-launcher>i{top:6px!important;right:auto!important;left:37px!important}
 }
 
-@media (max-width: 380px) {
-  .admin-toolbox-menu {
-    width: calc(100vw - 20px);
-    right: 10px;
-  }
+@media(max-width:380px){
+  .admin-toolbox-menu{right:10px;width:calc(100vw - 20px)}
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .admin-toolbox-menu {
-    transition: none;
+@media(prefers-reduced-motion:reduce){
+  .admin-toolbox-menu,
+  .admin-toolbox-toggle,
+  html body.professional-admin-shell #adminToolboxMenu>.student-activity-floating,
+  html body.professional-admin-shell #adminToolboxMenu>.admin-site-floating,
+  html body.professional-admin-shell #adminToolboxMenu>.admin-tuition-floating,
+  html body.professional-admin-shell #adminToolboxMenu>.admin-assistant-launcher,
+  html body.professional-admin-shell #adminToolboxMenu>.student-activity-floating::after,
+  html body.professional-admin-shell #adminToolboxMenu>.admin-site-floating::after,
+  html body.professional-admin-shell #adminToolboxMenu>.admin-tuition-floating::after,
+  html body.professional-admin-shell #adminToolboxMenu>.admin-assistant-launcher::after{
+    transition:none!important
   }
 }
