@@ -1,0 +1,206 @@
+/* Collapsible Admin toolbox. Loaded only by admin-floating-menu.js. */
+
+@media (min-width:721px){
+  body.professional-admin-shell #adminToolboxToggle.admin-toolbox-toggle{
+    position:fixed!important;
+    right:18px!important;
+    bottom:18px!important;
+    z-index:10030!important;
+    display:grid!important;
+    width:56px!important;
+    min-width:56px!important;
+    height:56px!important;
+    min-height:56px!important;
+    place-items:center!important;
+    padding:0!important;
+    margin:0!important;
+    border:1px solid #cbdbea!important;
+    border-radius:50%!important;
+    background:linear-gradient(135deg,#0b6bdc,#074f9f)!important;
+    color:#fff!important;
+    box-shadow:0 14px 34px rgba(5,41,79,.24)!important;
+    cursor:pointer!important;
+    overflow:visible!important;
+  }
+
+  body.professional-admin-shell #adminToolboxToggle.admin-toolbox-toggle[hidden]{
+    display:none!important;
+  }
+
+  body.professional-admin-shell #adminToolboxToggle .admin-toolbox-toggle__icon{
+    display:grid!important;
+    grid-template-columns:repeat(2,7px)!important;
+    gap:4px!important;
+    width:auto!important;
+    height:auto!important;
+  }
+
+  body.professional-admin-shell #adminToolboxToggle .admin-toolbox-toggle__icon i{
+    display:block!important;
+    width:7px!important;
+    height:7px!important;
+    border-radius:2px!important;
+    background:currentColor!important;
+  }
+
+  body.professional-admin-shell #adminToolboxToggle>strong{
+    position:absolute!important;
+    width:1px!important;
+    height:1px!important;
+    overflow:hidden!important;
+    clip:rect(0 0 0 0)!important;
+    white-space:nowrap!important;
+  }
+
+  body.professional-admin-shell #adminToolboxToggle.is-open{
+    background:linear-gradient(135deg,#f5d77e,#e8b744)!important;
+    color:#12375f!important;
+    border-color:#d6a83e!important;
+  }
+
+  body.professional-admin-shell #adminToolboxToggle.is-open .admin-toolbox-toggle__icon{
+    position:relative!important;
+    display:block!important;
+    width:20px!important;
+    height:20px!important;
+  }
+
+  body.professional-admin-shell #adminToolboxToggle.is-open .admin-toolbox-toggle__icon i{
+    position:absolute!important;
+    top:9px!important;
+    left:2px!important;
+    width:16px!important;
+    height:2px!important;
+    border-radius:999px!important;
+    transform:rotate(45deg)!important;
+  }
+
+  body.professional-admin-shell #adminToolboxToggle.is-open .admin-toolbox-toggle__icon i:nth-child(2){
+    transform:rotate(-45deg)!important;
+  }
+
+  body.professional-admin-shell #adminToolboxToggle.is-open .admin-toolbox-toggle__icon i:nth-child(n+3){
+    display:none!important;
+  }
+
+  body.professional-admin-shell #adminToolboxMenu.admin-toolbox-menu{
+    position:fixed!important;
+    right:18px!important;
+    bottom:84px!important;
+    top:auto!important;
+    left:auto!important;
+    z-index:10029!important;
+    display:flex!important;
+    width:66px!important;
+    min-width:66px!important;
+    height:auto!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    gap:9px!important;
+    padding:7px!important;
+    margin:0!important;
+    border:1px solid #d7e4ef!important;
+    border-radius:999px!important;
+    background:rgba(255,255,255,.98)!important;
+    box-shadow:0 18px 46px rgba(5,29,55,.18)!important;
+    box-sizing:border-box!important;
+    opacity:0!important;
+    visibility:hidden!important;
+    pointer-events:none!important;
+    transform:translateY(10px) scale(.94)!important;
+    transform-origin:bottom center!important;
+    transition:opacity .18s ease,transform .18s ease,visibility .18s ease!important;
+  }
+
+  html.admin-toolbox-open body.professional-admin-shell #adminToolboxMenu.admin-toolbox-menu{
+    opacity:1!important;
+    visibility:visible!important;
+    pointer-events:auto!important;
+    transform:none!important;
+  }
+
+  body.professional-admin-shell #adminToolboxMenu>.student-activity-floating,
+  body.professional-admin-shell #adminToolboxMenu>.admin-site-floating,
+  body.professional-admin-shell #adminToolboxMenu>.admin-tuition-floating,
+  body.professional-admin-shell #adminToolboxMenu>.admin-assistant-launcher{
+    position:relative!important;
+    inset:auto!important;
+    display:grid!important;
+    width:52px!important;
+    min-width:52px!important;
+    max-width:52px!important;
+    height:52px!important;
+    min-height:52px!important;
+    max-height:52px!important;
+    place-items:center!important;
+    margin:0!important;
+    padding:0!important;
+    border-radius:50%!important;
+    font-size:0!important;
+    line-height:1!important;
+    overflow:visible!important;
+    transform:none!important;
+  }
+
+  body.professional-admin-shell #adminToolboxMenu>.admin-assistant-launcher{
+    padding:4px!important;
+  }
+
+  body.professional-admin-shell #adminToolboxMenu>.student-activity-floating strong,
+  body.professional-admin-shell #adminToolboxMenu>.admin-site-floating strong,
+  body.professional-admin-shell #adminToolboxMenu>.admin-tuition-floating strong,
+  body.professional-admin-shell #adminToolboxMenu .admin-assistant-launcher__copy{
+    display:none!important;
+  }
+
+  body.professional-admin-shell #adminToolboxMenu>.student-activity-floating::before,
+  body.professional-admin-shell #adminToolboxMenu>.admin-site-floating::before{
+    display:none!important;
+    content:none!important;
+  }
+
+  body.professional-admin-shell #adminToolboxMenu .admin-toolbox-item__icon{
+    display:grid!important;
+    width:34px!important;
+    height:34px!important;
+    place-items:center!important;
+    border-radius:50%!important;
+    background:transparent!important;
+    color:inherit!important;
+    font-size:23px!important;
+    font-weight:900!important;
+    line-height:1!important;
+  }
+
+  body.professional-admin-shell #adminToolboxMenu>.admin-tuition-floating>span{
+    display:grid!important;
+    width:34px!important;
+    height:34px!important;
+    place-items:center!important;
+    border-radius:50%!important;
+    background:transparent!important;
+    font-size:0!important;
+  }
+
+  body.professional-admin-shell #adminToolboxMenu>.admin-tuition-floating>span::before{
+    content:"₫"!important;
+    font-size:24px!important;
+    font-weight:950!important;
+    line-height:1!important;
+  }
+
+  body.professional-admin-shell #adminToolboxMenu .admin-assistant-launcher__mark{
+    width:42px!important;
+    height:42px!important;
+    min-width:42px!important;
+    min-height:42px!important;
+  }
+
+  body.professional-admin-shell #dashboardMain{
+    padding-right:clamp(18px,2.4vw,40px)!important;
+  }
+}
+
+@media (prefers-reduced-motion:reduce){
+  #adminToolboxMenu.admin-toolbox-menu{transition:none!important}
+}
