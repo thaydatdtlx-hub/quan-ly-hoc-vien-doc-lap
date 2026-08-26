@@ -3,6 +3,8 @@ const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const ALLOWED=new Set([
   "app_student_login",
   "app_login",
+  "app_me",
+  "app_list_users",
   "app_student_portal",
   "app_student_me",
   "app_student_logout",
@@ -42,7 +44,7 @@ function parsedBody(req){
 export default async function handler(req,res){
   res.setHeader("Cache-Control","no-store, no-cache, must-revalidate, max-age=0");
   res.setHeader("Content-Type","application/json; charset=utf-8");
-  res.setHeader("X-Student-RPC","same-origin-v2");
+  res.setHeader("X-Student-RPC","same-origin-v3");
   if(req.method==="GET"){
     try{
       const response=await upstream("app_public_site_config",{},5000);
