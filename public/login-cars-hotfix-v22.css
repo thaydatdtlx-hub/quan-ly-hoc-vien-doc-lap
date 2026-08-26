@@ -1,0 +1,47 @@
+/* v22 hotfix: use a real JPG asset instead of an SVG wrapping a data URI.
+   This avoids the washed/blurred rendering seen in Chromium/Coc Coc. */
+.login-v20-car-stage{
+  position:relative!important;
+  display:block!important;
+  width:min(810px,104%)!important;
+  height:302px!important;
+  min-height:302px!important;
+  margin:auto 0 -4px -2%!important;
+  overflow:hidden!important;
+  border:0!important;
+  border-radius:0 0 22px 22px!important;
+  background-color:#03142b!important;
+  background-image:url('/login-cars-v22.jpg?v=22')!important;
+  background-position:center bottom!important;
+  background-repeat:no-repeat!important;
+  background-size:cover!important;
+  box-shadow:0 18px 42px rgba(0,0,0,.20)!important;
+}
+
+.login-v20-car-stage::before{
+  position:absolute!important;
+  z-index:1!important;
+  inset:0!important;
+  width:auto!important;
+  height:auto!important;
+  content:""!important;
+  background:
+    linear-gradient(180deg,rgba(3,20,43,.54) 0%,rgba(3,20,43,.14) 15%,transparent 32%,transparent 84%,rgba(1,10,24,.12) 100%),
+    linear-gradient(90deg,rgba(2,14,29,.16),transparent 11%,transparent 90%,rgba(2,14,29,.12))!important;
+  pointer-events:none!important;
+}
+
+.login-v20-car-stage::after{display:none!important;content:none!important}
+.login-v20-car-stage>img{display:none!important}
+
+@media(max-width:1400px){
+  .login-v20-car-stage{
+    height:235px!important;
+    min-height:235px!important;
+    background-size:cover!important;
+  }
+}
+
+@media(max-width:1040px){
+  .login-v20-car-stage{display:none!important}
+}
