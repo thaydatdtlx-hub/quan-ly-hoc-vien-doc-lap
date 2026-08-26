@@ -5,6 +5,10 @@ function replaceClass(node,from,to){
   return node;
 }
 
+function normalizedLoginText(value){
+  return String(value||"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d");
+}
+
 function hideLegacyLoginInsertions(login){
   login.querySelectorAll(".system-status,.professional-login-trust,#professionalLoginTrust,.intro-new-student-cta,.intro-refresh-cta,.intro-vip-badge").forEach(node=>node.remove());
 }
@@ -21,14 +25,62 @@ function buildFeatureCards(intro){
     <article class="login-v20-feature"><span class="login-v20-feature-icon" aria-hidden="true">▦</span><strong>Lịch học<br>chủ động</strong></article>`;
 }
 
+function normalizePublicTheoryRegister(card){
+  const register=card?.querySelector("#openPublicRegisterBtn");
+  if(!register)return;
+  register.classList.remove("public-register-cta");
+  register.classList.add("login-v20-register");
+
+  const expected="tao tai khoan hoc 600 cau danh cho nguoi hoc chua phai hoc vien thay dat";
+  if(normalizedLoginText(register.textContent)!==expected){
+    register.innerHTML=`<span class="login-v20-action-icon" aria-hidden="true">＋</span><div class="login-v20-action-copy"><strong>Tạo tài khoản học 600 câu</strong><small>Dành cho người học chưa phải học viên Thầy Đạt</small></div><b class="login-v20-action-arrow" aria-hidden="true">→</b>`;
+  }else{
+    const icon=register.querySelector(":scope > span");if(icon)icon.className="login-v20-action-icon";
+    const copy=register.querySelector(":scope > div");if(copy)copy.className="login-v20-action-copy";
+    const arrow=register.querySelector(":scope > b");if(arrow)arrow.className="login-v20-action-arrow";
+  }
+}
+
+function courseRegistrationCandidates(card){
+  if(!card)return[];
+  return [...card.querySelectorAll("a,button")].filter(node=>{
+    if(node.id==="openPublicRegisterBtn")return false;
+    const href=node.getAttribute?.("href")||"";
+    const text=normalizedLoginText(node.textContent);
+    return href.includes("dang-ky-hoc-lai-xe")||text.includes("dang ky hoc lai xe moi");
+  });
+}
+
 function ensureCourseRegistration(card){
-  if(!card||card.querySelector(".login-v20-course-register"))return;
-  const zalo=card.querySelector(".zalo-contact,.login-v20-zalo");
-  const link=document.createElement("a");
+  if(!card)return;
+  const candidates=courseRegistrationCandidates(card);
+  let link=card.querySelector("#loginCourseRegistrationBtn,.login-v20-course-register");
+  if(!link)link=candidates.find(node=>node.tagName==="A")||null;
+  if(!link){
+    link=document.createElement("a");
+    const zalo=card.querySelector(".zalo-contact,.login-v20-zalo");
+    if(zalo)zalo.insertAdjacentElement("beforebegin",link);else card.append(link);
+  }
+
+  link.id="loginCourseRegistrationBtn";
   link.className="login-v20-course-register";
   link.href="/dang-ky-hoc-lai-xe.html";
   link.innerHTML=`<span class="login-v20-action-icon" aria-hidden="true">🚘</span><span class="login-v20-action-copy"><strong>Đăng ký học lái xe mới</strong><small>B tự động · B số sàn · C1 · nhận tư vấn lộ trình</small></span><b class="login-v20-action-arrow" aria-hidden="true">→</b>`;
-  if(zalo)zalo.insertAdjacentElement("beforebegin",link);else card.append(link);
+
+  const zalo=card.querySelector(".zalo-contact,.login-v20-zalo");
+  if(zalo&&link.nextElementSibling!==zalo)zalo.insertAdjacentElement("beforebegin",link);
+
+  courseRegistrationCandidates(card).forEach(node=>{
+    if(node!==link)node.remove();
+  });
+}
+
+function sanitizeDynamicLogin(login){
+  if(!login)return;
+  hideLegacyLoginInsertions(login);
+  const card=document.getElementById("loginForm");
+  normalizePublicTheoryRegister(card);
+  ensureCourseRegistration(card);
 }
 
 function isolateLogin(){
@@ -85,32 +137,32 @@ function isolateLogin(){
   if(submit){submit.classList.remove("primary","login-submit");submit.classList.add("login-v20-submit")}
 
   replaceClass(card?.querySelector(".login-divider,.login-v20-divider"),"login-divider","login-v20-divider");
+  normalizePublicTheoryRegister(card);
 
-  const register=document.getElementById("openPublicRegisterBtn");
-  if(register){
-    register.classList.remove("public-register-cta");
-    register.classList.add("login-v20-register");
-    const icon=register.querySelector(":scope > span");if(icon)icon.className="login-v20-action-icon";
-    const copy=register.querySelector(":scope > div");if(copy)copy.className="login-v20-action-copy";
-    const arrow=register.querySelector(":scope > b");if(arrow)arrow.className="login-v20-action-arrow";
-  }
-
-  const zalo=replaceClass(card?.querySelector(".zalo-contact,.login-v20-zalo"),"zalo-contact","login-v20-zalo");
+  replaceClass(card?.querySelector(".zalo-contact,.login-v20-zalo"),"zalo-contact","login-v20-zalo");
   replaceClass(card?.querySelector(".login-register,.login-v20-register-note"),"login-register","login-v20-register-note");
   replaceClass(card?.querySelector(".login-security,.login-v20-security"),"login-security","login-v20-security");
 
-  ensureCourseRegistration(card);
-  hideLegacyLoginInsertions(login);
+  sanitizeDynamicLogin(login);
 
   if(login.dataset.v20Observed!=="1"){
     login.dataset.v20Observed="1";
+    let scheduled=false;
+    const scheduleSanitize=()=>{
+      if(scheduled)return;
+      scheduled=true;
+      requestAnimationFrame(()=>{
+        scheduled=false;
+        sanitizeDynamicLogin(login);
+      });
+    };
     const observer=new MutationObserver(records=>{
       let added=false;
       for(const record of records){
         if(record.type==="attributes"&&record.target===login)syncBody();
         if(record.type==="childList"&&record.addedNodes.length)added=true;
       }
-      if(added)hideLegacyLoginInsertions(login);
+      if(added)scheduleSanitize();
     });
     observer.observe(login,{subtree:true,childList:true,attributes:true,attributeFilter:["class"]});
   }
