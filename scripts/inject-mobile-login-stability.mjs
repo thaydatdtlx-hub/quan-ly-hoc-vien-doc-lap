@@ -2,7 +2,7 @@ import {copyFile,readFile,writeFile} from "node:fs/promises";
 import {resolve} from "node:path";
 
 const scriptTag='<script type="module" src="/mobile-login-stability.js?v=20260826-4"></script>';
-const finalLoginCss='<link rel="stylesheet" href="/login-final-v26.css?v=26" data-login-final-v26>';
+const finalLoginCss='<link rel="stylesheet" href="/login-final-v27.css?v=27" data-login-final-v27>';
 const loginStateFixCss='<link rel="stylesheet" href="/login-state-fix-v17.css?v=17" data-login-state-fix-v17>';
 
 await copyFile(resolve("mobile-login-stability.js"),resolve("dist","mobile-login-stability.js"));
@@ -12,17 +12,15 @@ for(const name of ["index.html","dang-nhap.html"]){
   let html;
   try{html=await readFile(path,"utf8")}catch{continue}
 
-  // Khong de stylesheet login cu ton tai trong ban build moi.
   html=html.replace(/\s*<link[^>]+data-login-final-v6[^>]*>/g,"");
   html=html.replace(/\s*<link[^>]+data-login-final-v24[^>]*>/g,"");
   html=html.replace(/\s*<link[^>]+data-login-final-v25[^>]*>/g,"");
+  html=html.replace(/\s*<link[^>]+data-login-final-v26[^>]*>/g,"");
 
-  // Tai duy nhat lop override login v26 sau bundle cua Vite.
-  if(!html.includes('data-login-final-v26')){
+  if(!html.includes('data-login-final-v27')){
     html=html.replace("</head>",`  ${finalLoginCss}\n</head>`);
   }
 
-  // Luon tai quy tac trang thai sau login-final de .hidden co quyen uu tien tuyet doi.
   if(!html.includes('data-login-state-fix-v17')){
     html=html.replace("</head>",`  ${loginStateFixCss}\n</head>`);
   }
