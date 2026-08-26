@@ -30,15 +30,7 @@ function normalizePublicTheoryRegister(card){
   if(!register)return;
   register.classList.remove("public-register-cta");
   register.classList.add("login-v20-register");
-
-  const expected="tao tai khoan hoc 600 cau danh cho nguoi hoc chua phai hoc vien thay dat";
-  if(normalizedLoginText(register.textContent)!==expected){
-    register.innerHTML=`<span class="login-v20-action-icon" aria-hidden="true">＋</span><div class="login-v20-action-copy"><strong>Tạo tài khoản học 600 câu</strong><small>Dành cho người học chưa phải học viên Thầy Đạt</small></div><b class="login-v20-action-arrow" aria-hidden="true">→</b>`;
-  }else{
-    const icon=register.querySelector(":scope > span");if(icon)icon.className="login-v20-action-icon";
-    const copy=register.querySelector(":scope > div");if(copy)copy.className="login-v20-action-copy";
-    const arrow=register.querySelector(":scope > b");if(arrow)arrow.className="login-v20-action-arrow";
-  }
+  register.innerHTML=`<span class="login-v20-action-icon" aria-hidden="true">＋</span><div class="login-v20-action-copy"><strong>Tạo tài khoản học 600 câu</strong><small>Dành cho người học chưa phải học viên Thầy Đạt</small></div><b class="login-v20-action-arrow" aria-hidden="true">→</b>`;
 }
 
 function courseRegistrationCandidates(card){
@@ -56,23 +48,26 @@ function ensureCourseRegistration(card){
   const candidates=courseRegistrationCandidates(card);
   let link=card.querySelector("#loginCourseRegistrationBtn,.login-v20-course-register");
   if(!link)link=candidates.find(node=>node.tagName==="A")||null;
-  if(!link){
-    link=document.createElement("a");
-    const zalo=card.querySelector(".zalo-contact,.login-v20-zalo");
-    if(zalo)zalo.insertAdjacentElement("beforebegin",link);else card.append(link);
-  }
+  if(!link)link=document.createElement("a");
 
   link.id="loginCourseRegistrationBtn";
   link.className="login-v20-course-register";
   link.href="/dang-ky-hoc-lai-xe.html";
   link.innerHTML=`<span class="login-v20-action-icon" aria-hidden="true">🚘</span><span class="login-v20-action-copy"><strong>Đăng ký học lái xe mới</strong><small>B tự động · B số sàn · C1 · nhận tư vấn lộ trình</small></span><b class="login-v20-action-arrow" aria-hidden="true">→</b>`;
 
-  const zalo=card.querySelector(".zalo-contact,.login-v20-zalo");
-  if(zalo&&link.nextElementSibling!==zalo)zalo.insertAdjacentElement("beforebegin",link);
-
   courseRegistrationCandidates(card).forEach(node=>{
     if(node!==link)node.remove();
   });
+
+  const publicRegister=card.querySelector("#openPublicRegisterBtn");
+  const zalo=card.querySelector(".zalo-contact,.login-v20-zalo");
+  if(publicRegister&&link.nextElementSibling!==publicRegister){
+    publicRegister.insertAdjacentElement("beforebegin",link);
+  }else if(!publicRegister&&zalo&&link.nextElementSibling!==zalo){
+    zalo.insertAdjacentElement("beforebegin",link);
+  }else if(!publicRegister&&!zalo&&!link.isConnected){
+    card.append(link);
+  }
 }
 
 function sanitizeDynamicLogin(login){
