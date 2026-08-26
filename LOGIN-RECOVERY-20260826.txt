@@ -1,0 +1,1 @@
+Khôi phục production về bản ổn định trước thay đổi cụm nút Admin ngày 2026-08-26 để ưu tiên khả năng đăng nhập. File này chỉ dùng để kích hoạt triển khai production sau rollback.
