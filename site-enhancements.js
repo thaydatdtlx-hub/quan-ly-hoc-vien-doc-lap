@@ -1,4 +1,4 @@
-import "./login-isolated-v20.js?v=6";
+import "./login-isolated-v20.js?v=7";
 
 let baseModulesPromise=null;
 function loadBaseModules(){
