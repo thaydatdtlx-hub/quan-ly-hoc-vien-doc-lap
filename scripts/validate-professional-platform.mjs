@@ -75,7 +75,8 @@ for(const required of [
 ])if(!floatingTools.includes(required))throw new Error(`Cụm bốn nút Admin chưa được thu gọn đồng nhất: ${required}`);
 for(const required of [
   'const mobileQuery=window.matchMedia("(max-width:720px)")',
-  'menu.hidden=!hasTools',
+  'const shouldHideMenu=!hasTools||assistantOpen',
+  'menu.hidden!==shouldHideMenu',
   'button.dataset.toolboxReady="2"',
   'admin-toolbox-item__icon',
   '>₫</span>',
