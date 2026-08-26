@@ -1,0 +1,182 @@
+@import url('/login-force-v5.css?v=5');
+
+/* LOGIN FINAL V6
+   File nay duoc chen CUOI <head> sau tat ca CSS bundle cua Vite.
+   Muc tieu: giao dien login chi con mot lop hien thi, khong con thanh phan cu chen dong. */
+
+/* Thanh phan login cu duoc JS chen them sau khi trang da tai. */
+body #login #professionalLoginTrust,
+body #login .professional-login-trust,
+body #login .system-status{
+  display:none!important;
+  visibility:hidden!important;
+  width:0!important;
+  height:0!important;
+  min-width:0!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  overflow:hidden!important;
+}
+
+/* Chi cho phep cac phan tu chinh thuc cua form login ton tai.
+   Moi CTA / badge cu duoc module legacy chen truc tiep vao login-card se bi an. */
+body #login .login-card > :not(.login-lock):not(.mobile-brand):not(.login-heading):not(.login-label):not(.input-shell):not(.login-options):not(.login-error):not(.login-submit):not(.login-divider):not(.public-register-cta):not(.zalo-contact):not(.login-register):not(.login-security){
+  display:none!important;
+}
+
+/* Khong de chatbot noi che form dang nhap tren mobile. */
+body:has(#login:not(.hidden)) .ai-chat-launcher,
+body:has(#login:not(.hidden)) .ai-chat-panel{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+
+/* Reset cac pseudo-layer va filter con sot lai tu bundle cu. */
+body #login.login-page::before,
+body #login.login-page::after,
+body #login .login-shell::before,
+body #login .login-shell::after,
+body #login .login-intro::before,
+body #login .login-intro::after,
+body #login .login-card::before,
+body #login .login-card::after{
+  content:none!important;
+  display:none!important;
+  background:none!important;
+  box-shadow:none!important;
+  filter:none!important;
+}
+body #login .login-bg-shape,
+body #login .login-dots{
+  display:none!important;
+}
+
+/* Nut dang nhap ban cu la gradient xanh; ban final dung champagne gold. */
+body #login .login-submit,
+body #login .login-card .primary.login-submit{
+  background:#e9bd67!important;
+  background-image:none!important;
+  border:1px solid #e1b75e!important;
+  color:#07182f!important;
+  box-shadow:none!important;
+}
+body #login .login-submit:hover,
+body #login .login-card .primary.login-submit:hover{
+  background:#f2cd7c!important;
+  background-image:none!important;
+  color:#07182f!important;
+}
+
+/* Mobile: mot form sach, khong card long card, khong khoang trang thua. */
+@media(max-width:980px){
+  body #login .login-intro{display:none!important}
+  body #login .login-layout{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    place-items:center!important;
+  }
+}
+
+@media(max-width:560px){
+  body #login.login-page{
+    width:100%!important;
+    min-height:100svh!important;
+    padding:0!important;
+    overflow-x:hidden!important;
+    background:linear-gradient(180deg,#031122 0%,#071a31 100%)!important;
+  }
+  body #login .login-shell{
+    width:100%!important;
+    min-height:100svh!important;
+    margin:0!important;
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+  }
+  body #login .login-layout{
+    width:100%!important;
+    min-height:100svh!important;
+    padding:18px 14px max(22px,env(safe-area-inset-bottom))!important;
+  }
+  body #login .login-card{
+    width:min(100%,500px)!important;
+    margin:auto!important;
+    padding:26px 20px 22px!important;
+    border:1px solid rgba(126,157,188,.34)!important;
+    border-radius:22px!important;
+    background:#081d36!important;
+    box-shadow:0 18px 46px rgba(0,0,0,.28)!important;
+    backdrop-filter:none!important;
+    -webkit-backdrop-filter:none!important;
+  }
+  body #login .login-lock{
+    width:64px!important;
+    height:64px!important;
+    margin:0 auto 12px!important;
+  }
+  body #login .mobile-brand{
+    display:grid!important;
+    justify-items:center!important;
+    gap:3px!important;
+    margin:0 0 14px!important;
+  }
+  body #login .login-heading .eyebrow{
+    margin:0 0 7px!important;
+    color:#d2ae61!important;
+    font-size:9px!important;
+    letter-spacing:.12em!important;
+  }
+  body #login .login-card h1{
+    margin:0!important;
+    color:#fff!important;
+    font-size:27px!important;
+    line-height:1.12!important;
+  }
+  body #login .login-heading .muted{
+    margin:9px auto 20px!important;
+    color:#96a9bb!important;
+    font-size:11px!important;
+  }
+  body #login .login-label{
+    margin:14px 0 7px!important;
+    color:#e8f0f7!important;
+    font-size:11px!important;
+  }
+  body #login .input-shell{
+    min-height:54px!important;
+    border:1px solid #36536f!important;
+    border-radius:12px!important;
+    background:#06172c!important;
+    box-shadow:none!important;
+  }
+  body #login .input-shell input{
+    height:52px!important;
+    font-size:16px!important;
+    color:#fff!important;
+    background:transparent!important;
+  }
+  body #login .login-options{
+    margin-top:14px!important;
+  }
+  body #login .login-submit{
+    min-height:54px!important;
+    margin-top:7px!important;
+    border-radius:12px!important;
+    font-size:14px!important;
+  }
+  body #login .public-register-cta{
+    min-height:58px!important;
+    border-radius:12px!important;
+  }
+  body #login .zalo-contact{
+    min-height:48px!important;
+    border-radius:12px!important;
+  }
+  body #login .login-security{
+    margin-top:13px!important;
+  }
+}
