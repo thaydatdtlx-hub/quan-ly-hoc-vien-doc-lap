@@ -1,0 +1,333 @@
+@import url('/login-final-v24.css?v=24');
+
+/* Login actions v26: stable layout for the three white action cards. */
+#login.login-v20 .login-v20-course-register,
+#login.login-v20 .login-v20-register,
+#login.login-v20 .login-v20-zalo{
+  box-sizing:border-box!important;
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  height:auto!important;
+  min-height:70px!important;
+  margin:0 0 10px!important;
+  overflow:hidden!important;
+  border:1px solid #d8e3ee!important;
+  border-radius:15px!important;
+  background:linear-gradient(180deg,#ffffff 0%,#f2f7fb 100%)!important;
+  color:#0b2d58!important;
+  box-shadow:0 6px 18px rgba(0,0,0,.10),inset 0 1px 0 rgba(255,255,255,.95)!important;
+  text-decoration:none!important;
+  -webkit-tap-highlight-color:transparent!important;
+  touch-action:manipulation!important;
+}
+
+/* Registration cards: icon | text | arrow. Explicitly reset old flex/width rules. */
+#login.login-v20 .login-v20-course-register,
+#login.login-v20 .login-v20-register{
+  display:grid!important;
+  grid-template-columns:46px minmax(0,1fr) 34px!important;
+  grid-template-rows:auto!important;
+  align-items:center!important;
+  column-gap:12px!important;
+  row-gap:0!important;
+  padding:10px 12px!important;
+  text-align:left!important;
+}
+
+#login.login-v20 .login-v20-course-register>* ,
+#login.login-v20 .login-v20-register>*{
+  box-sizing:border-box!important;
+  float:none!important;
+  position:relative!important;
+  inset:auto!important;
+  transform:none!important;
+  margin:0!important;
+  max-width:none!important;
+}
+
+#login.login-v20 .login-v20-action-icon{
+  grid-column:1!important;
+  grid-row:1!important;
+  align-self:center!important;
+  justify-self:center!important;
+  display:grid!important;
+  width:42px!important;
+  min-width:42px!important;
+  max-width:42px!important;
+  height:42px!important;
+  min-height:42px!important;
+  place-items:center!important;
+  padding:0!important;
+  overflow:hidden!important;
+  border:1px solid rgba(35,126,216,.12)!important;
+  border-radius:50%!important;
+  background:#e7f3ff!important;
+  color:#1479e3!important;
+  font-size:18px!important;
+  font-weight:900!important;
+  line-height:1!important;
+  text-align:center!important;
+}
+
+#login.login-v20 .login-v20-course-register .login-v20-action-icon{
+  background:#eaf5ff!important;
+}
+#login.login-v20 .login-v20-register .login-v20-action-icon{
+  background:#e9f4ff!important;
+}
+
+#login.login-v20 .login-v20-action-copy{
+  grid-column:2!important;
+  grid-row:1!important;
+  align-self:center!important;
+  justify-self:stretch!important;
+  display:flex!important;
+  width:auto!important;
+  min-width:0!important;
+  max-width:none!important;
+  height:auto!important;
+  flex:0 1 auto!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  justify-content:center!important;
+  gap:3px!important;
+  padding:0!important;
+  overflow:hidden!important;
+  text-align:left!important;
+}
+
+#login.login-v20 .login-v20-action-copy strong{
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  height:auto!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+  color:#0a2d59!important;
+  font-size:14px!important;
+  font-weight:850!important;
+  line-height:1.2!important;
+  letter-spacing:0!important;
+  white-space:nowrap!important;
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+  text-overflow:ellipsis!important;
+}
+
+#login.login-v20 .login-v20-action-copy small{
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  height:auto!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+  color:#65788d!important;
+  font-size:10.5px!important;
+  font-weight:550!important;
+  line-height:1.25!important;
+  letter-spacing:0!important;
+  white-space:nowrap!important;
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+  text-overflow:ellipsis!important;
+}
+
+#login.login-v20 .login-v20-action-arrow{
+  grid-column:3!important;
+  grid-row:1!important;
+  align-self:center!important;
+  justify-self:end!important;
+  display:grid!important;
+  width:31px!important;
+  min-width:31px!important;
+  max-width:31px!important;
+  height:31px!important;
+  min-height:31px!important;
+  place-items:center!important;
+  padding:0!important;
+  overflow:hidden!important;
+  border:0!important;
+  border-radius:9px!important;
+  background:#e8f0f7!important;
+  color:#214f7d!important;
+  font-size:16px!important;
+  font-weight:900!important;
+  line-height:1!important;
+  text-align:center!important;
+}
+
+/* Zalo is one clean centred row. */
+#login.login-v20 .login-v20-zalo{
+  position:relative!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:12px!important;
+  padding:10px 54px 10px 16px!important;
+  text-align:center!important;
+}
+
+#login.login-v20 .login-v20-zalo strong{
+  position:static!important;
+  display:grid!important;
+  width:42px!important;
+  min-width:42px!important;
+  max-width:42px!important;
+  height:42px!important;
+  min-height:42px!important;
+  flex:0 0 42px!important;
+  place-items:center!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+  border:0!important;
+  border-radius:50%!important;
+  background:#208bf3!important;
+  color:#fff!important;
+  font-size:18px!important;
+  font-weight:900!important;
+  line-height:1!important;
+  text-align:center!important;
+  transform:none!important;
+}
+
+#login.login-v20 .login-v20-zalo span{
+  position:static!important;
+  display:block!important;
+  width:auto!important;
+  min-width:0!important;
+  max-width:none!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:visible!important;
+  color:#0a2e5b!important;
+  font-size:14px!important;
+  font-weight:800!important;
+  line-height:1.25!important;
+  white-space:nowrap!important;
+  text-align:center!important;
+  text-overflow:clip!important;
+  transform:none!important;
+}
+
+#login.login-v20 .login-v20-zalo::after{
+  position:absolute!important;
+  top:50%!important;
+  right:13px!important;
+  display:grid!important;
+  width:31px!important;
+  height:31px!important;
+  place-items:center!important;
+  content:"→"!important;
+  border-radius:9px!important;
+  background:#e3edf6!important;
+  color:#21659e!important;
+  font-size:16px!important;
+  font-weight:900!important;
+  line-height:1!important;
+  transform:translateY(-50%)!important;
+}
+
+/* Keep the primary login button neat while v26 owns all action sizing. */
+#login.login-v20 .login-v20-submit{
+  min-height:56px!important;
+  border-radius:14px!important;
+  font-size:15.5px!important;
+}
+
+@media(hover:hover){
+  #login.login-v20 .login-v20-course-register:hover,
+  #login.login-v20 .login-v20-register:hover,
+  #login.login-v20 .login-v20-zalo:hover{
+    border-color:#b9cee1!important;
+    background:linear-gradient(180deg,#ffffff 0%,#edf5fb 100%)!important;
+    box-shadow:0 9px 22px rgba(0,0,0,.13)!important;
+    transform:translateY(-1px)!important;
+  }
+}
+
+#login.login-v20 .login-v20-course-register:focus-visible,
+#login.login-v20 .login-v20-register:focus-visible,
+#login.login-v20 .login-v20-zalo:focus-visible{
+  outline:3px solid rgba(79,164,240,.38)!important;
+  outline-offset:2px!important;
+}
+
+@media(max-width:1450px), (max-height:900px){
+  #login.login-v20 .login-v20-course-register,
+  #login.login-v20 .login-v20-register,
+  #login.login-v20 .login-v20-zalo{
+    min-height:62px!important;
+    margin-bottom:8px!important;
+  }
+  #login.login-v20 .login-v20-course-register,
+  #login.login-v20 .login-v20-register{
+    grid-template-columns:42px minmax(0,1fr) 30px!important;
+    column-gap:10px!important;
+    padding:8px 10px!important;
+  }
+  #login.login-v20 .login-v20-action-icon{
+    width:38px!important;
+    min-width:38px!important;
+    max-width:38px!important;
+    height:38px!important;
+    min-height:38px!important;
+    font-size:17px!important;
+  }
+  #login.login-v20 .login-v20-action-copy strong{font-size:12.7px!important}
+  #login.login-v20 .login-v20-action-copy small{font-size:9.4px!important}
+  #login.login-v20 .login-v20-action-arrow{
+    width:29px!important;
+    min-width:29px!important;
+    max-width:29px!important;
+    height:29px!important;
+    min-height:29px!important;
+  }
+  #login.login-v20 .login-v20-zalo{padding:8px 48px 8px 12px!important}
+  #login.login-v20 .login-v20-zalo strong{
+    width:38px!important;
+    min-width:38px!important;
+    max-width:38px!important;
+    height:38px!important;
+    min-height:38px!important;
+    flex-basis:38px!important;
+    font-size:16px!important;
+  }
+  #login.login-v20 .login-v20-zalo span{font-size:12.5px!important}
+}
+
+@media(max-width:760px){
+  #login.login-v20 .login-v20-course-register,
+  #login.login-v20 .login-v20-register,
+  #login.login-v20 .login-v20-zalo{
+    min-height:68px!important;
+    border-radius:14px!important;
+  }
+  #login.login-v20 .login-v20-course-register,
+  #login.login-v20 .login-v20-register{
+    grid-template-columns:42px minmax(0,1fr) 28px!important;
+    column-gap:9px!important;
+  }
+  #login.login-v20 .login-v20-action-copy strong{font-size:12.5px!important}
+  #login.login-v20 .login-v20-action-copy small{font-size:9.5px!important}
+  #login.login-v20 .login-v20-zalo span{font-size:12.4px!important}
+}
+
+@media(max-width:430px){
+  #login.login-v20 .login-v20-course-register,
+  #login.login-v20 .login-v20-register{
+    grid-template-columns:40px minmax(0,1fr) 26px!important;
+    column-gap:8px!important;
+    padding-left:9px!important;
+    padding-right:8px!important;
+  }
+  #login.login-v20 .login-v20-action-copy strong{font-size:11.8px!important}
+  #login.login-v20 .login-v20-action-copy small{font-size:9px!important}
+  #login.login-v20 .login-v20-zalo{padding-left:10px!important;padding-right:44px!important;gap:9px!important}
+  #login.login-v20 .login-v20-zalo span{font-size:11.7px!important;white-space:normal!important}
+}
