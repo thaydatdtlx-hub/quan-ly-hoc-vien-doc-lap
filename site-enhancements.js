@@ -1,4 +1,4 @@
-import "./login-isolated-v20.js?v=1";
+import "./login-isolated-v20.js?v=3";
 
 let baseModulesPromise=null;
 
@@ -113,8 +113,9 @@ function ensureMobileViewportStyles(){
 
 function ensureLoginIsolatedStyle(){
   if(!document.getElementById("login"))return;
-  document.querySelectorAll('link[data-login-reference-v19],link[href*="login-reference-v19.css"]').forEach(link=>link.remove());
-  ensureStyleLink("/login-isolated-v20.css?v=1","data-login-isolated-v20");
+  document.querySelectorAll('link[data-login-reference-v19],link[href*="login-reference-v19.css"],link[data-login-approved-v21]').forEach(link=>link.remove());
+  ensureStyleLink("/login-isolated-v20.css?v=2","data-login-isolated-v20");
+  ensureStyleLink("/login-approved-v21.css?v=1","data-login-approved-v21");
 }
 
 const statusHosts=[
