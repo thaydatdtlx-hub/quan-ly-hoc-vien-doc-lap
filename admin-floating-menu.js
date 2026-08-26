@@ -1,3 +1,5 @@
+import "./admin-toolbox-collapsible.css";
+
 const TOOL_SELECTOR=[
   ".student-activity-floating",
   ".admin-site-floating",
