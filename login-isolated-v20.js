@@ -28,9 +28,8 @@ function buildFeatureCards(intro){
 function normalizePublicTheoryRegister(card){
   const register=card?.querySelector("#openPublicRegisterBtn");
   if(!register)return;
-  register.classList.remove("public-register-cta");
-  register.classList.add("login-v20-register");
-  register.innerHTML=`<span class="login-v20-action-icon" aria-hidden="true">＋</span><div class="login-v20-action-copy"><strong>Tạo tài khoản học 600 câu</strong><small>Dành cho người học chưa phải học viên Thầy Đạt</small></div><b class="login-v20-action-arrow" aria-hidden="true">→</b>`;
+  register.className="login-v27-action login-v27-theory";
+  register.innerHTML=`<span class="login-v27-action-icon" aria-hidden="true">＋</span><span class="login-v27-action-copy"><span class="login-v27-action-title">Tạo tài khoản học 600 câu</span><span class="login-v27-action-subtitle">Dành cho người học chưa phải học viên Thầy Đạt</span></span><span class="login-v27-action-arrow" aria-hidden="true">→</span>`;
 }
 
 function courseRegistrationCandidates(card){
@@ -46,21 +45,21 @@ function courseRegistrationCandidates(card){
 function ensureCourseRegistration(card){
   if(!card)return;
   const candidates=courseRegistrationCandidates(card);
-  let link=card.querySelector("#loginCourseRegistrationBtn,.login-v20-course-register");
+  let link=card.querySelector("#loginCourseRegistrationBtn,.login-v27-course,.login-v20-course-register");
   if(!link)link=candidates.find(node=>node.tagName==="A")||null;
   if(!link)link=document.createElement("a");
 
   link.id="loginCourseRegistrationBtn";
-  link.className="login-v20-course-register";
+  link.className="login-v27-action login-v27-course";
   link.href="/dang-ky-hoc-lai-xe.html";
-  link.innerHTML=`<span class="login-v20-action-icon" aria-hidden="true">🚘</span><span class="login-v20-action-copy"><strong>Đăng ký học lái xe mới</strong><small>B tự động · B số sàn · C1 · nhận tư vấn lộ trình</small></span><b class="login-v20-action-arrow" aria-hidden="true">→</b>`;
+  link.innerHTML=`<span class="login-v27-action-icon" aria-hidden="true">🚘</span><span class="login-v27-action-copy"><span class="login-v27-action-title">Đăng ký học lái xe mới</span><span class="login-v27-action-subtitle">B tự động · B số sàn · C1 · nhận tư vấn lộ trình</span></span><span class="login-v27-action-arrow" aria-hidden="true">→</span>`;
 
   courseRegistrationCandidates(card).forEach(node=>{
     if(node!==link)node.remove();
   });
 
   const publicRegister=card.querySelector("#openPublicRegisterBtn");
-  const zalo=card.querySelector(".zalo-contact,.login-v20-zalo");
+  const zalo=card.querySelector(".zalo-contact,.login-v20-zalo,.login-v27-zalo");
   if(publicRegister&&link.nextElementSibling!==publicRegister){
     publicRegister.insertAdjacentElement("beforebegin",link);
   }else if(!publicRegister&&zalo&&link.nextElementSibling!==zalo){
@@ -70,12 +69,20 @@ function ensureCourseRegistration(card){
   }
 }
 
+function normalizeZalo(card){
+  const zalo=card?.querySelector(".zalo-contact,.login-v20-zalo,.login-v27-zalo");
+  if(!zalo)return;
+  zalo.className="login-v27-action login-v27-zalo";
+  zalo.innerHTML=`<span class="login-v27-zalo-mark" aria-hidden="true">Z</span><span class="login-v27-zalo-text">Cần hỗ trợ? Liên hệ qua Zalo</span><span class="login-v27-zalo-arrow" aria-hidden="true">→</span>`;
+}
+
 function sanitizeDynamicLogin(login){
   if(!login)return;
   hideLegacyLoginInsertions(login);
   const card=document.getElementById("loginForm");
   normalizePublicTheoryRegister(card);
   ensureCourseRegistration(card);
+  normalizeZalo(card);
 }
 
 function isolateLogin(){
@@ -133,8 +140,8 @@ function isolateLogin(){
 
   replaceClass(card?.querySelector(".login-divider,.login-v20-divider"),"login-divider","login-v20-divider");
   normalizePublicTheoryRegister(card);
+  normalizeZalo(card);
 
-  replaceClass(card?.querySelector(".zalo-contact,.login-v20-zalo"),"zalo-contact","login-v20-zalo");
   replaceClass(card?.querySelector(".login-register,.login-v20-register-note"),"login-register","login-v20-register-note");
   replaceClass(card?.querySelector(".login-security,.login-v20-security"),"login-security","login-v20-security");
 
