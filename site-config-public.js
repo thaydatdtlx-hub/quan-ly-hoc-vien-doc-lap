@@ -1,6 +1,7 @@
 const SITE_CONFIG_URL="https://pkzxkvcncipfszeukpwu.supabase.co/rest/v1/rpc/app_public_site_config";
 const SITE_CONFIG_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const PRIMARY_ORIGIN="https://www.hoclaixecungdat.com";
+const REGISTRATION_SEO_TITLE="Học lái xe hạng A1,A,B,C1 cùng Đạt";
 
 function isRegistrationPage(){
   return location.pathname==="/dang-ky-hoc-lai-xe.html"||
@@ -59,8 +60,8 @@ function applyRegistrationConfig(config){
   if(primary&&config.primary_cta)primary.textContent=config.primary_cta;
   if(secondary&&config.secondary_cta)secondary.textContent=config.secondary_cta;
 
-  if(config.seo_title)document.title=config.seo_title;
-  setMeta('meta[property="og:title"]',config.seo_title||config.brand_name);
+  document.title=REGISTRATION_SEO_TITLE;
+  setMeta('meta[property="og:title"]',REGISTRATION_SEO_TITLE);
   setMeta('meta[name="description"]',config.seo_description);
   setMeta('meta[property="og:description"]',config.seo_description);
   if(config.og_image)setMeta('meta[property="og:image"]',absolute(config.og_image));

@@ -65,6 +65,7 @@ const trainingDetailsJs=await readFile(resolve(root,"license-training-details.js
 const tuitionDetailsJs=await readFile(resolve(root,"tuition-details.js"),"utf8");
 const faqJs=await readFile(resolve(root,"official-faq-section.js"),"utf8");
 const viteConfig=await readFile(resolve(root,"vite.config.js"),"utf8");
+const registrationSeoTitle="Học lái xe hạng A1,A,B,C1 cùng Đạt";
 const registrationLicenses=["A1","A","B số tự động","B số sàn","C1"];
 for(const license of registrationLicenses){
   if(!registrationHtml.includes(`data-license-card="${license}"`))errors.push(`Biểu mẫu đăng ký: thiếu hạng ${license}`);
@@ -72,6 +73,8 @@ for(const license of registrationLicenses){
   if(!tuitionDetailsJs.includes(`license:"${license}"`))errors.push(`Học phí tư vấn: thiếu hạng ${license}`);
 }
 if(!/<input\b[^>]*id="licenseClass"[^>]*value="B số tự động"/.test(registrationHtml))errors.push("Biểu mẫu đăng ký: hạng mặc định không phải B số tự động");
+if(!registrationHtml.includes(`<title>${registrationSeoTitle}</title>`))errors.push("SEO đăng ký: tiêu đề HTML chưa đúng hạng A1, A, B, C1");
+if(!viteConfig.includes(`title:"${registrationSeoTitle}"`))errors.push("SEO đăng ký: tiêu đề bản build chưa đúng hạng A1, A, B, C1");
 if(!registrationJs.includes('licenseInput.setAttribute("value",storedLicense)'))errors.push("Biểu mẫu đăng ký: chưa đồng bộ giá trị hạng với HTML");
 if(!registrationJs.includes("license_class:selectedLicenseForSubmit()"))errors.push("Biểu mẫu đăng ký: dữ liệu gửi chưa lấy hạng đã đồng bộ");
 if(!registrationHtml.includes("2,5–3 tháng")||!registrationHtml.includes("3,5–4 tháng"))errors.push("Nội dung khóa học: thiếu thời gian dự kiến của hạng B hoặc C1");

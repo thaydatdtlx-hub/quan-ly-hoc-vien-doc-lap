@@ -63,7 +63,7 @@ function updateMeta(){
     attr('meta[name="description"]',"content","Hệ thống quản lý học viên, học phí, lịch đào tạo và tiến độ học tập của Học lái xe cùng Đạt.");
     attr('meta[name="apple-mobile-web-app-title"]',"content","Học lái xe cùng Đạt");
   }else if(kind==="public"){
-    attr('meta[property="og:title"]',"content",`${BRAND.name} · B tự động, B số sàn, C1`);
+    attr('meta[property="og:title"]',"content","Học lái xe hạng A1,A,B,C1 cùng Đạt");
   }
 }
 

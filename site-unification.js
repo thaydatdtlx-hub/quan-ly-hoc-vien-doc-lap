@@ -150,7 +150,7 @@ function addRegistrationNavLinks(nav){
 function enhanceRegistrationPage(){
   if(!isRegistrationPage())return;
 
-  const pageTitle="Học lái xe cùng Đạt";
+  const pageTitle="Học lái xe hạng A1,A,B,C1 cùng Đạt";
   document.title=pageTitle;
   let ogTitle=document.querySelector('meta[property="og:title"]');
   if(!ogTitle){
