@@ -8,49 +8,49 @@ function apiError(data,status,fallback){
   return error;
 }
 
-async function fetchWithTimeout(url,options,timeoutMs){
+async function requestJson(url,options,timeoutMs,fallback){
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),timeoutMs);
-  try{return await fetch(url,{...options,signal:controller.signal})}
-  catch(error){
+  try{
+    const response=await fetch(url,{...options,signal:controller.signal,cache:"no-store"});
+    const data=await response.json().catch(()=>null);
+    if(!response.ok)throw apiError(data,response.status,fallback);
+    return data;
+  }catch(error){
     if(error?.name==="AbortError")throw apiError(null,504,"Kết nối dữ liệu quá thời gian.");
     throw error;
   }finally{clearTimeout(timer)}
 }
 
-async function parseResponse(response,fallback){
-  const data=await response.json().catch(()=>null);
-  if(!response.ok)throw apiError(data,response.status,fallback);
-  return data;
-}
-
-async function proxyRpc(fn,body,timeoutMs){
-  const response=await fetchWithTimeout(PROXY_URL,{
+function proxyRpc(fn,body,timeoutMs){
+  return requestJson(PROXY_URL,{
     method:"POST",
-    cache:"no-store",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({fn,body})
-  },timeoutMs);
-  return parseResponse(response,`Không tải được ${fn}`);
+  },timeoutMs,`Không tải được ${fn}`);
 }
 
-async function directRpc(fn,body,timeoutMs){
-  const response=await fetchWithTimeout(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{
+function directRpc(fn,body,timeoutMs){
+  return requestJson(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{
     method:"POST",
-    cache:"no-store",
     headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},
     body:JSON.stringify(body)
-  },timeoutMs);
-  return parseResponse(response,`Không tải được ${fn}`);
+  },timeoutMs,`Không tải được ${fn}`);
+}
+
+function canUseFallback(error){
+  const status=Number(error?.status)||0;
+  return !status||status===408||status===429||status>=500;
 }
 
 export async function studentRpc(fn,body={},options={}){
-  const proxyTimeoutMs=Number(options.proxyTimeoutMs)||9500;
-  const directTimeoutMs=Number(options.directTimeoutMs)||6500;
-  try{return await proxyRpc(fn,body,proxyTimeoutMs)}
-  catch(proxyError){
-    if(proxyError?.status>=400&&proxyError.status<500)throw proxyError;
-    console.warn(`[student-rpc] same-origin ${fn} failed; using direct fallback.`,proxyError);
-    return directRpc(fn,body,directTimeoutMs);
+  const directTimeoutMs=Number(options.directTimeoutMs)||6000;
+  const proxyTimeoutMs=Number(options.proxyTimeoutMs)||7500;
+  try{
+    return await directRpc(fn,body,directTimeoutMs);
+  }catch(directError){
+    if(!canUseFallback(directError))throw directError;
+    console.warn(`[student-rpc] direct ${fn} failed; using same-origin fallback.`,directError);
+    return proxyRpc(fn,body,proxyTimeoutMs);
   }
 }
