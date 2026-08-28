@@ -43,6 +43,7 @@ export function installBAutomaticDatSupport(fields=[]){
 
     const studentKinds=new Map();
     let currentKind="other";
+    let noteSyncQueued=false;
 
     const applyFieldMode=studentId=>{
       currentKind=studentKinds.get(String(studentId))||"other";
@@ -50,18 +51,29 @@ export function installBAutomaticDatSupport(fields=[]){
     };
 
     const syncNote=()=>{
-      fieldHost.querySelector(".dat-auto-range-note")?.remove();
-      if(currentKind!=="b_auto"||!document.getElementById("date-dat_auto_start"))return;
+      noteSyncQueued=false;
+      const existing=fieldHost.querySelector(".dat-auto-range-note");
+      const shouldShow=currentKind==="b_auto"&&Boolean(document.getElementById("date-dat_auto_start"));
+      if(!shouldShow){
+        existing?.remove();
+        return;
+      }
+      if(existing)return;
       const note=document.createElement("div");
       note.className="dat-range-note dat-auto-range-note";
       note.innerHTML="<strong>DAT dành cho học viên B số tự động</strong><span>Nhập đủ ngày bắt đầu và ngày kết thúc DAT số tự động.</span>";
       fieldHost.insertAdjacentElement("afterbegin",note);
     };
 
+    const queueNoteSync=()=>{
+      if(noteSyncQueued)return;
+      noteSyncQueued=true;
+      queueMicrotask(syncNote);
+    };
+
     const prepare=studentId=>{
       applyFieldMode(studentId||select.value);
-      queueMicrotask(syncNote);
-      setTimeout(syncNote,0);
+      queueNoteSync();
     };
 
     select.addEventListener("change",event=>prepare(event.target.value),true);
@@ -90,7 +102,7 @@ export function installBAutomaticDatSupport(fields=[]){
       }
     },true);
 
-    new MutationObserver(()=>syncNote()).observe(fieldHost,{childList:true});
+    new MutationObserver(queueNoteSync).observe(fieldHost,{childList:true});
 
     (async()=>{
       try{
