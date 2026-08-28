@@ -27,7 +27,7 @@ function localIsoDate(date){
 }
 
 function normalizeLicenseForStorage(value){
-  return value==="B số sàn"?"B số cơ khí":value;
+  return value;
 }
 
 function setLicense(value){
