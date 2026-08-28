@@ -1,8 +1,7 @@
 import {SCHEDULE_FIELDS,embedScheduleInNotes,parseScheduleFromNotes} from "./schedule-data.js";
+import {studentRpc} from "./student-rpc-client.js";
 import "./ai-chat.js";
 
-const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
-const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
 const $=id=>document.getElementById(id);
 const token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"";
 const authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"";
@@ -18,14 +17,16 @@ const DAT_RANGE_PAIRS=[
 let me=null,students=[],trainingSessions=[],trainingRequests=[],trainingSlots=[],events=[],sessionFeatureAvailable=true,requestFeatureAvailable=true,slotFeatureAvailable=true;
 
 async function rpc(fn,body={}){
-  const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{
-    method:"POST",
-    headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},
-    body:JSON.stringify(body)
-  });
-  const data=await response.json().catch(()=>null);
-  if(!response.ok)throw new Error(data?.message||data?.details||data?.error||"Không thể kết nối máy chủ");
-  return data;
+  const started=performance.now();
+  console.info("[schedule-rpc] start",{fn});
+  try{
+    const data=await studentRpc(fn,body,{proxyTimeoutMs:6500,directTimeoutMs:4500});
+    console.info("[schedule-rpc] success",{fn,durationMs:Math.round(performance.now()-started)});
+    return data;
+  }catch(error){
+    console.error("[schedule-rpc] failed",{fn,status:error?.status||0,durationMs:Math.round(performance.now()-started),message:error?.message||String(error)});
+    throw error;
+  }
 }
 async function recordAudit(action,entityType="schedule",entityId="",entityLabel="",details={}){
   try{await rpc("app_record_audit",{p_token:token,p_action:action,p_entity_type:entityType,p_entity_id:String(entityId||""),p_entity_label:entityLabel||"",p_details:details})}catch{}
@@ -37,6 +38,20 @@ function normalize(value){
 function esc(value){return String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[char]))}
 function busy(on){$("loading").classList.toggle("hidden",!on)}
 function toast(message){$("toast").textContent=message;$("toast").classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>$("toast").classList.remove("show"),2800)}
+function isAuthenticationError(error){return /phiên (?:quản trị|đăng nhập).*(?:không hợp lệ|hết hạn)|invalid.*session|session.*expired|không phải tài khoản/i.test(error?.message||"")}
+function showScheduleLoadError(message="Dữ liệu lịch chưa tải được."){
+  let panel=$("scheduleLoadError");
+  if(!panel){
+    panel=document.createElement("section");
+    panel.id="scheduleLoadError";
+    panel.className="schedule-load-error";
+    document.querySelector(".schedule-hero")?.insertAdjacentElement("afterend",panel);
+  }
+  panel.innerHTML=`<span>!</span><div><strong>Lịch đào tạo đang kết nối chậm</strong><p>${esc(message)} Phiên đăng nhập vẫn được giữ và trang không còn bị khóa.</p></div><button type="button">Tải lại dữ liệu</button>`;
+  panel.querySelector("button").onclick=()=>location.reload();
+  panel.classList.remove("hidden");
+}
+function clearScheduleLoadError(){$("scheduleLoadError")?.remove()}
 function dayKey(value){const date=new Date(value);return Number.isNaN(date.valueOf())?"":`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`}
 function todayKey(){return dayKey(new Date())}
 function startOfToday(){const date=new Date();date.setHours(0,0,0,0);return date}
@@ -200,7 +215,7 @@ async function loadTrainingSessions(){
   }catch(error){
     trainingSessions=[];
     sessionFeatureAvailable=false;
-    if(!/app_list_training_sessions|schema cache|PGRST202/i.test(error?.message||""))throw error;
+    console.warn("[schedule] training sessions unavailable",{message:error?.message||String(error)});
   }
 }
 async function loadTrainingRequests(){
@@ -210,7 +225,7 @@ async function loadTrainingRequests(){
   }catch(error){
     trainingRequests=[];
     requestFeatureAvailable=false;
-    if(!/app_list_training_requests|schema cache|PGRST202/i.test(error?.message||""))throw error;
+    console.warn("[schedule] training requests unavailable",{message:error?.message||String(error)});
   }
 }
 async function loadTrainingSlots(){
@@ -220,7 +235,7 @@ async function loadTrainingSlots(){
   }catch(error){
     trainingSlots=[];
     slotFeatureAvailable=false;
-    if(!/app_list_training_slots|schema cache|PGRST202/i.test(error?.message||""))throw error;
+    console.warn("[schedule] training slots unavailable",{message:error?.message||String(error)});
   }
 }
 function slotStatusLabel(status){
@@ -601,17 +616,29 @@ document.querySelectorAll(".dialog-close").forEach(button=>button.onclick=()=>bu
 async function boot(){
   if(!token)return location.replace("/?login=1");
   busy(true);
+  const scheduleLoadWatchdog=setTimeout(()=>{
+    busy(false);
+    showScheduleLoadError("Máy chủ phản hồi lâu hơn dự kiến.");
+  },9000);
   try{
+    let coreLoadWarning="";
     if(authKind==="student"){
       me=await rpc("app_student_me",{p_token:token});
-      students=[await rpc("app_student_portal",{p_token:token})];
+      try{students=[await rpc("app_student_portal",{p_token:token})]}
+      catch(error){if(isAuthenticationError(error))throw error;students=[];coreLoadWarning=error?.message||"Chưa tải được hồ sơ học viên."}
     }else{
       try{
         me=await rpc("app_me",{p_token:token});
-        students=await rpc("app_list_students",{p_token:token,p_owner_id:null})||[];
-      }catch{
+      }catch(error){
+        if(!isAuthenticationError(error))throw error;
         me=await rpc("app_student_me",{p_token:token});
-        students=[await rpc("app_student_portal",{p_token:token})];
+      }
+      if(me?.role==="student"){
+        try{students=[await rpc("app_student_portal",{p_token:token})]}
+        catch(error){if(isAuthenticationError(error))throw error;students=[];coreLoadWarning=error?.message||"Chưa tải được hồ sơ học viên."}
+      }else{
+        try{students=await rpc("app_list_students",{p_token:token,p_owner_id:null})||[]}
+        catch(error){if(isAuthenticationError(error))throw error;students=[];coreLoadWarning=error?.message||"Chưa tải được danh sách học viên."}
       }
     }
     if(!me?.id)throw new Error("Phiên đăng nhập đã hết hạn");
@@ -628,14 +655,19 @@ async function boot(){
     await loadTrainingSessions();
     if(me.role==="admin")await Promise.all([loadTrainingRequests(),loadTrainingSlots()]);
     renderEditorFields(students[0]);renderAll();renderTrainingRequests();renderTrainingSlots();
+    if(coreLoadWarning)showScheduleLoadError(coreLoadWarning);else clearScheduleLoadError();
     if(me.role==="admin"&&!sessionFeatureAvailable)toast("Cần chạy file SQL cập nhật để mở chức năng nhiều buổi");
     if(me.role==="admin"&&!requestFeatureAvailable)toast("Cần chạy file SQL đăng ký lịch để nhận yêu cầu từ học viên");
     if(me.role==="admin"&&!slotFeatureAvailable)toast("Cần chạy file SQL ca học để bật chống trùng lịch");
   }catch(error){
-    for(const store of [localStorage,sessionStorage]){store.removeItem("hv_token");store.removeItem("hv_auth_kind")}
-    alert(error?.message||"Không thể mở lịch đào tạo.");
-    location.replace("/?login=1");
-  }finally{busy(false)}
+    if(isAuthenticationError(error)){
+      for(const store of [localStorage,sessionStorage]){store.removeItem("hv_token");store.removeItem("hv_auth_kind")}
+      location.replace("/?login=1");
+      return;
+    }
+    console.error("[schedule] boot failed",{message:error?.message||String(error)});
+    showScheduleLoadError(error?.message||"Không thể tải dữ liệu lịch lúc này.");
+  }finally{clearTimeout(scheduleLoadWatchdog);busy(false)}
 }
 
 boot();

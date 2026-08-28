@@ -4,6 +4,7 @@ const ALLOWED=new Set([
   "app_student_login",
   "app_login",
   "app_me",
+  "app_list_students",
   "app_list_users",
   "app_student_portal",
   "app_student_me",
@@ -19,7 +20,16 @@ const ALLOWED=new Set([
   "app_student_cancel_training_request",
   "app_student_create_training_request",
   "app_student_create_training_request_slot",
-  "app_student_change_password"
+  "app_student_change_password",
+  "app_record_audit",
+  "app_save_student",
+  "app_admin_save_student_schedule",
+  "app_admin_save_training_session",
+  "app_admin_delete_training_session",
+  "app_admin_save_training_slot",
+  "app_admin_delete_training_slot",
+  "app_admin_review_training_request",
+  "app_admin_review_training_request_slot"
 ]);
 
 async function upstream(fn,body,timeoutMs=8000){
