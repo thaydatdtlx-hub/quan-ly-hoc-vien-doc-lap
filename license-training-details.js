@@ -1,6 +1,42 @@
 import "./license-training-details.css";
 
 const trainingPrograms={
+  "A1":{
+    short:"Xe mô tô hạng A1",
+    title:"Chương trình đào tạo hạng A1",
+    description:"Dành cho người đăng ký điều khiển xe mô tô hai bánh đến 125 cm³ hoặc xe điện đến 11 kW. Lịch học và kế hoạch ôn luyện được xác nhận khi tư vấn.",
+    metrics:[
+      ["A1","Hạng đăng ký"],
+      ["Từ đủ 18 tuổi","Độ tuổi tối thiểu"],
+      ["Mô tô hai bánh","Loại phương tiện"],
+      ["Không thời hạn","Thời hạn giấy phép"]
+    ],
+    modules:[
+      ["⚖️","Pháp luật giao thông","Quy tắc giao thông, báo hiệu đường bộ và trách nhiệm của người điều khiển xe mô tô."],
+      ["🪧","Biển báo và sa hình","Nhận biết hệ thống báo hiệu, thứ tự xe đi và các tình huống giao thông thường gặp."],
+      ["🛡️","Kỹ năng lái xe an toàn","Tư thế lái, quan sát, giữ thăng bằng, phanh và xử lý tình huống trên đường."],
+      ["📝","Ôn tập sát hạch","Luyện câu hỏi lý thuyết và các bài thực hành trong hình theo quy định hiện hành."]
+    ],
+    practice:["Làm quen và kiểm tra xe trước khi lái","Đi qua hình số 8","Đi qua vạch đường thẳng","Đi qua đường có vạch cản","Đi qua đường gồ ghề","Giữ thăng bằng và kiểm soát tốc độ","Kỹ năng phanh an toàn","Ôn luyện nội dung sát hạch"]
+  },
+  "A":{
+    short:"Xe mô tô hạng A",
+    title:"Chương trình đào tạo hạng A",
+    description:"Dành cho người đăng ký điều khiển xe mô tô hai bánh trên 125 cm³ hoặc xe điện trên 11 kW; giấy phép hạng A cũng cho phép điều khiển xe thuộc hạng A1.",
+    metrics:[
+      ["A","Hạng đăng ký"],
+      ["Từ đủ 18 tuổi","Độ tuổi tối thiểu"],
+      ["Mô tô hai bánh","Loại phương tiện"],
+      ["Không thời hạn","Thời hạn giấy phép"]
+    ],
+    modules:[
+      ["⚖️","Pháp luật giao thông","Quy tắc giao thông, báo hiệu đường bộ và trách nhiệm của người điều khiển xe mô tô."],
+      ["🪧","Biển báo và sa hình","Nhận biết hệ thống báo hiệu, thứ tự xe đi và các tình huống giao thông thường gặp."],
+      ["🛡️","Kỹ năng lái xe an toàn","Kiểm soát xe mô tô công suất lớn, quan sát, giữ thăng bằng, phanh và xử lý tình huống."],
+      ["📝","Ôn tập sát hạch","Luyện câu hỏi lý thuyết và các bài thực hành trong hình theo quy định hiện hành."]
+    ],
+    practice:["Làm quen và kiểm tra xe trước khi lái","Đi qua hình số 8","Đi qua vạch đường thẳng","Đi qua đường có vạch cản","Đi qua đường gồ ghề","Kiểm soát xe và giữ thăng bằng","Kỹ năng phanh an toàn","Ôn luyện nội dung sát hạch"]
+  },
   "B số tự động":{
     short:"Ô tô hạng B · Số tự động",
     title:"Chương trình B số tự động",
@@ -68,7 +104,7 @@ function programTemplate(key,program){
       <div class="training-metrics">
         ${program.metrics.map(([value,label])=>`<div class="training-metric"><strong>${value}</strong><span>${label}</span></div>`).join("")}
       </div>
-      <div class="training-overview-note">Thời lượng thể hiện theo chương trình đào tạo tối thiểu. Kế hoạch học thực tế được cơ sở đào tạo sắp xếp theo khóa học và quy định hiện hành.</div>
+      <div class="training-overview-note">Nội dung được tóm tắt theo chương trình của từng hạng. Kế hoạch học thực tế được cơ sở đào tạo sắp xếp theo khóa học và quy định hiện hành.</div>
     </div>
     <div class="training-content">
       <div class="training-content-head">

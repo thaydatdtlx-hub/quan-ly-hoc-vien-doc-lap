@@ -61,14 +61,17 @@ for(const publicAsset of ["public/robots.txt","public/sitemap.xml"]){
 const registrationHtml=await readFile(resolve(root,"dang-ky-hoc-lai-xe.html"),"utf8");
 const registrationJs=await readFile(resolve(root,"new-student-registration.js"),"utf8");
 const eligibilityJs=await readFile(resolve(root,"license-eligibility-section.js"),"utf8");
+const trainingDetailsJs=await readFile(resolve(root,"license-training-details.js"),"utf8");
+const tuitionDetailsJs=await readFile(resolve(root,"tuition-details.js"),"utf8");
 const faqJs=await readFile(resolve(root,"official-faq-section.js"),"utf8");
 const viteConfig=await readFile(resolve(root,"vite.config.js"),"utf8");
-const registrationLicenses=["B số tự động","B số sàn","C1"];
+const registrationLicenses=["A1","A","B số tự động","B số sàn","C1"];
 for(const license of registrationLicenses){
   if(!registrationHtml.includes(`data-license-card="${license}"`))errors.push(`Biểu mẫu đăng ký: thiếu hạng ${license}`);
+  if(!trainingDetailsJs.includes(`"${license}":{`))errors.push(`Nội dung đào tạo: thiếu hạng ${license}`);
+  if(!tuitionDetailsJs.includes(`license:"${license}"`))errors.push(`Học phí tư vấn: thiếu hạng ${license}`);
 }
 if(!/<input\b[^>]*id="licenseClass"[^>]*value="B số tự động"/.test(registrationHtml))errors.push("Biểu mẫu đăng ký: hạng mặc định không phải B số tự động");
-if(registrationHtml.includes('data-license-card="A1"')||registrationHtml.includes('data-license-card="A"'))errors.push("Biểu mẫu đăng ký: còn hạng A/A1 không cung cấp");
 if(!registrationJs.includes('licenseInput.setAttribute("value",storedLicense)'))errors.push("Biểu mẫu đăng ký: chưa đồng bộ giá trị hạng với HTML");
 if(!registrationJs.includes("license_class:selectedLicenseForSubmit()"))errors.push("Biểu mẫu đăng ký: dữ liệu gửi chưa lấy hạng đã đồng bộ");
 if(!registrationHtml.includes("2,5–3 tháng")||!registrationHtml.includes("3,5–4 tháng"))errors.push("Nội dung khóa học: thiếu thời gian dự kiến của hạng B hoặc C1");

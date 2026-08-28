@@ -86,7 +86,7 @@ button{cursor:pointer}
 .course-section,.schedule-section,.faq-section{background:var(--soft)}
 .section-heading{max-width:820px;margin:0 auto 38px;text-align:center}
 .section-heading>span{display:block;margin-top:12px;color:#758696}
-.license-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.license-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px}
 .license-card{display:grid;min-height:250px;align-content:start;gap:10px;padding:22px;border:1px solid var(--line);border-radius:14px;background:#fff;text-align:left;color:var(--ink);box-shadow:0 8px 24px rgba(15,42,65,.045);transition:.2s}
 .license-card:hover{transform:translateY(-3px);border-color:#c7d4de;box-shadow:var(--shadow-sm)}
 .license-card.active{border:2px solid var(--primary);background:#f2f7fb;box-shadow:0 10px 30px rgba(15,76,129,.09)}
@@ -100,7 +100,7 @@ button{cursor:pointer}
 .selected-bar strong{font-size:22px}
 .selected-bar button{margin-left:auto;padding:11px 16px;border:0;border-radius:7px;background:var(--secondary);color:var(--primary-deep);font-weight:900}
 .selected-bar button:hover{background:#e4c383}
-.info-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.info-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
 .info-cards article{padding:22px;border:1px solid var(--line);border-radius:14px;background:#fff;box-shadow:0 8px 22px rgba(15,42,65,.04)}
 .info-cards b{display:grid;width:54px;height:54px;place-items:center;border-radius:12px;background:#edf4f9;color:var(--primary)}
 .info-cards h3{margin:14px 0 8px;color:#1c394f}
