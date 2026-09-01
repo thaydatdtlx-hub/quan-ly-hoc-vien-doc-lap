@@ -21,29 +21,16 @@ jobs:
           from pathlib import Path
           path = Path('app.js')
           text = path.read_text(encoding='utf-8')
-
-          old_boot = '''    showApp();
-    if(me.role==="admin"){await loadUsers();await loadStudentAccounts();await loadPublicTheoryAccounts();await loadOperations();await loadPaymentFeature();await loadAttendanceFeature()}
-    await loadStudents();'''
-          new_boot = '''    showApp();
-    await loadStudents();
-    if(me.role==="admin"){
-      await Promise.allSettled([loadUsers(),loadStudentAccounts(),loadPublicTheoryAccounts(),loadOperations(),loadPaymentFeature(),loadAttendanceFeature()]);
-      renderStudents();
-    }'''
+          old_boot = '    showApp();\n    if(me.role==="admin"){await loadUsers();await loadStudentAccounts();await loadPublicTheoryAccounts();await loadOperations();await loadPaymentFeature();await loadAttendanceFeature()}\n    await loadStudents();'
+          new_boot = '    showApp();\n    await loadStudents();\n    if(me.role==="admin"){\n      await Promise.allSettled([loadUsers(),loadStudentAccounts(),loadPublicTheoryAccounts(),loadOperations(),loadPaymentFeature(),loadAttendanceFeature()]);\n      renderStudents();\n    }'
           if old_boot not in text:
               raise SystemExit('Expected admin boot block not found; refusing unsafe patch')
           text = text.replace(old_boot, new_boot, 1)
-
-          old_students = '''    students=await rpc("app_list_students",{p_token:token,p_owner_id:me.role==="admin"?($("ownerFilter").value||null):null})||[];
-    try{trainingRequests=await rpc("app_list_training_requests",{p_token:token,p_student_id:null})||[]}'''
-          new_students = '''    students=await rpc("app_list_students",{p_token:token,p_owner_id:me.role==="admin"?($("ownerFilter").value||null):null})||[];
-    renderStudents();
-    try{trainingRequests=await rpc("app_list_training_requests",{p_token:token,p_student_id:null})||[]}'''
+          old_students = '    students=await rpc("app_list_students",{p_token:token,p_owner_id:me.role==="admin"?($("ownerFilter").value||null):null})||[];\n    try{trainingRequests=await rpc("app_list_training_requests",{p_token:token,p_student_id:null})||[]}'
+          new_students = '    students=await rpc("app_list_students",{p_token:token,p_owner_id:me.role==="admin"?($("ownerFilter").value||null):null})||[];\n    renderStudents();\n    try{trainingRequests=await rpc("app_list_training_requests",{p_token:token,p_student_id:null})||[]}'
           if old_students not in text:
               raise SystemExit('Expected student loading block not found; refusing unsafe patch')
           text = text.replace(old_students, new_students, 1)
-
           path.write_text(text, encoding='utf-8')
           PY
       - name: Validate JavaScript syntax
