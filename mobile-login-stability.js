@@ -67,6 +67,7 @@ function mountMobileLoginStability(){
   if(!form||form.dataset.mobileStableLogin==="1")return;
   const mobile=matchMedia("(max-width: 900px)").matches||matchMedia("(pointer: coarse)").matches;
   if(!mobile)return;
+  if(window.__HOCLAIXECUNGDAT_RPC_PREFLIGHT__?.active)return;
   form.dataset.mobileStableLogin="1";
   form.addEventListener("submit",async event=>{
     event.preventDefault();event.stopImmediatePropagation();
@@ -76,11 +77,14 @@ function mountMobileLoginStability(){
     const error=document.getElementById("loginError"),button=document.getElementById("loginBtn"),label=button?.querySelector("span");
     if(error)error.textContent="";if(button){button.disabled=true;button.setAttribute("aria-busy","true")}if(label)label.textContent="Đang đăng nhập…";
     try{
-      let result=null,kind="student";
-      try{result=await rpc("app_student_login",{p_username:username,p_password:password});kind=result?.role==="public_theory"?"public_theory":"student"}
-      catch(studentError){
-        try{result=await rpc("app_login",{p_username:username,p_password:password});kind="manager"}
-        catch(managerError){throw studentError?.message&&!/app_student_login|schema cache|PGRST202/i.test(studentError.message)?studentError:managerError}
+      let result=null,kind="manager";
+      try{result=await rpc("app_login",{p_username:username,p_password:password});kind="manager"}
+      catch(managerError){
+        try{result=await rpc("app_student_login",{p_username:username,p_password:password});kind=result?.role==="public_theory"?"public_theory":"student"}
+        catch(studentError){
+          if(/app_student_login|schema cache|PGRST202/i.test(errorText(studentError)))throw managerError;
+          throw studentError;
+        }
       }
       if(!result?.token)throw new Error("Máy chủ chưa trả phiên đăng nhập. Vui lòng thử lại.");
       saveAuth(result.token,kind,remember);
