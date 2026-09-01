@@ -4,7 +4,6 @@ import {resolve} from "node:path";
 // Validator compatibility marker: mobile-login-stability.js?v=20260901-1
 const scriptTag='<script type="module" src="/mobile-login-stability.js?v=20260901-2"></script>';
 const rpcPreflightTag='<script src="/rpc-preflight.js?v=20260901-4"></script>';
-const fastLoginTag='<script src="/fast-login-rescue.js?v=20260901-1"></script>';
 const finalLoginCss='<link rel="stylesheet" href="/login-final-v28.css?v=28-1" data-login-final-v28>';
 const loginStateFixCss='<link rel="stylesheet" href="/login-state-fix-v17.css?v=17" data-login-state-fix-v17>';
 
@@ -22,7 +21,7 @@ for(const name of ["index.html","dang-nhap.html"]){
   if(!html.includes('data-login-state-fix-v17'))html=html.replace("</head>",`  ${loginStateFixCss}\n</head>`);
   html=html.replace(/\s*<script[^>]+src=["'][^"']*rpc-preflight\.js[^"']*["'][^>]*><\/script>/g,"");
   html=html.replace(/\s*<script[^>]+src=["'][^"']*fast-login-rescue\.js[^"']*["'][^>]*><\/script>/g,"");
-  html=html.replace("</head>",`  ${rpcPreflightTag}\n  ${fastLoginTag}\n</head>`);
+  html=html.replace("</head>",`  ${rpcPreflightTag}\n</head>`);
   html=html.replace(/\s*<script[^>]+src=["'][^"']*mobile-login-stability\.js[^"']*["'][^>]*><\/script>/g,"");
   html=html.replace("</body>",`  ${scriptTag}\n</body>`);
   await writeFile(path,html,"utf8");
