@@ -50,7 +50,7 @@ if(document.getElementById("app")){
 const DISMISS_KEY="thay_dat_pwa_install_dismissed";
 const DISMISS_DAYS=7;
 const PUBLIC_MARKETING_PATHS=new Set(["/dang-ky-hoc-lai-xe.html","/600-cau-hoi.html","/bo-tuc-tay-lai.html","/chinh-sach-bao-mat.html"]);
-const SW_REFRESH_KEY="hoclaixecungdat_sw_refresh_v50";
+const SW_REFRESH_KEY="hoclaixecungdat_sw_refresh_v51";
 let deferredInstallPrompt=null;
 let installBanner=null;
 
@@ -71,7 +71,7 @@ async function clearPublicPwaState(){
   try{
     if("caches" in window){
       const keys=await caches.keys();
-      await Promise.all(keys.filter(name=>name.startsWith("thay-dat-pwa-")||name.startsWith("hoclaixecungdat-pwa-")).map(name=>caches.delete(name)));
+      await Promise.all(keys.filter(name=>name.startsWith("thay-dat-pwa-")||name.startsWith("hoclaixecungdat-pwa-")).map(name=>caches.delete(key)));
     }
   }catch{}
 }
