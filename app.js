@@ -111,8 +111,11 @@ async function boot(){
     if(!me?.id)throw new Error("Phiên đăng nhập hết hạn");
     authKind="manager";
     showApp();
-    if(me.role==="admin"){await loadUsers();await loadStudentAccounts();await loadPublicTheoryAccounts();await loadOperations();await loadPaymentFeature();await loadAttendanceFeature()}
     await loadStudents();
+    if(me.role==="admin"){
+      await Promise.allSettled([loadUsers(),loadStudentAccounts(),loadPublicTheoryAccounts(),loadOperations(),loadPaymentFeature(),loadAttendanceFeature()]);
+      renderStudents();
+    }
     notificationTimer=setInterval(async()=>{
       if(document.visibilityState!=="visible")return;
       await loadServerNotifications();renderAccountNotifications();
@@ -188,6 +191,7 @@ $("logoutBtn").onclick=async()=>{busy(true);try{await rpc("app_logout",{p_token:
 async function loadStudents(){
   try{
     students=await rpc("app_list_students",{p_token:token,p_owner_id:me.role==="admin"?($("ownerFilter").value||null):null})||[];
+    renderStudents();
     try{trainingRequests=await rpc("app_list_training_requests",{p_token:token,p_student_id:null})||[]}
     catch(error){if(!/app_list_training_requests|schema cache|PGRST202/i.test(error?.message||""))throw error;trainingRequests=[]}
     const requestsByStudent=new Map();
