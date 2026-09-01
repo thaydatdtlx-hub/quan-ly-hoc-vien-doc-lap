@@ -1,6 +1,6 @@
 function fixNoticeText(value){return String(value??"").replace(/\bng(?:à6|á6)(?=\s+\d{2}\/\d{2}\/\d{4})/giu,"ngày")}
 // Compatibility marker for the existing safety validator: thay-dat-pwa-v44
-const CACHE_NAME="hoclaixecungdat-pwa-v51";
+const CACHE_NAME="hoclaixecungdat-pwa-v50";
 const CORE_ASSETS=["/?login=1","/offline.html","/site.webmanifest","/mobile-viewport-lock.css?v=3","/app-icon-192.png","/app-icon-512.png","/app-icon-maskable-512.png","/apple-touch-icon-180.png","/logo-thay-dat-compact.webp"];
 const LEGACY_PWA_HOSTS=new Set(["hoc-vien-thay-dat.vercel.app"]);
 const PUBLIC_FRESH_PATHS=new Set(["/dang-ky-hoc-lai-xe.html","/600-cau-hoi.html","/bo-tuc-tay-lai.html","/chinh-sach-bao-mat.html","/hero-vip-navy-champagne.webp"]);
