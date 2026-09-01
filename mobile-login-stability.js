@@ -58,6 +58,7 @@ function saveAuth(token,kind,remember){
   sessionStorage.setItem("hv_token",token);sessionStorage.setItem("hv_auth_kind",kind);
   if(remember){localStorage.setItem("hv_token",token);localStorage.setItem("hv_auth_kind",kind)}
 }
+function currentToken(){return localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||""}
 function errorText(error){return error?.message||"Đăng nhập chưa thành công. Vui lòng thử lại."}
 
 function mountMobileLoginStability(){
@@ -94,6 +95,123 @@ function mountMobileLoginStability(){
   },true);
 }
 
-if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",mountMobileLoginStability,{once:true});
-else mountMobileLoginStability();
-window.addEventListener("pageshow",mountMobileLoginStability);
+function adminIsActive(){
+  const app=document.getElementById("app"),accountName=document.getElementById("accountName");
+  return Boolean(app&&!app.classList.contains("hidden")&&/\badmin\b/i.test(accountName?.textContent||""));
+}
+
+function installTuitionEditorStyles(){
+  if(document.querySelector("style[data-admin-tuition-entry-fix]"))return;
+  const style=document.createElement("style");
+  style.setAttribute("data-admin-tuition-entry-fix","");
+  style.textContent=`
+    .tuition-profile-field-moved{display:none!important}
+    .tuition-profile-note{grid-column:1/-1;padding:12px 14px;border:1px solid rgba(21,95,175,.18);border-radius:12px;background:rgba(21,95,175,.06);font-size:13px;line-height:1.45}
+    .tuition-profile-note strong{display:block;margin-bottom:3px}
+    .payment-tuition-editor{display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,240px) auto;gap:12px;align-items:end;margin:14px 0;padding:14px;border:1px solid rgba(21,95,175,.18);border-radius:14px;background:rgba(21,95,175,.05)}
+    .payment-tuition-editor__copy strong,.payment-tuition-editor__copy small{display:block}
+    .payment-tuition-editor__copy small{margin-top:4px;opacity:.72;line-height:1.4}
+    .payment-tuition-editor label{display:grid;gap:6px;font-weight:700}
+    .payment-tuition-editor input{min-width:0;width:100%}
+    .payment-tuition-editor button{min-height:44px;white-space:nowrap}
+    .payment-tuition-editor__status{grid-column:1/-1;min-height:18px;font-size:12px;margin:0}
+    @media(max-width:720px){.payment-tuition-editor{grid-template-columns:1fr}.payment-tuition-editor__status{grid-column:auto}}
+  `;
+  document.head.append(style);
+}
+
+function hideTuitionFromStudentProfile(){
+  const total=document.getElementById("tuitionTotal"),paid=document.getElementById("paid");
+  for(const input of [total,paid])input?.closest("label")?.classList.add("tuition-profile-field-moved");
+  if(document.getElementById("tuitionProfileMovedNote"))return;
+  const course=document.getElementById("course")?.closest("label");
+  if(!course)return;
+  const note=document.createElement("div");
+  note.id="tuitionProfileMovedNote";
+  note.className="tuition-profile-note";
+  note.innerHTML="<strong>Học phí được quản lý riêng</strong><span>Tổng học phí và các lần thu được nhập tại <b>Sổ thu &amp; Phiếu thu</b>, không nhập trong phần thông tin liên hệ.</span>";
+  course.insertAdjacentElement("afterend",note);
+}
+
+function createTuitionEditor(){
+  const dialog=document.getElementById("paymentDialog"),toolbar=dialog?.querySelector(".payment-toolbar");
+  if(!dialog||!toolbar)return null;
+  let box=document.getElementById("paymentTuitionTotalEditorBox");
+  if(box)return box;
+  box=document.createElement("section");
+  box.id="paymentTuitionTotalEditorBox";
+  box.className="payment-tuition-editor";
+  box.innerHTML=`
+    <div class="payment-tuition-editor__copy">
+      <strong>Thiết lập tổng học phí</strong>
+      <small>Chọn học viên ở phía trên, nhập tổng học phí tại đây. Các lần đã thu tiếp tục ghi bằng Phiếu thu bên dưới.</small>
+    </div>
+    <label>Tổng học phí
+      <input id="paymentTuitionTotalEditor" type="number" min="0" step="1000" inputmode="numeric" disabled>
+    </label>
+    <button id="savePaymentTuitionTotalBtn" class="primary" type="button" disabled>Lưu tổng học phí</button>
+    <p id="paymentTuitionTotalStatus" class="payment-tuition-editor__status" role="status" aria-live="polite"></p>
+  `;
+  toolbar.insertAdjacentElement("afterend",box);
+  return box;
+}
+
+async function refreshTuitionEditor(){
+  if(!adminIsActive())return;
+  const select=document.getElementById("paymentStudentSelect"),input=document.getElementById("paymentTuitionTotalEditor"),button=document.getElementById("savePaymentTuitionTotalBtn"),status=document.getElementById("paymentTuitionTotalStatus");
+  if(!select||!input||!button||!status)return;
+  const studentId=select.value;
+  if(!studentId){
+    input.value="";input.disabled=true;button.disabled=true;status.textContent="Chọn một học viên để nhập tổng học phí.";return;
+  }
+  const token=currentToken();
+  if(!token){status.textContent="Phiên đăng nhập đã hết hạn.";input.disabled=true;button.disabled=true;return}
+  input.disabled=true;button.disabled=true;status.textContent="Đang tải tổng học phí…";
+  try{
+    const students=await rpc("app_list_students",{p_token:token,p_owner_id:null});
+    const student=(Array.isArray(students)?students:[]).find(item=>String(item.id)===String(studentId));
+    if(!student)throw new Error("Không tìm thấy học viên đã chọn.");
+    input.value=String(Number(student.tuition_total)||0);
+    input.disabled=false;button.disabled=false;
+    const paid=Number(student.paid)||0,debt=Math.max(0,(Number(student.tuition_total)||0)-paid);
+    status.textContent=`Đã thu theo số dư hiện tại: ${paid.toLocaleString("vi-VN")} ₫ · Còn nợ: ${debt.toLocaleString("vi-VN")} ₫.`;
+  }catch(error){
+    input.disabled=true;button.disabled=true;status.textContent=error?.message||"Chưa tải được học phí.";
+  }
+}
+
+function mountAdminTuitionEditor(){
+  if(!adminIsActive())return;
+  installTuitionEditorStyles();
+  hideTuitionFromStudentProfile();
+  const box=createTuitionEditor();
+  if(!box||box.dataset.ready==="1")return;
+  box.dataset.ready="1";
+  const select=document.getElementById("paymentStudentSelect"),button=document.getElementById("savePaymentTuitionTotalBtn"),input=document.getElementById("paymentTuitionTotalEditor"),status=document.getElementById("paymentTuitionTotalStatus"),dialog=document.getElementById("paymentDialog");
+  select?.addEventListener("change",()=>setTimeout(refreshTuitionEditor,0));
+  if(dialog)new MutationObserver(()=>{if(dialog.hasAttribute("open"))setTimeout(refreshTuitionEditor,0)}).observe(dialog,{attributes:true,attributeFilter:["open"]});
+  button?.addEventListener("click",async()=>{
+    const studentId=select?.value||"",total=Number(input?.value);
+    if(!studentId){status.textContent="Vui lòng chọn học viên.";return}
+    if(!Number.isFinite(total)||total<0){status.textContent="Tổng học phí phải là số hợp lệ và không âm.";return}
+    const token=currentToken();
+    if(!token){status.textContent="Phiên đăng nhập đã hết hạn.";return}
+    button.disabled=true;input.disabled=true;status.textContent="Đang lưu tổng học phí…";
+    try{
+      const result=await rpc("app_admin_set_student_tuition_total",{p_token:token,p_student_id:studentId,p_tuition_total:total});
+      const saved=Number(result?.tuition_total??total)||0;
+      status.textContent=`Đã lưu tổng học phí ${saved.toLocaleString("vi-VN")} ₫. Đang cập nhật lại danh sách…`;
+      setTimeout(()=>location.reload(),450);
+    }catch(error){
+      status.textContent=error?.message||"Chưa lưu được tổng học phí.";button.disabled=false;input.disabled=false;
+    }
+  });
+  setTimeout(refreshTuitionEditor,0);
+}
+
+function mountAllStabilityFixes(){mountMobileLoginStability();mountAdminTuitionEditor()}
+
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",mountAllStabilityFixes,{once:true});
+else mountAllStabilityFixes();
+window.addEventListener("pageshow",mountAllStabilityFixes);
+new MutationObserver(()=>mountAdminTuitionEditor()).observe(document.documentElement,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:["class"]});
