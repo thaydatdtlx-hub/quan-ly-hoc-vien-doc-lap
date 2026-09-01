@@ -23,6 +23,7 @@ const ALLOWED=new Set([
   "app_student_change_password",
   "app_record_audit",
   "app_save_student",
+  "app_admin_set_student_tuition_total",
   "app_admin_save_student_schedule",
   "app_admin_save_training_session",
   "app_admin_delete_training_session",
