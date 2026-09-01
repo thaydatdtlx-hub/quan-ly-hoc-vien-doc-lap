@@ -6,9 +6,18 @@ const ALLOWED=new Set([
   "app_me",
   "app_list_students",
   "app_list_users",
+  "app_list_student_accounts",
+  "app_admin_list_public_theory_accounts",
+  "app_list_deleted_students",
+  "app_list_audit_logs",
+  "app_list_student_payments",
+  "app_list_attendance_records",
+  "app_admin_list_theory_progress",
+  "app_list_training_hour_targets",
   "app_student_portal",
   "app_student_me",
   "app_student_logout",
+  "app_logout",
   "app_student_list_attendance",
   "app_student_list_payments",
   "app_list_training_sessions",
@@ -55,7 +64,7 @@ function parsedBody(req){
 export default async function handler(req,res){
   res.setHeader("Cache-Control","no-store, no-cache, must-revalidate, max-age=0");
   res.setHeader("Content-Type","application/json; charset=utf-8");
-  res.setHeader("X-Student-RPC","same-origin-v3");
+  res.setHeader("X-Student-RPC","same-origin-v4");
   if(req.method==="GET"){
     try{
       const response=await upstream("app_public_site_config",{},5000);
