@@ -1,5 +1,9 @@
 import "./login-isolated-v20.js?v=7";
 
+if(location.pathname==="/600-cau-hoi.html"){
+  import("./theory-account-identity.js?v=1").catch(error=>console.warn("[site-enhancements] Không thể tải thông tin tài khoản lý thuyết.",error));
+}
+
 let baseModulesPromise=null;
 function loadBaseModules(){
   if(baseModulesPromise)return baseModulesPromise;
