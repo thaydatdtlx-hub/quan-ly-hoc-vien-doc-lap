@@ -1,0 +1,66 @@
+/* High-risk overlay collision guard.
+ * Keeps persistent banners away from navigation, chat and sticky headers.
+ */
+:root{
+  --overlay-offline-height:36px;
+}
+
+/* PWA install prompt: stay above bottom controls, but below the AI chat layer. */
+.pwa-install-banner{
+  bottom:calc(96px + env(safe-area-inset-bottom))!important;
+  z-index:1180!important;
+}
+
+@media(max-width:720px){
+  .pwa-install-banner{
+    right:12px!important;
+    left:12px!important;
+    bottom:calc(142px + env(safe-area-inset-bottom))!important;
+    width:auto!important;
+    max-width:none!important;
+  }
+}
+
+/* Offline status: reserve real layout space instead of covering the page header. */
+body.professional-offline{
+  padding-top:calc(var(--overlay-offline-height) + env(safe-area-inset-top))!important;
+}
+
+body.professional-offline::before{
+  content:"Đang ngoại tuyến · Dữ liệu có thể chưa được cập nhật."!important;
+  top:0!important;
+  min-height:calc(var(--overlay-offline-height) + env(safe-area-inset-top))!important;
+  padding:calc(6px + env(safe-area-inset-top)) 12px 6px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  box-sizing:border-box!important;
+  z-index:1300!important;
+  line-height:1.25!important;
+}
+
+/* Sticky public/app headers must stop below the offline status strip. */
+body.professional-offline .mobile-appbar,
+body.professional-offline .quiz-topbar,
+body.professional-offline .site-header,
+body.professional-offline .refresh-header{
+  top:calc(var(--overlay-offline-height) + env(safe-area-inset-top))!important;
+}
+
+body.professional-offline .mobile-page-tabs{
+  top:calc(66px + var(--overlay-offline-height) + env(safe-area-inset-top) + env(safe-area-inset-top))!important;
+}
+
+body.professional-offline .refresh-process{
+  top:calc(110px + var(--overlay-offline-height) + env(safe-area-inset-top))!important;
+}
+
+@media(min-width:1100px){
+  body.professional-offline .professional-sidebar{
+    top:calc(78px + var(--overlay-offline-height) + env(safe-area-inset-top))!important;
+  }
+
+  body.professional-offline.professional-admin-shell #dashboardMain>.toolbar{
+    top:calc(84px + var(--overlay-offline-height) + env(safe-area-inset-top))!important;
+  }
+}
