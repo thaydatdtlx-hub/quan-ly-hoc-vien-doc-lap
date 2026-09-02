@@ -48,7 +48,7 @@ body.professional-offline .refresh-header{
 }
 
 body.professional-offline .mobile-page-tabs{
-  top:calc(66px + var(--overlay-offline-height) + env(safe-area-inset-top) + env(safe-area-inset-top))!important;
+  top:calc(66px + var(--overlay-offline-height) + env(safe-area-inset-top))!important;
 }
 
 body.professional-offline .refresh-process{
