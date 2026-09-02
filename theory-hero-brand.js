@@ -1,7 +1,17 @@
 import "./theory-hero-brand.css";
 
+function ensureTheoryHeroPolish(){
+  if(document.querySelector('link[data-theory-hero-polish-v2]'))return;
+  const link=document.createElement("link");
+  link.rel="stylesheet";
+  link.href="/theory-hero-polish-v2.css?v=20260902-1";
+  link.dataset.theoryHeroPolishV2="1";
+  document.head.append(link);
+}
+
 function enhanceTheoryHero(){
   if(location.pathname!=="/600-cau-hoi.html")return;
+  ensureTheoryHeroPolish();
   const hero=document.querySelector(".study-hero");
   const copy=hero?.querySelector(".hero-copy");
   const visual=hero?.querySelector(".hero-visual");
