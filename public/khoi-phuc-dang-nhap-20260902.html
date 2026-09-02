@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+  <meta name="theme-color" content="#07182f">
+  <title>Khôi phục đăng nhập · Học lái xe cùng Đạt</title>
+  <style>
+    :root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color-scheme:dark}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100dvh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at top,#17406f 0,#07182f 48%,#03101f 100%);color:#fff}
+    main{width:min(520px,100%);padding:30px 24px;border:1px solid rgba(255,255,255,.24);border-radius:24px;background:rgba(5,26,51,.9);box-shadow:0 24px 70px rgba(0,0,0,.35);text-align:center}
+    .spinner{width:54px;height:54px;margin:0 auto 20px;border:5px solid rgba(255,255,255,.18);border-top-color:#f2c45f;border-radius:50%;animation:spin .8s linear infinite}
+    h1{font-size:24px;margin:0 0 10px}p{margin:0;color:#c7d5e7;line-height:1.55}small{display:block;margin-top:18px;color:#8da5bf}
+    button{display:none;width:100%;margin-top:22px;padding:14px 18px;border:0;border-radius:14px;background:#f2c45f;color:#07182f;font-size:17px;font-weight:800}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="spinner" aria-hidden="true"></div>
+    <h1>Đang khôi phục đăng nhập</h1>
+    <p id="status" role="status" aria-live="polite">Đang xoá phiên bản cũ và tải lại cổng đăng nhập mới…</p>
+    <button id="continueBtn" type="button">Mở lại trang đăng nhập</button>
+    <small>Không thay đổi tài khoản, mật khẩu hoặc dữ liệu học viên.</small>
+  </main>
+  <script>
+    (()=>{
+      const status=document.getElementById("status");
+      const button=document.getElementById("continueBtn");
+      const target=()=>`/?login=1&fix=20260902-4&t=${Date.now()}`;
+      const clearAuth=()=>{
+        for(const store of [localStorage,sessionStorage]){
+          store.removeItem("hv_token");
+          store.removeItem("hv_auth_kind");
+          store.removeItem("hoclaixecungdat_sw_refresh_v50");
+          store.removeItem("hoclaixecungdat_sw_refresh_v51");
+        }
+      };
+      const recover=async()=>{
+        clearAuth();
+        try{
+          if("serviceWorker" in navigator){
+            const registrations=await navigator.serviceWorker.getRegistrations();
+            await Promise.all(registrations.map(registration=>registration.unregister()));
+          }
+        }catch(error){console.warn("Không thể hủy service worker cũ",error)}
+        try{
+          if("caches" in window){
+            const keys=await caches.keys();
+            await Promise.all(keys.filter(key=>key.startsWith("thay-dat-pwa-")||key.startsWith("hoclaixecungdat-pwa-")).map(key=>caches.delete(key)));
+          }
+        }catch(error){console.warn("Không thể xóa cache cũ",error)}
+        status.textContent="Đã làm mới. Đang mở lại cổng đăng nhập…";
+        setTimeout(()=>location.replace(target()),250);
+      };
+      button.addEventListener("click",()=>location.replace(target()));
+      recover().catch(error=>{
+        console.error(error);
+        status.textContent="Đã chuẩn bị đường dẫn mới. Nhấn nút bên dưới để tiếp tục.";
+        button.style.display="block";
+      });
+      setTimeout(()=>{
+        if(location.pathname.includes("khoi-phuc-dang-nhap")){
+          status.textContent="Nhấn nút bên dưới để mở lại cổng đăng nhập.";
+          button.style.display="block";
+        }
+      },6000);
+    })();
+  </script>
+</body>
+</html>
