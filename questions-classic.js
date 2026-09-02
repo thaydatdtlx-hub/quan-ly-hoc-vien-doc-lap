@@ -13,6 +13,41 @@ function ensureCandidatePhotoStyle(){
   document.head.append(style);
 }
 
+function ensurePaletteLayoutStyle(){
+  if(document.getElementById('theoryPaletteLayoutStyle'))return;
+  const style=document.createElement('style');
+  style.id='theoryPaletteLayoutStyle';
+  style.textContent=`
+    @supports selector(body:has(*)){
+      body.theory-classic-ready:has(#studyWorkspace:not(.hidden)) .theory-rail-palette-host .question-palette.classic-exam-palette{
+        grid-auto-flow:column!important;
+        grid-template-rows:repeat(15,36px)!important;
+        grid-template-columns:repeat(var(--classic-palette-columns,2),minmax(0,1fr))!important;
+        grid-auto-columns:minmax(0,1fr)!important;
+        align-content:start!important;
+      }
+      body.theory-classic-ready:has(#studyWorkspace:not(.hidden)) .theory-rail-palette-host .question-palette.classic-exam-palette button{
+        height:36px!important;
+        min-height:36px!important;
+      }
+    }
+    @media(max-width:900px){
+      @supports selector(body:has(*)){
+        body.theory-classic-ready:has(#studyWorkspace:not(.hidden)) #paletteDialog[open] .question-palette.classic-exam-palette{
+          grid-auto-flow:column!important;
+          grid-template-rows:repeat(15,42px)!important;
+          grid-template-columns:repeat(var(--classic-palette-columns,2),minmax(86px,1fr))!important;
+          grid-auto-columns:minmax(86px,1fr)!important;
+          align-content:start!important;
+          max-height:70vh!important;
+          overflow:auto!important;
+        }
+      }
+    }
+  `;
+  document.head.append(style);
+}
+
 function ensureCandidateStrip(main){
   let strip=document.querySelector('.theory-candidate-strip');
   if(strip)return strip;
@@ -122,6 +157,57 @@ async function loadCandidateInfo(){
   }
 }
 
+function isClassicExamMode(){
+  const kicker=String($('workspaceKicker')?.textContent||'').toUpperCase();
+  return kicker.includes('THI THỬ')||kicker.includes('XEM LẠI BÀI THI');
+}
+
+function syncPaletteLayout(){
+  const palette=$('questionPalette');
+  if(!palette)return;
+  const buttons=[...palette.querySelectorAll('[data-palette-index]')];
+  const examMode=isClassicExamMode()&&buttons.length>0;
+  palette.classList.toggle('classic-exam-palette',examMode);
+  if(!examMode){
+    palette.style.removeProperty('--classic-palette-columns');
+    return;
+  }
+
+  const columns=Math.max(1,Math.ceil(buttons.length/15));
+  palette.style.setProperty('--classic-palette-columns',String(columns));
+  buttons.forEach((button,index)=>{
+    const label=String(index+1);
+    if(button.textContent.trim()!==label)button.textContent=label;
+    button.setAttribute('aria-label',`Câu ${label}`);
+    button.title=`Câu ${label}`;
+  });
+
+  const activeIndex=buttons.findIndex(button=>button.classList.contains('current'));
+  const questionNumber=$('questionNumber');
+  if(questionNumber&&activeIndex>=0){
+    const label=`CÂU ${activeIndex+1} / ${buttons.length}`;
+    if(questionNumber.textContent!==label)questionNumber.textContent=label;
+  }
+}
+
+function observePalette(){
+  const palette=$('questionPalette');
+  if(!palette||palette.dataset.classicPaletteObserved==='1')return;
+  palette.dataset.classicPaletteObserved='1';
+  let queued=false;
+  const queueSync=()=>{
+    if(queued)return;
+    queued=true;
+    queueMicrotask(()=>{
+      queued=false;
+      syncPaletteLayout();
+    });
+  };
+  const observer=new MutationObserver(queueSync);
+  observer.observe(palette,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+  syncPaletteLayout();
+}
+
 function buildClassicShell(){
   const workspace=$('studyWorkspace');
   if(!workspace||workspace.dataset.classicReady==='1')return;
@@ -173,6 +259,7 @@ function buildClassicShell(){
   workspace.dataset.classicReady='1';
   syncResponsiveControls();
   syncMode();
+  syncPaletteLayout();
 }
 
 function syncResponsiveControls(){
@@ -201,6 +288,7 @@ function syncMode(){
   const practiceEnd=document.querySelector('.theory-practice-end');
   if(mode&&timer)mode.classList.toggle('hidden',!timer.classList.contains('hidden'));
   if(practiceEnd&&finish)practiceEnd.classList.toggle('hidden',!finish.classList.contains('hidden'));
+  syncPaletteLayout();
 }
 
 function makeMobilePaletteWork(){
@@ -216,6 +304,7 @@ function makeMobilePaletteWork(){
       if(target)target.insertAdjacentElement('afterend',palette);
       else dialog.append(palette);
     }
+    syncPaletteLayout();
   },true);
   dialog.addEventListener('close',()=>{
     if(window.innerWidth>900)restoreDesktopPalette();
@@ -227,6 +316,7 @@ function restoreDesktopPalette(){
   const palette=$('questionPalette');
   const host=document.querySelector('.theory-rail-palette-host');
   if(host&&palette&&palette.parentElement!==host)host.append(palette);
+  syncPaletteLayout();
 }
 
 function handleResize(){
@@ -237,7 +327,9 @@ function handleResize(){
 
 function boot(){
   document.body.classList.add('theory-classic-ready');
+  ensurePaletteLayoutStyle();
   buildClassicShell();
+  observePalette();
   makeMobilePaletteWork();
   handleResize();
   void loadCandidateInfo();
