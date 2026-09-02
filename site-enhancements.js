@@ -4,6 +4,10 @@ if(location.pathname==="/600-cau-hoi.html"){
   import("./theory-account-identity.js?v=1").catch(error=>console.warn("[site-enhancements] Không thể tải thông tin tài khoản lý thuyết.",error));
 }
 
+if(location.pathname==="/hoc-vien.html"){
+  import("./student-account-view.js?v=1").catch(error=>console.warn("[site-enhancements] Không thể tải mục Tài khoản học viên.",error));
+}
+
 let baseModulesPromise=null;
 function loadBaseModules(){
   if(baseModulesPromise)return baseModulesPromise;
