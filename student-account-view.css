@@ -1,0 +1,188 @@
+.student-account-view{display:none}
+
+@media(max-width:720px){
+  body.student-account-view-active{background:#f4f8fc}
+  body.student-account-view-active #studentPortal> :not(#studentAccountView){display:none!important}
+  body.student-account-view-active .mobile-page-tabs,
+  body.student-account-view-active .contact-footer{display:none!important}
+
+  .student-account-view{
+    width:100%;
+    padding:16px 12px calc(112px + env(safe-area-inset-bottom));
+    gap:16px;
+    outline:none;
+  }
+  .student-account-view:not([hidden]){display:grid}
+  .student-account-view[hidden]{display:none!important}
+
+  .student-account-view-head{
+    display:grid;
+    grid-template-columns:72px minmax(0,1fr);
+    align-items:center;
+    gap:14px;
+    padding:18px;
+    border:1px solid #d7e5f2;
+    border-radius:24px;
+    background:linear-gradient(135deg,#07386b 0,#0b5fae 62%,#0b75cf 100%);
+    box-shadow:0 16px 38px #174b781f;
+    color:#fff;
+  }
+  .student-account-view-avatar{
+    position:relative;
+    display:grid;
+    width:72px;
+    height:72px;
+    place-items:center;
+    overflow:visible;
+    border:3px solid #ffffffd9;
+    border-radius:22px;
+    background:#edf4fb;
+    box-shadow:0 12px 28px #062a5138;
+    color:#0b4d8f;
+    font-size:21px;
+    font-weight:950;
+  }
+  .student-account-view-avatar img{
+    width:100%;
+    height:100%;
+    border-radius:19px;
+    object-fit:cover;
+  }
+  .student-account-view-avatar i{
+    position:absolute;
+    right:-3px;
+    bottom:-3px;
+    width:17px;
+    height:17px;
+    border:3px solid #fff;
+    border-radius:50%;
+    background:#19b35a;
+  }
+  .student-account-view-copy{min-width:0}
+  .student-account-view-copy p{
+    margin:0 0 4px;
+    color:#bfe2ff;
+    font-size:10px;
+    font-weight:900;
+    letter-spacing:.13em;
+  }
+  .student-account-view-copy h1{
+    overflow:hidden;
+    margin:0;
+    font-size:22px;
+    line-height:1.2;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .student-account-view-tags{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin-top:9px;
+  }
+  .student-account-view-tags span{
+    max-width:100%;
+    overflow:hidden;
+    padding:5px 8px;
+    border:1px solid #ffffff38;
+    border-radius:999px;
+    background:#ffffff17;
+    color:#eef8ff;
+    font-size:9px;
+    font-weight:800;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+
+  .student-account-profile-slot{display:block;min-width:0}
+  .student-account-profile-slot .profile-panel{
+    display:block!important;
+    width:100%;
+    min-width:0;
+    margin:0!important;
+    border-radius:24px;
+  }
+  .student-account-profile-slot .profile-panel .student-self-profile-trigger{
+    margin:0 0 2px;
+  }
+
+  .student-account-security{
+    display:grid;
+    gap:16px;
+    padding:20px;
+    border:1px solid #d7e5f2;
+    border-radius:24px;
+    background:#fff;
+    box-shadow:0 14px 34px #174b7812;
+  }
+  .student-account-security p{
+    margin:0 0 5px;
+    color:#0d76d8;
+    font-size:10px;
+    font-weight:900;
+    letter-spacing:.14em;
+  }
+  .student-account-security h2{
+    margin:0;
+    color:#0a3564;
+    font-size:20px;
+  }
+  .student-account-security span{
+    display:block;
+    margin-top:6px;
+    color:#71879b;
+    font-size:12px;
+    line-height:1.55;
+  }
+  .student-account-security-actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  .student-account-security-actions button{
+    min-height:46px;
+    border:1px solid #cfe0ef;
+    border-radius:14px;
+    background:#f4f9fd;
+    color:#0a4f91;
+    font:inherit;
+    font-size:12px;
+    font-weight:900;
+  }
+  .student-account-security-actions button.danger{
+    border-color:#f0d5d7;
+    background:#fff7f7;
+    color:#bf3440;
+  }
+  .student-account-security-actions button:focus-visible{
+    outline:3px solid #72b7f4;
+    outline-offset:2px;
+  }
+
+  .mobile-bottom-nav [data-student-account-view="open"]>span{
+    display:grid;
+    place-items:center;
+  }
+  .mobile-bottom-nav [data-student-account-view="open"] .mobile-icon{
+    width:24px;
+    height:24px;
+    fill:none;
+    stroke:currentColor;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    stroke-width:1.8;
+  }
+}
+
+@media(max-width:390px){
+  .student-account-view{padding-right:10px;padding-left:10px}
+  .student-account-view-head{grid-template-columns:62px minmax(0,1fr);padding:16px}
+  .student-account-view-avatar{width:62px;height:62px;border-radius:19px}
+  .student-account-view-avatar img{border-radius:16px}
+  .student-account-view-copy h1{font-size:19px}
+  .student-account-security-actions{grid-template-columns:1fr}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .student-account-view *{scroll-behavior:auto!important}
+}
