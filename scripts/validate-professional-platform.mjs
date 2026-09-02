@@ -70,7 +70,7 @@ for(const required of [
 if(pwa.includes('import("./brand-wording-cleanup.js")'))throw new Error("PWA vẫn tải trình theo dõi thương hiệu toàn DOM cũ.");
 
 for(const required of [
-  'hoclaixecungdat-pwa-v50',
+  'hoclaixecungdat-pwa-v51',
   '/platform-professional.js',
   '/platform-professional.css',
   'SKIP_WAITING'
