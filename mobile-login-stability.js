@@ -218,4 +218,5 @@ function mountAllStabilityFixes(){mountMobileLoginStability();mountAdminTuitionE
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",mountAllStabilityFixes,{once:true});
 else mountAllStabilityFixes();
 window.addEventListener("pageshow",mountAllStabilityFixes);
-new MutationObserver(()=>mountAdminTuitionEditor()).observe(document.documentElement,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:["class"]});
+const adminRoot=document.getElementById("app");
+if(adminRoot)new MutationObserver(()=>mountAdminTuitionEditor()).observe(adminRoot,{attributes:true,attributeFilter:["class"]});

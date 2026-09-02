@@ -111,6 +111,7 @@ async function boot(){
     if(!me?.id)throw new Error("Phiên đăng nhập hết hạn");
     authKind="manager";
     showApp();
+    await nextPaint();
     await loadStudents();
     if(me.role==="admin"){
       await Promise.allSettled([loadUsers(),loadStudentAccounts(),loadPublicTheoryAccounts(),loadOperations(),loadPaymentFeature(),loadAttendanceFeature()]);
@@ -125,14 +126,21 @@ async function boot(){
 }
 function clearAuth(){for(const store of [localStorage,sessionStorage]){store.removeItem("hv_token");store.removeItem("hv_auth_kind")}token="";authKind=""}
 function saveAuth(remember){for(const store of [localStorage,sessionStorage]){store.removeItem("hv_token");store.removeItem("hv_auth_kind")}const store=remember?localStorage:sessionStorage;store.setItem("hv_token",token);store.setItem("hv_auth_kind",authKind)}
-function showLogin(){$("login").classList.remove("hidden");$("app").classList.add("hidden")}
+function showLogin(){
+  const login=$("login"),app=$("app");
+  login.hidden=false;login.removeAttribute("aria-hidden");login.style.removeProperty("display");login.classList.remove("hidden");
+  app.classList.add("hidden");app.hidden=true;
+}
 function showApp(){
-  $("login").classList.add("hidden");$("app").classList.remove("hidden");
+  const login=$("login"),app=$("app");
+  login.classList.add("hidden");login.hidden=true;login.setAttribute("aria-hidden","true");login.style.setProperty("display","none","important");
+  app.hidden=false;app.classList.remove("hidden");app.removeAttribute("aria-hidden");app.style.removeProperty("display");
   $("accountName").textContent=me.role==="admin"?`${me.username} · Admin`:me.username;
   document.querySelectorAll(".admin-only").forEach(x=>x.classList.toggle("hidden",me.role!=="admin"));
   $("ownerFilter").classList.toggle("hidden",me.role!=="admin");
   $("studentOwnerWrap").classList.toggle("hidden",me.role!=="admin");
 }
+function nextPaint(){return new Promise(resolve=>requestAnimationFrame(()=>setTimeout(resolve,0)))}
 
 $("loginForm").onsubmit=async e=>{
   e.preventDefault();$("loginError").textContent="";$("loginBtn").disabled=true;$("loginBtn").setAttribute("aria-busy","true");$("loginBtn").querySelector("span").textContent="Đang đăng nhập…";
@@ -191,7 +199,7 @@ $("logoutBtn").onclick=async()=>{busy(true);try{await rpc("app_logout",{p_token:
 async function loadStudents(){
   try{
     students=await rpc("app_list_students",{p_token:token,p_owner_id:me.role==="admin"?($("ownerFilter").value||null):null})||[];
-    renderStudents();
+    await nextPaint();
     try{trainingRequests=await rpc("app_list_training_requests",{p_token:token,p_student_id:null})||[]}
     catch(error){if(!/app_list_training_requests|schema cache|PGRST202/i.test(error?.message||""))throw error;trainingRequests=[]}
     const requestsByStudent=new Map();
@@ -202,7 +210,7 @@ async function loadStudents(){
     students.forEach(student=>student.training_requests=requestsByStudent.get(String(student.id))||[]);
     if(me.role==="admin")await loadTheoryProgress();
     await loadServerNotifications();
-    renderStudents();
+    safeRender("renderStudents-final",renderStudents);
     if(students.length&&!Object.prototype.hasOwnProperty.call(students[0],"online_status")&&!sessionStorage.getItem("progress_sql_warning")){sessionStorage.setItem("progress_sql_warning","1");alert("Cơ sở dữ liệu chưa có đủ các mục tiến độ. Admin cần chạy file CAP-NHAT-TIEN-DO.sql trong Supabase SQL Editor.")}
   }
   catch(err){toast(errText(err))}
@@ -356,6 +364,10 @@ function mergedAccountNotices(){
   const summary=earlyWarningSummary(earlyWarnings),warningNotice=me?.role==="admin"&&summary.total?[{id:`early-warning-${summary.total}-${summary.critical}-${summary.high}`,category:"general",tone:summary.critical?"red":"orange",icon:"!",title:`${summary.students} học viên cần được hỗ trợ`,body:`${summary.critical} cảnh báo khẩn cấp · ${summary.high} ưu tiên cao · ${summary.total} nội dung cần xử lý.`,href:"/#earlyWarningDashboard",action:"Mở cảnh báo sớm"}]:[];
   return [...warningNotice,...serverNotices,...local.filter(notice=>!serverKeys.has(`${notice.title}|${notice.body}`))];
 }
+function safeRender(name,fn){
+  try{return fn()}
+  catch(error){console.error(`[${name}]`,error);return null}
+}
 function renderStudents(){
   const q=normalize($("search").value);
   const inStat=s=>statFilter==="all"||(statFilter==="learning"&&!isExamPassed(s.exam_status))||(statFilter==="debt"&&(Number(s.tuition_total)||0)>(Number(s.paid)||0));
@@ -369,15 +381,17 @@ function renderStudents(){
   $("totalStudents").textContent=students.length;
   $("learningStudents").textContent=students.filter(s=>!isExamPassed(s.exam_status)).length;
   $("debtStudents").textContent=students.filter(s=>(s.tuition_total||0)>(s.paid||0)).length;
-  renderTheoryDashboard();
-  renderFinanceDashboard();
-  renderAttendanceDashboard();
-  renderEarlyWarnings();
+  safeRender("renderTheoryDashboard",renderTheoryDashboard);
+  safeRender("renderFinanceDashboard",renderFinanceDashboard);
+  safeRender("renderAttendanceDashboard",renderAttendanceDashboard);
+  safeRender("renderEarlyWarnings",renderEarlyWarnings);
   const labels={all:["Danh sách tất cả học viên","Toàn bộ hồ sơ đang quản lý"],learning:["Học viên đang học","Các học viên chưa đậu kỳ thi sát hạch"],debt:["Học viên còn nợ học phí","Các hồ sơ có số tiền đã thu thấp hơn tổng học phí"]};
   $("studentListTitle").textContent=labels[statFilter][0];$("studentListNote").textContent=labels[statFilter][1];
   document.querySelectorAll("[data-stat-filter]").forEach(card=>{const active=card.dataset.statFilter===statFilter;card.classList.toggle("active",active);card.setAttribute("aria-pressed",String(active))});
-  renderAccountNotifications();
-  publishAdminAssistantContext();
+  safeRender("renderAccountNotifications",renderAccountNotifications);
+  if(!matchMedia("(pointer: coarse)").matches){
+    setTimeout(()=>safeRender("publishAdminAssistantContext",publishAdminAssistantContext),0);
+  }
 }
 function warningIcon(type){return{attendance:"✓",theory:"600",finance:"₫",profile:"▤",schedule:"▣",training:"◷"}[type]||"!"}
 function warningTypeLabel(type){return{attendance:"Chuyên cần",theory:"Lý thuyết",finance:"Học phí",profile:"Hồ sơ",schedule:"Lịch thi",training:"Giờ đào tạo"}[type]||"Cảnh báo"}
