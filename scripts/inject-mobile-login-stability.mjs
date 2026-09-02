@@ -3,7 +3,7 @@ import {resolve} from "node:path";
 
 // Validator compatibility marker: mobile-login-stability.js?v=20260901-1
 const scriptTag='<script type="module" src="/mobile-login-stability.js?v=20260901-2"></script>';
-const rpcPreflightTag='<script src="/rpc-preflight.js?v=20260901-5"></script>';
+const rpcPreflightTag='<script src="/rpc-preflight.js?v=20260902-1"></script>';
 const finalLoginCss='<link rel="stylesheet" href="/login-final-v28.css?v=28-1" data-login-final-v28>';
 const loginStateFixCss='<link rel="stylesheet" href="/login-state-fix-v17.css?v=17" data-login-state-fix-v17>';
 
