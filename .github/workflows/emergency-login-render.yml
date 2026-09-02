@@ -1,0 +1,159 @@
+name: Emergency login render recovery
+
+on:
+  push:
+    paths:
+      - ".github/login-render-trigger.txt"
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Patch login handoff and mobile render stability
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_once(text, old, new, label):
+              if old not in text:
+                  raise SystemExit(f"Expected block not found: {label}")
+              return text.replace(old, new, 1)
+
+          app_path = Path("app.js")
+          app = app_path.read_text(encoding="utf-8")
+
+          old_visibility = '''function showLogin(){$("login").classList.remove("hidden");$("app").classList.add("hidden")}
+          function showApp(){
+            $("login").classList.add("hidden");$("app").classList.remove("hidden");
+            $("accountName").textContent=me.role==="admin"?`${me.username} · Admin`:me.username;
+            document.querySelectorAll(".admin-only").forEach(x=>x.classList.toggle("hidden",me.role!=="admin"));
+            $("ownerFilter").classList.toggle("hidden",me.role!=="admin");
+            $("studentOwnerWrap").classList.toggle("hidden",me.role!=="admin");
+          }'''
+          new_visibility = '''function showLogin(){
+            const login=$("login"),app=$("app");
+            login.hidden=false;login.removeAttribute("aria-hidden");login.style.removeProperty("display");login.classList.remove("hidden");
+            app.classList.add("hidden");app.hidden=true;
+          }
+          function showApp(){
+            const login=$("login"),app=$("app");
+            login.classList.add("hidden");login.hidden=true;login.setAttribute("aria-hidden","true");login.style.setProperty("display","none","important");
+            app.hidden=false;app.classList.remove("hidden");app.removeAttribute("aria-hidden");app.style.removeProperty("display");
+            $("accountName").textContent=me.role==="admin"?`${me.username} · Admin`:me.username;
+            document.querySelectorAll(".admin-only").forEach(x=>x.classList.toggle("hidden",me.role!=="admin"));
+            $("ownerFilter").classList.toggle("hidden",me.role!=="admin");
+            $("studentOwnerWrap").classList.toggle("hidden",me.role!=="admin");
+          }
+          function nextPaint(){return new Promise(resolve=>requestAnimationFrame(()=>setTimeout(resolve,0)))}'''
+          app = replace_once(app, old_visibility, new_visibility, "login visibility")
+
+          app = replace_once(
+              app,
+              '''    showApp();
+              await loadStudents();''',
+              '''    showApp();
+              await nextPaint();
+              await loadStudents();''',
+              "paint before dashboard loading",
+          )
+
+          app = replace_once(
+              app,
+              '''    students=await rpc("app_list_students",{p_token:token,p_owner_id:me.role==="admin"?($("ownerFilter").value||null):null})||[];
+              renderStudents();
+              try{trainingRequests=await rpc("app_list_training_requests",{p_token:token,p_student_id:null})||[]}''',
+              '''    students=await rpc("app_list_students",{p_token:token,p_owner_id:me.role==="admin"?($("ownerFilter").value||null):null})||[];
+              await nextPaint();
+              try{trainingRequests=await rpc("app_list_training_requests",{p_token:token,p_student_id:null})||[]}''',
+              "defer first heavy render",
+          )
+
+          app = replace_once(
+              app,
+              '''    await loadServerNotifications();
+              renderStudents();''',
+              '''    await loadServerNotifications();
+              safeRender("renderStudents-final",renderStudents);''',
+              "safe final render",
+          )
+
+          marker = '''function renderStudents(){
+          '''
+          safe_helper = '''function safeRender(name,fn){
+            try{return fn()}
+            catch(error){console.error(`[${name}]`,error);return null}
+          }
+          function renderStudents(){
+          '''
+          app = replace_once(app, marker, safe_helper, "safe render helper")
+
+          old_widgets = '''  renderTheoryDashboard();
+            renderFinanceDashboard();
+            renderAttendanceDashboard();
+            renderEarlyWarnings();'''
+          new_widgets = '''  safeRender("renderTheoryDashboard",renderTheoryDashboard);
+            safeRender("renderFinanceDashboard",renderFinanceDashboard);
+            safeRender("renderAttendanceDashboard",renderAttendanceDashboard);
+            safeRender("renderEarlyWarnings",renderEarlyWarnings);'''
+          app = replace_once(app, old_widgets, new_widgets, "dashboard widget guards")
+
+          old_tail = '''  renderAccountNotifications();
+            publishAdminAssistantContext();
+          }'''
+          new_tail = '''  safeRender("renderAccountNotifications",renderAccountNotifications);
+            if(!matchMedia("(pointer: coarse)").matches){
+              setTimeout(()=>safeRender("publishAdminAssistantContext",publishAdminAssistantContext),0);
+            }
+          }'''
+          app = replace_once(app, old_tail, new_tail, "defer admin assistant on mobile")
+
+          app_path.write_text(app, encoding="utf-8")
+
+          mobile_path = Path("mobile-login-stability.js")
+          mobile = mobile_path.read_text(encoding="utf-8")
+          mobile = replace_once(
+              mobile,
+              'new MutationObserver(()=>mountAdminTuitionEditor()).observe(document.documentElement,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:["class"]});',
+              'const adminRoot=document.getElementById("app");\nif(adminRoot)new MutationObserver(()=>mountAdminTuitionEditor()).observe(adminRoot,{attributes:true,attributeFilter:["class"]});',
+              "limit mobile mutation observer",
+          )
+          mobile_path.write_text(mobile, encoding="utf-8")
+
+          inject_path = Path("scripts/inject-mobile-login-stability.mjs")
+          inject = inject_path.read_text(encoding="utf-8")
+          inject = replace_once(
+              inject,
+              'const scriptTag=\'<script type="module" src="/mobile-login-stability.js?v=20260901-2"></script>\';',
+              'const scriptTag=\'<script type="module" src="/mobile-login-stability.js?v=20260902-3"></script>\';',
+              "mobile runtime cache bust",
+          )
+          inject_path.write_text(inject, encoding="utf-8")
+          PY
+
+      - name: Validate JavaScript syntax and production build
+        shell: bash
+        run: |
+          npm ci
+          node --check app.js
+          node --check mobile-login-stability.js
+          npm run build
+
+      - name: Commit emergency recovery
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app.js mobile-login-stability.js scripts/inject-mobile-login-stability.mjs
+          if git diff --cached --quiet; then
+            echo "No changes required"
+            exit 0
+          fi
+          git commit -m "Unfreeze mobile login after successful authentication"
+          git push
