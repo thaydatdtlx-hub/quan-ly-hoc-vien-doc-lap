@@ -1,5 +1,10 @@
 const SUPABASE_URL="https://pkzxkvcncipfszeukpwu.supabase.co";
 const SUPABASE_KEY="sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo";
+const DEFAULT_MAX_BODY_CHARS=20000;
+const LARGE_BODY_LIMITS=new Map([
+  ["app_save_student",1200000],
+  ["app_student_update_profile",1000000]
+]);
 const ALLOWED=new Set([
   "app_student_login",
   "app_login",
@@ -16,6 +21,7 @@ const ALLOWED=new Set([
   "app_list_training_hour_targets",
   "app_student_portal",
   "app_student_me",
+  "app_student_update_profile",
   "app_student_logout",
   "app_logout",
   "app_student_list_attendance",
@@ -42,14 +48,14 @@ const ALLOWED=new Set([
   "app_admin_review_training_request_slot"
 ]);
 
-async function upstream(fn,body,timeoutMs=8000){
+async function upstream(fn,serializedBody,timeoutMs=8000){
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),timeoutMs);
   try{return await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{
     method:"POST",
     signal:controller.signal,
     headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},
-    body:JSON.stringify(body)
+    body:serializedBody
   })}finally{clearTimeout(timer)}
 }
 
@@ -61,13 +67,20 @@ function parsedBody(req){
   return {};
 }
 
+function bodyLimit(fn){return LARGE_BODY_LIMITS.get(fn)||DEFAULT_MAX_BODY_CHARS}
+function largeRequestMessage(fn){
+  return LARGE_BODY_LIMITS.has(fn)
+    ?"Ảnh sau khi nén vẫn quá lớn. Vui lòng chọn ảnh khác hoặc giảm kích thước ảnh."
+    :"Dữ liệu gửi lên quá lớn.";
+}
+
 export default async function handler(req,res){
   res.setHeader("Cache-Control","no-store, no-cache, must-revalidate, max-age=0");
   res.setHeader("Content-Type","application/json; charset=utf-8");
   res.setHeader("X-Student-RPC","same-origin-v4");
   if(req.method==="GET"){
     try{
-      const response=await upstream("app_public_site_config",{},5000);
+      const response=await upstream("app_public_site_config","{}",5000);
       return res.status(response.ok?200:502).json({ok:response.ok,upstreamStatus:response.status});
     }catch(error){
       console.error("[student-rpc] health failed",{timeout:error?.name==="AbortError"});
@@ -79,9 +92,18 @@ export default async function handler(req,res){
   const fn=String(incoming.fn||"");
   if(!ALLOWED.has(fn))return res.status(400).json({error:"RPC not allowed"});
   const body=incoming.body&&typeof incoming.body==="object"?incoming.body:{};
-  if(JSON.stringify(body).length>20000)return res.status(413).json({error:"Request too large"});
+  const serializedBody=JSON.stringify(body);
+  const limit=bodyLimit(fn);
+  if(serializedBody.length>limit){
+    return res.status(413).json({
+      error:"Request too large",
+      message:largeRequestMessage(fn),
+      maxChars:limit
+    });
+  }
   try{
-    const response=await upstream(fn,body);
+    const timeoutMs=serializedBody.length>DEFAULT_MAX_BODY_CHARS?15000:8000;
+    const response=await upstream(fn,serializedBody,timeoutMs);
     const text=await response.text();
     if(!response.ok)console.warn("[student-rpc] upstream rejected",{fn,status:response.status});
     res.status(response.status);
