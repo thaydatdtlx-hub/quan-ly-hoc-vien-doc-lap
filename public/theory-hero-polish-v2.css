@@ -1,0 +1,146 @@
+/* Hero 600 câu: tách mảng trắng/xanh rõ ràng, bỏ lớp sương trắng che ảnh. */
+.study-hero.theory-brand-hero{
+  grid-template-columns:minmax(0,1.14fr) minmax(430px,.86fr);
+  isolation:isolate;
+  background:#071d34;
+}
+.study-hero.theory-brand-hero:before,
+.study-hero.theory-brand-hero:after{
+  z-index:2;
+  pointer-events:none;
+}
+.study-hero.theory-brand-hero:before{
+  right:45%;
+  bottom:-360px;
+  width:720px;
+  height:720px;
+}
+.study-hero.theory-brand-hero:after{
+  right:40%;
+  top:-390px;
+  width:650px;
+  height:650px;
+}
+.theory-brand-hero .hero-copy{
+  z-index:4;
+  min-width:0;
+  padding-right:92px;
+  background:#fff;
+  clip-path:polygon(0 0,100% 0,91% 100%,0 100%);
+}
+.theory-brand-hero .hero-copy h1{max-width:760px}
+.theory-brand-hero .hero-actions button{
+  transition:transform .18s ease,box-shadow .18s ease,background .18s ease;
+}
+.theory-brand-hero .hero-actions button:focus-visible{
+  outline:3px solid #6bb6ff;
+  outline-offset:3px;
+}
+.theory-brand-hero .hero-visual{
+  z-index:1;
+  margin-left:-11%;
+  background:
+    linear-gradient(180deg,#03152a08,#03152a24),
+    url('/hero-vip-navy-champagne.webp') 56% center/cover no-repeat;
+}
+.theory-brand-hero .hero-visual:before{
+  position:absolute;
+  z-index:2;
+  top:0;
+  bottom:0;
+  left:0;
+  width:122px;
+  background:linear-gradient(180deg,#0a3d72 0,#0a2f58 100%);
+  clip-path:polygon(0 0,100% 0,22% 100%,0 100%);
+  content:"";
+  opacity:.9;
+  pointer-events:none;
+}
+.theory-brand-hero .hero-visual:after{
+  z-index:3;
+  right:-2%;
+  bottom:0;
+  width:108%;
+  height:96px;
+  border-radius:0;
+  background:linear-gradient(180deg,#fff 0 13%,#20aa37 13% 29%,#0b51a8 29% 62%,#073878 62% 100%);
+  clip-path:polygon(0 52%,100% 0,100% 100%,0 100%);
+  transform:none;
+  transform-origin:center;
+  pointer-events:none;
+}
+.theory-visual-brand{
+  z-index:5;
+  width:150px;
+  height:136px;
+  border:1px solid #ffffffc7;
+  background:#ffffffe8;
+  box-shadow:0 16px 35px #061f391f;
+}
+.theory-visual-brand img{width:118px;height:118px}
+.theory-round-sign{
+  z-index:6;
+  right:24%;
+  bottom:108px;
+  box-shadow:0 15px 34px #061f3938;
+}
+.theory-pass-dot{
+  z-index:6;
+  left:13%;
+  bottom:88px;
+  box-shadow:0 10px 25px #061f3940;
+}
+.theory-license-card{
+  z-index:6;
+  right:3%;
+  bottom:102px;
+  width:148px;
+  box-shadow:0 14px 30px #061f3935;
+  transform:rotate(5deg);
+}
+.theory-road-label{z-index:7}
+
+@media(max-width:1100px){
+  .study-hero.theory-brand-hero{grid-template-columns:minmax(0,1.08fr) minmax(390px,.92fr)}
+  .theory-brand-hero .hero-copy{padding-right:72px}
+  .theory-brand-hero .hero-visual{margin-left:-9%;background-position:59% center}
+  .theory-visual-brand{width:138px;height:126px}
+  .theory-visual-brand img{width:108px;height:108px}
+  .theory-license-card{width:138px}
+}
+@media(max-width:900px){
+  .study-hero.theory-brand-hero{
+    grid-template-columns:1fr;
+    min-height:0;
+    background:#fff;
+  }
+  .study-hero.theory-brand-hero:before,
+  .study-hero.theory-brand-hero:after{display:none}
+  .theory-brand-hero .hero-copy{
+    padding-right:24px;
+    clip-path:none;
+  }
+  .theory-brand-hero .hero-visual{
+    margin-left:0;
+    background-position:center 58%;
+  }
+  .theory-brand-hero .hero-visual:before{display:none}
+  .theory-brand-hero .hero-visual:after{height:78px}
+  .theory-visual-brand{width:116px;height:104px}
+  .theory-visual-brand img{width:92px;height:92px}
+  .theory-round-sign{right:31%;bottom:88px}
+  .theory-license-card{right:4%;bottom:82px;width:124px}
+  .theory-pass-dot{left:8%;bottom:72px}
+}
+@media(max-width:560px){
+  .theory-brand-hero .hero-visual{min-height:278px;background-position:57% 54%}
+  .theory-brand-hero .hero-visual:after{height:62px}
+  .theory-visual-brand{width:92px;height:82px}
+  .theory-visual-brand img{width:72px;height:72px}
+  .theory-round-sign{right:36%;bottom:62px}
+  .theory-license-card{right:3%;bottom:58px;width:105px}
+  .theory-pass-dot{left:5%;bottom:52px}
+}
+@media(prefers-reduced-motion:reduce){
+  .theory-brand-hero .hero-actions button{transition:none}
+}
