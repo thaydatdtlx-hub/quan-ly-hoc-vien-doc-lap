@@ -105,7 +105,7 @@ for(const required of ["hoclaixecungdat_sw_refresh_v50","registration.update()",
   if(!pwaSource.includes(required))throw new Error(`PWA chưa buộc nhận bản sửa thanh toán mới: ${required}`);
 }
 const serviceWorkerSource=readFileSync(new URL("../public/sw.js",import.meta.url),"utf8");
-for(const required of ["hoclaixecungdat-pwa-v50",'/student-payment-modal.js','/student-payment-navigation.js','/student-payment-navigation.css','/api/tuition-qr',"SKIP_WAITING"]){
+for(const required of ["hoclaixecungdat-pwa-v51",'/student-payment-modal.js','/student-payment-navigation.js','/student-payment-navigation.css','/api/tuition-qr',"SKIP_WAITING"]){
   if(!serviceWorkerSource.includes(required))throw new Error(`Service worker chưa làm mới trang thanh toán: ${required}`);
 }
 
@@ -133,4 +133,4 @@ const portal=readFileSync(new URL("../student.js",import.meta.url),"utf8");
 if(!admin.includes("openPaymentReceipt(item,student)"))throw new Error("Admin chưa truyền hồ sơ học viên vào biên lai.");
 if(!portal.includes("openPaymentReceipt(payment,student)"))throw new Error("Cổng học viên chưa truyền hồ sơ vào biên lai.");
 
-console.log("Học phí hợp lệ: QR cùng tên miền, popup và biên lai ổn định, cache PWA v50.");
+console.log("Học phí hợp lệ: QR cùng tên miền, popup và biên lai ổn định, cache PWA v51.");
