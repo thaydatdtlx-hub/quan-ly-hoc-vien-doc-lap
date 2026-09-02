@@ -90,4 +90,9 @@ if(typeof document!=="undefined"){
   import("./schedule-b-auto-dat.js")
     .then(module=>module.installBAutomaticDatSupport(SCHEDULE_FIELDS))
     .catch(()=>{});
+  if(location.pathname==="/lich-dao-tao.html"){
+    import("./course-schedule-sync.js").catch(error=>{
+      console.error("Không thể nạp chức năng lập lịch theo khóa học.",error);
+    });
+  }
 }
