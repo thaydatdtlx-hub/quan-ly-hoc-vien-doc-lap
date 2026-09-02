@@ -1,0 +1,189 @@
+.theory-account-identity-wrap{
+  width:min(1240px,calc(100% - 32px));
+  margin:16px auto -8px;
+}
+.theory-account-identity-wrap[hidden]{display:none!important}
+.theory-account-identity{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center;
+  gap:14px;
+  min-height:88px;
+  padding:14px 16px;
+  border:1px solid #cfe1f2;
+  border-radius:20px;
+  background:linear-gradient(105deg,#f5fbff 0,#fff 54%,#f2fff8 100%);
+  box-shadow:0 13px 34px #174d7812;
+  color:#123b65;
+}
+.theory-account-avatar{
+  position:relative;
+  display:grid;
+  width:58px;
+  height:58px;
+  place-items:center;
+  flex:0 0 auto;
+  overflow:visible;
+  border:3px solid #fff;
+  border-radius:18px;
+  background:linear-gradient(145deg,#0a6ed7,#06489b);
+  box-shadow:0 9px 22px #0a58952a;
+  color:#fff;
+  font-size:17px;
+  font-weight:950;
+  letter-spacing:.03em;
+}
+.theory-account-avatar img{
+  width:100%;
+  height:100%;
+  border-radius:15px;
+  object-fit:cover;
+}
+.theory-account-avatar i{
+  position:absolute;
+  right:-3px;
+  bottom:-3px;
+  width:15px;
+  height:15px;
+  border:3px solid #fff;
+  border-radius:50%;
+  background:#19af55;
+  box-shadow:0 4px 10px #14733b35;
+}
+.theory-account-copy{
+  display:grid;
+  min-width:0;
+  gap:3px;
+}
+.theory-account-kicker{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  color:#087451;
+  font-size:8px;
+  font-style:normal;
+  font-weight:950;
+  letter-spacing:.14em;
+}
+.theory-account-kicker b{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#19af55;
+  box-shadow:0 0 0 4px #19af5516;
+}
+.theory-account-copy>strong{
+  overflow:hidden;
+  color:#0b3967;
+  font-size:15px;
+  line-height:1.25;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.theory-account-copy>span{
+  overflow:hidden;
+  color:#496c8d;
+  font-size:10px;
+  font-weight:780;
+  line-height:1.4;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.theory-account-copy>em{
+  color:#73889b;
+  font-size:9px;
+  font-style:normal;
+  line-height:1.45;
+}
+.theory-account-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.theory-account-actions a,
+.theory-account-actions button{
+  display:inline-flex;
+  min-height:40px;
+  align-items:center;
+  justify-content:center;
+  padding:0 14px;
+  border-radius:11px;
+  font-size:9px;
+  font-weight:900;
+  text-decoration:none;
+  white-space:nowrap;
+}
+.theory-account-actions a{
+  border:1px solid #0d67c9;
+  background:#0b67d6;
+  color:#fff;
+  box-shadow:0 8px 20px #0a63c620;
+}
+.theory-account-actions button{
+  border:1px solid #d5e1eb;
+  background:#fff;
+  color:#58748e;
+}
+.theory-account-actions a:hover,
+.theory-account-actions button:hover{transform:translateY(-1px)}
+.theory-account-actions a:focus-visible,
+.theory-account-actions button:focus-visible{
+  outline:3px solid #76baff;
+  outline-offset:2px;
+}
+.theory-account-actions button:disabled{cursor:wait;opacity:.65}
+.theory-account-identity-wrap.is-checking .theory-account-identity{opacity:.78}
+.theory-login-link-hidden{display:none!important}
+
+@media(max-width:760px){
+  .theory-account-identity-wrap{
+    width:min(100% - 24px,1240px);
+    margin:12px auto -6px;
+  }
+  .theory-account-identity{
+    grid-template-columns:auto minmax(0,1fr);
+    gap:11px;
+    padding:13px;
+    border-radius:18px;
+  }
+  .theory-account-avatar{
+    width:52px;
+    height:52px;
+    border-radius:16px;
+    font-size:15px;
+  }
+  .theory-account-avatar img{border-radius:13px}
+  .theory-account-copy>strong{font-size:14px}
+  .theory-account-copy>span{
+    font-size:9px;
+    white-space:normal;
+  }
+  .theory-account-copy>em{font-size:8.5px}
+  .theory-account-actions{
+    grid-column:1/-1;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    width:100%;
+  }
+  .theory-account-actions a,
+  .theory-account-actions button{min-height:42px;font-size:9.5px}
+}
+
+@media(max-width:520px){
+  .theory-account-identity-wrap{width:calc(100% - 20px)}
+  .theory-account-identity{
+    grid-template-columns:46px minmax(0,1fr);
+    padding:12px;
+  }
+  .theory-account-avatar{width:46px;height:46px;border-radius:14px}
+  .theory-account-avatar img{border-radius:11px}
+  .theory-account-copy>em{display:none}
+  .theory-account-actions{grid-template-columns:1fr 108px}
+  .theory-account-actions a,
+  .theory-account-actions button{padding:0 10px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .theory-account-actions a,
+  .theory-account-actions button{transition:none}
+}
