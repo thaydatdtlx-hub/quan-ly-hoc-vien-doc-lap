@@ -1,4 +1,17 @@
 const $=id=>document.getElementById(id);
+const SUPABASE_URL='https://pkzxkvcncipfszeukpwu.supabase.co';
+const SUPABASE_KEY='sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo';
+
+function ensureCandidatePhotoStyle(){
+  if(document.getElementById('theoryCandidatePhotoStyle'))return;
+  const style=document.createElement('style');
+  style.id='theoryCandidatePhotoStyle';
+  style.textContent=`
+    .theory-candidate-photo.has-photo:before,.theory-candidate-photo.has-photo:after{display:none!important;content:none!important}
+    .theory-candidate-photo img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 22%}
+  `;
+  document.head.append(style);
+}
 
 function ensureCandidateStrip(main){
   let strip=document.querySelector('.theory-candidate-strip');
@@ -6,11 +19,11 @@ function ensureCandidateStrip(main){
   strip=document.createElement('div');
   strip.className='theory-candidate-strip';
   strip.innerHTML=`
-    <div class="theory-candidate-photo" aria-hidden="true"></div>
+    <div class="theory-candidate-photo" data-candidate-photo aria-label="Ảnh học viên"></div>
     <div class="theory-candidate-info">
       <small>Thông tin thí sinh</small>
-      <strong>Học viên</strong>
-      <span>SBD: Tự luyện · Hạng: theo tài khoản · Bộ 600 câu hỏi</span>
+      <strong data-candidate-name>Học viên</strong>
+      <span data-candidate-meta>SBD: Tự luyện · Hạng: theo tài khoản · Bộ 600 câu hỏi</span>
     </div>
     <div class="theory-candidate-brand">
       <img src="/logo-thay-dat-compact.webp?v=15" alt="">
@@ -18,6 +31,95 @@ function ensureCandidateStrip(main){
     </div>`;
   main.append(strip);
   return strip;
+}
+
+function currentToken(){
+  return localStorage.getItem('hv_token')||sessionStorage.getItem('hv_token')||'';
+}
+
+function currentAuthKind(){
+  return localStorage.getItem('hv_auth_kind')||sessionStorage.getItem('hv_auth_kind')||'';
+}
+
+async function candidateRpc(fn,body={}){
+  const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{
+    method:'POST',
+    headers:{apikey:SUPABASE_KEY,'Content-Type':'application/json'},
+    body:JSON.stringify(body),
+    cache:'no-store'
+  });
+  const data=await response.json().catch(()=>null);
+  if(!response.ok)throw new Error(data?.message||data?.details||data?.error||'Không thể tải hồ sơ học viên');
+  return data;
+}
+
+function setCandidatePhoto(photoData,name='Học viên'){
+  const photo=document.querySelector('[data-candidate-photo]');
+  if(!photo)return;
+  const validPhoto=typeof photoData==='string'&&(/^data:image\//i.test(photoData)||/^https?:\/\//i.test(photoData));
+  photo.replaceChildren();
+  photo.classList.toggle('has-photo',validPhoto);
+  photo.setAttribute('aria-label',validPhoto?`Ảnh học viên ${name}`:'Chưa có ảnh học viên');
+  if(!validPhoto)return;
+  const image=document.createElement('img');
+  image.src=photoData;
+  image.alt=`Ảnh học viên ${name}`;
+  image.loading='eager';
+  image.decoding='async';
+  photo.append(image);
+}
+
+function renderCandidateInfo(candidate={}){
+  const name=document.querySelector('[data-candidate-name]');
+  const meta=document.querySelector('[data-candidate-meta]');
+  const studentName=String(candidate.student_name||candidate.full_name||candidate.account_name||'Học viên').trim()||'Học viên';
+  const studentCode=String(candidate.student_code||candidate.username||'Tự luyện').trim()||'Tự luyện';
+  const licenseClass=String(candidate.license_class||'Chưa cập nhật').trim()||'Chưa cập nhật';
+  const course=String(candidate.course||'').trim();
+  if(name)name.textContent=studentName.toUpperCase();
+  if(meta){
+    const parts=[`SBD: ${studentCode}`,`Hạng: ${licenseClass}`];
+    if(course)parts.push(`Khóa: ${course}`);
+    parts.push('Bộ 600 câu hỏi');
+    meta.textContent=parts.join(' · ');
+  }
+  setCandidatePhoto(candidate.photo_data,studentName);
+}
+
+async function loadCandidateInfo(){
+  ensureCandidatePhotoStyle();
+  const token=currentToken();
+  if(!token){
+    renderCandidateInfo({student_name:'Học viên',student_code:'Tự luyện',license_class:'Chưa đăng nhập'});
+    return;
+  }
+
+  const authKind=currentAuthKind();
+  try{
+    if(authKind==='public_theory'){
+      const me=await candidateRpc('app_student_me',{p_token:token});
+      renderCandidateInfo({
+        student_name:me.full_name||'Người học',
+        student_code:me.username||'Tự luyện',
+        license_class:'Tự luyện'
+      });
+      return;
+    }
+
+    const candidate=await candidateRpc('app_student_exam_candidate',{p_token:token});
+    renderCandidateInfo(candidate);
+  }catch(error){
+    try{
+      const me=await candidateRpc('app_student_me',{p_token:token});
+      renderCandidateInfo({
+        student_name:me.full_name||'Học viên',
+        student_code:me.username||'Tự luyện',
+        license_class:me.role==='student'?'Theo hồ sơ học viên':'Tự luyện'
+      });
+    }catch{
+      renderCandidateInfo({student_name:'Học viên',student_code:'Tự luyện',license_class:'Chưa xác định'});
+    }
+  }
 }
 
 function buildClassicShell(){
@@ -138,6 +240,7 @@ function boot(){
   buildClassicShell();
   makeMobilePaletteWork();
   handleResize();
+  void loadCandidateInfo();
 
   const workspace=$('studyWorkspace');
   if(workspace){
@@ -149,6 +252,9 @@ function boot(){
     observer.observe(workspace,{subtree:true,attributes:true,attributeFilter:['class']});
   }
   window.addEventListener('resize',handleResize,{passive:true});
+  window.addEventListener('storage',event=>{
+    if(event.key==='hv_token'||event.key==='hv_auth_kind')void loadCandidateInfo();
+  });
 }
 
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
