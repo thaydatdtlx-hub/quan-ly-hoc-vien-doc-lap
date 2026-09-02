@@ -1,3 +1,5 @@
+import "./overlay-safety.css";
+
 const isStudentPortal=()=>location.pathname==="/hoc-vien.html";
 const professionalUiPromise=import("./platform-professional.js?v=20260825-1").catch(error=>console.warn("[professional-ui] Không thể tải giao diện dùng chung.",error));
 let sharedEnhancementsPromise=null;
