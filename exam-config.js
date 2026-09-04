@@ -1,3 +1,12 @@
+// Nguồn chính thức: Phụ lục 1 kèm Văn bản số 2262/CSGT-P5 ngày 07/05/2025 của Cục CSGT.
+// Nhóm 250 câu dưới đây dùng cho sát hạch lái xe mô tô hạng A1 và A, được chọn từ bộ 600 câu.
+export const MOTORCYCLE_BANK_SOURCE=Object.freeze({
+  document:"2262/CSGT-P5",
+  issuedDate:"2025-05-07",
+  effectiveDate:"2025-06-01",
+  title:"Phụ lục 1 - Nhóm 250 câu hỏi dùng cho sát hạch lái xe mô tô hạng A1, A"
+});
+
 export const MOTORCYCLE_QUESTION_IDS=Object.freeze([
   1,2,3,4,5,6,7,8,9,10,11,12,13,19,20,21,22,24,26,27,
   28,29,30,31,32,33,34,35,36,37,38,39,40,41,43,44,45,46,47,48,
@@ -15,6 +24,7 @@ export const MOTORCYCLE_QUESTION_IDS=Object.freeze([
   529,538,539,540,543,548,553,556,559,560,562,565,567,568,583,592,600
 ]);
 
+// 20 câu điểm liệt áp dụng riêng trong nhóm 250 câu A1/A theo cùng Phụ lục 1.
 export const MOTORCYCLE_CRITICAL_IDS=Object.freeze([
   19,20,21,22,24,26,27,28,30,47,48,52,53,63,64,65,68,70,71,72
 ]);
@@ -118,7 +128,7 @@ export function buildExamPool(questions,examKey,shuffle){
   }
 
   const critical=shuffle(eligible.filter(isCritical)).slice(0,1);
-  const regular=shuffle(eligible.filter(question=>!isCritical(question))).slice(0,config.count-1);
+  const regular=shuffle(eligible.filter(question=>!isCritical(question)).slice(0,config.count-1));
   if(critical.length!==1||regular.length!==config.count-1)throw new Error(`Không đủ câu hỏi để tạo đề hạng ${config.label}.`);
   return shuffle([...critical,...regular]).map(question=>({...question,examCritical:isCritical(question)}));
 }
