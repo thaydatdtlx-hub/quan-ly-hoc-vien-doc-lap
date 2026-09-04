@@ -2,6 +2,45 @@ const $=id=>document.getElementById(id);
 const SUPABASE_URL='https://pkzxkvcncipfszeukpwu.supabase.co';
 const SUPABASE_KEY='sb_publishable_rrQ2fAG7ZpIKizN3-tss1w_4xPxq3Vo';
 
+function normalizeLicense(value){
+  return String(value??'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/hang|gplx|giay phep lai xe/g,'').trim();
+}
+
+function examKeyForLicense(value){
+  const text=normalizeLicense(value);
+  if(/^a1(?:\b|$)/.test(text))return'A1';
+  if(/^a(?:\b|$)/.test(text))return'A';
+  if(/^c1(?:\b|$)/.test(text))return'C1';
+  if(/^b(?:\b|$)/.test(text))return'B';
+  return'';
+}
+
+function theoryBankCountForLicense(value){
+  const key=examKeyForLicense(value);
+  if(key==='A1'||key==='A')return 250;
+  if(key==='B'||key==='C1')return 600;
+  return 0;
+}
+
+function visibleTheoryBankCount(){
+  const texts=[
+    $('workspaceTitle')?.textContent,
+    $('questionNumber')?.textContent,
+    document.title
+  ].filter(Boolean).join(' ');
+  if(/\b250\b/.test(texts))return 250;
+  if(/\b600\b/.test(texts))return 600;
+  return 600;
+}
+
+function syncClassicBankLabel(licenseClass=''){
+  const total=theoryBankCountForLicense(licenseClass)||visibleTheoryBankCount();
+  const head=document.querySelector('#studyWorkspace .workspace-head');
+  if(head)head.setAttribute('data-theory-classic-title',`TỰ LUYỆN SÁT HẠCH LÝ THUYẾT ${total} CÂU`);
+  document.body.dataset.theoryBankCount=String(total);
+  return total;
+}
+
 function ensureCandidatePhotoStyle(){
   if(document.getElementById('theoryCandidatePhotoStyle'))return;
   const style=document.createElement('style');
@@ -19,6 +58,9 @@ function ensurePaletteLayoutStyle(){
   style.id='theoryPaletteLayoutStyle';
   style.textContent=`
     @supports selector(body:has(*)){
+      body.theory-classic-ready:has(#studyWorkspace:not(.hidden)) .workspace-head:before{
+        content:attr(data-theory-classic-title)!important;
+      }
       body.theory-classic-ready:has(#studyWorkspace:not(.hidden)) .theory-rail-palette-host .question-palette.classic-exam-palette{
         grid-auto-flow:column!important;
         grid-template-rows:repeat(15,36px)!important;
@@ -58,7 +100,7 @@ function ensureCandidateStrip(main){
     <div class="theory-candidate-info">
       <small>Thông tin thí sinh</small>
       <strong data-candidate-name>Học viên</strong>
-      <span data-candidate-meta>SBD: Tự luyện · Hạng: theo tài khoản · Bộ 600 câu hỏi</span>
+      <span data-candidate-meta>SBD: Tự luyện · Hạng: theo tài khoản · Bộ câu hỏi theo hạng</span>
     </div>
     <div class="theory-candidate-brand">
       <img src="/logo-thay-dat-compact.webp?v=15" alt="">
@@ -111,11 +153,12 @@ function renderCandidateInfo(candidate={}){
   const studentCode=String(candidate.student_code||candidate.username||'Tự luyện').trim()||'Tự luyện';
   const licenseClass=String(candidate.license_class||'Chưa cập nhật').trim()||'Chưa cập nhật';
   const course=String(candidate.course||'').trim();
+  const bankCount=syncClassicBankLabel(licenseClass);
   if(name)name.textContent=studentName.toUpperCase();
   if(meta){
     const parts=[`SBD: ${studentCode}`,`Hạng: ${licenseClass}`];
     if(course)parts.push(`Khóa: ${course}`);
-    parts.push('Bộ 600 câu hỏi');
+    parts.push(`Bộ ${bankCount} câu hỏi`);
     meta.textContent=parts.join(' · ');
   }
   setCandidatePhoto(candidate.photo_data,studentName);
@@ -208,6 +251,15 @@ function observePalette(){
   syncPaletteLayout();
 }
 
+function observeBankLabel(){
+  const title=$('workspaceTitle');
+  const number=$('questionNumber');
+  const sync=()=>syncClassicBankLabel();
+  if(title)new MutationObserver(sync).observe(title,{childList:true,characterData:true,subtree:true});
+  if(number)new MutationObserver(sync).observe(number,{childList:true,characterData:true,subtree:true});
+  sync();
+}
+
 function buildClassicShell(){
   const workspace=$('studyWorkspace');
   if(!workspace||workspace.dataset.classicReady==='1')return;
@@ -257,6 +309,7 @@ function buildClassicShell(){
 
   paletteDialog.dataset.paletteDetached='1';
   workspace.dataset.classicReady='1';
+  syncClassicBankLabel();
   syncResponsiveControls();
   syncMode();
   syncPaletteLayout();
@@ -288,6 +341,7 @@ function syncMode(){
   const practiceEnd=document.querySelector('.theory-practice-end');
   if(mode&&timer)mode.classList.toggle('hidden',!timer.classList.contains('hidden'));
   if(practiceEnd&&finish)practiceEnd.classList.toggle('hidden',!finish.classList.contains('hidden'));
+  syncClassicBankLabel();
   syncPaletteLayout();
 }
 
@@ -330,6 +384,7 @@ function boot(){
   ensurePaletteLayoutStyle();
   buildClassicShell();
   observePalette();
+  observeBankLabel();
   makeMobilePaletteWork();
   handleResize();
   void loadCandidateInfo();
