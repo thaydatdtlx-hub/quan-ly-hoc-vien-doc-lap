@@ -128,7 +128,7 @@ export function buildExamPool(questions,examKey,shuffle){
   }
 
   const critical=shuffle(eligible.filter(isCritical)).slice(0,1);
-  const regular=shuffle(eligible.filter(question=>!isCritical(question)).slice(0,config.count-1));
+  const regular=shuffle(eligible.filter(question=>!isCritical(question))).slice(0,config.count-1);
   if(critical.length!==1||regular.length!==config.count-1)throw new Error(`Không đủ câu hỏi để tạo đề hạng ${config.label}.`);
   return shuffle([...critical,...regular]).map(question=>({...question,examCritical:isCritical(question)}));
 }
