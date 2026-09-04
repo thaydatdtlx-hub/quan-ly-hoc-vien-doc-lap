@@ -1,4 +1,4 @@
-import{EXAMS,MOTORCYCLE_QUESTION_IDS,buildExamPool}from"./exam-config.js";
+import{EXAMS,MOTORCYCLE_QUESTION_IDS,MOTORCYCLE_CRITICAL_IDS,buildExamPool}from"./exam-config.js";
 import"./ai-chat.js";
 
 const $=id=>document.getElementById(id);
@@ -8,6 +8,7 @@ const DEFAULT_STORAGE_KEY="thay_dat_600_progress_v1";
 const token=localStorage.getItem("hv_token")||sessionStorage.getItem("hv_token")||"";
 const authKind=localStorage.getItem("hv_auth_kind")||sessionStorage.getItem("hv_auth_kind")||"";
 const MOTORCYCLE_QUESTION_SET=new Set(MOTORCYCLE_QUESTION_IDS);
+const MOTORCYCLE_CRITICAL_SET=new Set(MOTORCYCLE_CRITICAL_IDS);
 const TOPICS=[
   {id:1,icon:"§",short:"Quy tắc giao thông",name:"Quy định chung và quy tắc giao thông đường bộ",count:180,color:"#1673ce",soft:"#e3f1ff"},
   {id:2,icon:"♡",short:"Văn hóa giao thông",name:"Văn hóa, đạo đức, PCCC và cứu nạn",count:25,color:"#9a5ac8",soft:"#f0e7fa"},
@@ -46,15 +47,17 @@ function examKeyForLicense(value){
   if(/^b(?:\b|$)/.test(text))return"B";
   return null;
 }
+function isMotorcycleClass(){return activeExamKey==="A1"||activeExamKey==="A"}
+function practiceCritical(question){return isMotorcycleClass()?MOTORCYCLE_CRITICAL_SET.has(question.id):Boolean(question.critical)}
 function scopedQuestions(){
   if(authKind==="student"&&!activeExamKey)return[];
-  if(activeExamKey==="A1"||activeExamKey==="A")return questions.filter(question=>MOTORCYCLE_QUESTION_SET.has(question.id));
+  if(isMotorcycleClass())return questions.filter(question=>MOTORCYCLE_QUESTION_SET.has(question.id));
   return questions;
 }
-function scopedQuestionCount(){return activeExamKey==="A1"||activeExamKey==="A"?250:600}
+function scopedQuestionCount(){return isMotorcycleClass()?250:600}
 function syncTheoryCopy(){
   const total=scopedQuestionCount();
-  const critical=scopedQuestions().filter(question=>question.critical).length;
+  const critical=scopedQuestions().filter(practiceCritical).length;
   const heroCount=document.querySelector(".study-hero h1 b");if(heroCount)heroCount.textContent=String(total);
   const trust=document.querySelectorAll(".hero-trust span");
   if(trust[0])trust[0].textContent=`✓ ${total} câu đầy đủ`;
@@ -144,7 +147,7 @@ function bookmarked(id){return progress.bookmarks.includes(Number(id))}
 function learnedAnswer(id){return Number(progress.answers[id])||0}
 function answerIsCorrect(question){return learnedAnswer(question.id)===question.answer}
 function answerIsWrong(question){return learnedAnswer(question.id)>0&&!answerIsCorrect(question)}
-function displayedCritical(question){return currentMode==="exam"||currentMode==="exam-review"?Boolean(question.examCritical):Boolean(question.critical)}
+function displayedCritical(question){return currentMode==="exam"||currentMode==="exam-review"?Boolean(question.examCritical):practiceCritical(question)}
 
 async function loadQuestions(){
   const response=await fetch("/data/600-cau-hoi-2025.json");
@@ -190,7 +193,7 @@ async function startFromButton(mode){
 function startLearning(mode="learn",topicId="all",preferredId=null){
   clearInterval(examTimer);currentMode=mode;activeTopic=topicId;$("topicFilter").value=String(topicId);
   $("statusFilter").value=mode==="critical"?"critical":mode==="wrong"?"wrong":mode==="bookmarked"?"bookmarked":"all";$("questionSearch").value="";
-  const source=scopedQuestions(),criticalCount=source.filter(question=>question.critical).length,total=source.length||scopedQuestionCount();
+  const source=scopedQuestions(),criticalCount=source.filter(practiceCritical).length,total=source.length||scopedQuestionCount();
   const titles={learn:["ÔN TẬP CÓ HƯỚNG DẪN",topicId==="all"?`Bộ ${total} câu hỏi · Hạng ${activeExamKey||"B/C1"}`:`Chương ${topicId} · ${topic(topicId).short}`],critical:["CÂU HỎI ĐIỂM LIỆT",`${criticalCount} tình huống nghiêm trọng`],wrong:["ÔN TẬP CÁ NHÂN","Những câu cần học lại"],bookmarked:["DANH SÁCH ĐÃ LƯU","Câu hỏi đã đánh dấu"]};
   [$("workspaceKicker").textContent,$("workspaceTitle").textContent]=titles[mode]||titles.learn;
   $("studySidebar").classList.remove("hidden");$("examTimer").classList.add("hidden");$("finishExamBtn").classList.add("hidden");applyFilters(preferredId);showWorkspace();
@@ -199,7 +202,7 @@ function showWorkspace(){$("studyHome").classList.add("hidden");$("studyWorkspac
 function returnHome(){if(currentMode==="exam"&&examStartedAt&&!examResult&&!confirm("Bạn muốn thoát và hủy bài thi đang làm?"))return;clearInterval(examTimer);examStartedAt=0;$("studyWorkspace").classList.add("hidden");$("studyHome").classList.remove("hidden");$("studySidebar").classList.remove("open");renderHome();window.scrollTo({top:0,behavior:"smooth"})}
 function baseQuestions(){
   const source=scopedQuestions();
-  if(currentMode==="critical")return source.filter(question=>question.critical);
+  if(currentMode==="critical")return source.filter(practiceCritical);
   if(currentMode==="wrong")return source.filter(answerIsWrong);
   if(currentMode==="bookmarked")return source.filter(question=>bookmarked(question.id));
   return source;
@@ -209,7 +212,7 @@ function applyFilters(preferredId=null){
   pool=baseQuestions().filter(question=>{
     if(topicValue!=="all"&&question.topicId!==Number(topicValue))return false;
     if(query&&!normalize(`${question.id} ${question.question} ${question.options.map(option=>option.text).join(" ")}`).includes(query))return false;
-    if(status==="unanswered"&&learnedAnswer(question.id))return false;if(status==="correct"&&!answerIsCorrect(question))return false;if(status==="wrong"&&!answerIsWrong(question))return false;if(status==="bookmarked"&&!bookmarked(question.id))return false;if(status==="critical"&&!question.critical)return false;return true;
+    if(status==="unanswered"&&learnedAnswer(question.id))return false;if(status==="correct"&&!answerIsCorrect(question))return false;if(status==="wrong"&&!answerIsWrong(question))return false;if(status==="bookmarked"&&!bookmarked(question.id))return false;if(status==="critical"&&!practiceCritical(question))return false;return true;
   });
   currentIndex=Math.max(0,pool.findIndex(question=>question.id===Number(oldId)));if(currentIndex<0)currentIndex=0;renderQuestion();$("studySidebar").classList.remove("open");
 }
