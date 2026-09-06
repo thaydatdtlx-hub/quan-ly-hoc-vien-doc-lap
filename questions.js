@@ -27,11 +27,24 @@ function readProgress(key=storageKey){
     return{answers:saved.answers||{},bookmarks:Array.isArray(saved.bookmarks)?saved.bookmarks:[],lastId:Number(saved.lastId)||1,exams:Array.isArray(saved.exams)?saved.exams:[]};
   }catch{return{answers:{},bookmarks:[],lastId:1,exams:[]}}
 }
+async function fetchJson(url,options={},timeoutMs=12000){
+  const controller=new AbortController();
+  let timer;
+  const timeout=new Promise((_,reject)=>{timer=setTimeout(()=>{
+    reject(new Error("Kết nối quá thời gian. Vui lòng bấm lại để thử lại."));
+    controller.abort();
+  },timeoutMs)});
+  try{
+    return await Promise.race([timeout,(async()=>{
+      const response=await fetch(url,{...options,signal:controller.signal});
+      const data=await response.json();
+      if(!response.ok)throw new Error(data?.message||data?.details||data?.error||"Không thể kết nối máy chủ");
+      return data;
+    })()]);
+  }finally{clearTimeout(timer)}
+}
 async function rpc(fn,body={}){
-  const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
-  const data=await response.json().catch(()=>null);
-  if(!response.ok)throw new Error(data?.message||data?.details||data?.error||"Không thể kết nối máy chủ");
-  return data;
+  return fetchJson(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
 }
 function setSyncStatus(state,message){
   const badge=$("theoryAccountStatus");if(!badge)return;
@@ -97,7 +110,11 @@ async function flushRemoteProgress(keepalive=false){
     if(!keepalive)toast(error?.message||"Không thể đồng bộ tiến độ.");
   }finally{remoteSyncing=false}
 }
-function saveProgress(){localStorage.setItem(storageKey,JSON.stringify(progress));scheduleRemoteSync()}
+function persistProgress(){
+  try{localStorage.setItem(storageKey,JSON.stringify(progress));return true}
+  catch{setSyncStatus("error","Thiết bị chưa lưu được tiến độ");return false}
+}
+function saveProgress(){persistProgress();scheduleRemoteSync()}
 function mergeProgress(remote,local){
   const saved=remote?.progress_data||{};
   const remoteAnswers=saved.answers&&typeof saved.answers==="object"?saved.answers:{};
@@ -129,8 +146,8 @@ async function initStudentSync(){
       $("studentPortalLink").href="#";
       $("studentPortalLink").onclick=async event=>{event.preventDefault();try{await rpc("app_student_logout",{p_token:token})}catch{}for(const store of [localStorage,sessionStorage]){store.removeItem("hv_token");store.removeItem("hv_auth_kind")}location.replace("/?login=1")};
     }
-    localStorage.setItem(storageKey,JSON.stringify(progress));
-    await questionsReady;
+    persistProgress();
+    await ensureQuestions();
     syncTheoryCopy();renderHome();populateFilters();scheduleRemoteSync();
   }catch(error){
     setSyncStatus("error","Chưa xác định đúng hạng GPLX");
@@ -150,13 +167,21 @@ function answerIsWrong(question){return learnedAnswer(question.id)>0&&!answerIsC
 function displayedCritical(question){return currentMode==="exam"||currentMode==="exam-review"?Boolean(question.examCritical):practiceCritical(question)}
 
 async function loadQuestions(){
-  const response=await fetch("/data/600-cau-hoi-2025.json");
-  if(!response.ok)throw new Error("Không thể tải bộ câu hỏi.");
-  const data=await response.json();
+  const data=await fetchJson("/data/600-cau-hoi-2025.json");
   if(!Array.isArray(data)||data.length!==600)throw new Error("Dữ liệu câu hỏi chưa đầy đủ.");
   questions=data;syncTheoryCopy();renderHome();populateFilters();
 }
-const questionsReady=loadQuestions().catch(error=>{$("topicCards").innerHTML=`<div class="empty-questions"><strong>${esc(error.message)}</strong><p>Vui lòng tải lại trang.</p></div>`;toast(error.message);throw error});
+let questionsReady=null;
+function ensureQuestions(){
+  if(questions.length)return Promise.resolve();
+  if(!questionsReady)questionsReady=loadQuestions().catch(error=>{
+    questionsReady=null;
+    $("topicCards").innerHTML=`<div class="empty-questions"><strong>${esc(error.message)}</strong><p>Bấm Tiếp tục học để tải lại bộ câu hỏi.</p></div>`;
+    throw error;
+  });
+  return questionsReady;
+}
+void ensureQuestions().catch(error=>toast(error.message));
 
 function renderHome(){
   const source=scopedQuestions();
@@ -180,7 +205,16 @@ function populateFilters(){
   $("topicFilter").innerHTML=`<option value="all">Tất cả 6 chương · ${source.length} câu</option>${TOPICS.map(item=>{const count=source.filter(question=>question.topicId===item.id).length;return`<option value="${item.id}" ${count?"":"disabled"}>Chương ${item.id} · ${esc(item.short)} · ${count} câu</option>`}).join("")}`;
 }
 async function startFromButton(mode){
-  await questionsReady;
+  if(startFromButton.busy)return;
+  startFromButton.busy=true;
+  const buttons=[...document.querySelectorAll('[data-start-mode]')];
+  buttons.forEach(button=>{button.disabled=true;button.setAttribute("aria-busy","true")});
+  toast("Đang mở bài học…");
+  try{
+  await ensureQuestions();
+  if(token&&["student","public_theory"].includes(authKind)&&!remoteSyncEnabled){
+    await ensureStudentSync();
+  }
   if(authKind==="student"&&!activeExamKey)return toast("Chưa xác định Hạng GPLX từ hồ sơ Admin. Không thể mở bộ câu hỏi để tránh hiển thị nhầm hạng.");
   if(mode==="exam")return openExamIntro();
   if(mode==="continue"){
@@ -189,6 +223,11 @@ async function startFromButton(mode){
     return startLearning("learn",lastQuestion?.topicId||"all",lastQuestion?.id||null);
   }
   startLearning(mode);
+  }catch(error){toast(error?.message||"Chưa mở được bài học. Vui lòng thử lại.")}
+  finally{
+    startFromButton.busy=false;
+    buttons.forEach(button=>{button.disabled=false;button.removeAttribute("aria-busy")});
+  }
 }
 function startLearning(mode="learn",topicId="all",preferredId=null){
   clearInterval(examTimer);currentMode=mode;activeTopic=topicId;$("topicFilter").value=String(topicId);
@@ -255,4 +294,9 @@ $("startExamBtn").onclick=beginExam;$("finishExamBtn").onclick=()=>finishExam(fa
 $("resetProgressBtn").onclick=()=>{const message=remoteSyncEnabled?"Làm mới tiến độ học và câu đã đánh dấu của tài khoản này? Lịch sử thi đã gửi cho Admin vẫn được giữ lại.":"Xóa toàn bộ tiến độ học, câu đã đánh dấu và lịch sử thi thử trên thiết bị này?";if(!confirm(message))return;progress={answers:{},bookmarks:[],lastId:1,exams:[]};saveProgress();renderHome();toast("Đã làm mới tiến độ học")};
 document.addEventListener("keydown",event=>{if(["INPUT","SELECT","TEXTAREA"].includes(document.activeElement?.tagName)||document.querySelector("dialog[open]"))return;if($("studyWorkspace").classList.contains("hidden"))return;if(event.key==="ArrowLeft")goToQuestion(currentIndex-1);if(event.key==="ArrowRight")goToQuestion(currentIndex+1);if(/^[1-4]$/.test(event.key)){const option=currentQuestion()?.options.find(item=>item.n===Number(event.key));if(option)chooseAnswer(option.n)}});
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")void flushRemoteProgress(true)});
-initStudentSync();
+let studentSyncPromise=null;
+function ensureStudentSync(){
+  if(!studentSyncPromise)studentSyncPromise=initStudentSync().finally(()=>{studentSyncPromise=null});
+  return studentSyncPromise;
+}
+void ensureStudentSync();
