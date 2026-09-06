@@ -36,8 +36,9 @@ function visibleTheoryBankCount(){
 function syncClassicBankLabel(licenseClass=''){
   const total=theoryBankCountForLicense(licenseClass)||visibleTheoryBankCount();
   const head=document.querySelector('#studyWorkspace .workspace-head');
-  if(head)head.setAttribute('data-theory-classic-title',`TỰ LUYỆN SÁT HẠCH LÝ THUYẾT ${total} CÂU`);
-  document.body.dataset.theoryBankCount=String(total);
+  const label=`TỰ LUYỆN SÁT HẠCH LÝ THUYẾT ${total} CÂU`;
+  if(head&&head.getAttribute('data-theory-classic-title')!==label)head.setAttribute('data-theory-classic-title',label);
+  if(document.body.dataset.theoryBankCount!==String(total))document.body.dataset.theoryBankCount=String(total);
   return total;
 }
 
@@ -241,7 +242,7 @@ function observePalette(){
   const queueSync=()=>{
     if(queued)return;
     queued=true;
-    queueMicrotask(()=>{
+    requestAnimationFrame(()=>{
       queued=false;
       syncPaletteLayout();
     });
@@ -391,10 +392,16 @@ function boot(){
 
   const workspace=$('studyWorkspace');
   if(workspace){
+    let pending=false;
     const observer=new MutationObserver(()=>{
+      if(pending)return;
+      pending=true;
+      requestAnimationFrame(()=>{
+      pending=false;
       syncResponsiveControls();
       syncMode();
       if(!workspace.classList.contains('hidden'))restoreDesktopPalette();
+      });
     });
     observer.observe(workspace,{subtree:true,attributes:true,attributeFilter:['class']});
   }
